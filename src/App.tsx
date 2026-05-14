@@ -73,12 +73,12 @@ const OrbitingFrame: FC<{ index: number; total: number; img: string }> = ({ inde
   const angle = useTransform(time, t => (t / 6000) + (index * (2 * Math.PI / total)));
   
   // Responsive Orbit Radius
-  const radiusX = typeof window !== 'undefined' ? (window.innerWidth > 768 ? 420 : 180) : 420;
-  const radiusZ = 150; // Depth of the orbit
+  const radiusX = typeof window !== 'undefined' ? (window.innerWidth > 768 ? 420 : 140) : 420;
+  const radiusZ = window.innerWidth > 768 ? 150 : 80; // Depth of the orbit
   
   const x = useTransform(angle, a => Math.sin(a) * radiusX);
   const z = useTransform(angle, a => Math.cos(a) * radiusZ);
-  const y = useTransform(angle, a => Math.sin(a * 1.5) * 20); // Subtle vertical waving
+  const y = useTransform(angle, a => Math.sin(a * 1.5) * 15); // Subtle vertical waving
   
   // Depth-based visual adjustments
   const scale = useTransform(z, [-150, 150], [0.45, 1.15]);
@@ -98,7 +98,7 @@ const OrbitingFrame: FC<{ index: number; total: number; img: string }> = ({ inde
         transformStyle: "preserve-3d",
         willChange: "transform, opacity",
       } as any}
-      className="w-24 h-24 md:w-44 md:h-44 group cursor-pointer pointer-events-auto"
+      className="w-16 h-16 md:w-44 md:h-44 group cursor-pointer pointer-events-auto"
     >
       <div className="relative w-full h-full flex items-center justify-center">
         {/* Planet Atmosphere / Glow */}
@@ -846,23 +846,23 @@ function Intro() {
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: false }}
-            className="group relative flex flex-col items-center justify-center h-[500px] md:h-[700px] bg-transparent transition-all duration-700"
+            className="group relative flex flex-col items-center justify-center h-[400px] md:h-[700px] bg-transparent transition-all duration-700"
             style={{ perspective: "1500px", transformStyle: "preserve-3d" }}
           >
              {/* Background Atmosphere */}
              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.1)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-orange-600/5 blur-[120px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
-
+ 
              {/* 3D Scene Container */}
              <div className="relative w-full h-full flex items-center justify-center" style={{ transformStyle: "preserve-3d" }}>
                 
                 {/* Centered DC Text with Sun Glow */}
                 <div className="relative z-20 text-center flex items-center justify-center" style={{ transformStyle: "preserve-3d" }}>
                     {/* Sun Glow */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-orange-500/20 blur-[100px] rounded-full group-hover:bg-orange-500/30 transition-all duration-1000" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 md:w-96 md:h-96 bg-orange-500/20 blur-[100px] rounded-full group-hover:bg-orange-500/30 transition-all duration-1000" />
                     
                     <motion.span 
-                      className="text-[12rem] md:text-[18rem] font-black italic tracking-tighter text-white/5 transition-all duration-700 group-hover:text-orange-500 group-hover:drop-shadow-[0_0_80px_rgba(249,115,22,0.5)] cursor-default select-none block leading-none relative z-20"
+                      className="text-[8rem] md:text-[18rem] font-black italic tracking-tighter text-white/5 transition-all duration-700 group-hover:text-orange-500 group-hover:drop-shadow-[0_0_80px_rgba(249,115,22,0.5)] cursor-default select-none block leading-none relative z-20"
                       whileHover={{ scale: 1.02 }}
                     >
                       DC
