@@ -148,14 +148,14 @@ function Navbar() {
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled ? 'bg-black/40 backdrop-blur-xl py-4' : 'bg-transparent py-10'}`}>
-      <div className="max-w-[1920px] mx-auto px-10 md:px-24 lg:px-40 flex justify-between items-center">
+      <div className="max-w-[1920px] mx-auto px-6 md:px-24 lg:px-40 flex justify-between items-center">
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           className="flex items-center gap-3"
         >
-          <span className="text-4xl font-black italic tracking-tighter text-orange-500 leading-none">DC</span>
-          <span className="text-xl font-bold tracking-[0.2em] text-white hidden sm:block">DREAMCATCHERS</span>
+          <span className="text-2xl md:text-4xl font-black italic tracking-tighter text-orange-500 leading-none">DC</span>
+          <span className="text-sm md:text-xl font-bold tracking-[0.2em] text-white hidden sm:block">DREAMCATCHERS</span>
         </motion.div>
 
         <div className="hidden lg:flex items-center gap-14">
@@ -192,7 +192,7 @@ function Navbar() {
                 key={link.name} 
                 href={link.href} 
                 onClick={() => setIsMenuOpen(false)}
-                className="text-2xl font-bold uppercase tracking-widest text-white/60 hover:text-orange-500 transition-colors"
+                className="text-lg font-bold uppercase tracking-widest text-white/60 hover:text-orange-500 transition-colors"
               >
                 {link.name}
               </a>
@@ -239,12 +239,12 @@ function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-white/80 text-[10px] sm:text-xs uppercase tracking-[0.5em] mb-8"
+          className="text-white/80 text-[10px] sm:text-xs uppercase tracking-[0.5em] mb-4 md:mb-8"
         >
           Creators + Films + Live Events
         </motion.p>
         
-        <div className="relative h-[12rem] md:h-[13rem] flex flex-col justify-center items-center overflow-hidden mb-12 w-full">
+        <div className="relative h-[8rem] md:h-[13rem] flex flex-col justify-center items-center overflow-hidden mb-8 md:mb-12 w-full">
           <AnimatePresence mode="wait">
             <motion.div
               key={index}
@@ -257,10 +257,10 @@ function Hero() {
               }}
               className="absolute flex flex-col items-center"
             >
-              <h1 className="text-5xl md:text-[6.5rem] font-black text-white tracking-tighter leading-none whitespace-nowrap">
+              <h1 className="text-3xl md:text-[6.5rem] font-black text-white tracking-tighter leading-none whitespace-nowrap">
                 {titles[index].line1}
               </h1>
-              <h1 className="text-5xl md:text-[6.5rem] font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-orange-400 to-orange-500 tracking-tighter leading-none whitespace-nowrap">
+              <h1 className="text-3xl md:text-[6.5rem] font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-orange-400 to-orange-500 tracking-tighter leading-none whitespace-nowrap">
                 {titles[index].line2}
               </h1>
             </motion.div>
@@ -271,13 +271,13 @@ function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="flex flex-col md:flex-row gap-8"
+          className="flex flex-col md:flex-row gap-4 md:gap-8"
         >
-          <button className="group flex items-center gap-3 px-10 py-5 bg-white text-black font-black uppercase tracking-[0.2em] text-xs rounded-full hover:scale-105 transition-all shadow-xl">
-            <Play size={14} className="fill-current" />
+          <button className="group flex items-center gap-3 px-6 md:px-10 py-3 md:py-5 bg-white text-black font-black uppercase tracking-[0.2em] text-[10px] md:text-xs rounded-full hover:scale-105 transition-all shadow-xl">
+            <Play size={10} className="fill-current md:w-[14px]" />
             Play Showreel
           </button>
-          <button className="px-10 py-5 border border-white/20 text-white font-black uppercase tracking-[0.2em] text-xs rounded-full hover:border-orange-500/50 hover:bg-white/5 transition-all">
+          <button className="px-6 md:px-10 py-3 md:py-5 border border-white/20 text-white font-black uppercase tracking-[0.2em] text-[10px] md:text-xs rounded-full hover:border-orange-500/50 hover:bg-white/5 transition-all">
             Contact Us
           </button>
         </motion.div>
@@ -365,16 +365,16 @@ function Clients() {
   return (
     <section 
       id="clients" 
-      className="py-20 md:py-24 bg-transparent overflow-hidden relative" 
+      className="py-10 md:py-24 bg-transparent overflow-hidden relative" 
       ref={containerRef}
     >
       <div className="max-w-[1600px] mx-auto px-0 flex flex-col items-start relative z-20">
-        <div className="text-left mb-16 md:mb-20">
+        <div className="text-left mb-8 md:mb-20 px-6 md:px-0">
             <motion.h3 
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="text-4xl md:text-6xl font-black tracking-tighter text-orange-500 uppercase italic mb-6"
+            className="text-2xl md:text-6xl font-black tracking-tighter text-orange-500 uppercase italic mb-6"
           >
             Our Clients
           </motion.h3>
@@ -427,9 +427,9 @@ interface ClientLogoProps {
 
 const ClientLogo: FC<ClientLogoProps> = ({ client }) => {
   return (
-    <div className="flex items-center gap-4 px-6 py-3 bg-zinc-900/30 backdrop-blur-sm rounded-full border border-white/5 transition-all duration-300 hover:scale-105 active:scale-95 cursor-default group">
+    <div className="flex items-center gap-2 md:gap-4 px-4 md:px-6 py-2 md:py-3 bg-zinc-900/30 backdrop-blur-sm rounded-full border border-white/5 transition-all duration-300 hover:scale-105 active:scale-95 cursor-default group">
       <div 
-        className="w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg ring-1 ring-white/10" 
+        className="w-8 h-8 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center text-white font-black text-sm md:text-xl shadow-lg ring-1 ring-white/10" 
         style={{ 
           backgroundColor: client.color,
           backgroundImage: `linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%)`
@@ -437,7 +437,7 @@ const ClientLogo: FC<ClientLogoProps> = ({ client }) => {
       >
         {client.name.substring(0, 1).toUpperCase()}
       </div>
-      <span className="text-2xl md:text-3xl font-bold text-zinc-400 tracking-tight transition-colors group-hover:text-white">
+      <span className="text-base md:text-3xl font-bold text-zinc-400 tracking-tight transition-colors group-hover:text-white">
         {client.name}
       </span>
     </div>
@@ -453,15 +453,15 @@ function Portfolio() {
     : FILMS.filter(f => f.category === activeTab);
 
   return (
-    <section id="films" className="py-20 md:py-24">
-      <div className="max-w-[1600px] mx-auto px-0">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
+    <section id="films" className="py-12 md:py-24">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-0">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8 md:mb-12">
           <div className="relative">
               <motion.h3 
                 initial={{ x: -30, opacity: 0 }}
                 whileInView={{ x: 0, opacity: 1 }}
                 transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                className="text-4xl md:text-6xl font-[1000] text-orange-500 tracking-[-0.05em] uppercase italic leading-none drop-shadow-[0_0_60px_rgba(249,115,22,0.2)] pointer-events-none select-none text-left pr-4"
+                className="text-2xl md:text-6xl font-[1000] text-orange-500 tracking-[-0.05em] uppercase italic leading-none drop-shadow-[0_0_60px_rgba(249,115,22,0.2)] pointer-events-none select-none text-left pr-4"
               >
                 Films
               </motion.h3>
@@ -474,7 +474,7 @@ function Portfolio() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
                 onClick={() => setActiveTab(cat)}
-                className={`px-8 py-3 rounded-full text-[11px] font-black uppercase tracking-widest transition-all duration-500 border-2 ${
+                className={`px-4 md:px-8 py-2 md:py-3 rounded-full text-[9px] md:text-[11px] font-black uppercase tracking-widest transition-all duration-500 border-2 ${
                   activeTab === cat 
                   ? 'bg-orange-500 text-white border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.2)]' 
                   : 'bg-transparent text-white/30 border-white/5 hover:border-white/20 hover:text-white'
@@ -486,7 +486,7 @@ function Portfolio() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 lg:gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10">
           {filteredFilms.map((film, idx) => (
             <motion.div 
               key={film.id}
@@ -560,7 +560,7 @@ function InteractiveOptions() {
               const el = document.getElementById(option.id);
               if (el) el.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="group relative h-40 md:h-56 flex items-center justify-center cursor-pointer overflow-hidden border-b border-white/10 last:border-b-0"
+            className="group relative h-28 md:h-56 flex items-center justify-center cursor-pointer overflow-hidden border-b border-white/10 last:border-b-0"
           >
             {/* Sliding Background */}
             <motion.div
@@ -580,7 +580,7 @@ function InteractiveOptions() {
                   hover: { scale: 1.1, color: "#000" }
                 }}
                 transition={{ duration: 0.4 }}
-                className="text-6xl md:text-8xl font-black italic tracking-tighter uppercase leading-none"
+                className="text-3xl md:text-8xl font-black italic tracking-tighter uppercase leading-none"
               >
                 {option.name}
               </motion.h2>
@@ -623,23 +623,23 @@ function Footer() {
   }, []);
 
   return (
-    <footer className="py-12 bg-zinc-950/20 backdrop-blur-xl border-t border-white/5">
-      <div className="max-w-[1800px] mx-auto px-20 md:px-48 lg:px-56">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 mb-12">
+    <footer className="py-8 md:py-12 bg-zinc-950/20 backdrop-blur-xl border-t border-white/5">
+      <div className="max-w-[1800px] mx-auto px-6 md:px-48 lg:px-56">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 md:gap-12 mb-8 md:mb-12">
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-4 mb-10">
-              <span className="text-4xl font-black italic tracking-tighter text-orange-500 leading-none">DC</span>
-              <span className="text-3xl font-black tracking-tighter text-white uppercase italic">Dreamcatchers</span>
+            <div className="flex items-center gap-4 mb-6 md:mb-10">
+              <span className="text-2xl md:text-4xl font-black italic tracking-tighter text-orange-500 leading-none">DC</span>
+              <span className="text-xl md:text-3xl font-black tracking-tighter text-white uppercase italic">Dreamcatchers</span>
             </div>
-            <p className="text-white/40 leading-relaxed max-w-md text-sm font-medium tracking-tight">
+            <p className="text-white/40 leading-relaxed max-w-md text-xs md:text-sm font-medium tracking-tight">
               A high-end creative studio for brands, agencies & OTT platforms to increase visibility through advertising, films, and creative adaptations.
             </p>
           </div>
           
           <div id="contact">
-            <h5 className="text-orange-500 text-[10px] font-black uppercase tracking-[0.3em] mb-10">Inquiries</h5>
-            <div className="space-y-6">
-              <a href="mailto:hello@dreamcatchers.com" className="block text-xl font-bold text-white hover:text-orange-400 transition-all tracking-tight">hello@dreamcatchers.com</a>
+            <h5 className="text-orange-500 text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] mb-6 md:mb-10">Inquiries</h5>
+            <div className="space-y-4 md:space-y-6">
+              <a href="mailto:hello@dreamcatchers.com" className="block text-lg md:text-xl font-bold text-white hover:text-orange-400 transition-all tracking-tight">hello@dreamcatchers.com</a>
               <p className="text-white/30 text-sm italic">Lower Parel, Mumbai, India</p>
               
               <div className="pt-6 border-t border-white/5">
@@ -667,20 +667,20 @@ function Footer() {
           </div>
 
           <div id="backyard">
-            <h5 className="text-white text-[10px] font-black uppercase tracking-[0.3em] mb-10">Social</h5>
-            <div className="flex flex-wrap gap-6">
+            <h5 className="text-white text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] mb-6 md:mb-10">Social</h5>
+            <div className="flex flex-wrap gap-4 md:gap-6">
               {['Instagram', 'Vimeo', 'LinkedIn'].map(link => (
-                <a key={link} href="#" className="text-white/40 hover:text-white transition-all text-xs font-bold uppercase tracking-widest">{link}</a>
+                <a key={link} href="#" className="text-white/40 hover:text-white transition-all text-[10px] md:text-xs font-bold uppercase tracking-widest">{link}</a>
               ))}
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row justify-between items-center gap-10 pt-16 border-t border-white/5">
-          <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest">© 2026 Dreamcatchers Production.</p>
-          <div className="flex gap-12">
-            <a href="#" className="text-white/10 hover:text-white text-[10px] uppercase tracking-widest transition-all font-bold">Privacy</a>
-            <a href="#" className="text-white/10 hover:text-white text-[10px] uppercase tracking-widest transition-all font-bold">Terms</a>
+        <div className="flex flex-col md:flex-row justify-between items-center gap-8 md:gap-10 pt-12 md:pt-16 border-t border-white/5">
+          <p className="text-white/20 text-[8px] md:text-[10px] font-bold uppercase tracking-widest">© 2026 Dreamcatchers Production.</p>
+          <div className="flex gap-8 md:gap-12">
+            <a href="#" className="text-white/10 hover:text-white text-[8px] md:text-[10px] uppercase tracking-widest transition-all font-bold">Privacy</a>
+            <a href="#" className="text-white/10 hover:text-white text-[8px] md:text-[10px] uppercase tracking-widest transition-all font-bold">Terms</a>
           </div>
         </div>
       </div>
@@ -723,35 +723,35 @@ function Intro() {
   };
 
   return (
-    <section className="py-20 md:py-24 overflow-hidden">
-      <div className="w-full px-20 md:px-56">
+    <section className="py-12 md:py-24 overflow-hidden">
+      <div className="w-full px-6 md:px-56">
         <motion.div 
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: false, margin: "-100px" }}
-          className="flex flex-col lg:flex-row justify-between items-center mb-16"
+          className="flex flex-col lg:flex-row justify-between items-center mb-8 md:mb-16"
         >
-          <div className="flex-1 w-full">
-            <div className="overflow-hidden mb-2">
-              <motion.h2 variants={lineVariants} className="text-2xl md:text-[3.8rem] font-black text-white tracking-tighter leading-[0.8] uppercase italic">
+          <div className="flex-1 w-full text-center md:text-left">
+            <div className="overflow-hidden mb-1 md:mb-2 text-center md:text-left">
+              <motion.h2 variants={lineVariants} className="text-xl md:text-[3.8rem] font-black text-white tracking-tighter leading-[0.8] uppercase italic">
                 Dreamcatchers is a
               </motion.h2>
             </div>
-            <div className="overflow-hidden flex items-center gap-6 flex-wrap mb-2">
+            <div className="overflow-hidden flex items-center justify-center md:justify-start gap-4 md:gap-6 flex-wrap mb-1 md:mb-2">
               <motion.div 
                 variants={lineVariants}
                 whileHover={{ scale: 1.1, rotate: 5 }}
-                className="w-14 md:w-36 h-9 md:h-24 rounded-full bg-zinc-800 overflow-hidden shadow-2xl border border-white/10"
+                className="w-12 md:w-36 h-8 md:h-24 rounded-full bg-zinc-800 overflow-hidden shadow-2xl border border-white/10"
               >
                 <img src="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&q=80&w=200" className="w-full h-full object-cover" alt="" />
               </motion.div>
-              <motion.h2 variants={lineVariants} className="text-2xl md:text-[3.8rem] font-black text-white tracking-tighter leading-[0.8] uppercase italic">
+              <motion.h2 variants={lineVariants} className="text-xl md:text-[3.8rem] font-black text-white tracking-tighter leading-[0.8] uppercase italic">
                 Creative Studio That
               </motion.h2>
             </div>
             <div className="overflow-hidden">
-              <motion.h2 variants={lineVariants} className="text-2xl md:text-[3.8rem] font-black text-white tracking-tighter leading-[0.8] uppercase italic">
+              <motion.h2 variants={lineVariants} className="text-xl md:text-[3.8rem] font-black text-white tracking-tighter leading-[0.8] uppercase italic">
                 Helps Brands With
               </motion.h2>
             </div>
@@ -799,7 +799,7 @@ function Intro() {
             <motion.span whileHover={{ y: -5 }} className="flex items-center gap-3">
               <motion.span 
                 whileHover={{ scale: 1.1, rotate: 5 }}
-                className="inline-block w-12 h-7 rounded-full bg-orange-500/20 overflow-hidden border border-orange-500/30"
+                className="inline-block w-8 md:w-12 h-5 md:h-7 rounded-full bg-orange-500/20 overflow-hidden border border-orange-500/30"
               >
                 <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=200" className="w-full h-full object-cover" alt="" />
               </motion.span>
@@ -808,7 +808,7 @@ function Intro() {
             <motion.span whileHover={{ y: -5 }} className="flex items-center gap-3">
               <motion.span 
                 whileHover={{ scale: 1.1, rotate: -5 }}
-                className="inline-block w-12 h-7 rounded-full bg-zinc-800 overflow-hidden border border-white/10"
+                className="inline-block w-8 md:w-12 h-5 md:h-7 rounded-full bg-zinc-800 overflow-hidden border border-white/10"
               >
                 <img src="https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=200" className="w-full h-full object-cover" alt="" />
               </motion.span>
@@ -817,7 +817,7 @@ function Intro() {
             <motion.span whileHover={{ y: -5 }} className="flex items-center gap-3">
               <motion.span 
                 whileHover={{ scale: 1.1, rotate: 5 }}
-                className="inline-block w-12 h-7 rounded-full bg-orange-500 overflow-hidden shadow-lg shadow-orange-500/20"
+                className="inline-block w-8 md:w-12 h-5 md:h-7 rounded-full bg-orange-500 overflow-hidden shadow-lg shadow-orange-500/20"
               >
                 <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=200" className="w-full h-full object-cover" alt="" />
               </motion.span>
@@ -825,14 +825,14 @@ function Intro() {
             </motion.span>
             <motion.span 
               whileHover={{ scale: 1.2, rotate: 5 }}
-              className="inline-block w-16 h-8 rounded-full bg-zinc-800 overflow-hidden shadow-2xl border border-white/10"
+              className="inline-block w-10 md:w-16 h-6 md:h-8 rounded-full bg-zinc-800 overflow-hidden shadow-2xl border border-white/10"
             >
               <img src="https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&q=80&w=200" className="w-full h-full object-cover" alt="" />
             </motion.span>
             and <span className="flex items-center gap-3 text-orange-500 underline decoration-white/20 underline-offset-8">
               <motion.span 
                 whileHover={{ scale: 1.1, rotate: -3 }}
-                className="inline-block w-12 h-7 rounded-full bg-zinc-800 overflow-hidden border border-white/10"
+                className="inline-block w-8 md:w-12 h-5 md:h-7 rounded-full bg-zinc-800 overflow-hidden border border-white/10"
               >
                 <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&q=80&w=200" className="w-full h-full object-cover" alt="" />
               </motion.span>
@@ -846,7 +846,7 @@ function Intro() {
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: false }}
-            className="group relative flex flex-col items-center justify-center h-[400px] md:h-[700px] bg-transparent transition-all duration-700"
+            className="group relative flex flex-col items-center justify-center h-[280px] md:h-[700px] bg-transparent transition-all duration-700"
             style={{ perspective: "1500px", transformStyle: "preserve-3d" }}
           >
              {/* Background Atmosphere */}
@@ -862,7 +862,7 @@ function Intro() {
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 md:w-96 md:h-96 bg-orange-500/20 blur-[100px] rounded-full group-hover:bg-orange-500/30 transition-all duration-1000" />
                     
                     <motion.span 
-                      className="text-[8rem] md:text-[18rem] font-black italic tracking-tighter text-white/5 transition-all duration-700 group-hover:text-orange-500 group-hover:drop-shadow-[0_0_80px_rgba(249,115,22,0.5)] cursor-default select-none block leading-none relative z-20"
+                      className="text-[6rem] md:text-[18rem] font-black italic tracking-tighter text-white/5 transition-all duration-700 group-hover:text-orange-500 group-hover:drop-shadow-[0_0_80px_rgba(249,115,22,0.5)] cursor-default select-none block leading-none relative z-20"
                       whileHover={{ scale: 1.02 }}
                     >
                       DC
@@ -902,7 +902,7 @@ function Intro() {
                      transition: { staggerChildren: 0.05, delayChildren: 0.2 }
                    }
                  }}
-                 className="text-3xl md:text-4xl text-orange-500 font-black leading-[1] tracking-tight uppercase italic flex flex-wrap"
+                 className="text-xl md:text-4xl text-orange-500 font-black leading-[1] tracking-tight uppercase italic flex flex-wrap"
                >
                  {"DC, as we love to call it, started producing daily chat shows, weekly travel shows and standalone documentaries.".split(" ").map((word, i) => (
                    <motion.span
@@ -930,17 +930,17 @@ function Intro() {
                  hidden: { opacity: 0, x: -20 },
                  visible: { opacity: 1, x: 0, transition: { duration: 1, delay: 0.8 } }
                }}
-               className="text-lg md:text-xl text-orange-500/60 leading-relaxed max-w-2xl font-medium border-l-2 border-orange-500/20 pl-10"
+               className="text-base md:text-xl text-orange-500/60 leading-relaxed max-w-2xl font-medium border-l-2 border-orange-500/20 pl-6 md:pl-10"
              >
                As more clients showed faith in us, our tribe grew, and here we are today! We&apos;re a happy bunch of people pushing the creative envelope.
              </motion.p>
              <motion.button 
                variants={itemVariants}
                whileHover={{ x: 10, backgroundColor: "#f97316", color: "#fff" }}
-               className="group flex items-center gap-6 px-12 py-6 bg-white text-black font-black uppercase tracking-[0.2em] text-xs rounded-full transition-all shadow-2xl"
+               className="group flex items-center gap-6 px-8 md:px-12 py-4 md:py-6 bg-white text-black font-black uppercase tracking-[0.2em] text-[10px] md:text-xs rounded-full transition-all shadow-2xl"
              >
                Explore Our Story
-               <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+               <ChevronRight className="w-3 h-3 md:w-4 md:h-4 group-hover:translate-x-1 transition-transform" />
              </motion.button>
           </motion.div>
         </div>
@@ -1005,28 +1005,28 @@ export default function App() {
           <Intro />
           <Portfolio />
           <Clients />
-          <section id="about" className="py-20 md:py-24">
-            <div className="w-full px-20 md:px-56">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
-                <div className="relative group max-w-md mx-auto lg:mx-0">
-                  <div className="aspect-[4/5] overflow-hidden rounded-[3rem] border border-white/10">
+          <section id="about" className="py-12 md:py-24">
+            <div className="w-full px-6 md:px-56">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-24 items-center text-center lg:text-left">
+                <div className="relative group max-w-[280px] md:max-w-md mx-auto lg:mx-0">
+                  <div className="aspect-[4/5] overflow-hidden rounded-[2rem] md:rounded-[3rem] border border-white/10">
                     <img src="https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&q=80&w=2072" alt="Behind the scenes" className="w-full h-full object-cover grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-105" />
                   </div>
-                  <div className="absolute -bottom-10 -right-10 w-56 h-56 bg-orange-500 rounded-full p-8 hidden md:flex flex-col items-center justify-center text-center shadow-2xl rotate-12" style={{ transform: 'rotate(12deg)' }}>
-                    <span className="text-5xl font-black text-white italic">14+</span>
-                    <p className="text-white/90 text-[9px] font-black uppercase tracking-widest mt-2">Years on Set</p>
+                  <div className="absolute -bottom-6 md:-bottom-10 -right-6 md:-right-10 w-32 h-32 md:w-56 md:h-56 bg-orange-500 rounded-full p-4 md:p-8 flex flex-col items-center justify-center text-center shadow-2xl rotate-12" style={{ transform: 'rotate(12deg)' }}>
+                    <span className="text-2xl md:text-5xl font-black text-white italic">14+</span>
+                    <p className="text-white/90 text-[7px] md:text-[9px] font-black uppercase tracking-widest mt-1 md:mt-2">Years on Set</p>
                   </div>
                 </div>
                 <div>
-                  <span className="text-orange-500 text-[10px] font-black uppercase tracking-[0.4em] mb-6 block">Our Story</span>
-                  <h3 className="text-3xl md:text-6xl font-black text-white tracking-tighter leading-[0.95] mb-10 uppercase italic">Crafting <br />Legends</h3>
-                  <p className="text-white/50 leading-relaxed mb-12 text-base font-medium tracking-tight">
+                  <span className="text-orange-500 text-[9px] md:text-[10px] font-black uppercase tracking-[0.4em] mb-4 md:mb-6 block">Our Story</span>
+                  <h3 className="text-2xl md:text-6xl font-black text-white tracking-tighter leading-[0.95] mb-6 md:mb-10 uppercase italic">Crafting <br />Legends</h3>
+                  <p className="text-white/50 leading-relaxed mb-8 md:mb-12 text-sm md:text-base font-medium tracking-tight px-4 md:px-0">
                     Dreamcatchers is a new age creative studio specializing in visual storytelling that moves people. We don't just shoot films; we engineer experiences that bridge the gap between imagination and reality.
                   </p>
-                  <button className="flex items-center gap-4 text-white font-black uppercase tracking-[0.3em] text-xs group">
+                  <button className="flex items-center gap-4 text-white font-black uppercase tracking-[0.3em] text-[10px] md:text-xs group mx-auto lg:mx-0">
                     Find more about us 
-                    <div className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center group-hover:border-orange-500 group-hover:bg-orange-500 transition-all">
-                      <ChevronRight className="w-5 h-5 group-hover:translate-x-0.5" />
+                    <div className="w-8 h-8 md:w-10 md:h-10 border border-white/20 rounded-full flex items-center justify-center group-hover:border-orange-500 group-hover:bg-orange-500 transition-all">
+                      <ChevronRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-0.5" />
                     </div>
                   </button>
                 </div>
