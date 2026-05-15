@@ -1,8 +1,10 @@
 import { motion, AnimatePresence, useScroll, useTransform, useTime } from 'motion/react';
-import { Camera, Play, ChevronRight, Menu, X, Rocket, Moon } from 'lucide-react';
+import { Camera, Play, ChevronRight, Menu, X, Rocket, Moon, ShieldCheck } from 'lucide-react';
 import { useState, useEffect, useRef, FC } from 'react';
-import { auth, signInWithGoogle, signOut } from './lib/firebase';
-import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
+import AdminPanel from './pages/AdminPanel';
+import FilmsPage from './pages/FilmsPage';
 
 // --- Components ---
 
@@ -122,24 +124,22 @@ const OrbitingFrame: FC<{ index: number; total: number; img: string }> = ({ inde
   );
 };
 
-function Navbar() {
+export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const { user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
-    const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      unsubscribe();
     };
   }, []);
 
   const navLinks = [
-    { name: 'Home', href: '#' },
-    { name: 'Films', href: '#films' },
+    { name: 'Home', href: '/' },
+    { name: 'Films', to: '/films' },
     { name: 'Events', href: '#events' },
     { name: 'About Us', href: '#about' },
     { name: 'Our Backyard', href: '#backyard' },
@@ -160,13 +160,23 @@ function Navbar() {
 
         <div className="hidden lg:flex items-center gap-14">
           {navLinks.map((link) => (
-            <a 
-              key={link.name} 
-              href={link.href} 
-              className={`text-[11px] font-bold uppercase tracking-[0.2em] transition-all duration-300 ${link.name === 'Home' ? 'text-orange-500' : 'text-white/70 hover:text-orange-400'}`}
-            >
-              {link.name}
-            </a>
+            link.to ? (
+              <Link 
+                key={link.name} 
+                to={link.to} 
+                className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/70 hover:text-orange-400 transition-all duration-300"
+              >
+                {link.name}
+              </Link>
+            ) : (
+              <a 
+                key={link.name} 
+                href={link.href} 
+                className={`text-[11px] font-bold uppercase tracking-[0.2em] transition-all duration-300 ${link.name === 'Home' ? 'text-orange-500' : 'text-white/70 hover:text-orange-400'}`}
+              >
+                {link.name}
+              </a>
+            )
           ))}
         </div>
 
@@ -188,14 +198,25 @@ function Navbar() {
           </div>
           <div className="flex flex-col gap-8">
             {navLinks.map((link) => (
-              <a 
-                key={link.name} 
-                href={link.href} 
-                onClick={() => setIsMenuOpen(false)}
-                className="text-lg font-bold uppercase tracking-widest text-white/60 hover:text-orange-500 transition-colors"
-              >
-                {link.name}
-              </a>
+              link.to ? (
+                <Link 
+                  key={link.name} 
+                  to={link.to} 
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-lg font-bold uppercase tracking-widest text-white/60 hover:text-orange-500 transition-colors"
+                >
+                  {link.name}
+                </Link>
+              ) : (
+                <a 
+                  key={link.name} 
+                  href={link.href} 
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-lg font-bold uppercase tracking-widest text-white/60 hover:text-orange-500 transition-colors"
+                >
+                  {link.name}
+                </a>
+              )
             ))}
           </div>
         </motion.div>
@@ -284,7 +305,7 @@ function Hero() {
 
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 animate-bounce">
            <span className="text-[9px] text-white/30 uppercase tracking-[0.5em]">Scroll</span>
-           <div className="w-[1px] h-12 bg-gradient-to-b from-white/30 to-transparent" />
+           <div className="w-[1px] h-12 bg-gradient-to-b from-orange-500 to-transparent shadow-[0_0_15px_rgba(249,115,22,0.5)]" />
         </div>
       </motion.div>
     </div>
@@ -542,8 +563,9 @@ function Portfolio() {
 }
 
 function InteractiveOptions() {
+  const navigate = useNavigate();
   const options = [
-    { name: 'FILMS', id: 'films' },
+    { name: 'FILMS', to: '/films' },
     { name: 'EVENTS', id: 'events' },
     { name: 'CONTACT US', id: 'contact' },
   ];
@@ -557,8 +579,12 @@ function InteractiveOptions() {
             initial="initial"
             whileHover="hover"
             onClick={() => {
-              const el = document.getElementById(option.id);
-              if (el) el.scrollIntoView({ behavior: 'smooth' });
+              if (option.to) {
+                navigate(option.to);
+              } else if (option.id) {
+                const el = document.getElementById(option.id);
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }
             }}
             className="group relative h-28 md:h-56 flex items-center justify-center cursor-pointer overflow-hidden border-b border-white/10 last:border-b-0"
           >
@@ -615,12 +641,8 @@ function InteractiveOptions() {
 }
 
 function Footer() {
-  const [user, setUser] = useState<FirebaseUser | null>(null);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
-    return () => unsubscribe();
-  }, []);
+  const { user, isAdmin, login, logout } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <footer className="py-8 md:py-12 bg-zinc-950/20 backdrop-blur-xl border-t border-white/5">
@@ -644,16 +666,27 @@ function Footer() {
               
               <div className="pt-6 border-t border-white/5">
                 {user ? (
-                  <div className="flex items-center gap-4">
-                    <img src={user.photoURL || ''} alt="" className="w-8 h-8 rounded-full border border-white/20" />
-                    <div>
-                      <p className="text-white text-xs font-bold">{user.displayName}</p>
-                      <button onClick={() => signOut()} className="text-[10px] uppercase tracking-widest text-white/40 hover:text-white transition-colors">Logout</button>
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center gap-4">
+                      <img src={user.photoURL || ''} alt="" className="w-8 h-8 rounded-full border border-white/20" />
+                      <div>
+                        <p className="text-white text-xs font-bold">{user.displayName}</p>
+                        <button onClick={logout} className="text-[10px] uppercase tracking-widest text-white/40 hover:text-white transition-colors">Logout</button>
+                      </div>
                     </div>
+                    {isAdmin && (
+                      <Link 
+                        to="/admin"
+                        className="flex items-center gap-2 text-orange-500 hover:text-orange-400 transition-all group"
+                      >
+                        <ShieldCheck size={14} className="group-hover:scale-110 transition-transform" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">Admin Panel</span>
+                      </Link>
+                    )}
                   </div>
                 ) : (
                   <button 
-                    onClick={() => signInWithGoogle()}
+                    onClick={login}
                     className="group flex items-center gap-3 text-white hover:text-orange-500 transition-all"
                   >
                     <span className="text-xs font-black uppercase tracking-[0.2em]">Sign In</span>
@@ -949,7 +982,7 @@ function Intro() {
   );
 }
 
-export default function App() {
+function LandingPage() {
   const { scrollY } = useScroll();
   const starOpacity = useTransform(scrollY, [100, 700], [0, 1]);
   const heroImgOpacity = useTransform(scrollY, [0, 800], [1, 0.1]);
@@ -1038,5 +1071,28 @@ export default function App() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
+
+export default function App() {
+  return (
+    <>
+      <ScrollToTop />
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/films" element={<FilmsPage />} />
+        <Route path="/admin" element={<AdminPanel />} />
+      </Routes>
+    </>
   );
 }

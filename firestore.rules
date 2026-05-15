@@ -14,8 +14,9 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      return isSignedIn() && (
+        request.auth.token.email == 'sohailgaji9097@gmail.com' && request.auth.token.email_verified == true
+      );
     }
 
     function isOwner(userId) {
@@ -24,6 +25,11 @@ service cloud.firestore {
 
     function isValidId(id) {
       return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // --- Test Connection ---
+    match /test/connection {
+      allow read: if true;
     }
 
     // --- User Profile ---
