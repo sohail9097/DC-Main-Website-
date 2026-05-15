@@ -1,10 +1,12 @@
 import { motion, AnimatePresence, useScroll, useTransform, useTime } from 'motion/react';
-import { Camera, Play, ChevronRight, Menu, X, Rocket, Moon, ShieldCheck } from 'lucide-react';
+import { Camera, Play, ChevronRight, Menu, X, Rocket, Moon, ShieldCheck, Instagram, Facebook, Youtube, Twitter } from 'lucide-react';
 import { useState, useEffect, useRef, FC } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import AdminPanel from './pages/AdminPanel';
 import FilmsPage from './pages/FilmsPage';
+import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
 
 // --- Components ---
 
@@ -128,6 +130,7 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -138,25 +141,32 @@ export function Navbar() {
   }, []);
 
   const navLinks = [
-    { name: 'Home', href: '/' },
-    { name: 'Films', to: '/films' },
-    { name: 'Events', href: '#events' },
-    { name: 'About Us', href: '#about' },
-    { name: 'Our Backyard', href: '#backyard' },
-    { name: 'Contact Us', href: '#contact' },
+    { name: 'Home', href: '/', path: '/' },
+    { name: 'Films', to: '/films', path: '/films' },
+    { name: 'About Us', to: '/about', path: '/about' },
+    { name: 'Contact Us', to: '/contact', path: '/contact' },
   ];
+
+  const isActive = (path?: string) => {
+    if (!path) return false;
+    if (path === '/' && location.pathname === '/') return true;
+    if (path !== '/' && location.pathname.startsWith(path)) return true;
+    return false;
+  };
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled ? 'bg-black/40 backdrop-blur-xl py-4' : 'bg-transparent py-10'}`}>
       <div className="max-w-[1920px] mx-auto px-6 md:px-24 lg:px-40 flex justify-between items-center">
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="flex items-center gap-3"
-        >
-          <span className="text-2xl md:text-4xl font-black italic tracking-tighter text-orange-500 leading-none">DC</span>
-          <span className="text-sm md:text-xl font-bold tracking-[0.2em] text-white hidden sm:block">DREAMCATCHERS</span>
-        </motion.div>
+        <Link to="/">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center gap-3 md:gap-4"
+          >
+            <span className="text-2xl md:text-4xl font-black italic tracking-tighter text-orange-500 leading-none">DC</span>
+            <span className="text-xs md:text-lg font-bold tracking-[0.2em] text-white hidden sm:block">DREAMCATCHERS</span>
+          </motion.div>
+        </Link>
 
         <div className="hidden lg:flex items-center gap-14">
           {navLinks.map((link) => (
@@ -164,7 +174,7 @@ export function Navbar() {
               <Link 
                 key={link.name} 
                 to={link.to} 
-                className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/70 hover:text-orange-400 transition-all duration-300"
+                className={`text-sm font-bold uppercase tracking-[0.2em] transition-all duration-300 ${isActive(link.path) ? 'text-orange-500' : 'text-white/70 hover:text-orange-400'}`}
               >
                 {link.name}
               </Link>
@@ -172,7 +182,7 @@ export function Navbar() {
               <a 
                 key={link.name} 
                 href={link.href} 
-                className={`text-[11px] font-bold uppercase tracking-[0.2em] transition-all duration-300 ${link.name === 'Home' ? 'text-orange-500' : 'text-white/70 hover:text-orange-400'}`}
+                className={`text-sm font-bold uppercase tracking-[0.2em] transition-all duration-300 text-white/70 hover:text-orange-400`}
               >
                 {link.name}
               </a>
@@ -226,6 +236,7 @@ export function Navbar() {
 }
 
 function Hero() {
+  const navigate = useNavigate();
   const titles = [
     { line1: "VISUAL", line2: "POETRY" },
     { line1: "CINEMATIC", line2: "WIZARDRY" },
@@ -262,7 +273,7 @@ function Hero() {
           transition={{ duration: 0.8 }}
           className="text-white/80 text-[10px] sm:text-xs uppercase tracking-[0.5em] mb-4 md:mb-8"
         >
-          Creators + Films + Live Events
+          Creators + Films + Documentaries
         </motion.p>
         
         <div className="relative h-[8rem] md:h-[13rem] flex flex-col justify-center items-center overflow-hidden mb-8 md:mb-12 w-full">
@@ -298,7 +309,10 @@ function Hero() {
             <Play size={10} className="fill-current md:w-[14px]" />
             Play Showreel
           </button>
-          <button className="px-6 md:px-10 py-3 md:py-5 border border-white/20 text-white font-black uppercase tracking-[0.2em] text-[10px] md:text-xs rounded-full hover:border-orange-500/50 hover:bg-white/5 transition-all">
+          <button 
+            onClick={() => navigate('/contact')}
+            className="px-6 md:px-10 py-3 md:py-5 border border-white/20 text-white font-black uppercase tracking-[0.2em] text-[10px] md:text-xs rounded-full hover:border-orange-500/50 hover:bg-white/5 transition-all pointer-events-auto"
+          >
             Contact Us
           </button>
         </motion.div>
@@ -465,6 +479,122 @@ const ClientLogo: FC<ClientLogoProps> = ({ client }) => {
   );
 }
 
+const TEAM_MEMBERS = [
+  { id: 1, name: 'Vikram Singh', role: 'Founder & Director', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=600' },
+  { id: 2, name: 'Ananya Sharma', role: 'Creative Producer', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=600' },
+  { id: 3, name: 'Rahul Mehra', role: 'Post-Production', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600' },
+  { id: 4, name: 'Zoya Akhtar', role: 'Cinematographer', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600' },
+  { id: 5, name: 'Siddharth Roy', role: 'Lead Editor', image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=600' },
+];
+
+function DreamTeam() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev - 1 + TEAM_MEMBERS.length) % TEAM_MEMBERS.length);
+    }, 5000); // Slightly slower for better readability
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <section id="team" className="py-24 md:py-48 relative overflow-hidden bg-black/20">
+      <div className="max-w-[1600px] mx-auto px-6">
+        <div className="text-left mb-32">
+          <motion.span 
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            className="text-orange-500 text-xs font-black uppercase tracking-[0.5em] mb-4 block"
+          >
+            The Visionaries
+          </motion.span>
+          <motion.h3 
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-2xl md:text-6xl font-black italic tracking-tighter text-white uppercase leading-none"
+          >
+            Dream <span className="text-orange-500">Team</span>
+          </motion.h3>
+        </div>
+
+        {/* Sliding Carousel */}
+        <div className="relative h-[550px] md:h-[700px] flex items-center justify-center">
+          {TEAM_MEMBERS.map((member, i) => {
+            // Relative position logic for infinite loop
+            let position = i - currentIndex;
+            const total = TEAM_MEMBERS.length;
+            const half = Math.floor(total / 2);
+            while (position > half) position -= total;
+            while (position < -half) position += total;
+
+            const isCenter = position === 0;
+            const isVisible = Math.abs(position) <= 2;
+
+            return (
+              <motion.div
+                key={member.id}
+                initial={false}
+                animate={{
+                  opacity: isVisible ? (isCenter ? 1 : 0.7) : 0,
+                  x: position * (window.innerWidth < 768 ? 130 : 350),
+                  scale: isCenter ? 1 : 0.6,
+                  zIndex: isCenter ? 50 : 20 - Math.abs(position),
+                }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 70, // Slower, smoother spring
+                  damping: 18,
+                  mass: 1.2
+                }}
+                className="absolute will-change-transform"
+              >
+                {/* Member Container */}
+                <div
+                  className={`relative flex flex-col items-center transition-all duration-700 ${
+                    isCenter 
+                      ? 'w-[280px] md:w-[450px]' 
+                      : 'w-24 h-24 md:w-52 md:h-52 rounded-full ring-4 ring-white/20 p-1 bg-white/5 backdrop-blur-md'
+                  }`}
+                >
+                  {/* Photo Container */}
+                  <div
+                    className={`relative overflow-hidden transition-all duration-700 shadow-2xl ${
+                      isCenter 
+                        ? 'w-full aspect-square rounded-[3rem]' 
+                        : 'w-full h-full rounded-full'
+                    }`}
+                  >
+                    <img 
+                      src={member.image} 
+                      alt={member.name} 
+                      className="w-full h-full object-cover"
+                    />
+                    
+                    {/* Name Overlay - Only for center */}
+                    {isCenter && (
+                      <div className="absolute inset-x-0 bottom-0 p-8 bg-gradient-to-t from-black/80 to-transparent">
+                        <motion.h4 
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          className="text-2xl md:text-4xl font-black italic text-white uppercase tracking-tighter"
+                        >
+                          {member.name}
+                        </motion.h4>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
 function Portfolio() {
   const [activeTab, setActiveTab] = useState('All');
   const categories = ['All', 'OTT', 'Branded Commercials', 'Music Video', 'Unscripted'];
@@ -566,8 +696,8 @@ function InteractiveOptions() {
   const navigate = useNavigate();
   const options = [
     { name: 'FILMS', to: '/films' },
-    { name: 'EVENTS', id: 'events' },
-    { name: 'CONTACT US', id: 'contact' },
+    { name: 'ABOUT US', to: '/about' },
+    { name: 'CONTACT US', to: '/contact' },
   ];
 
   return (
@@ -581,9 +711,6 @@ function InteractiveOptions() {
             onClick={() => {
               if (option.to) {
                 navigate(option.to);
-              } else if (option.id) {
-                const el = document.getElementById(option.id);
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
               }
             }}
             className="group relative h-28 md:h-56 flex items-center justify-center cursor-pointer overflow-hidden border-b border-white/10 last:border-b-0"
@@ -650,8 +777,8 @@ function Footer() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 md:gap-12 mb-8 md:mb-12">
           <div className="lg:col-span-2">
             <div className="flex items-center gap-4 mb-6 md:mb-10">
-              <span className="text-2xl md:text-4xl font-black italic tracking-tighter text-orange-500 leading-none">DC</span>
-              <span className="text-xl md:text-3xl font-black tracking-tighter text-white uppercase italic">Dreamcatchers</span>
+              <span className="text-3xl md:text-6xl font-black italic tracking-tighter text-orange-500 leading-none">DC</span>
+              <span className="text-xl md:text-4xl font-black tracking-tighter text-white uppercase italic">Dreamcatchers</span>
             </div>
             <p className="text-white/40 leading-relaxed max-w-md text-xs md:text-sm font-medium tracking-tight">
               A high-end creative studio for brands, agencies & OTT platforms to increase visibility through advertising, films, and creative adaptations.
@@ -701,9 +828,21 @@ function Footer() {
 
           <div id="backyard">
             <h5 className="text-white text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] mb-6 md:mb-10">Social</h5>
-            <div className="flex flex-wrap gap-4 md:gap-6">
-              {['Instagram', 'Vimeo', 'LinkedIn'].map(link => (
-                <a key={link} href="#" className="text-white/40 hover:text-white transition-all text-[10px] md:text-xs font-bold uppercase tracking-widest">{link}</a>
+            <div className="flex flex-wrap gap-6 md:gap-8">
+              {[
+                { name: 'Instagram', icon: <Instagram size={18} />, color: 'hover:text-[#E4405F]' },
+                { name: 'Facebook', icon: <Facebook size={18} />, color: 'hover:text-[#1877F2]' },
+                { name: 'Youtube', icon: <Youtube size={18} />, color: 'hover:text-[#FF0000]' },
+                { name: 'Twitter', icon: <Twitter size={18} />, color: 'hover:text-[#1DA1F2]' }
+              ].map(social => (
+                <a 
+                  key={social.name} 
+                  href="#" 
+                  className={`text-white/40 transition-all duration-300 hover:scale-125 ${social.color}`}
+                  title={social.name}
+                >
+                  {social.icon}
+                </a>
               ))}
             </div>
           </div>
@@ -1038,6 +1177,7 @@ function LandingPage() {
           <Intro />
           <Portfolio />
           <Clients />
+          <DreamTeam />
           <section id="about" className="py-12 md:py-24">
             <div className="w-full px-6 md:px-56">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-24 items-center text-center lg:text-left">
@@ -1091,6 +1231,8 @@ export default function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/films" element={<FilmsPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="/admin" element={<AdminPanel />} />
       </Routes>
     </>

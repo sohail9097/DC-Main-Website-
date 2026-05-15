@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform } from 'motion/react';
-import { ChevronRight, Play, Menu, X } from 'lucide-react';
+import { ChevronRight, Play, Menu, X, Instagram, Facebook, Youtube, Twitter } from 'lucide-react';
 import { useState, useEffect, FC } from 'react';
 import { Link } from 'react-router-dom';
 import { Navbar } from '../App';
@@ -257,17 +257,29 @@ const FilmsPage = () => {
         <div className="max-w-[1600px] mx-auto px-6 md:px-24 flex flex-col md:flex-row justify-between items-center gap-10">
           <div className="flex flex-col items-center md:items-start gap-4">
             <div className="flex items-center gap-4">
-              <span className="text-3xl font-black italic tracking-tighter text-orange-500 leading-none">DC</span>
-              <span className="text-xl font-black tracking-tighter text-white uppercase italic">Dreamcatchers</span>
+              <span className="text-4xl md:text-6xl font-black italic tracking-tighter text-orange-500 leading-none">DC</span>
+              <span className="text-2xl md:text-4xl font-black tracking-tighter text-white uppercase italic">Dreamcatchers</span>
             </div>
             <p className="text-white/20 text-xs font-medium max-w-sm text-center md:text-left">
               High-end creative studio delivering cinematic excellence across all platforms.
             </p>
           </div>
           <div className="flex flex-col items-center md:items-end gap-6">
-            <div className="flex gap-10">
-              {['Instagram', 'Vimeo', 'LinkedIn'].map(s => (
-                <a key={s} href="#" className="text-white/40 hover:text-white transition-colors text-[10px] font-black uppercase tracking-widest">{s}</a>
+            <div className="flex gap-8 md:gap-10">
+              {[
+                { name: 'Instagram', icon: <Instagram size={18} />, color: 'hover:text-[#E4405F]' },
+                { name: 'Facebook', icon: <Facebook size={18} />, color: 'hover:text-[#1877F2]' },
+                { name: 'Youtube', icon: <Youtube size={18} />, color: 'hover:text-[#FF0000]' },
+                { name: 'Twitter', icon: <Twitter size={18} />, color: 'hover:text-[#1DA1F2]' }
+              ].map(social => (
+                <a 
+                  key={social.name} 
+                  href="#" 
+                  className={`text-white/40 transition-all duration-300 hover:scale-125 ${social.color}`}
+                  title={social.name}
+                >
+                  {social.icon}
+                </a>
               ))}
             </div>
             <p className="text-white/10 text-[10px] font-bold uppercase tracking-widest">© 2026 Dreamcatchers Production. All Rights Reserved.</p>
