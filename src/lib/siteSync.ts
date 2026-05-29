@@ -19,7 +19,8 @@ const CONFIG_KEYS = [
   'about_bgt_word1', 'about_bgt_word2', 'about_bgt_tagline', 'about_hero_bg', 'about_genesis_sub', 'about_genesis_title', 'about_genesis_p1', 'about_genesis_p2',
   'about_stat1_val', 'about_stat1_lbl', 'about_stat2_val', 'about_stat2_lbl', 'about_stat3_val', 'about_stat3_lbl', 'about_stat4_val', 'about_stat4_lbl',
   'about_team',
-  'contact_title_first', 'contact_title_orange', 'contact_subtitle', 'contact_email', 'contact_phone', 'contact_address'
+  'contact_title_first', 'contact_title_orange', 'contact_subtitle', 'contact_email', 'contact_phone', 'contact_address',
+  'social_instagram', 'social_facebook', 'social_youtube', 'social_twitter'
 ];
 
 let isWritingToFirestore = false;
@@ -107,7 +108,8 @@ export function initSiteSync() {
     'storage_updated_home_films',
     'storage_updated_about',
     'storage_updated_contact',
-    'storage_updated_films'
+    'storage_updated_films',
+    'storage_updated_socials'
   ];
 
   adminUpdateEvents.forEach(evt => {

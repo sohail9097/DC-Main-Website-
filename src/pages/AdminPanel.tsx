@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import { Navigate, Link } from 'react-router-dom';
 import { pushLocalConfigsToFirestore } from '../lib/siteSync';
-import { Users, Layout, Settings, LogOut, Home, Plus, Trash2, Edit2, ArrowUp, ArrowDown, RefreshCw, FileVideo, Image as ImageIcon, Film, Play, ChevronRight, ChevronLeft, MapPin, BookOpen } from 'lucide-react';
+import { Users, Layout, Settings, LogOut, Home, Plus, Trash2, Edit2, ArrowUp, ArrowDown, RefreshCw, FileVideo, Image as ImageIcon, Film, Play, ChevronRight, ChevronLeft, MapPin, BookOpen, Share2 } from 'lucide-react';
 import { DEFAULT_TEAM_MEMBERS, TeamMember, DEFAULT_ORBIT_IMAGES, DEFAULT_FILMS_LIST, DEFAULT_CLIENTS_LIST, ClientItem } from '../App';
 
 const AdminPanel: FC = () => {
@@ -191,6 +191,12 @@ const AdminPanel: FC = () => {
   const [contactPhone, setContactPhone] = useState("+91 98765 43210");
   const [contactAddress, setContactAddress] = useState("Lower Parel, Mumbai, India");
 
+  // Social media links state variables
+  const [socialInstagram, setSocialInstagram] = useState('#');
+  const [socialFacebook, setSocialFacebook] = useState('#');
+  const [socialYoutube, setSocialYoutube] = useState('#');
+  const [socialTwitter, setSocialTwitter] = useState('#');
+
   // Load from localStorage
   useEffect(() => {
     const stored = localStorage.getItem('dream_team');
@@ -308,6 +314,12 @@ const AdminPanel: FC = () => {
     setContactEmail(localStorage.getItem('contact_email') || "hello@dreamcatchers.com");
     setContactPhone(localStorage.getItem('contact_phone') || "+91 98765 43210");
     setContactAddress(localStorage.getItem('contact_address') || "Lower Parel, Mumbai, India");
+
+    // Load Social configs
+    setSocialInstagram(localStorage.getItem('social_instagram') || '#');
+    setSocialFacebook(localStorage.getItem('social_facebook') || '#');
+    setSocialYoutube(localStorage.getItem('social_youtube') || '#');
+    setSocialTwitter(localStorage.getItem('social_twitter') || '#');
   }, []);
 
   // Save to localStorage
@@ -730,12 +742,19 @@ const AdminPanel: FC = () => {
     localStorage.setItem('contact_phone', contactPhone);
     localStorage.setItem('contact_address', contactAddress);
 
+    // Save socials
+    localStorage.setItem('social_instagram', socialInstagram);
+    localStorage.setItem('social_facebook', socialFacebook);
+    localStorage.setItem('social_youtube', socialYoutube);
+    localStorage.setItem('social_twitter', socialTwitter);
+
     window.dispatchEvent(new Event('storage_updated_contact'));
-    alert('Contact info successfully saved!');
+    window.dispatchEvent(new Event('storage_updated_socials'));
+    alert('Contact & Social Media info successfully saved!');
   };
 
   const handleResetContactDetails = () => {
-    if (confirm('Reset contact cards to default info values?')) {
+    if (confirm('Reset contact cards and social media links to default info values?')) {
       setContactTitleFirst("Let's");
       setContactTitleOrange("Connect.");
       setContactSubtitle("Start your cinematic journey today.");
@@ -743,13 +762,25 @@ const AdminPanel: FC = () => {
       setContactPhone("+91 98765 43210");
       setContactAddress("Lower Parel, Mumbai, India");
 
+      setSocialInstagram('#');
+      setSocialFacebook('#');
+      setSocialYoutube('#');
+      setSocialTwitter('#');
+
       localStorage.removeItem('contact_title_first');
       localStorage.removeItem('contact_title_orange');
       localStorage.removeItem('contact_subtitle');
       localStorage.removeItem('contact_email');
       localStorage.removeItem('contact_phone');
       localStorage.removeItem('contact_address');
+
+      localStorage.removeItem('social_instagram');
+      localStorage.removeItem('social_facebook');
+      localStorage.removeItem('social_youtube');
+      localStorage.removeItem('social_twitter');
+
       window.dispatchEvent(new Event('storage_updated_contact'));
+      window.dispatchEvent(new Event('storage_updated_socials'));
     }
   };
 
@@ -887,8 +918,8 @@ const AdminPanel: FC = () => {
             onClick={() => { setActiveTab('contact_manage'); handleCancel(); }}
             className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all font-bold font-sans ${activeTab === 'contact_manage' ? 'bg-orange-500/10 text-orange-500' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
           >
-            <MapPin size={20} className="text-orange-500" />
-            <span>Contact Us Content</span>
+            <Share2 size={20} className="text-orange-500" />
+            <span>Contact & Socials</span>
           </button>
         </nav>
 
@@ -919,7 +950,7 @@ const AdminPanel: FC = () => {
               ) : activeTab === 'about_manage' ? (
                 <span>📖 ABOUT US CONTENT</span>
               ) : (
-                <span>📬 CONTACT US CONTENT</span>
+                <span>📬 CONTACT & SOCIAL MEDIA</span>
               )}
             </h1>
             <p className="text-white/40 mt-1 text-sm font-medium tracking-tight">
@@ -935,7 +966,7 @@ const AdminPanel: FC = () => {
                         ? 'Manage the rotating 3D orbit stars.'
                         : activeTab === 'about_manage'
                           ? 'Manage about details: hero text, background, genesis paragraphs, counters, and team profiles.'
-                          : 'Manage contact details: contact header title, info cards (email, phone, address).'}
+                          : 'Manage contact details (address, email, phone) and your social media profile URLs.'}
             </p>
           </div>
           
@@ -1092,7 +1123,7 @@ const AdminPanel: FC = () => {
                 </div>
               </motion.div>
 
-              {/* Card 4: CONTACT US PAGE */}
+              {/* Card 4: CONTACT & SOCIALS */}
               <motion.div
                 whileHover={{ scale: 1.02, y: -4 }}
                 transition={{ duration: 0.3 }}
@@ -1101,12 +1132,12 @@ const AdminPanel: FC = () => {
               >
                 {/* Background watermark */}
                 <div className="absolute right-[-10%] bottom-[-10%] opacity-[0.03] group-hover:opacity-[0.07] group-hover:scale-110 transition-all duration-700 pointer-events-none">
-                  <MapPin size={260} className="text-white" />
+                  <Share2 size={260} className="text-white" />
                 </div>
 
                 <div className="flex justify-between items-start">
                   <div className="w-14 h-14 rounded-2xl bg-orange-500/10 flex items-center justify-center border border-orange-500/20 group-hover:bg-orange-500 group-hover:text-black transition-all">
-                    <MapPin size={28} className="text-orange-500 group-hover:text-black transition-all" />
+                    <Share2 size={28} className="text-orange-500 group-hover:text-black transition-all" />
                   </div>
                   <span className="text-[10px] uppercase font-mono tracking-widest text-white/30 bg-white/5 px-3 py-1 rounded-full border border-white/5">
                     Direct Channels
@@ -1115,10 +1146,10 @@ const AdminPanel: FC = () => {
 
                 <div>
                   <h3 className="text-3xl font-black italic uppercase tracking-tight text-white mb-2 font-sans">
-                    CONTACT US PAGE
+                    CONTACT & SOCIALS
                   </h3>
                   <p className="text-xs text-white/40 font-semibold tracking-wider uppercase mb-8">
-                    CONNECT HEADINGS, TEAM SUBTITLE, DIRECT CHANNELS & PHONE CODES
+                    CONNECT HEADINGS, DIRECT CHANNELS, PHONE CODES & SOCIAL MEDIA LINKS
                   </p>
                   
                   <div className="flex items-center gap-2 text-orange-500 group-hover:text-orange-400 font-extrabold uppercase text-xs tracking-widest transition-all">
@@ -2876,8 +2907,8 @@ const AdminPanel: FC = () => {
           <div className="space-y-8 animate-fade-in text-white font-sans max-w-4xl pb-16">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-zinc-900/40 p-6 rounded-3xl border border-white/5">
               <div>
-                <h3 className="text-xl font-bold italic uppercase tracking-tight text-white mb-1">Contact Us Page Channels</h3>
-                <p className="text-xs text-white/40">Manage let's connect headings, official addresses, support email links and phone lines.</p>
+                <h3 className="text-xl font-bold italic uppercase tracking-tight text-white mb-1">Contact Channels & Social Media Profiles</h3>
+                <p className="text-xs text-white/40">Manage headings, physical address, support email, phone numbers, and footer social media links.</p>
               </div>
               <div className="flex gap-3">
                 <button
@@ -2961,6 +2992,53 @@ const AdminPanel: FC = () => {
                   onChange={(e) => setContactAddress(e.target.value)}
                   className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white"
                 />
+              </div>
+
+              <h3 className="text-lg font-black uppercase italic tracking-tight text-orange-500 border-b border-white/5 pb-3">
+                🌐 Social Media Accounts (Footer Icons)
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-zinc-400 font-bold mb-2">Instagram Link</label>
+                  <input
+                    type="text"
+                    value={socialInstagram}
+                    onChange={(e) => setSocialInstagram(e.target.value)}
+                    placeholder="e.g. https://instagram.com/dreamcatchers"
+                    className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-zinc-400 font-bold mb-2">Facebook Link</label>
+                  <input
+                    type="text"
+                    value={socialFacebook}
+                    onChange={(e) => setSocialFacebook(e.target.value)}
+                    placeholder="e.g. https://facebook.com/dreamcatchers"
+                    className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-zinc-400 font-bold mb-2">YouTube Link</label>
+                  <input
+                    type="text"
+                    value={socialYoutube}
+                    onChange={(e) => setSocialYoutube(e.target.value)}
+                    placeholder="e.g. https://youtube.com/c/dreamcatchers"
+                    className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-zinc-400 font-bold mb-2">Twitter Link</label>
+                  <input
+                    type="text"
+                    value={socialTwitter}
+                    onChange={(e) => setSocialTwitter(e.target.value)}
+                    placeholder="e.g. https://twitter.com/dreamcatchers"
+                    className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white font-mono"
+                  />
+                </div>
               </div>
 
               {/* Submit panel */}

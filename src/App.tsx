@@ -314,7 +314,7 @@ function Hero() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 100 }}
               transition={{ 
-                duration: 0.8, 
+                duration: 0.45, 
                 ease: [0.16, 1, 0.3, 1] 
               }}
               className="absolute flex flex-col items-center"
@@ -776,6 +776,13 @@ function DreamTeam() {
                   else if (position === 2) xOffset = outerOffset;
                   else if (position === -2) xOffset = -outerOffset;
 
+                  const carouselTransition = {
+                    type: 'spring',
+                    stiffness: 300,
+                    damping: 26,
+                    mass: 0.55
+                  };
+
                   return (
                     <motion.div
                       key={member.id}
@@ -787,17 +794,13 @@ function DreamTeam() {
                         scale: isCenter ? 1 : isInnerSide ? 0.82 : 0.65,
                         zIndex: isCenter ? 50 : 20 - Math.abs(position),
                       }}
-                      transition={{
-                        type: 'spring',
-                        stiffness: 80,
-                        damping: 20,
-                        mass: 1
-                      }}
+                      transition={carouselTransition}
                       className="absolute will-change-transform"
                     >
-                      {/* Member Container - Using layout for smooth morphing */}
+                      {/* Member Container - Using layout with optimized transition for smooth rapid morphing */}
                       <motion.div
                         layout
+                        transition={carouselTransition}
                         className={`relative flex flex-col items-center overflow-hidden h-fit ${
                           isCenter 
                             ? 'w-[280px] md:w-[440px] bg-white shadow-[0_40px_100px_rgba(0,0,0,0.7)]' 
@@ -812,6 +815,7 @@ function DreamTeam() {
                         {/* Photo container */}
                         <motion.div
                           layout
+                          transition={carouselTransition}
                           className={`relative overflow-hidden w-full ${
                             isCenter ? 'aspect-square' : 'h-full'
                           }`}
@@ -829,6 +833,7 @@ function DreamTeam() {
                           ) : (
                             <motion.img 
                               layout
+                              transition={carouselTransition}
                               src={member.image} 
                               alt={member.name} 
                               className="w-full h-full object-cover"
@@ -840,6 +845,7 @@ function DreamTeam() {
                             {isCenter && (
                               <motion.div 
                                 layout
+                                transition={carouselTransition}
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0 }}
@@ -847,12 +853,14 @@ function DreamTeam() {
                               >
                                 <motion.h4 
                                    layout
+                                   transition={carouselTransition}
                                   className="text-xl md:text-4xl font-black italic text-white uppercase tracking-tighter text-left"
                                 >
                                   {member.name}
                                 </motion.h4>
                                 <motion.p 
                                   layout
+                                  transition={carouselTransition}
                                   className="text-orange-500 text-[10px] md:text-sm font-bold uppercase tracking-[0.2em] mt-1 text-left"
                                 >
                                   {member.role}
@@ -1184,6 +1192,28 @@ function Footer() {
   const { user, isAdmin, login, logout } = useAuth();
   const navigate = useNavigate();
 
+  const [instagram, setInstagram] = useState('#');
+  const [facebook, setFacebook] = useState('#');
+  const [youtube, setYoutube] = useState('#');
+  const [twitter, setTwitter] = useState('#');
+
+  const loadSocials = () => {
+    setInstagram(localStorage.getItem('social_instagram') || '#');
+    setFacebook(localStorage.getItem('social_facebook') || '#');
+    setYoutube(localStorage.getItem('social_youtube') || '#');
+    setTwitter(localStorage.getItem('social_twitter') || '#');
+  };
+
+  useEffect(() => {
+    loadSocials();
+    window.addEventListener('storage', loadSocials);
+    window.addEventListener('storage_updated_socials', loadSocials);
+    return () => {
+      window.removeEventListener('storage', loadSocials);
+      window.removeEventListener('storage_updated_socials', loadSocials);
+    };
+  }, []);
+
   return (
     <footer className="py-8 md:py-12 bg-zinc-950/20 backdrop-blur-xl border-t border-white/5">
       <div className="max-w-[1800px] mx-auto px-6 md:px-48 lg:px-56">
@@ -1243,14 +1273,16 @@ function Footer() {
             <h5 className="text-white text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] mb-6 md:mb-10">Social</h5>
             <div className="flex flex-wrap gap-6 md:gap-8">
               {[
-                { name: 'Instagram', icon: <Instagram size={18} />, color: 'hover:text-[#E4405F]' },
-                { name: 'Facebook', icon: <Facebook size={18} />, color: 'hover:text-[#1877F2]' },
-                { name: 'Youtube', icon: <Youtube size={18} />, color: 'hover:text-[#FF0000]' },
-                { name: 'Twitter', icon: <Twitter size={18} />, color: 'hover:text-[#1DA1F2]' }
+                { name: 'Instagram', icon: <Instagram size={18} />, color: 'hover:text-[#E4405F]', url: instagram },
+                { name: 'Facebook', icon: <Facebook size={18} />, color: 'hover:text-[#1877F2]', url: facebook },
+                { name: 'Youtube', icon: <Youtube size={18} />, color: 'hover:text-[#FF0000]', url: youtube },
+                { name: 'Twitter', icon: <Twitter size={18} />, color: 'hover:text-[#1DA1F2]', url: twitter }
               ].map(social => (
                 <a 
                   key={social.name} 
-                  href="#" 
+                  href={social.url === '#' ? undefined : social.url} 
+                  target={social.url !== '#' ? "_blank" : undefined}
+                  rel={social.url !== '#' ? "noopener noreferrer" : undefined}
                   className={`text-white/40 transition-all duration-300 hover:scale-125 ${social.color}`}
                   title={social.name}
                 >
