@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from 'motion/react';
-import { ChevronRight, Camera, Users, Target, Rocket, Instagram, Facebook, Youtube, Twitter } from 'lucide-react';
-import { useState, useEffect, FC } from 'react';
+import { ChevronRight, ChevronLeft, Camera, Users, Target, Rocket, Instagram, Facebook, Youtube, Twitter } from 'lucide-react';
+import { useState, useEffect, useRef, FC } from 'react';
 import { Navbar } from '../App';
 
 const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
@@ -60,18 +60,147 @@ const AboutPage = () => {
   const starOpacity = useTransform(scrollY, [100, 700], [0.3, 1]);
   const textY = useTransform(scrollY, [0, 500], [0, 150]);
 
-  const stats = [
-    { label: 'YEARS ON SET', value: '14+', icon: <Camera className="w-5 h-5" /> },
-    { label: 'FILMS BORN', value: '500+', icon: <Rocket className="w-5 h-5" /> },
-    { label: 'CREATIVE MINDS', value: '30+', icon: <Users className="w-5 h-5" /> },
-    { label: 'GLOBAL BRANDS', value: '100+', icon: <Target className="w-5 h-5" /> },
-  ];
+  // Dynamic states
+  const [word1, setWord1] = useState('Dream');
+  const [word2, setWord2] = useState('Catchers');
+  const [tagline, setTagline] = useState('Engineers of visual euphoria. Architects of cinematic truth.');
+  const [bgImg, setBgImg] = useState('https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&q=80&w=2072');
+  const [genesisSub, setGenesisSub] = useState('The Genesis');
+  const [genesisTitle, setGenesisTitle] = useState('Where Magic Finds Its Form.');
+  const [genesisP1, setGenesisP1] = useState('Dreamcatchers started with a simple belief: that every story, no matter how small, deserves to be told with the weight of an epic.');
+  const [genesisP2, setGenesisP2] = useState("From our humble beginnings producing daily chat shows, we've evolved into a powerhouse creative studio that brands trust to bring their most ambitious visions to life.");
 
-  const team = [
+  const [stat1Val, setStat1Val] = useState('14+');
+  const [stat1Lbl, setStat1Lbl] = useState('YEARS ON SET');
+  const [stat2Val, setStat2Val] = useState('500+');
+  const [stat2Lbl, setStat2Lbl] = useState('FILMS BORN');
+  const [stat3Val, setStat3Val] = useState('30+');
+  const [stat3Lbl, setStat3Lbl] = useState('CREATIVE MINDS');
+  const [stat4Val, setStat4Val] = useState('100+');
+  const [stat4Lbl, setStat4Lbl] = useState('GLOBAL BRANDS');
+
+  const [team, setTeam] = useState<{ name: string; role: string; img: string }[]>([
     { name: 'ARJUN SHARMA', role: 'FOUNDER / DIRECTOR', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400' },
     { name: 'RIYA KAPOOR', role: 'EXECUTIVE PRODUCER', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400' },
     { name: 'VIKRAM SINGH', role: 'HEAD OF POST-PRODUCTION', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400' },
     { name: 'SARA KHAN', role: 'CREATIVE DIRECTOR', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=400' },
+  ]);
+
+  const loadAboutConfigs = () => {
+    setWord1(localStorage.getItem('about_bgt_word1') || 'Dream');
+    setWord2(localStorage.getItem('about_bgt_word2') || 'Catchers');
+    setTagline(localStorage.getItem('about_bgt_tagline') || 'Engineers of visual euphoria. Architects of cinematic truth.');
+    setBgImg(localStorage.getItem('about_hero_bg') || 'https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&q=80&w=2072');
+    setGenesisSub(localStorage.getItem('about_genesis_sub') || 'The Genesis');
+    setGenesisTitle(localStorage.getItem('about_genesis_title') || 'Where Magic Finds Its Form.');
+    setGenesisP1(localStorage.getItem('about_genesis_p1') || 'Dreamcatchers started with a simple belief: that every story, no matter how small, deserves to be told with the weight of an epic.');
+    setGenesisP2(localStorage.getItem('about_genesis_p2') || "From our humble beginnings producing daily chat shows, we've evolved into a powerhouse creative studio that brands trust to bring their most ambitious visions to life.");
+
+    setStat1Val(localStorage.getItem('about_stat1_val') || '14+');
+    setStat1Lbl(localStorage.getItem('about_stat1_lbl') || 'YEARS ON SET');
+    setStat2Val(localStorage.getItem('about_stat2_val') || '500+');
+    setStat2Lbl(localStorage.getItem('about_stat2_lbl') || 'FILMS BORN');
+    setStat3Val(localStorage.getItem('about_stat3_val') || '30+');
+    setStat3Lbl(localStorage.getItem('about_stat3_lbl') || 'CREATIVE MINDS');
+    setStat4Val(localStorage.getItem('about_stat4_val') || '100+');
+    setStat4Lbl(localStorage.getItem('about_stat4_lbl') || 'GLOBAL BRANDS');
+
+    const storedTeam = localStorage.getItem('about_team');
+    if (storedTeam) {
+      try {
+        setTeam(JSON.parse(storedTeam));
+      } catch (e) {
+        console.error('Error loading team from local storage:', e);
+      }
+    } else {
+      setTeam([
+        { name: 'ARJUN SHARMA', role: 'FOUNDER / DIRECTOR', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400' },
+        { name: 'RIYA KAPOOR', role: 'EXECUTIVE PRODUCER', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400' },
+        { name: 'VIKRAM SINGH', role: 'HEAD OF POST-PRODUCTION', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400' },
+        { name: 'SARA KHAN', role: 'CREATIVE DIRECTOR', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=400' },
+      ]);
+    }
+  };
+
+  useEffect(() => {
+    loadAboutConfigs();
+    window.addEventListener('storage_updated_about', loadAboutConfigs);
+    window.addEventListener('storage', loadAboutConfigs);
+    return () => {
+      window.removeEventListener('storage_updated_about', loadAboutConfigs);
+      window.removeEventListener('storage', loadAboutConfigs);
+    };
+  }, []);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isPausedByUser, setIsPausedByUser] = useState(false);
+  const autoPlayTimerRef = useRef<any>(null);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    let animationFrameId: number;
+    let lastTime = performance.now();
+    
+    // Auto-scroll speed: 0.08px per ms (increased slightly)
+    const speed = 0.08; 
+
+    const updateScroll = (time: number) => {
+      if (!isPausedByUser && el) {
+        const delta = time - lastTime;
+        el.scrollLeft += speed * delta;
+        
+        // Wrap around seamlessly
+        const maxScroll = el.scrollWidth - el.clientWidth;
+        if (el.scrollLeft >= maxScroll - 5) {
+          el.scrollLeft = 10;
+        }
+      }
+      lastTime = time;
+      animationFrameId = requestAnimationFrame(updateScroll);
+    };
+
+    animationFrameId = requestAnimationFrame(updateScroll);
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      if (autoPlayTimerRef.current) {
+        clearTimeout(autoPlayTimerRef.current);
+      }
+    };
+  }, [isPausedByUser, team.length]);
+
+  const triggerUserPause = () => {
+    setIsPausedByUser(true);
+    if (autoPlayTimerRef.current) {
+      clearTimeout(autoPlayTimerRef.current);
+    }
+    autoPlayTimerRef.current = setTimeout(() => {
+      setIsPausedByUser(false);
+    }, 5000); // Resume auto scroll after 5 seconds
+  };
+
+  const handleScrollLeft = () => {
+    triggerUserPause();
+    if (scrollRef.current) {
+      const cardWidth = window.innerWidth < 768 ? 280 + 32 : 380 + 32;
+      scrollRef.current.scrollBy({ left: -cardWidth, behavior: 'smooth' });
+    }
+  };
+
+  const handleScrollRight = () => {
+    triggerUserPause();
+    if (scrollRef.current) {
+      const cardWidth = window.innerWidth < 768 ? 280 + 32 : 380 + 32;
+      scrollRef.current.scrollBy({ left: cardWidth, behavior: 'smooth' });
+    }
+  };
+
+  const stats = [
+    { label: stat1Lbl, value: stat1Val, icon: <Camera className="w-5 h-5" /> },
+    { label: stat2Lbl, value: stat2Val, icon: <Rocket className="w-5 h-5" /> },
+    { label: stat3Lbl, value: stat3Val, icon: <Users className="w-5 h-5" /> },
+    { label: stat4Lbl, value: stat4Val, icon: <Target className="w-5 h-5" /> },
   ];
 
   return (
@@ -105,7 +234,7 @@ const AboutPage = () => {
           transition={{ duration: 3, ease: "easeOut", delay: 0.6 }}
         >
           <img 
-            src="https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&q=80&w=2072" 
+            src={bgImg} 
             className="w-full h-full object-cover brightness-[0.3] contrast-[1.2]"
             alt="Behind the scenes"
           />
@@ -129,8 +258,8 @@ const AboutPage = () => {
               transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 0.8 }}
             >
               <h1 className="text-6xl md:text-[12rem] font-black italic tracking-tighter uppercase leading-[0.85] flex flex-col items-center">
-                <span className="text-white">Dream</span>
-                <span className="text-orange-500 drop-shadow-[0_0_80px_rgba(249,115,22,0.4)]">Catchers</span>
+                <span className="text-white">{word1}</span>
+                <span className="text-orange-500 drop-shadow-[0_0_80px_rgba(249,115,22,0.4)]">{word2}</span>
               </h1>
               <motion.div 
                 initial={{ width: 0 }}
@@ -142,9 +271,9 @@ const AboutPage = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 1, delay: 2.2 }}
-                className="text-white/40 max-w-3xl mx-auto mt-12 text-sm md:text-xl font-medium tracking-[0.2em] uppercase leading-relaxed px-4"
+                className="text-white/45 max-w-3xl mx-auto mt-12 text-sm md:text-xl font-medium tracking-[0.2em] uppercase leading-relaxed px-4"
               >
-                Engineers of visual euphoria. Architects of cinematic truth.
+                {tagline}
               </motion.p>
             </motion.div>
           </motion.div>
@@ -163,17 +292,17 @@ const AboutPage = () => {
               >
                 <div className="flex items-center gap-4">
                   <span className="w-12 h-[1px] bg-orange-500" />
-                  <span className="text-xs font-black text-orange-500 uppercase tracking-[0.5em]">The Genesis</span>
+                  <span className="text-xs font-black text-orange-500 uppercase tracking-[0.5em]">{genesisSub}</span>
                 </div>
                 <h2 className="text-5xl md:text-8xl font-black italic text-white tracking-tighter leading-none uppercase">
-                  Where Magic <br /> Finds Its Form.
+                  {genesisTitle}
                 </h2>
                 <div className="space-y-8 text-white/60 text-lg md:text-2xl font-medium leading-relaxed tracking-tight border-l-2 border-orange-500/20 pl-8 md:pl-12">
                   <p>
-                    Dreamcatchers started with a simple belief: that every story, no matter how small, deserves to be told with the weight of an epic.
+                    {genesisP1}
                   </p>
                   <p>
-                    From our humble beginnings producing daily chat shows, we&apos;ve evolved into a powerhouse creative studio that brands trust to bring their most ambitious visions to life.
+                    {genesisP2}
                   </p>
                 </div>
               </motion.div>
@@ -217,34 +346,65 @@ const AboutPage = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
-              {team.map((member, idx) => (
-                <motion.div
-                  key={member.name}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1, delay: idx * 0.1 }}
-                  className="group relative cursor-pointer"
-                >
-                  <div className="aspect-[3/4] overflow-hidden rounded-[3rem] border border-white/10">
-                    <img 
-                      src={member.img} 
-                      alt={member.name} 
-                      className="w-full h-full object-cover grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-110" 
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover:opacity-40 transition-opacity" />
+            {/* Infinite Horizontal Scrolling Row */}
+            <div className="relative w-full py-4 group">
+              {/* Fade masks on the edges */}
+              <div className="pointer-events-none absolute inset-y-0 left-0 w-16 md:w-40 bg-gradient-to-r from-black via-black/80 to-transparent z-20" />
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-16 md:w-40 bg-gradient-to-l from-black via-black/80 to-transparent z-20" />
+
+              {/* Scrollable Row */}
+              <div 
+                ref={scrollRef}
+                className="flex gap-8 overflow-x-auto scrollbar-none py-4 snap-x snap-mandatory scroll-smooth px-12 md:px-24"
+                style={{
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none'
+                }}
+              >
+                {[...team, ...team, ...team].map((member, idx) => (
+                  <div
+                    key={`${member.name}-${idx}`}
+                    className="w-[280px] md:w-[380px] flex-shrink-0 snap-center group/card relative cursor-pointer"
+                  >
+                    <div className="aspect-[3/4] overflow-hidden rounded-[3rem] border border-white/10 relative">
+                      <img 
+                        src={member.img} 
+                        alt={member.name} 
+                        className="w-full h-full object-cover grayscale transition-all duration-1000 group-hover/card:grayscale-0 group-hover/card:scale-110" 
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover/card:opacity-40 transition-opacity" />
+                    </div>
+                    <div className="absolute inset-x-0 bottom-10 px-10 whitespace-normal">
+                      <h4 className="text-2xl font-black text-white tracking-tighter uppercase italic mb-1">
+                        {member.name}
+                      </h4>
+                      <p className="text-orange-500 text-[9px] font-black uppercase tracking-[0.3em]">
+                        {member.role}
+                      </p>
+                    </div>
                   </div>
-                  <div className="absolute inset-x-0 bottom-10 px-10">
-                    <h4 className="text-2xl font-black text-white tracking-tighter uppercase italic mb-1">
-                      {member.name}
-                    </h4>
-                    <p className="text-orange-500 text-[9px] font-black uppercase tracking-[0.3em]">
-                      {member.role}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
+                ))}
+              </div>
+
+              {/* Left Arrow Button */}
+              <button 
+                type="button"
+                onClick={handleScrollLeft}
+                className="absolute left-4 md:left-10 top-1/2 -translate-y-1/2 z-30 w-12 h-12 md:w-16 md:h-16 flex items-center justify-center rounded-full bg-black/60 hover:bg-orange-500 text-white hover:text-black border border-white/10 hover:border-orange-500/50 transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] active:scale-95 cursor-pointer backdrop-blur-md group-hover:scale-105"
+                aria-label="Previous Profile"
+              >
+                <ChevronLeft className="w-5 h-5 md:w-8 md:h-8" />
+              </button>
+
+              {/* Right Arrow Button */}
+              <button 
+                type="button"
+                onClick={handleScrollRight}
+                className="absolute right-4 md:right-10 top-1/2 -translate-y-1/2 z-30 w-12 h-12 md:w-16 md:h-16 flex items-center justify-center rounded-full bg-black/60 hover:bg-orange-500 text-white hover:text-black border border-white/10 hover:border-orange-500/50 transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] active:scale-95 cursor-pointer backdrop-blur-md group-hover:scale-105"
+                aria-label="Next Profile"
+              >
+                <ChevronRight className="w-5 h-5 md:w-8 md:h-8" />
+              </button>
             </div>
           </div>
         </section>

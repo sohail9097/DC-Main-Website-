@@ -1,5 +1,5 @@
 import { motion, AnimatePresence, useScroll, useTransform, useTime } from 'motion/react';
-import { Camera, Play, ChevronRight, Menu, X, Rocket, Moon, ShieldCheck, Instagram, Facebook, Youtube, Twitter } from 'lucide-react';
+import { Camera, Play, ChevronLeft, ChevronRight, Menu, X, Rocket, Moon, ShieldCheck, Instagram, Facebook, Youtube, Twitter } from 'lucide-react';
 import { useState, useEffect, useRef, FC } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
@@ -63,7 +63,7 @@ const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
   );
 };
 
-const ORBIT_IMAGES = [
+export const DEFAULT_ORBIT_IMAGES = [
   'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=500',
   'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=500',
   'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=500',
@@ -237,13 +237,41 @@ export function Navbar() {
 
 function Hero() {
   const navigate = useNavigate();
-  const titles = [
+  const [titles, setTitles] = useState<{ line1: string, line2: string }[]>([
     { line1: "VISUAL", line2: "POETRY" },
     { line1: "CINEMATIC", line2: "WIZARDRY" },
     { line1: "DIGITAL", line2: "RENAISSANCE" },
-    { line1: "CREATIVE", line2: "EUPHORIA" },
-    { line1: "TIMELESS", line2: "CHRONICLES" },
-  ];
+  ]);
+  const [showreelUrl, setShowreelUrl] = useState('');
+  const [showreelOpen, setShowreelOpen] = useState(false);
+
+  const loadHomeHeroConfigs = () => {
+    const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761';
+    setShowreelUrl(savedShowreel);
+
+    const t1_l1 = localStorage.getItem('home_title1_l1') || 'VISUAL';
+    const t1_l2 = localStorage.getItem('home_title1_l2') || 'POETRY';
+    const t2_l1 = localStorage.getItem('home_title2_l1') || 'CINEMATIC';
+    const t2_l2 = localStorage.getItem('home_title2_l2') || 'WIZARDRY';
+    const t3_l1 = localStorage.getItem('home_title3_l1') || 'DIGITAL';
+    const t3_l2 = localStorage.getItem('home_title3_l2') || 'RENAISSANCE';
+
+    setTitles([
+      { line1: t1_l1, line2: t1_l2 },
+      { line1: t2_l1, line2: t2_l2 },
+      { line1: t3_l1, line2: t3_l2 },
+    ]);
+  };
+
+  useEffect(() => {
+    loadHomeHeroConfigs();
+    window.addEventListener('storage_updated_home_hero', loadHomeHeroConfigs);
+    window.addEventListener('storage', loadHomeHeroConfigs);
+    return () => {
+      window.removeEventListener('storage_updated_home_hero', loadHomeHeroConfigs);
+      window.removeEventListener('storage', loadHomeHeroConfigs);
+    };
+  }, []);
 
   const [index, setIndex] = useState(0);
   const { scrollY } = useScroll();
@@ -252,6 +280,7 @@ function Hero() {
   const opacity = useTransform(scrollY, [0, 400], [1, 0]);
 
   useEffect(() => {
+    if (titles.length === 0) return;
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % titles.length);
     }, 4000);
@@ -271,7 +300,7 @@ function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-white/80 text-[10px] sm:text-xs uppercase tracking-[0.5em] mb-4 md:mb-8"
+          className="text-white/80 text-[10px] sm:text-xs uppercase tracking-[0.5em] mb-4 md:mb-8 animate-pulse text-orange-500"
         >
           Creators + Films + Documentaries
         </motion.p>
@@ -289,11 +318,11 @@ function Hero() {
               }}
               className="absolute flex flex-col items-center"
             >
-              <h1 className="text-3xl md:text-[6.5rem] font-black text-white tracking-tighter leading-none whitespace-nowrap">
-                {titles[index].line1}
+              <h1 className="text-3xl md:text-[6.5rem] font-black text-white tracking-tighter leading-none whitespace-nowrap uppercase">
+                {titles[index]?.line1}
               </h1>
-              <h1 className="text-3xl md:text-[6.5rem] font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-orange-400 to-orange-500 tracking-tighter leading-none whitespace-nowrap">
-                {titles[index].line2}
+              <h1 className="text-3xl md:text-[6.5rem] font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-orange-400 to-orange-500 tracking-tighter leading-none whitespace-nowrap uppercase">
+                {titles[index]?.line2}
               </h1>
             </motion.div>
           </AnimatePresence>
@@ -305,102 +334,225 @@ function Hero() {
           transition={{ delay: 0.8 }}
           className="flex flex-col md:flex-row gap-4 md:gap-8"
         >
-          <button className="group flex items-center gap-3 px-6 md:px-10 py-3 md:py-5 bg-white text-black font-black uppercase tracking-[0.2em] text-[10px] md:text-xs rounded-full hover:scale-105 transition-all shadow-xl">
+          <button 
+            type="button"
+            onClick={() => setShowreelOpen(true)}
+            className="group flex items-center gap-3 px-6 md:px-10 py-3 md:py-5 bg-white hover:bg-orange-500 hover:text-white text-black font-black uppercase tracking-[0.2em] text-[10px] md:text-xs rounded-full hover:scale-105 transition-all shadow-xl pointer-events-auto cursor-pointer"
+          >
             <Play size={10} className="fill-current md:w-[14px]" />
             Play Showreel
           </button>
           <button 
+            type="button"
             onClick={() => navigate('/contact')}
-            className="px-6 md:px-10 py-3 md:py-5 border border-white/20 text-white font-black uppercase tracking-[0.2em] text-[10px] md:text-xs rounded-full hover:border-orange-500/50 hover:bg-white/5 transition-all pointer-events-auto"
+            className="px-6 md:px-10 py-3 md:py-5 border border-white/20 text-white hover:border-white font-black uppercase tracking-[0.2em] text-[10px] md:text-xs rounded-full hover:border-orange-500/50 hover:bg-white/5 transition-all pointer-events-auto cursor-pointer"
           >
             Contact Us
           </button>
         </motion.div>
-
+ 
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 animate-bounce">
            <span className="text-[9px] text-white/30 uppercase tracking-[0.5em]">Scroll</span>
            <div className="w-[1px] h-12 bg-gradient-to-b from-orange-500 to-transparent shadow-[0_0_15px_rgba(249,115,22,0.5)]" />
         </div>
       </motion.div>
+
+      {/* Cinematic Modal Player Block */}
+      <AnimatePresence>
+        {showreelOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/95 z-[9999] flex items-center justify-center p-4 md:p-8 backdrop-blur-2xl pointer-events-auto"
+          >
+            <button 
+              type="button"
+              onClick={() => setShowreelOpen(false)}
+              className="absolute top-6 right-6 text-white/50 hover:text-white p-3 hover:bg-white/10 rounded-full transition-all border border-white/10"
+            >
+              <X size={24} />
+            </button>
+            
+            <motion.div 
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="w-full max-w-5xl aspect-video bg-black rounded-3xl overflow-hidden border border-white/10 shadow-2xl relative"
+            >
+              {showreelUrl.includes('youtube.com') || showreelUrl.includes('youtu.be') ? (
+                <iframe 
+                  src={showreelUrl.replace('watch?v=', 'embed/').split('&')[0] + "?autoplay=1"} 
+                  title="Showreel Player" 
+                  className="w-full h-full border-none" 
+                  allowFullScreen
+                  allow="autoplay; encrypted-media"
+                />
+              ) : showreelUrl.includes('vimeo.com') ? (
+                <iframe 
+                  src={showreelUrl.includes('player.vimeo.com') ? `${showreelUrl}?autoplay=1` : `https://player.vimeo.com/video/${showreelUrl.split('/').pop()}?autoplay=1`} 
+                  title="Showreel Player" 
+                  className="w-full h-full border-none" 
+                  allowFullScreen
+                  allow="autoplay; fullscreen"
+                />
+              ) : (
+                <video 
+                  src={showreelUrl} 
+                  controls 
+                  autoPlay 
+                  className="w-full h-full object-contain" 
+                />
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
-const FILMS = [
-  { id: '1', title: 'Boat x Netflix Stream Edition', category: 'Branded Commercials', img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=2070' },
-  { id: '2', title: 'Marvel x Guardians of the Galaxy', category: 'OTT', img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=2070' },
-  { id: '3', title: 'Netflix Dhamaka Mood Promo', category: 'OTT', img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=2070' },
-  { id: '4', title: 'Coke Studio Global | Afroto | 7ALA', category: 'Music Video', img: 'https://images.unsplash.com/photo-1540959733332-e94e270b4a8a?auto=format&fit=crop&q=80&w=2069' },
-  { id: '5', title: 'Directors Cut | Green Vibes Festival', category: 'Unscripted', img: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071' },
-  { id: '6', title: 'Bumble x Kindness is sexy ft. ARK', category: 'Branded Commercials', img: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&q=80&w=2070' },
+export const DEFAULT_FILMS_LIST = [
+  { id: '1', title: 'Boat x Netflix Stream Edition', category: 'Branded Commercials', img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '2', title: 'Marvel x Guardians of the Galaxy', category: 'OTT', img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '3', title: 'Netflix Dhamaka Mood Promo', category: 'OTT', img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '4', title: 'Coke Studio Global | Afroto | 7ALA', category: 'Music Video', img: 'https://images.unsplash.com/photo-1540959733332-e94e270b4a8a?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '5', title: 'Directors Cut | Green Vibes Festival', category: 'Unscripted', img: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '6', title: 'Bumble x Kindness is sexy ft. ARK', category: 'Branded Commercials', img: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '7', title: 'Maleficent', category: 'OTT', img: 'https://images.unsplash.com/photo-1606503825008-909a67e74360?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '8', title: 'Shaitaan', category: 'OTT', img: 'https://images.unsplash.com/photo-1616530940355-351fabd9524b?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '9', title: 'Deadpool & Wolverine', category: 'OTT', img: 'https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '10', title: 'Spider-Man: No Way Home', category: 'OTT', img: 'https://images.unsplash.com/photo-1635805737707-575885ab0820?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '11', title: 'Padmaavat', category: 'OTT', img: 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '12', title: 'Beauty and the Beast', category: 'OTT', img: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '13', title: 'Black Panther', category: 'OTT', img: 'https://images.unsplash.com/photo-1542204172-3c3066385d0d?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '14', title: 'Interstellar', category: 'OTT', img: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '15', title: 'Dune: Part Two', category: 'OTT', img: 'https://images.unsplash.com/photo-1506466010722-395aa2bef877?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '16', title: 'Inception', category: 'OTT', img: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '17', title: 'Joker', category: 'OTT', img: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '18', title: 'The Batman', category: 'OTT', img: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '19', title: 'Blade Runner 2049', category: 'OTT', img: 'https://images.unsplash.com/photo-1493612276216-ee3925520721?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '20', title: 'The Revenant', category: 'OTT', img: 'https://images.unsplash.com/photo-1540959733332-e94e270b4a8a?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '21', title: 'Doctor Strange', category: 'OTT', img: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '22', title: 'Avatar: Way of Water', category: 'OTT', img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '23', title: 'Jurassic World', category: 'OTT', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '24', title: 'Thor: Love and Thunder', category: 'OTT', img: 'https://images.unsplash.com/photo-1542204172-3c3066385d0d?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '25', title: 'The Matrix Resurrections', category: 'OTT', img: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '26', title: 'Wonder Woman 1984', category: 'OTT', img: 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '27', title: 'Guardians of the Galaxy Vol. 3', category: 'OTT', img: 'https://images.unsplash.com/photo-1485098262243-ea7631fec367?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '28', title: 'Oppenheimer', category: 'OTT', img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '29', title: 'Barbie', category: 'OTT', img: 'https://images.unsplash.com/photo-1531259683007-01397e899182?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '30', title: 'Top Gun: Maverick', category: 'OTT', img: 'https://images.unsplash.com/photo-1598897135853-90d56621252e?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '31', title: 'Mission Impossible', category: 'OTT', img: 'https://images.unsplash.com/photo-1525498128445-66d4825950dc?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '32', title: 'John Wick: Chapter 4', category: 'OTT', img: 'https://images.unsplash.com/photo-1550101617-dc139a028670?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '33', title: 'Mad Max: Fury Road', category: 'OTT', img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' }
 ];
 
-const CLIENTS = [
-  { name: 'NETFLIX', color: '#E50914', size: 'large' },
-  { name: "D'DECOR", color: '#FFFFFF', size: 'medium' },
-  { name: 'amazon prime', color: '#FFFFFF', size: 'large' },
-  { name: 'Disney+ hotstar', color: '#FFFFFF', size: 'small' },
-  { name: 'asics', color: '#FFFFFF', size: 'medium' },
-  { name: "L'ORÉAL", color: '#FFFFFF', size: 'medium' },
-  { name: 'Pernod Ricard', color: '#FFFFFF', size: 'small' },
-  { name: 'YouTube', color: '#FFFFFF', size: 'small' },
-  { name: 'JAMESON', color: '#FFFFFF', size: 'medium' },
-  { name: 'ASUS', color: '#FFFFFF', size: 'medium' },
-  { name: 'LIONSGATE PLAY', color: '#FFFFFF', size: 'medium' },
-  { name: 'MARVEL STUDIOS', color: '#ED1D24', size: 'medium' },
-  { name: 'ABSOLUT.', color: '#FFFFFF', size: 'medium' },
-  { name: 'Coke STUDIO', color: '#FE001A', size: 'medium' },
-  { name: 'SKECHERS', color: '#FFFFFF', size: 'small' },
-  { name: 'Bumble', color: '#FFC629', size: 'small' },
-  { name: 'Mi', color: '#FF6700', size: 'small' },
-  { name: 'Signature', color: '#FFFFFF', size: 'medium' },
-  { name: 'IndiGo', color: '#FFFFFF', size: 'small' },
-  { name: 'Top Ramen', color: '#FF0000', size: 'small' },
-  { name: 'Boost', color: '#FFFFFF', size: 'small' },
-  { name: 'Myntra', color: '#FFFFFF', size: 'small' },
-  { name: 'boat', color: '#FFFFFF', size: 'small' },
-  { name: 'TOSHIBA', color: '#FFFFFF', size: 'medium' },
-  { name: 'LAKMÉ', color: '#FFFFFF', size: 'small' },
-  { name: 'BRITANNIA', color: '#ED1D24', size: 'small' },
-  { name: 'Vedanta', color: '#FFFFFF', size: 'small' },
-  { name: 'Tecno', color: '#FFFFFF', size: 'small' },
-  { name: 'Star Sports', color: '#FFFFFF', size: 'small' },
-  { name: 'Sony', color: '#FFFFFF', size: 'small' },
-  { name: 'NPCL', color: '#FFFFFF', size: 'small' },
-  { name: 'NDTV', color: '#FFFFFF', size: 'small' },
-  { name: 'KPMG', color: '#FFFFFF', size: 'small' },
-  { name: 'FIFA', color: '#FFFFFF', size: 'small' },
-  { name: 'Adani', color: '#FFFFFF', size: 'small' },
-  { name: 'Zee', color: '#FFFFFF', size: 'small' },
-  { name: 'Vivo', color: '#FFFFFF', size: 'small' },
-  { name: 'Swachh Bharat', color: '#FFFFFF', size: 'small' },
-  { name: 'Pearl Academy', color: '#FFFFFF', size: 'small' },
-  { name: 'Larsen & Toubro', color: '#FFFFFF', size: 'small' },
-  { name: 'Indian Air Force', color: '#FFFFFF', size: 'small' },
-  { name: 'Indian Army', color: '#FFFFFF', size: 'small' },
-  { name: 'Jakson', color: '#FFFFFF', size: 'small' },
-  { name: 'Seven', color: '#FFFFFF', size: 'small' },
-  { name: 'Gujarat Tourism', color: '#FFFFFF', size: 'small' },
-  { name: 'Food Food', color: '#FFFFFF', size: 'small' },
-  { name: 'Experion', color: '#FFFFFF', size: 'small' },
-  { name: 'Discovery', color: '#FFFFFF', size: 'small' },
-  { name: 'Cairn', color: '#FFFFFF', size: 'small' },
-  { name: 'DLF', color: '#FFFFFF', size: 'small' },
-  { name: 'Denso', color: '#FFFFFF', size: 'small' },
-  { name: 'Balaji Wafers', color: '#FFFFFF', size: 'small' },
-  { name: 'GMR', color: '#FFFFFF', size: 'small' },
-  { name: 'Land Ports Authority', color: '#FFFFFF', size: 'small' },
-  { name: 'FIH', color: '#FFFFFF', size: 'small' },
-  { name: 'The Leela', color: '#FFFFFF', size: 'small' },
+export const FILMS = DEFAULT_FILMS_LIST;
+
+export interface ClientItem {
+  id: string;
+  name: string;
+  color: string;
+  size?: 'small' | 'medium' | 'large' | string;
+  logoUrl?: string;
+}
+
+export const DEFAULT_CLIENTS_LIST: ClientItem[] = [
+  { id: '1', name: 'NETFLIX', color: '#E50914', size: 'large', logoUrl: '' },
+  { id: '2', name: "D'DECOR", color: '#FFFFFF', size: 'medium', logoUrl: '' },
+  { id: '3', name: 'amazon prime', color: '#FFFFFF', size: 'large', logoUrl: '' },
+  { id: '4', name: 'Disney+ hotstar', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '5', name: 'asics', color: '#FFFFFF', size: 'medium', logoUrl: '' },
+  { id: '6', name: "L'ORÉAL", color: '#FFFFFF', size: 'medium', logoUrl: '' },
+  { id: '7', name: 'Pernod Ricard', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '8', name: 'YouTube', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '9', name: 'JAMESON', color: '#FFFFFF', size: 'medium', logoUrl: '' },
+  { id: '10', name: 'ASUS', color: '#FFFFFF', size: 'medium', logoUrl: '' },
+  { id: '11', name: 'LIONSGATE PLAY', color: '#FFFFFF', size: 'medium', logoUrl: '' },
+  { id: '12', name: 'MARVEL STUDIOS', color: '#ED1D24', size: 'medium', logoUrl: '' },
+  { id: '13', name: 'ABSOLUT.', color: '#FFFFFF', size: 'medium', logoUrl: '' },
+  { id: '14', name: 'Coke STUDIO', color: '#FE001A', size: 'medium', logoUrl: '' },
+  { id: '15', name: 'SKECHERS', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '16', name: 'Bumble', color: '#FFC629', size: 'small', logoUrl: '' },
+  { id: '17', name: 'Mi', color: '#FF6700', size: 'small', logoUrl: '' },
+  { id: '18', name: 'Signature', color: '#FFFFFF', size: 'medium', logoUrl: '' },
+  { id: '19', name: 'IndiGo', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '20', name: 'Top Ramen', color: '#FF0000', size: 'small', logoUrl: '' },
+  { id: '21', name: 'Boost', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '22', name: 'Myntra', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '23', name: 'boat', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '24', name: 'TOSHIBA', color: '#FFFFFF', size: 'medium', logoUrl: '' },
+  { id: '25', name: 'LAKMÉ', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '26', name: 'BRITANNIA', color: '#ED1D24', size: 'small', logoUrl: '' },
+  { id: '27', name: 'Vedanta', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '28', name: 'Tecno', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '29', name: 'Star Sports', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '30', name: 'Sony', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '31', name: 'NPCL', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '32', name: 'NDTV', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '33', name: 'KPMG', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '34', name: 'FIFA', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '35', name: 'Adani', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '36', name: 'Zee', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '37', name: 'Vivo', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '38', name: 'Swachh Bharat', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '39', name: 'Pearl Academy', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '40', name: 'Larsen & Toubro', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '41', name: 'Indian Air Force', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '42', name: 'Indian Army', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '43', name: 'Jakson', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '44', name: 'Seven', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '45', name: 'Gujarat Tourism', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '46', name: 'Food Food', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '47', name: 'Experion', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '48', name: 'Discovery', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '49', name: 'Cairn', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '50', name: 'DLF', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '51', name: 'Denso', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '52', name: 'Balaji Wafers', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '53', name: 'GMR', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '54', name: 'Land Ports Authority', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '55', name: 'FIH', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '56', name: 'The Leela', color: '#FFFFFF', size: 'small', logoUrl: '' },
 ];
 
 function Clients() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [clients, setClients] = useState<ClientItem[]>([]);
+
+  useEffect(() => {
+    const fetchClients = () => {
+      const stored = localStorage.getItem('dc_clients');
+      if (stored) {
+        try {
+          setClients(JSON.parse(stored));
+        } catch (e) {
+          console.error('Error parsing clients:', e);
+          setClients(DEFAULT_CLIENTS_LIST);
+        }
+      } else {
+        setClients(DEFAULT_CLIENTS_LIST);
+      }
+    };
+
+    fetchClients();
+
+    window.addEventListener('storage', fetchClients);
+    window.addEventListener('storage_updated_clients', fetchClients);
+
+    return () => {
+      window.removeEventListener('storage', fetchClients);
+      window.removeEventListener('storage_updated_clients', fetchClients);
+    };
+  }, []);
+
+  if (clients.length === 0) return null;
   
   return (
     <section 
       id="clients" 
-      className="py-10 md:py-24 bg-transparent overflow-hidden relative" 
+      className="pt-10 md:pt-24 pb-0 md:pb-4 bg-transparent overflow-hidden relative" 
       ref={containerRef}
     >
       <div className="max-w-[1600px] mx-auto px-0 flex flex-col items-start relative z-20">
@@ -428,7 +580,7 @@ function Clients() {
               }}
               className="flex whitespace-nowrap gap-12 py-4"
             >
-              {[...CLIENTS, ...CLIENTS].map((client, i) => (
+              {[...clients, ...clients].map((client, i) => (
                 <ClientLogo key={`${client.name}-r1-${i}`} client={client} />
               ))}
             </motion.div>
@@ -445,7 +597,7 @@ function Clients() {
               }}
               className="flex whitespace-nowrap gap-12 py-4"
             >
-              {[...CLIENTS.slice().reverse(), ...CLIENTS].map((client, i) => (
+              {[...clients.slice().reverse(), ...clients].map((client, i) => (
                 <ClientLogo key={`${client.name}-r2-${i}`} client={client} />
               ))}
             </motion.div>
@@ -457,50 +609,122 @@ function Clients() {
 }
 
 interface ClientLogoProps {
-  client: typeof CLIENTS[0];
+  client: ClientItem;
 }
 
 const ClientLogo: FC<ClientLogoProps> = ({ client }) => {
+  const [imgError, setImgError] = useState(false);
+  const hasLogoUrl = client.logoUrl && client.logoUrl.trim().length > 0 && !imgError;
+
   return (
     <div className="flex items-center gap-2 md:gap-4 px-4 md:px-6 py-2 md:py-3 bg-zinc-900/30 backdrop-blur-sm rounded-full border border-white/5 transition-all duration-300 hover:scale-105 active:scale-95 cursor-default group">
       <div 
-        className="w-8 h-8 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center text-white font-black text-sm md:text-xl shadow-lg ring-1 ring-white/10" 
+        className="w-8 h-8 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center text-white font-black text-sm md:text-xl shadow-lg ring-1 ring-white/10 overflow-hidden" 
         style={{ 
-          backgroundColor: client.color,
-          backgroundImage: `linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%)`
+          backgroundColor: client.color || '#333333',
+          backgroundImage: hasLogoUrl ? 'none' : `linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%)`
         }}
       >
-        {client.name.substring(0, 1).toUpperCase()}
+        {hasLogoUrl ? (
+          <img 
+            src={client.logoUrl} 
+            alt={client.name} 
+            className="w-full h-full object-contain p-1.5"
+            referrerPolicy="no-referrer"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <span>{client.name ? client.name.substring(0, 1).toUpperCase() : 'C'}</span>
+        )}
       </div>
       <span className="text-base md:text-3xl font-bold text-zinc-400 tracking-tight transition-colors group-hover:text-white">
         {client.name}
       </span>
     </div>
   );
+};
+
+export interface TeamMember {
+  id: number;
+  name: string;
+  role: string;
+  image: string;
+  mediaType?: 'image' | 'video';
 }
 
-const TEAM_MEMBERS = [
-  { id: 1, name: 'Vikram Singh', role: 'Founder & Director', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=600' },
-  { id: 2, name: 'Ananya Sharma', role: 'Creative Producer', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=600' },
-  { id: 3, name: 'Rahul Mehra', role: 'Post-Production', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600' },
-  { id: 4, name: 'Zoya Akhtar', role: 'Cinematographer', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600' },
-  { id: 5, name: 'Siddharth Roy', role: 'Lead Editor', image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=600' },
+export const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
+  { id: 1, name: 'Vikram Singh', role: 'Founder & Director', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=600', mediaType: 'image' },
+  { id: 2, name: 'Ananya Sharma', role: 'Creative Producer', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=600', mediaType: 'image' },
+  { id: 3, name: 'Rahul Mehra', role: 'Post-Production', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600', mediaType: 'image' },
+  { id: 4, name: 'Zoya Akhtar', role: 'Cinematographer', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600', mediaType: 'image' },
 ];
 
 function DreamTeam() {
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev + 1) % teamMembers.length);
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev - 1 + teamMembers.length) % teamMembers.length);
+  };
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev - 1 + TEAM_MEMBERS.length) % TEAM_MEMBERS.length);
-    }, 5000); // Slightly slower for better readability
-    return () => clearInterval(timer);
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    const loadTeamMembers = () => {
+      const stored = localStorage.getItem('dream_team');
+      if (stored) {
+        try {
+          setTeamMembers(JSON.parse(stored));
+          return;
+        } catch (e) {
+          console.error('Error parsing team members from localStorage:', e);
+        }
+      }
+      setTeamMembers(DEFAULT_TEAM_MEMBERS);
+    };
+
+    loadTeamMembers();
+    
+    // Listen for custom simple internal storage-updating triggers
+    window.addEventListener('storage_updated_team', loadTeamMembers);
+    window.addEventListener('storage', loadTeamMembers); // Multi-tab or general sync
+    return () => {
+      window.removeEventListener('storage_updated_team', loadTeamMembers);
+      window.removeEventListener('storage', loadTeamMembers);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (teamMembers.length === 0) return;
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev - 1 + teamMembers.length) % teamMembers.length);
+    }, 5000); // Slightly slower for better readability
+    return () => clearInterval(timer);
+  }, [teamMembers]);
+
+  if (teamMembers.length === 0) {
+    return (
+      <section id="team" className="pt-8 md:pt-16 pb-24 md:pb-48 relative overflow-hidden bg-black/20">
+        <div className="max-w-[1600px] mx-auto px-6 text-center text-white/50">
+          Loading team members...
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section id="team" className="py-24 md:py-48 relative overflow-hidden bg-black/20">
+    <section id="team" className="pt-8 md:pt-16 pb-24 md:pb-48 relative overflow-hidden bg-black/20">
       <div className="max-w-[1600px] mx-auto px-6">
-        <div className="text-left mb-32">
+        <div className="text-left mb-12 md:mb-16">
           <motion.span 
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -516,78 +740,165 @@ function DreamTeam() {
           >
             Dream <span className="text-orange-500">Team</span>
           </motion.h3>
-        </div>
-
-        {/* Sliding Carousel */}
+        </div>        {/* Sliding Carousel */}
         <div className="relative h-[550px] md:h-[700px] flex items-center justify-center">
-          {TEAM_MEMBERS.map((member, i) => {
-            // Relative position logic for infinite loop
-            let position = i - currentIndex;
-            const total = TEAM_MEMBERS.length;
-            const half = Math.floor(total / 2);
-            while (position > half) position -= total;
-            while (position < -half) position += total;
-
-            const isCenter = position === 0;
-            const isVisible = Math.abs(position) <= 2;
+          {(() => {
+            const isMobile = windowWidth < 768;
+            
+            // Generous design gap offsets (center-to-center)
+            const innerOffset = isMobile ? 210 : 490; 
+            const outerOffset = innerOffset + (isMobile ? 120 : 320);
+            
+            // Position arrows outside of the outermost profile, but adjust dynamically to fit the viewport nicely
+            const maxArrowOffset = (windowWidth / 2) - (isMobile ? 32 : 64);
+            const preferredArrowOffset = outerOffset + (isMobile ? 65 : 125);
+            const arrowOffset = Math.min(preferredArrowOffset, maxArrowOffset);
 
             return (
-              <motion.div
-                key={member.id}
-                initial={false}
-                animate={{
-                  opacity: isVisible ? (isCenter ? 1 : 0.7) : 0,
-                  x: position * (window.innerWidth < 768 ? 130 : 350),
-                  scale: isCenter ? 1 : 0.6,
-                  zIndex: isCenter ? 50 : 20 - Math.abs(position),
-                }}
-                transition={{
-                  type: 'spring',
-                  stiffness: 70, // Slower, smoother spring
-                  damping: 18,
-                  mass: 1.2
-                }}
-                className="absolute will-change-transform"
-              >
-                {/* Member Container */}
-                <div
-                  className={`relative flex flex-col items-center transition-all duration-700 ${
-                    isCenter 
-                      ? 'w-[280px] md:w-[450px]' 
-                      : 'w-24 h-24 md:w-52 md:h-52 rounded-full ring-4 ring-white/20 p-1 bg-white/5 backdrop-blur-md'
-                  }`}
-                >
-                  {/* Photo Container */}
-                  <div
-                    className={`relative overflow-hidden transition-all duration-700 shadow-2xl ${
-                      isCenter 
-                        ? 'w-full aspect-square rounded-[3rem]' 
-                        : 'w-full h-full rounded-full'
-                    }`}
-                  >
-                    <img 
-                      src={member.image} 
-                      alt={member.name} 
-                      className="w-full h-full object-cover"
-                    />
-                    
-                    {/* Name Overlay - Only for center */}
-                    {isCenter && (
-                      <div className="absolute inset-x-0 bottom-0 p-8 bg-gradient-to-t from-black/80 to-transparent">
-                        <motion.h4 
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          className="text-2xl md:text-4xl font-black italic text-white uppercase tracking-tighter"
+              <>
+                {teamMembers.map((member, i) => {
+                  // Relative position logic for infinite loop
+                  let position = i - currentIndex;
+                  const total = teamMembers.length;
+                  const half = Math.floor(total / 2);
+                  while (position > half) position -= total;
+                  while (position < -half) position += total;
+
+                  const isCenter = position === 0;
+                  const isInnerSide = Math.abs(position) === 1; // Profiles 2 and 4
+                  const isOuterSide = Math.abs(position) === 2; // Profiles 1 and 5
+                  const isVisible = Math.abs(position) <= 2;
+
+                  let xOffset = 0;
+                  if (position === 1) xOffset = innerOffset;
+                  else if (position === -1) xOffset = -innerOffset;
+                  else if (position === 2) xOffset = outerOffset;
+                  else if (position === -2) xOffset = -outerOffset;
+
+                  return (
+                    <motion.div
+                      key={member.id}
+                      layout
+                      initial={false}
+                      animate={{
+                        opacity: isVisible ? (isCenter ? 1 : isInnerSide ? 0.8 : 0.4) : 0,
+                        x: xOffset,
+                        scale: isCenter ? 1 : isInnerSide ? 0.82 : 0.65,
+                        zIndex: isCenter ? 50 : 20 - Math.abs(position),
+                      }}
+                      transition={{
+                        type: 'spring',
+                        stiffness: 80,
+                        damping: 20,
+                        mass: 1
+                      }}
+                      className="absolute will-change-transform"
+                    >
+                      {/* Member Container - Using layout for smooth morphing */}
+                      <motion.div
+                        layout
+                        className={`relative flex flex-col items-center overflow-hidden h-fit ${
+                          isCenter 
+                            ? 'w-[280px] md:w-[440px] bg-white shadow-[0_40px_100px_rgba(0,0,0,0.7)]' 
+                            : isInnerSide
+                              ? 'w-28 h-28 md:w-60 md:h-60 bg-white/5 backdrop-blur-md border-2 border-white/20 shadow-lg'
+                              : 'w-20 h-20 md:w-48 md:h-48 bg-white/5 backdrop-blur-md border-2 border-white/20 shadow-md'
+                        }`}
+                        style={{
+                          borderRadius: isCenter ? '3rem' : '50%'
+                        }}
+                      >
+                        {/* Photo container */}
+                        <motion.div
+                          layout
+                          className={`relative overflow-hidden w-full ${
+                            isCenter ? 'aspect-square' : 'h-full'
+                          }`}
                         >
-                          {member.name}
-                        </motion.h4>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
+                          {member.mediaType === 'video' || (member.image && (member.image.endsWith('.mp4') || member.image.includes('video') || member.image.includes('.mov'))) ? (
+                            <video 
+                              key={member.id}
+                              src={member.image} 
+                              autoPlay 
+                              loop 
+                              muted 
+                              playsInline 
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <motion.img 
+                              layout
+                              src={member.image} 
+                              alt={member.name} 
+                              className="w-full h-full object-cover"
+                            />
+                          )}
+                          
+                          {/* Name Overlay - Only for center */}
+                          <AnimatePresence>
+                            {isCenter && (
+                              <motion.div 
+                                layout
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0 }}
+                                className="absolute inset-x-0 bottom-0 p-6 md:p-10 bg-gradient-to-t from-black/90 via-black/40 to-transparent"
+                              >
+                                <motion.h4 
+                                   layout
+                                  className="text-xl md:text-4xl font-black italic text-white uppercase tracking-tighter text-left"
+                                >
+                                  {member.name}
+                                </motion.h4>
+                                <motion.p 
+                                  layout
+                                  className="text-orange-500 text-[10px] md:text-sm font-bold uppercase tracking-[0.2em] mt-1 text-left"
+                                >
+                                  {member.role}
+                                </motion.p>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </motion.div>
+                      </motion.div>
+                    </motion.div>
+                  );
+                })}
+
+                {/* Left Slide Button - precisely positioned to the left of leftmost profile */}
+                <button 
+                  type="button"
+                  onClick={handlePrev}
+                  className="absolute z-[60] w-12 h-12 md:w-16 md:h-16 flex items-center justify-center rounded-full bg-black/60 hover:bg-orange-500 text-white hover:text-black border border-white/10 hover:border-orange-500/50 transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] active:scale-95 cursor-pointer group backdrop-blur-md"
+                  aria-label="Previous Team Member"
+                  id="team-btn-prev"
+                  style={{
+                    left: `calc(50% - ${arrowOffset}px)`,
+                    transform: 'translateY(-50%)',
+                    top: '50%'
+                  }}
+                >
+                  <ChevronLeft className="w-5 h-5 md:w-8 md:h-8 transition-transform group-hover:-translate-x-0.5" />
+                </button>
+
+                {/* Right Slide Button - precisely positioned to the right of rightmost profile */}
+                <button 
+                  type="button"
+                  onClick={handleNext}
+                  className="absolute z-[60] w-12 h-12 md:w-16 md:h-16 flex items-center justify-center rounded-full bg-black/60 hover:bg-orange-500 text-white hover:text-black border border-white/10 hover:border-orange-500/50 transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] active:scale-95 cursor-pointer group backdrop-blur-md"
+                  aria-label="Next Team Member"
+                  id="team-btn-next"
+                  style={{
+                    right: `calc(50% - ${arrowOffset}px)`,
+                    transform: 'translateY(-50%)',
+                    top: '50%'
+                  }}
+                >
+                  <ChevronRight className="w-5 h-5 md:w-8 md:h-8 transition-transform group-hover:translate-x-0.5" />
+                </button>
+              </>
             );
-          })}
+          })()}
         </div>
       </div>
     </section>
@@ -597,14 +908,61 @@ function DreamTeam() {
 
 function Portfolio() {
   const [activeTab, setActiveTab] = useState('All');
-  const categories = ['All', 'OTT', 'Branded Commercials', 'Music Video', 'Unscripted'];
+  const [films, setFilms] = useState<any[]>([]);
+  const [title, setTitle] = useState('Films');
+  const [visible, setVisible] = useState(true);
+  const [showCats, setShowCats] = useState(true);
+  const [limit, setLimit] = useState('6');
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
 
-  const filteredFilms = activeTab === 'All' 
-    ? FILMS 
-    : FILMS.filter(f => f.category === activeTab);
+  useEffect(() => {
+    const loadData = () => {
+      // 1. Load configuration
+      setVisible(localStorage.getItem('home_films_visible') !== 'false');
+      setTitle(localStorage.getItem('home_films_title') || 'Films');
+      setShowCats(localStorage.getItem('home_films_show_cats') !== 'false');
+      setLimit(localStorage.getItem('home_films_limit') || '6');
+
+      // 2. Load catalogue films
+      const stored = localStorage.getItem('dc_films');
+      if (stored) {
+        try {
+          setFilms(JSON.parse(stored));
+          return;
+        } catch (e) {
+          console.error('Error loading films on home page:', e);
+        }
+      }
+      setFilms(FILMS);
+    };
+
+    loadData();
+    window.addEventListener('storage_updated_films', loadData);
+    window.addEventListener('storage_updated_home_films', loadData);
+    window.addEventListener('storage', loadData);
+    return () => {
+      window.removeEventListener('storage_updated_films', loadData);
+      window.removeEventListener('storage_updated_home_films', loadData);
+      window.removeEventListener('storage', loadData);
+    };
+  }, []);
+
+  if (!visible) return null;
+
+  // Derive active dynamic categories from the current films array
+  const availableCategories = ['All', ...Array.from(new Set(films.map(f => f.category || 'OTT')))];
+
+  let filteredFilms = activeTab === 'All' 
+    ? films 
+    : films.filter(f => f.category === activeTab);
+
+  if (limit !== 'All') {
+    const maxEntries = parseInt(limit, 10) || 6;
+    filteredFilms = filteredFilms.slice(0, maxEntries);
+  }
 
   return (
-    <section id="films" className="py-12 md:py-24">
+    <section id="films" className="pt-12 md:pt-20 pb-12 md:pb-24">
       <div className="max-w-[1600px] mx-auto px-6 md:px-0">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8 md:mb-12">
           <div className="relative">
@@ -614,33 +972,36 @@ function Portfolio() {
                 transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
                 className="text-2xl md:text-6xl font-[1000] text-orange-500 tracking-[-0.05em] uppercase italic leading-none drop-shadow-[0_0_60px_rgba(249,115,22,0.2)] pointer-events-none select-none text-left pr-4"
               >
-                Films
+                {title}
               </motion.h3>
           </div>
-          <div className="flex flex-wrap gap-2 pb-1 lg:justify-end">
-            {categories.map((cat, i) => (
-              <motion.button 
-                key={cat} 
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-                onClick={() => setActiveTab(cat)}
-                className={`px-4 md:px-8 py-2 md:py-3 rounded-full text-[9px] md:text-[11px] font-black uppercase tracking-widest transition-all duration-500 border-2 ${
-                  activeTab === cat 
-                  ? 'bg-orange-500 text-white border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.2)]' 
-                  : 'bg-transparent text-white/30 border-white/5 hover:border-white/20 hover:text-white'
-                }`}
-              >
-                {cat}
-              </motion.button>
-            ))}
-          </div>
+          
+          {showCats && (
+            <div className="flex flex-wrap gap-2 pb-1 lg:justify-end">
+              {availableCategories.map((cat, i) => (
+                <motion.button 
+                  key={cat} 
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  onClick={() => setActiveTab(cat)}
+                  className={`px-4 md:px-8 py-2 md:py-3 rounded-full text-[9px] md:text-[11px] font-black uppercase tracking-widest transition-all duration-500 border-2 ${
+                    activeTab === cat 
+                    ? 'bg-orange-500 text-white border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.2)]' 
+                    : 'bg-transparent text-white/30 border-white/5 hover:border-white/20 hover:text-white'
+                  }`}
+                >
+                  {cat}
+                </motion.button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10">
           {filteredFilms.map((film, idx) => (
             <motion.div 
-              key={film.id}
+              key={film.id || idx}
               initial={{ opacity: 0, y: 100, scale: 0.6, rotateX: -20 }}
               whileInView={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
               transition={{ 
@@ -650,6 +1011,7 @@ function Portfolio() {
               }}
               viewport={{ once: false, margin: "-100px" }}
               whileHover={{ y: -8, scale: 1.02 }}
+              onClick={() => setSelectedVideo(film.video || 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761')}
               className="group relative aspect-video overflow-hidden rounded-[2rem] cursor-pointer bg-zinc-900/40 backdrop-blur-sm border border-white/5 shadow-xl"
             >
               <img 
@@ -663,8 +1025,8 @@ function Portfolio() {
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <span className="w-6 h-[1.5px] bg-orange-500 hidden group-hover:block transition-all" />
-                    <span className="text-[9px] text-orange-500 font-black uppercase tracking-[0.4em] opacity-0 group-hover:opacity-100 transition-opacity">
-                      {film.category}
+                    <span className="text-[9px] text-orange-500 font-black uppercase tracking-[0.4em] opacity-0 group-hover:opacity-100 transition-opacity font-bold">
+                      {film.category || 'OTT'}
                     </span>
                   </div>
                   <h4 className="text-xl md:text-2xl font-black text-white tracking-tighter uppercase italic leading-[1.1]">
@@ -688,6 +1050,56 @@ function Portfolio() {
           ))}
         </div>
       </div>
+
+      {/* Dynamic Lightbox Video Modal overlay */}
+      <AnimatePresence>
+        {selectedVideo && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[999] bg-black/95 flex items-center justify-center p-4 backdrop-blur-md"
+            onClick={() => setSelectedVideo(null)}
+          >
+            <button 
+              onClick={() => setSelectedVideo(null)}
+              className="absolute top-6 right-6 w-12 h-12 rounded-full border border-white/10 hover:border-white/30 text-white flex items-center justify-center bg-black hover:text-orange-500 transition-all font-sans"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <motion.div 
+              initial={{ scale: 0.9, y: 50 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 50 }}
+              className="relative w-full max-w-5xl aspect-video bg-zinc-950 rounded-3xl border border-white/5 overflow-hidden shadow-2xl"
+              onClick={e => e.stopPropagation()}
+            >
+              {selectedVideo.includes('youtube.com') || selectedVideo.includes('youtu.be') ? (
+                <iframe 
+                  src={selectedVideo.replace('watch?v=', 'embed/').split('&')[0] + "?autoplay=1"} 
+                  className="w-full h-full border-none" 
+                  allow="autoplay; encrypted-media" 
+                  allowFullScreen 
+                />
+              ) : selectedVideo.includes('vimeo.com') ? (
+                <iframe 
+                  src={selectedVideo.includes('player.vimeo.com') ? `${selectedVideo}?autoplay=1` : `https://player.vimeo.com/video/${selectedVideo.split('/').pop()}?autoplay=1`} 
+                  className="w-full h-full border-none" 
+                  allow="autoplay; fullscreen" 
+                  allowFullScreen 
+                />
+              ) : (
+                <video 
+                  src={selectedVideo} 
+                  controls 
+                  autoPlay 
+                  className="w-full h-full object-contain" 
+                />
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
@@ -861,6 +1273,33 @@ function Footer() {
 }
 
 function Intro() {
+  const [orbitImages, setOrbitImages] = useState<string[]>([]);
+
+  useEffect(() => {
+    const loadOrbitImages = () => {
+      const stored = localStorage.getItem('orbit_images');
+      if (stored) {
+        try {
+          setOrbitImages(JSON.parse(stored));
+          return;
+        } catch (e) {
+          console.error('Error parsing orbit images from localStorage:', e);
+        }
+      }
+      setOrbitImages(DEFAULT_ORBIT_IMAGES);
+    };
+
+    loadOrbitImages();
+    window.addEventListener('storage_updated_orbit', loadOrbitImages);
+    window.addEventListener('storage', loadOrbitImages);
+    return () => {
+      window.removeEventListener('storage_updated_orbit', loadOrbitImages);
+      window.removeEventListener('storage', loadOrbitImages);
+    };
+  }, []);
+
+  const activeOrbitImages = orbitImages.length > 0 ? orbitImages : DEFAULT_ORBIT_IMAGES;
+
   const lineVariants = {
     hidden: { y: "150%", rotate: 2, opacity: 0 },
     visible: {
@@ -895,7 +1334,7 @@ function Intro() {
   };
 
   return (
-    <section className="py-12 md:py-24 overflow-hidden">
+    <section className="pt-12 md:pt-24 pb-0 md:pb-0 overflow-hidden">
       <div className="w-full px-6 md:px-56">
         <motion.div 
           variants={containerVariants}
@@ -1013,7 +1452,7 @@ function Intro() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 lg:gap-32 items-center pt-16 pb-12 border-t border-white/5">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 lg:gap-32 items-center pt-16 pb-16 md:pb-24 border-t border-white/5">
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -1042,8 +1481,8 @@ function Intro() {
                 </div>
 
                 {/* Orbiting Planets - Now in the same container for unified stacking context */}
-                {ORBIT_IMAGES.map((img, i) => (
-                  <OrbitingFrame key={i} index={i} total={ORBIT_IMAGES.length} img={img} />
+                {activeOrbitImages.map((img, i) => (
+                  <OrbitingFrame key={i} index={i} total={activeOrbitImages.length} img={img} />
                 ))}
              </div>
           </motion.div>
@@ -1126,23 +1565,53 @@ function LandingPage() {
   const starOpacity = useTransform(scrollY, [100, 700], [0, 1]);
   const heroImgOpacity = useTransform(scrollY, [0, 800], [1, 0.1]);
 
+  const [backdropType, setBackdropType] = useState<'image' | 'video'>('video');
+  const [backdropUrl, setBackdropUrl] = useState('https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071');
+
+  const loadConfigs = () => {
+    setBackdropType((localStorage.getItem('home_hero_bg_type') || 'video') as 'image' | 'video');
+    setBackdropUrl(localStorage.getItem('home_hero_bg_url') || 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071');
+  };
+
+  useEffect(() => {
+    loadConfigs();
+    window.addEventListener('storage_updated_home_hero', loadConfigs);
+    window.addEventListener('storage', loadConfigs);
+    return () => {
+      window.removeEventListener('storage_updated_home_hero', loadConfigs);
+      window.removeEventListener('storage', loadConfigs);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-black font-sans selection:bg-orange-500 selection:text-white">
       {/* Global Transitioned Fixed Background Layer */}
       <div className="fixed inset-0 z-0 bg-black overflow-hidden pointer-events-none">
         
-        {/* Layer 1: The Hero Cinematic Image (Stays fixed, fades slowly) */}
+        {/* Layer 1: The Hero Cinematic Image or Video Loop (Stays fixed, fades slowly) */}
         <motion.div 
           style={{ opacity: heroImgOpacity }}
           className="absolute inset-0"
         >
-          <img 
-            src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071" 
-            alt="Cinematic Background" 
-            className="w-full h-full object-cover"
-          />
+          {backdropType === 'video' ? (
+            <video 
+              key={backdropUrl}
+              src={backdropUrl} 
+              autoPlay 
+              loop 
+              muted 
+              playsInline 
+              className="w-full h-full object-cover opacity-60"
+            />
+          ) : (
+            <img 
+              src={backdropUrl} 
+              alt="Cinematic Background" 
+              className="w-full h-full object-cover opacity-80"
+            />
+          )}
           {/* Transition overlays */}
-          <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-black via-black/10 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-black via-black/10 to-transparent pointer-events-none" />
         </motion.div>
 
         {/* Layer 2: Main Starry Background Image (Fades in as you scroll) */}

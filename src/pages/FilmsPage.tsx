@@ -2,7 +2,7 @@ import { motion, useScroll, useTransform } from 'motion/react';
 import { ChevronRight, Play, Menu, X, Instagram, Facebook, Youtube, Twitter } from 'lucide-react';
 import { useState, useEffect, FC } from 'react';
 import { Link } from 'react-router-dom';
-import { Navbar } from '../App';
+import { Navbar, DEFAULT_FILMS_LIST } from '../App';
 
 const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
   const [stars, setStars] = useState<{ id: number; left: string; top: string; size: number; duration: number; delay: number; driftX: number; driftY: number }[]>([]);
@@ -55,35 +55,6 @@ const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
   );
 };
 
-const FILMS = [
-  { id: '1', title: 'Maleficent', img: 'https://images.unsplash.com/photo-1606503825008-909a67e74360?auto=format&fit=crop&q=80&w=1000' },
-  { id: '2', title: 'Shaitaan', img: 'https://images.unsplash.com/photo-1616530940355-351fabd9524b?auto=format&fit=crop&q=80&w=1000' },
-  { id: '3', title: 'Deadpool & Wolverine', img: 'https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&q=80&w=1000' },
-  { id: '4', title: 'Spider-Man: No Way Home', img: 'https://images.unsplash.com/photo-1635805737707-575885ab0820?auto=format&fit=crop&q=80&w=1000' },
-  { id: '5', title: 'Padmaavat', img: 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&q=80&w=1000' },
-  { id: '6', title: 'Beauty and the Beast', img: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&q=80&w=1000' },
-  { id: '7', title: 'Black Panther', img: 'https://images.unsplash.com/photo-1542204172-3c3066385d0d?auto=format&fit=crop&q=80&w=1000' },
-  { id: '8', title: 'Interstellar', img: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&q=80&w=1000' },
-  { id: '9', title: 'Dune: Part Two', img: 'https://images.unsplash.com/photo-1506466010722-395aa2bef877?auto=format&fit=crop&q=80&w=1000' },
-  { id: '10', title: 'Inception', img: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?auto=format&fit=crop&q=80&w=1000' },
-  { id: '11', title: 'Joker', img: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=1000' },
-  { id: '12', title: 'The Batman', img: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&q=80&w=1000' },
-  { id: '13', title: 'Blade Runner 2049', img: 'https://images.unsplash.com/photo-1493612276216-ee3925520721?auto=format&fit=crop&q=80&w=1000' },
-  { id: '14', title: 'The Revenant', img: 'https://images.unsplash.com/photo-1540959733332-e94e270b4a8a?auto=format&fit=crop&q=80&w=1000' },
-  { id: '15', title: 'Doctor Strange', img: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=1000' },
-  { id: '16', title: 'Avatar: Way of Water', img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=1000' },
-  { id: '17', title: 'Jurassic World', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=1000' },
-  { id: '18', title: 'Thor: Love and Thunder', img: 'https://images.unsplash.com/photo-1542204172-3c3066385d0d?auto=format&fit=crop&q=80&w=1000' },
-  { id: '19', title: 'The Matrix Resurrections', img: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&q=80&w=1000' },
-  { id: '20', title: 'Wonder Woman 1984', img: 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&q=80&w=1000' },
-  { id: '21', title: 'Guardians of the Galaxy Vol. 3', img: 'https://images.unsplash.com/photo-1485098262243-ea7631fec367?auto=format&fit=crop&q=80&w=1000' },
-  { id: '22', title: 'Oppenheimer', img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1000' },
-  { id: '23', title: 'Barbie', img: 'https://images.unsplash.com/photo-1531259683007-01397e899182?auto=format&fit=crop&q=80&w=1000' },
-  { id: '24', title: 'Top Gun: Maverick', img: 'https://images.unsplash.com/photo-1598897135853-90d56621252e?auto=format&fit=crop&q=80&w=1000' },
-  { id: '25', title: 'Mission Impossible', img: 'https://images.unsplash.com/photo-1525498128445-66d4825950dc?auto=format&fit=crop&q=80&w=1000' },
-  { id: '26', title: 'John Wick: Chapter 4', img: 'https://images.unsplash.com/photo-1550101617-dc139a028670?auto=format&fit=crop&q=80&w=1000' },
-  { id: '27', title: 'Mad Max: Fury Road', img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=1000' },
-];
 
 const FilmsPage = () => {
   const { scrollY } = useScroll();
@@ -94,6 +65,32 @@ const FilmsPage = () => {
   const textY = useTransform(scrollY, [0, 500], [0, 150]);
   const titleXRight = useTransform(scrollY, [0, 500], [0, 100]);
   const titleXLeft = useTransform(scrollY, [0, 500], [0, -100]);
+
+  const [films, setFilms] = useState<{ id: string; title: string; category?: string; img: string; video?: string }[]>([]);
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadFilms = () => {
+      const stored = localStorage.getItem('dc_films');
+      if (stored) {
+        try {
+          setFilms(JSON.parse(stored));
+          return;
+        } catch (e) {
+          console.error('Error loading films from localStorage:', e);
+        }
+      }
+      setFilms(DEFAULT_FILMS_LIST);
+    };
+
+    loadFilms();
+    window.addEventListener('storage_updated_films', loadFilms);
+    window.addEventListener('storage', loadFilms);
+    return () => {
+      window.removeEventListener('storage_updated_films', loadFilms);
+      window.removeEventListener('storage', loadFilms);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-orange-500 relative">
@@ -207,7 +204,7 @@ const FilmsPage = () => {
         <div className="relative">
           <div className="relative z-10 w-full max-w-[1900px] mx-auto px-4 md:px-6 pt-32 pb-24">
             <div className="columns-1 md:columns-2 lg:columns-2 xl:columns-3 gap-6 space-y-6">
-              {FILMS.map((film, idx) => (
+              {films.map((film, idx) => (
                 <motion.div 
                   key={film.id}
                   initial={{ opacity: 0, y: 50, scale: 0.97 }}
@@ -233,24 +230,63 @@ const FilmsPage = () => {
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 backdrop-blur-[2px]">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="w-6 h-[1px] bg-orange-500" />
-                      <span className="text-[8px] text-orange-500 font-bold uppercase tracking-[0.3em]">Cinematic</span>
+                      <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.3em]">{film.category || 'Cinematic'}</span>
                     </div>
                     <h4 className="text-xl font-black text-white tracking-tighter uppercase italic leading-none truncate mb-4">
                       {film.title}
                     </h4>
-                    <motion.div 
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      className="w-10 h-10 bg-orange-500 text-white rounded-full flex items-center justify-center cursor-pointer shadow-[0_0_20px_rgba(249,115,22,0.4)]"
+                    <button 
+                      type="button"
+                      onClick={() => setSelectedVideo(film.video || 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761')}
+                      className="w-10 h-10 bg-orange-500 text-white rounded-full flex items-center justify-center cursor-pointer shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:scale-110 active:scale-95 transition-all"
                     >
                       <Play className="fill-current w-4 h-4 translate-x-0.5" />
-                    </motion.div>
+                    </button>
                   </div>
                 </motion.div>
               ))}
             </div>
           </div>
         </div>
+
+        {/* Dynamic Lightbox Modal */}
+        {selectedVideo && (
+          <div className="fixed inset-0 bg-black/95 z-[9999] flex items-center justify-center p-4 md:p-8 backdrop-blur-2xl">
+            <button 
+              type="button"
+              onClick={() => setSelectedVideo(null)}
+              className="absolute top-6 right-6 text-white/50 hover:text-white p-3 hover:bg-white/10 rounded-full transition-all border border-white/10"
+            >
+              <X size={24} />
+            </button>
+            <div className="w-full max-w-5xl aspect-video bg-black rounded-3xl overflow-hidden border border-white/10 shadow-2xl relative">
+              {selectedVideo.includes('youtube.com') || selectedVideo.includes('youtu.be') ? (
+                <iframe 
+                  src={selectedVideo.replace('watch?v=', 'embed/').split('&')[0] + "?autoplay=1"} 
+                  title="Video Player" 
+                  className="w-full h-full border-none" 
+                  allowFullScreen
+                  allow="autoplay; encrypted-media"
+                />
+              ) : selectedVideo.includes('vimeo.com') ? (
+                <iframe 
+                  src={selectedVideo.includes('player.vimeo.com') ? `${selectedVideo}?autoplay=1` : `https://player.vimeo.com/video/${selectedVideo.split('/').pop()}?autoplay=1`} 
+                  title="Video Player" 
+                  className="w-full h-full border-none" 
+                  allowFullScreen
+                  allow="autoplay; fullscreen"
+                />
+              ) : (
+                <video 
+                  src={selectedVideo} 
+                  controls 
+                  autoPlay 
+                  className="w-full h-full object-contain" 
+                />
+              )}
+            </div>
+          </div>
+        )}
       </main>
 
       <footer className="relative z-10 py-16 border-t border-white/5 bg-black/40 backdrop-blur-xl mt-24">

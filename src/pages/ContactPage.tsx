@@ -48,10 +48,36 @@ const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
 };
 
 const ContactPage = () => {
+  const [titleFirst, setTitleFirst] = useState("Let's");
+  const [titleOrange, setTitleOrange] = useState("Connect.");
+  const [subtitle, setSubtitle] = useState("Start your cinematic journey today.");
+  const [email, setEmail] = useState("hello@dreamcatchers.com");
+  const [phone, setPhone] = useState("+91 98765 43210");
+  const [address, setAddress] = useState("Lower Parel, Mumbai, India");
+
+  const loadContactConfigs = () => {
+    setTitleFirst(localStorage.getItem('contact_title_first') || "Let's");
+    setTitleOrange(localStorage.getItem('contact_title_orange') || "Connect.");
+    setSubtitle(localStorage.getItem('contact_subtitle') || "Start your cinematic journey today.");
+    setEmail(localStorage.getItem('contact_email') || "hello@dreamcatchers.com");
+    setPhone(localStorage.getItem('contact_phone') || "+91 98765 43210");
+    setAddress(localStorage.getItem('contact_address') || "Lower Parel, Mumbai, India");
+  };
+
+  useEffect(() => {
+    loadContactConfigs();
+    window.addEventListener('storage_updated_contact', loadContactConfigs);
+    window.addEventListener('storage', loadContactConfigs);
+    return () => {
+      window.removeEventListener('storage_updated_contact', loadContactConfigs);
+      window.removeEventListener('storage', loadContactConfigs);
+    };
+  }, []);
+
   const contactInfo = [
-    { icon: <Mail className="w-5 h-5" />, label: 'Email Us', value: 'hello@dreamcatchers.com' },
-    { icon: <Phone className="w-5 h-5" />, label: 'Call Us', value: '+91 98765 43210' },
-    { icon: <MapPin className="w-5 h-5" />, label: 'Visit Us', value: 'Lower Parel, Mumbai, India' },
+    { icon: <Mail className="w-5 h-5" />, label: 'Email Us', value: email },
+    { icon: <Phone className="w-5 h-5" />, label: 'Call Us', value: phone },
+    { icon: <MapPin className="w-5 h-5" />, label: 'Visit Us', value: address },
   ];
 
   return (
@@ -68,9 +94,9 @@ const ContactPage = () => {
             className="text-center mb-32"
           >
             <h1 className="text-7xl md:text-[12rem] font-black italic tracking-tighter uppercase leading-[0.8] mb-12">
-              Let&apos;s <span className="text-orange-500">Connect.</span>
+              {titleFirst} <span className="text-orange-500">{titleOrange}</span>
             </h1>
-            <p className="text-white/40 text-[10px] md:text-sm font-black uppercase tracking-[0.5em]">Start your cinematic journey today.</p>
+            <p className="text-white/40 text-[10px] md:text-sm font-black uppercase tracking-[0.5em]">{subtitle}</p>
           </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-24">
