@@ -6,7 +6,10 @@ import firebaseConfig from '../../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
 export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId || undefined);
+const dbId = (!firebaseConfig.firestoreDatabaseId || firebaseConfig.firestoreDatabaseId === "(default)") 
+  ? undefined 
+  : firebaseConfig.firestoreDatabaseId;
+export const db = getFirestore(app, dbId);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 
