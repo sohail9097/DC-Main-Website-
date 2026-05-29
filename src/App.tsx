@@ -7,6 +7,7 @@ import AdminPanel from './pages/AdminPanel';
 import FilmsPage from './pages/FilmsPage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
+import { initSiteSync } from './lib/siteSync';
 
 // --- Components ---
 
@@ -1694,6 +1695,13 @@ function ScrollToTop() {
 }
 
 export default function App() {
+  useEffect(() => {
+    const unsub = initSiteSync();
+    return () => {
+      if (unsub) unsub();
+    };
+  }, []);
+
   return (
     <>
       <ScrollToTop />

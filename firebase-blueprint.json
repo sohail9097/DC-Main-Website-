@@ -57,9 +57,24 @@
         "photoURL": { "type": "string" }
       },
       "required": ["uid", "email"]
+    },
+    "SiteConfig": {
+      "title": "SiteConfig",
+      "description": "Customizable configurations for the website pages, slide speed, and profile team members",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "settings": { "type": "object", "description": "Arbitrary key-value map of site settings" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["settings"]
     }
   },
   "firestore": {
+    "/configs/{configId}": {
+      "schema": "SiteConfig",
+      "description": "Dynamic configurations for the website pages and settings"
+    },
     "/products/{productId}": {
       "schema": "Product",
       "description": "Store products"

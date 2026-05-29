@@ -2,6 +2,7 @@ import React, { FC, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import { Navigate, Link } from 'react-router-dom';
+import { pushLocalConfigsToFirestore } from '../lib/siteSync';
 import { Users, Layout, Settings, LogOut, Home, Plus, Trash2, Edit2, ArrowUp, ArrowDown, RefreshCw, FileVideo, Image as ImageIcon, Film, Play, ChevronRight, ChevronLeft, MapPin, BookOpen } from 'lucide-react';
 import { DEFAULT_TEAM_MEMBERS, TeamMember, DEFAULT_ORBIT_IMAGES, DEFAULT_FILMS_LIST, DEFAULT_CLIENTS_LIST, ClientItem } from '../App';
 
@@ -939,6 +940,23 @@ const AdminPanel: FC = () => {
           </div>
           
           <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  await pushLocalConfigsToFirestore();
+                  alert("Live Database Synced! Your custom changes are now live for all visitors worldwide on the live site! 🌎✨");
+                } catch (err: any) {
+                  alert("Failed to sync: " + err.message);
+                }
+              }}
+              className="flex items-center gap-2 px-4 py-2 border border-orange-500/20 hover:border-orange-500 rounded-full bg-orange-500/10 text-orange-500 hover:bg-orange-500 hover:text-black transition-all cursor-pointer font-bold select-none text-xs"
+              title="Push all your local page settings and additions instantly to the live site!"
+            >
+              <RefreshCw size={14} className="animate-spin duration-300" />
+              <span>Publish to Live Site ✅</span>
+            </button>
+            
             <div className="text-right hidden sm:block">
               <p className="text-sm font-bold text-white">{user.email}</p>
               <p className="text-xs font-medium text-orange-500 uppercase tracking-widest font-mono">Verified Studio Admin</p>
