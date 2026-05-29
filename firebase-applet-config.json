@@ -1,10 +1,10 @@
 {
-  "projectId": "central-bricolage-1cf5x",
-  "appId": "1:630872767974:web:dcf214613396e8717faa27",
-  "apiKey": "AIzaSyAInrm4dWMnhIo32VGUPmStG7S1KAlVWVM",
-  "authDomain": "central-bricolage-1cf5x.firebaseapp.com",
+  "projectId": "dc-main-website",
+  "appId": "1:713877452997:web:45ded4c7259b483e5798ac",
+  "apiKey": "AIzaSyCIO2Uth8MeUTc2u0_IoXrijnyyJ4a1nBQ",
+  "authDomain": "dc-main-website.firebaseapp.com",
   "firestoreDatabaseId": "(default)",
-  "storageBucket": "central-bricolage-1cf5x.firebasestorage.app",
-  "messagingSenderId": "630872767974",
-  "measurementId": ""
+  "storageBucket": "dc-main-website.firebasestorage.app",
+  "messagingSenderId": "713877452997",
+  "measurementId": "G-K0VW9NT8C4"
 }
