@@ -3,7 +3,7 @@
   "appId": "1:630872767974:web:dcf214613396e8717faa27",
   "apiKey": "AIzaSyAInrm4dWMnhIo32VGUPmStG7S1KAlVWVM",
   "authDomain": "central-bricolage-1cf5x.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-4f07d4d1-8f94-441c-8514-e578d749749e",
+  "firestoreDatabaseId": "(default)",
   "storageBucket": "central-bricolage-1cf5x.firebasestorage.app",
   "messagingSenderId": "630872767974",
   "measurementId": ""
