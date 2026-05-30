@@ -414,39 +414,39 @@ function Hero() {
 }
 
 export const DEFAULT_FILMS_LIST = [
-  { id: '1', title: 'Boat x Netflix Stream Edition', category: 'Branded Commercials', img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '2', title: 'Marvel x Guardians of the Galaxy', category: 'OTT', img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '3', title: 'Netflix Dhamaka Mood Promo', category: 'OTT', img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '4', title: 'Coke Studio Global | Afroto | 7ALA', category: 'Music Video', img: 'https://images.unsplash.com/photo-1540959733332-e94e270b4a8a?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '5', title: 'Directors Cut | Green Vibes Festival', category: 'Unscripted', img: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '6', title: 'Bumble x Kindness is sexy ft. ARK', category: 'Branded Commercials', img: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '7', title: 'Maleficent', category: 'OTT', img: 'https://images.unsplash.com/photo-1606503825008-909a67e74360?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '8', title: 'Shaitaan', category: 'OTT', img: 'https://images.unsplash.com/photo-1616530940355-351fabd9524b?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '9', title: 'Deadpool & Wolverine', category: 'OTT', img: 'https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '10', title: 'Spider-Man: No Way Home', category: 'OTT', img: 'https://images.unsplash.com/photo-1635805737707-575885ab0820?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '11', title: 'Padmaavat', category: 'OTT', img: 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '12', title: 'Beauty and the Beast', category: 'OTT', img: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '13', title: 'Black Panther', category: 'OTT', img: 'https://images.unsplash.com/photo-1542204172-3c3066385d0d?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '14', title: 'Interstellar', category: 'OTT', img: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '15', title: 'Dune: Part Two', category: 'OTT', img: 'https://images.unsplash.com/photo-1506466010722-395aa2bef877?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '16', title: 'Inception', category: 'OTT', img: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '17', title: 'Joker', category: 'OTT', img: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '18', title: 'The Batman', category: 'OTT', img: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '19', title: 'Blade Runner 2049', category: 'OTT', img: 'https://images.unsplash.com/photo-1493612276216-ee3925520721?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '20', title: 'The Revenant', category: 'OTT', img: 'https://images.unsplash.com/photo-1540959733332-e94e270b4a8a?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '21', title: 'Doctor Strange', category: 'OTT', img: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '22', title: 'Avatar: Way of Water', category: 'OTT', img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '23', title: 'Jurassic World', category: 'OTT', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '24', title: 'Thor: Love and Thunder', category: 'OTT', img: 'https://images.unsplash.com/photo-1542204172-3c3066385d0d?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '25', title: 'The Matrix Resurrections', category: 'OTT', img: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '26', title: 'Wonder Woman 1984', category: 'OTT', img: 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '27', title: 'Guardians of the Galaxy Vol. 3', category: 'OTT', img: 'https://images.unsplash.com/photo-1485098262243-ea7631fec367?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '28', title: 'Oppenheimer', category: 'OTT', img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '29', title: 'Barbie', category: 'OTT', img: 'https://images.unsplash.com/photo-1531259683007-01397e899182?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '30', title: 'Top Gun: Maverick', category: 'OTT', img: 'https://images.unsplash.com/photo-1598897135853-90d56621252e?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '31', title: 'Mission Impossible', category: 'OTT', img: 'https://images.unsplash.com/photo-1525498128445-66d4825950dc?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '32', title: 'John Wick: Chapter 4', category: 'OTT', img: 'https://images.unsplash.com/photo-1550101617-dc139a028670?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '33', title: 'Mad Max: Fury Road', category: 'OTT', img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' }
+  { id: '1', title: 'Boat x Netflix Stream Edition', category: 'Branded Content', img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '2', title: 'Marvel x Guardians of the Galaxy', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '3', title: 'Netflix Dhamaka Mood Promo', category: 'Branded Content', img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '4', title: 'Coke Studio Global | Afroto | 7ALA', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1540959733332-e94e270b4a8a?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '5', title: 'Directors Cut | Green Vibes Festival', category: 'Travel', img: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '6', title: 'Bumble x Kindness is sexy ft. ARK', category: 'Corporate', img: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '7', title: 'Maleficent', category: 'Sports', img: 'https://images.unsplash.com/photo-1606503825008-909a67e74360?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '8', title: 'Shaitaan', category: 'Lifestyle', img: 'https://images.unsplash.com/photo-1616530940355-351fabd9524b?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '9', title: 'Deadpool & Wolverine', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '10', title: 'Spider-Man: No Way Home', category: 'Sports', img: 'https://images.unsplash.com/photo-1635805737707-575885ab0820?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '11', title: 'Padmaavat', category: 'Lifestyle', img: 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '12', title: 'Beauty and the Beast', category: 'Lifestyle', img: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '13', title: 'Black Panther', category: 'Corporate', img: 'https://images.unsplash.com/photo-1542204172-3c3066385d0d?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '14', title: 'Interstellar', category: 'Corporate', img: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '15', title: 'Dune: Part Two', category: 'Travel', img: 'https://images.unsplash.com/photo-1506466010722-395aa2bef877?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '16', title: 'Inception', category: 'Corporate', img: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '17', title: 'Joker', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '18', title: 'The Batman', category: 'Sports', img: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '19', title: 'Blade Runner 2049', category: 'Corporate', img: 'https://images.unsplash.com/photo-1493612276216-ee3925520721?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '20', title: 'The Revenant', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1540959733332-e94e270b4a8a?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '21', title: 'Doctor Strange', category: 'Travel', img: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '22', title: 'Avatar: Way of Water', category: 'Travel', img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '23', title: 'Jurassic World', category: 'Sports', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '24', title: 'Thor: Love and Thunder', category: 'Sports', img: 'https://images.unsplash.com/photo-1542204172-3c3066385d0d?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '25', title: 'The Matrix Resurrections', category: 'Corporate', img: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '26', title: 'Wonder Woman 1984', category: 'Lifestyle', img: 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '27', title: 'Guardians of the Galaxy Vol. 3', category: 'Corporate', img: 'https://images.unsplash.com/photo-1485098262243-ea7631fec367?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '28', title: 'Oppenheimer', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '29', title: 'Barbie', category: 'Lifestyle', img: 'https://images.unsplash.com/photo-1531259683007-01397e899182?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '30', title: 'Top Gun: Maverick', category: 'Sports', img: 'https://images.unsplash.com/photo-1598897135853-90d56621252e?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '31', title: 'Mission Impossible', category: 'Travel', img: 'https://images.unsplash.com/photo-1525498128445-66d4825950dc?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '32', title: 'John Wick: Chapter 4', category: 'Sports', img: 'https://images.unsplash.com/photo-1550101617-dc139a028670?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
+  { id: '33', title: 'Mad Max: Fury Road', category: 'Sports', img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' }
 ];
 
 export const FILMS = DEFAULT_FILMS_LIST;
@@ -550,61 +550,76 @@ function Clients() {
 
   if (clients.length === 0) return null;
   
+  // Quadruple the items to make sure it covers even very wide screen widths without gaps
+  const itemsRow1 = [...clients, ...clients, ...clients, ...clients];
+  const itemsRow2 = [...clients.slice().reverse(), ...clients.slice().reverse(), ...clients.slice().reverse(), ...clients.slice().reverse()];
+
   return (
     <section 
       id="clients" 
-      className="pt-10 md:pt-24 pb-0 md:pb-4 bg-transparent overflow-hidden relative" 
+      className="pt-12 md:pt-28 pb-10 md:pb-16 bg-transparent overflow-hidden relative" 
       ref={containerRef}
     >
-      <div className="max-w-[1600px] mx-auto px-0 flex flex-col items-start relative z-20">
-        <div className="text-left mb-8 md:mb-20 px-6 md:px-0">
-            <motion.h3 
+      <div className="max-w-[1600px] mx-auto px-6 md:px-16 flex flex-col items-start relative z-20">
+        <div className="text-left mb-8 md:mb-14">
+          <motion.h3 
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="text-2xl md:text-6xl font-black tracking-tighter text-orange-500 uppercase italic mb-6"
+            className="text-2xl md:text-6xl font-black tracking-tighter text-orange-500 uppercase italic mb-2"
           >
             Our Clients
           </motion.h3>
+          <p className="text-xs md:text-sm text-zinc-400 font-medium tracking-wide uppercase">
+            Trusted by the world's most progressive brands & organizations
+          </p>
         </div>
 
         {/* Scrolling Marquees */}
-        <div className="w-full space-y-12">
-          {/* Top Row - Scrolling Left */}
-          <div className="flex overflow-hidden group">
+        <div className="w-full space-y-6 md:space-y-8">
+          {/* Top Row - Scrolling Left to Right (animate x from -1920 to 0) */}
+          <div className="flex overflow-hidden relative w-full mask-gradient py-4 md:py-6">
             <motion.div 
-              animate={{ x: [0, -1920] }}
+              animate={{ x: [-1920, 0] }}
               transition={{ 
-                duration: 40, 
+                duration: 35, 
                 repeat: Infinity, 
                 ease: "linear" 
               }}
-              className="flex whitespace-nowrap gap-12 py-4"
+              className="flex whitespace-nowrap gap-0 py-1"
             >
-              {[...clients, ...clients].map((client, i) => (
+              {itemsRow1.map((client, i) => (
                 <ClientLogo key={`${client.name}-r1-${i}`} client={client} />
               ))}
             </motion.div>
           </div>
 
-          {/* Bottom Row - Scrolling Right */}
-          <div className="flex overflow-hidden group">
+          {/* Bottom Row - Scrolling Right to Left (animate x from 0 to -1920) */}
+          <div className="flex overflow-hidden relative w-full mask-gradient py-4 md:py-6">
             <motion.div 
-              animate={{ x: [-1920, 0] }}
+              animate={{ x: [0, -1920] }}
               transition={{ 
-                duration: 50, 
+                duration: 38, 
                 repeat: Infinity, 
                 ease: "linear" 
               }}
-              className="flex whitespace-nowrap gap-12 py-4"
+              className="flex whitespace-nowrap gap-0 py-1"
             >
-              {[...clients.slice().reverse(), ...clients].map((client, i) => (
+              {itemsRow2.map((client, i) => (
                 <ClientLogo key={`${client.name}-r2-${i}`} client={client} />
               ))}
             </motion.div>
           </div>
         </div>
       </div>
+
+      {/* Styled inline mask for smooth fade edges on the marquee views */}
+      <style>{`
+        .mask-gradient {
+          mask-image: linear-gradient(to right, transparent, white 20%, white 80%, transparent);
+          -webkit-mask-image: linear-gradient(to right, transparent, white 20%, white 80%, transparent);
+        }
+      `}</style>
     </section>
   );
 }
@@ -618,29 +633,26 @@ const ClientLogo: FC<ClientLogoProps> = ({ client }) => {
   const hasLogoUrl = client.logoUrl && client.logoUrl.trim().length > 0 && !imgError;
 
   return (
-    <div className="flex items-center gap-2 md:gap-4 px-4 md:px-6 py-2 md:py-3 bg-zinc-900/30 backdrop-blur-sm rounded-full border border-white/5 transition-all duration-300 hover:scale-105 active:scale-95 cursor-default group">
-      <div 
-        className="w-8 h-8 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center text-white font-black text-sm md:text-xl shadow-lg ring-1 ring-white/10 overflow-hidden" 
-        style={{ 
-          backgroundColor: client.color || '#333333',
-          backgroundImage: hasLogoUrl ? 'none' : `linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%)`
-        }}
-      >
-        {hasLogoUrl ? (
-          <img 
-            src={client.logoUrl} 
-            alt={client.name} 
-            className="w-full h-full object-contain p-1.5"
-            referrerPolicy="no-referrer"
-            onError={() => setImgError(true)}
-          />
-        ) : (
-          <span>{client.name ? client.name.substring(0, 1).toUpperCase() : 'C'}</span>
-        )}
-      </div>
-      <span className="text-base md:text-3xl font-bold text-zinc-400 tracking-tight transition-colors group-hover:text-white">
-        {client.name}
-      </span>
+    <div 
+      className="flex items-center justify-center px-8 md:px-14 h-12 md:h-18 flex-shrink-0 relative overflow-hidden select-none cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95"
+    >
+      {hasLogoUrl ? (
+        <img 
+          src={client.logoUrl} 
+          alt={client.name} 
+          className="max-h-full max-w-[140px] md:max-w-[220px] object-contain pointer-events-none"
+          referrerPolicy="no-referrer"
+          onError={() => setImgError(true)}
+        />
+      ) : (
+        <div className="flex items-center justify-center text-center">
+          <span 
+            className="text-sm md:text-xl font-bold uppercase tracking-widest text-zinc-100 font-sans block hover:text-orange-500 transition-colors"
+          >
+            {client.name}
+          </span>
+        </div>
+      )}
     </div>
   );
 };
@@ -915,22 +927,58 @@ function DreamTeam() {
 }
 
 
+const HOME_CATEGORIES = [
+  {
+    name: "Branded Content",
+    desc: "Premium commercial campaigns & brand stories",
+    img: "https://images.unsplash.com/photo-1542204172-3c3066385d0d?auto=format&fit=crop&q=80&w=800",
+    glow: "rgba(249, 115, 22, 0.4)"
+  },
+  {
+    name: "Documentaries",
+    desc: "Real-world narratives & raw human storytelling",
+    img: "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=800",
+    glow: "rgba(59, 130, 246, 0.4)"
+  },
+  {
+    name: "Travel",
+    desc: "Cinematic adventures across global horizons",
+    img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=800",
+    glow: "rgba(16, 185, 129, 0.4)"
+  },
+  {
+    name: "Corporate",
+    desc: "Polished workspace narratives & corporate messaging",
+    img: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800",
+    glow: "rgba(236, 72, 153, 0.4)"
+  },
+  {
+    name: "Sports",
+    desc: "Adrenaline-fueled athletic motion & dynamics",
+    img: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80&w=800",
+    glow: "rgba(245, 158, 11, 0.4)"
+  },
+  {
+    name: "Lifestyle",
+    desc: "Cozy spaces, curated travel, luxury & foods",
+    img: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=800",
+    glow: "rgba(139, 92, 246, 0.4)"
+  }
+];
+
 function Portfolio() {
-  const [activeTab, setActiveTab] = useState('All');
+  const navigate = useNavigate();
   const [films, setFilms] = useState<any[]>([]);
   const [title, setTitle] = useState('Films');
   const [visible, setVisible] = useState(true);
-  const [showCats, setShowCats] = useState(true);
-  const [limit, setLimit] = useState('6');
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<any | null>(null);
 
   useEffect(() => {
     const loadData = () => {
       // 1. Load configuration
       setVisible(localStorage.getItem('home_films_visible') !== 'false');
       setTitle(localStorage.getItem('home_films_title') || 'Films');
-      setShowCats(localStorage.getItem('home_films_show_cats') !== 'false');
-      setLimit(localStorage.getItem('home_films_limit') || '6');
 
       // 2. Load catalogue films
       const stored = localStorage.getItem('dc_films');
@@ -958,107 +1006,247 @@ function Portfolio() {
 
   if (!visible) return null;
 
-  // Derive active dynamic categories from the current films array
-  const availableCategories = ['All', ...Array.from(new Set(films.map(f => f.category || 'OTT')))];
-
-  let filteredFilms = activeTab === 'All' 
-    ? films 
-    : films.filter(f => f.category === activeTab);
-
-  if (limit !== 'All') {
-    const maxEntries = parseInt(limit, 10) || 6;
-    filteredFilms = filteredFilms.slice(0, maxEntries);
-  }
-
   return (
     <section id="films" className="pt-12 md:pt-20 pb-12 md:pb-24">
-      <div className="max-w-[1600px] mx-auto px-6 md:px-0">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8 md:mb-12">
-          <div className="relative">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-16">
+        <div className="text-left mb-16 md:mb-20">
+          <div className="relative mb-2">
               <motion.h3 
-                initial={{ x: -30, opacity: 0 }}
+                initial={{ x: -25, opacity: 0 }}
                 whileInView={{ x: 0, opacity: 1 }}
                 transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                className="text-2xl md:text-6xl font-[1000] text-orange-500 tracking-[-0.05em] uppercase italic leading-none drop-shadow-[0_0_60px_rgba(249,115,22,0.2)] pointer-events-none select-none text-left pr-4"
+                className="text-4xl md:text-7xl font-[1000] text-orange-500 tracking-[-0.05em] uppercase italic leading-none drop-shadow-[0_0_60px_rgba(249,115,22,0.2)] pointer-events-none select-none"
               >
                 {title}
               </motion.h3>
           </div>
-          
-          {showCats && (
-            <div className="flex flex-wrap gap-2 pb-1 lg:justify-end">
-              {availableCategories.map((cat, i) => (
-                <motion.button 
-                  key={cat} 
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  onClick={() => setActiveTab(cat)}
-                  className={`px-4 md:px-8 py-2 md:py-3 rounded-full text-[9px] md:text-[11px] font-black uppercase tracking-widest transition-all duration-500 border-2 ${
-                    activeTab === cat 
-                    ? 'bg-orange-500 text-white border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.2)]' 
-                    : 'bg-transparent text-white/30 border-white/5 hover:border-white/20 hover:text-white'
-                  }`}
-                >
-                  {cat}
-                </motion.button>
-              ))}
-            </div>
-          )}
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 1.2 }}
+            className="text-white/40 text-xs md:text-sm font-black uppercase tracking-[0.3em] font-mono"
+          >
+            Select a cinematic category underneath to immerse yourself in our craft
+          </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10">
-          {filteredFilms.map((film, idx) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-14 lg:gap-16 pb-12">
+          {HOME_CATEGORIES.map((category, idx) => (
             <motion.div 
-              key={film.id || idx}
-              initial={{ opacity: 0, y: 100, scale: 0.6, rotateX: -20 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
+              key={category.name}
+              initial={{ opacity: 0, scale: 0.8, y: 50 }}
+              whileInView={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ 
                 duration: 1.2, 
-                delay: (idx % 3) * 0.1,
+                delay: idx * 0.08,
                 ease: [0.16, 1, 0.3, 1]
               }}
-              viewport={{ once: false, margin: "-100px" }}
-              whileHover={{ y: -8, scale: 1.02 }}
-              onClick={() => setSelectedVideo(film.video || 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761')}
-              className="group relative aspect-video overflow-hidden rounded-[2rem] cursor-pointer bg-zinc-900/40 backdrop-blur-sm border border-white/5 shadow-xl"
+              viewport={{ once: true }}
+              onClick={() => {
+                const sectionId = category.name.toLowerCase().replace(/\s+/g, '-');
+                navigate(`/films#${sectionId}`);
+              }}
+              className="flex flex-col items-center justify-center cursor-pointer group text-center"
             >
-              <img 
-                src={film.img} 
-                alt={film.title} 
-                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 grayscale-30 group-hover:grayscale-0"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent opacity-80 group-hover:opacity-50 transition-opacity duration-700" />
-              
-              <div className="absolute inset-x-0 bottom-0 p-8 translate-y-4 group-hover:translate-y-0 transition-all duration-700">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <span className="w-6 h-[1.5px] bg-orange-500 hidden group-hover:block transition-all" />
-                    <span className="text-[9px] text-orange-500 font-black uppercase tracking-[0.4em] opacity-0 group-hover:opacity-100 transition-opacity font-bold">
-                      {film.category || 'OTT'}
-                    </span>
+              {/* Giant Outer Orbit Ring containing the Circular Mask */}
+              <motion.div 
+                animate={{
+                  y: [0, -22, 12, -18, 16, -10, 0],
+                  x: [0, idx % 2 === 0 ? 20 : -20, idx % 2 === 0 ? -14 : 14, idx % 2 === 0 ? 12 : -12, idx % 2 === 0 ? -8 : 8, 0],
+                  scale: [1, 1.04, 0.97, 1.02, 1],
+                  rotate: [0, idx % 2 === 0 ? 2 : -2, idx % 2 === 0 ? -1 : 1, 0]
+                }}
+                transition={{
+                  duration: 10 + (idx * 1.5),
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="relative w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 rounded-full flex items-center justify-center"
+              >
+                {/* Floating translucent interactive bubbles rising from bottom */}
+                {[...Array(6)].map((_, bIdx) => {
+                  const size = 6 + (bIdx * 4) % 12; // 6px to 18px
+                  const startX = 20 + (bIdx * 23) % 60; // 20% to 80%
+                  const duration = 5 + (bIdx * 1.6) % 5; 
+                  const delay = bIdx * 0.9;
+                  return (
+                    <motion.div
+                      key={bIdx}
+                      className="absolute rounded-full pointer-events-none z-10"
+                      style={{
+                        width: size,
+                        height: size,
+                        left: `${startX}%`,
+                        bottom: "5%",
+                        background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 50%, rgba(249,115,22,0.1) 100%)",
+                        border: "1px solid rgba(255, 255, 255, 0.15)",
+                        boxShadow: "inset 0 1px 2px rgba(255,255,255,0.3), 0 2px 10px rgba(249,115,22,0.1)",
+                      }}
+                      animate={{
+                        y: [0, -180],
+                        x: [0, Math.sin(bIdx) * 15, Math.cos(bIdx) * -15, 0],
+                        opacity: [0, 0.5, 0.7, 0.3, 0],
+                        scale: [0.4, 1.1, 1.3, 0.7],
+                      }}
+                      transition={{
+                        duration: duration,
+                        repeat: Infinity,
+                        delay: delay,
+                        ease: "easeOut"
+                      }}
+                    />
+                  );
+                })}
+
+                {/* Double Ring / Rotating Lens Boundary */}
+                <svg className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 100 100">
+                  <circle 
+                    cx="50" 
+                    cy="50" 
+                    r="47" 
+                    fill="transparent" 
+                    stroke="rgba(255,255,255,0.03)" 
+                    strokeWidth="1.5"
+                  />
+                  <motion.circle 
+                    cx="50" 
+                    cy="50" 
+                    r="47" 
+                    fill="transparent" 
+                    stroke="url(#orangeGlow)" 
+                    strokeWidth="1.5"
+                    strokeDasharray="30 15 10 5"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                  />
+                </svg>
+
+                {/* SVG Glow Gradient Definitions */}
+                <svg className="absolute w-0 h-0">
+                  <defs>
+                    <linearGradient id="orangeGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#f97316" stopOpacity="0.2" />
+                      <stop offset="50%" stopColor="#ea580c" stopOpacity="0.8" />
+                      <stop offset="100%" stopColor="#f97316" stopOpacity="0.1" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+
+                {/* Outer spinning dash border on hover */}
+                <div className="absolute inset-2 rounded-full border-2 border-dashed border-orange-500/0 group-hover:border-orange-500/40 group-hover:rotate-180 transition-all duration-[2000ms] pointer-events-none" />
+
+                {/* Colored glowing halo behind the frame */}
+                <div 
+                  className="absolute inset-4 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" 
+                  style={{ backgroundColor: category.glow }}
+                />
+
+                {/* Inner continuous frame outline */}
+                <div className="absolute inset-3 rounded-full border border-white/5 group-hover:border-orange-500/25 transition-all duration-500 pointer-events-none" />
+
+                {/* Centered Circle Mask for category artwork */}
+                <div className="absolute inset-[15px] rounded-full overflow-hidden border-[4px] border-black group-hover:border-orange-500 transition-all duration-500 z-10 shadow-2xl">
+                  <img 
+                    src={category.img} 
+                    alt={category.name} 
+                    className="w-full h-full object-cover grayscale brightness-[0.7] group-hover:grayscale-0 group-hover:scale-110 group-hover:brightness-100 transition-all duration-700 ease-out" 
+                  />
+                  {/* Atmospheric dark radial vignette */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/30 group-hover:from-black/70 group-hover:via-black/20 group-hover:to-transparent transition-all duration-500" />
+
+                  {/* Category name inside frame */}
+                  <div className="absolute inset-0 flex items-center justify-center p-4 bg-black/30 group-hover:bg-black/10 transition-all duration-500">
+                    <h4 className="text-base sm:text-lg md:text-xl font-black italic tracking-tighter text-white uppercase text-center drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] group-hover:text-orange-500 group-hover:scale-105 transition-all duration-500 font-sans pointer-events-none select-none">
+                      {category.name}
+                    </h4>
                   </div>
-                  <h4 className="text-xl md:text-2xl font-black text-white tracking-tighter uppercase italic leading-[1.1]">
-                    {film.title}
-                  </h4>
                 </div>
-              </div>
-
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-white/10 backdrop-blur-sm text-white rounded-full flex items-center justify-center scale-0 group-hover:scale-100 transition-all duration-700 border border-white/10">
-                <div className="w-14 h-14 bg-orange-500 rounded-full flex items-center justify-center transition-transform hover:scale-110">
-                  <Play className="w-5 h-5 fill-current translate-x-1" />
-                </div>
-              </div>
-
-              <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-75">
-                 <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center">
-                    <ChevronRight className="w-4 h-4 text-white" />
-                 </div>
-              </div>
+              </motion.div>
             </motion.div>
           ))}
         </div>
       </div>
+
+      {/* Category Films Grid Modal */}
+      <AnimatePresence>
+        {selectedCategory && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[800] bg-black/95 flex items-center justify-center p-4 md:p-8 backdrop-blur-2xl"
+            onClick={() => setSelectedCategory(null)}
+          >
+            <button
+              onClick={() => setSelectedCategory(null)}
+              className="absolute top-6 right-6 w-12 h-12 rounded-full border border-white/10 hover:border-white/30 text-white flex items-center justify-center bg-black hover:text-orange-500 transition-all z-10 font-sans"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <motion.div
+              initial={{ scale: 0.95, y: 30 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 30 }}
+              className="relative w-full max-w-6xl max-h-[85vh] bg-zinc-950/90 border border-white/5 rounded-[2.5rem] p-6 md:p-12 overflow-y-auto shadow-2xl custom-scrollbar"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="mb-8 md:mb-10 text-center md:text-left">
+                <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
+                  <span className="w-8 h-[1.5px] bg-orange-500" />
+                  <span className="text-xs text-orange-500 font-black uppercase tracking-[0.4em]">Cinematic Universe</span>
+                </div>
+                <h3 className="text-3xl md:text-5xl font-black uppercase tracking-tight italic text-white leading-none">
+                  {selectedCategory.name}
+                </h3>
+                <p className="text-white/40 text-xs md:text-sm mt-3 max-w-2xl font-medium leading-relaxed">
+                  {selectedCategory.desc}
+                </p>
+              </div>
+
+              {films.filter(film => film.category === selectedCategory.name).length === 0 ? (
+                <div className="py-20 text-center">
+                  <p className="text-white/30 text-sm font-black uppercase tracking-widest">No cinematic works added yet under this category</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {films.filter(film => film.category === selectedCategory.name).map((film, idx) => (
+                    <motion.div
+                      key={film.id || idx}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.05 }}
+                      onClick={() => {
+                        setSelectedVideo(film.video || 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761');
+                      }}
+                      className="group relative aspect-video overflow-hidden rounded-2xl cursor-pointer bg-zinc-950 border border-white/5 shadow-lg"
+                    >
+                      <img
+                        src={film.img}
+                        alt={film.title}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent opacity-90 group-hover:opacity-75 transition-opacity" />
+                      
+                      <div className="absolute inset-x-0 bottom-0 p-6">
+                        <h5 className="text-lg font-black text-white uppercase italic leading-none truncate group-hover:text-orange-500 transition-colors">
+                          {film.title}
+                        </h5>
+                      </div>
+
+                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 backdrop-blur-sm text-white rounded-full flex items-center justify-center scale-0 group-hover:scale-100 transition-all duration-300">
+                        <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
+                          <Play className="w-4 h-4 fill-current translate-x-0.5" />
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Dynamic Lightbox Video Modal overlay */}
       <AnimatePresence>

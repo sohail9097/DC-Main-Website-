@@ -1,7 +1,7 @@
 import { motion, useScroll, useTransform } from 'motion/react';
 import { ChevronRight, Play, Menu, X, Instagram, Facebook, Youtube, Twitter } from 'lucide-react';
 import { useState, useEffect, FC } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Navbar, DEFAULT_FILMS_LIST } from '../App';
 
 const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
@@ -56,7 +56,49 @@ const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
 };
 
 
+const SECTIONS_CONFIG = [
+  {
+    name: "Branded Content",
+    desc: "Premium commercial campaigns & brand stories",
+    glow: "rgba(249, 115, 22, 0.4)",
+    badge: "01"
+  },
+  {
+    name: "Documentaries",
+    desc: "Real-world narratives & raw human storytelling",
+    glow: "rgba(59, 130, 246, 0.4)",
+    badge: "02"
+  },
+  {
+    name: "Travel",
+    desc: "Cinematic adventures across global horizons",
+    glow: "rgba(16, 185, 129, 0.4)",
+    badge: "03"
+  },
+  {
+    name: "Corporate",
+    desc: "Polished workspace narratives & corporate messaging",
+    glow: "rgba(236, 72, 153, 0.4)",
+    badge: "04"
+  },
+  {
+    name: "Sports",
+    desc: "Adrenaline-fueled athletic motion & dynamics",
+    glow: "rgba(245, 158, 11, 0.4)",
+    badge: "05"
+  },
+  {
+    name: "Lifestyle",
+    desc: "Cozy spaces, curated travel, luxury & foods",
+    glow: "rgba(139, 92, 246, 0.4)",
+    badge: "06"
+  }
+];
+
+
+
 const FilmsPage = () => {
+  const location = useLocation();
   const { scrollY } = useScroll();
   const heroImgOpacity = useTransform(scrollY, [0, 800], [1, 0.1]);
   const starOpacity = useTransform(scrollY, [100, 700], [0.3, 1]);
@@ -68,6 +110,26 @@ const FilmsPage = () => {
 
   const [films, setFilms] = useState<{ id: string; title: string; category?: string; img: string; video?: string }[]>([]);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  useEffect(() => {
+    if (location.hash) {
+      const targetId = location.hash.replace('#', '');
+      const timer = setTimeout(() => {
+        const element = document.getElementById(targetId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 700);
+      return () => clearTimeout(timer);
+    }
+  }, [location.hash, films]);
 
   useEffect(() => {
     const loadFilms = () => {
@@ -201,50 +263,249 @@ const FilmsPage = () => {
           </motion.div>
         </section>
 
-        <div className="relative">
-          <div className="relative z-10 w-full max-w-[1900px] mx-auto px-4 md:px-6 pt-32 pb-24">
-            <div className="columns-1 md:columns-2 lg:columns-2 xl:columns-3 gap-6 space-y-6">
-              {films.map((film, idx) => (
-                <motion.div 
-                  key={film.id}
-                  initial={{ opacity: 0, y: 50, scale: 0.97 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: false, margin: "-50px", amount: 0.2 }}
-                  transition={{ 
-                    duration: 0.7, 
-                    ease: [0.22, 1, 0.36, 1],
-                    delay: (idx % 3) * 0.05 
-                  }}
-                  style={{ willChange: 'transform, opacity' }}
-                  className="group relative overflow-hidden rounded-2xl shadow-2xl break-inside-avoid mb-6 bg-white/5"
+        {/* Sticky Sub-Navbar Categories Quick Jump Menu */}
+        <div className="sticky top-20 z-40 w-full py-4 bg-zinc-950/85 backdrop-blur-md border-y border-white/5 px-4">
+          <div className="max-w-[1600px] mx-auto flex flex-wrap justify-center gap-2 sm:gap-4 md:gap-5">
+            {SECTIONS_CONFIG.map((sec) => {
+              const count = films.filter(f => (f.category || '').toLowerCase() === sec.name.toLowerCase()).length;
+              return (
+                <button
+                  key={sec.name}
+                  onClick={() => scrollToSection(sec.name.toLowerCase().replace(/\s+/g, '-'))}
+                  className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/5 hover:border-orange-500/30 text-xs font-semibold uppercase tracking-wider text-white/60 hover:text-orange-500 bg-white/[0.02] hover:bg-orange-500/5 transition-all cursor-pointer flex items-center gap-1.5 font-mono"
                 >
-                  <img 
-                    src={film.img} 
-                    alt={film.title} 
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  
-                  {/* Overlay on hover */}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 backdrop-blur-[2px]">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="w-6 h-[1px] bg-orange-500" />
-                      <span className="text-[10px] text-orange-500 font-bold uppercase tracking-[0.3em]">{film.category || 'Cinematic'}</span>
+                  <span>{sec.name}</span>
+                  <span className="text-[10px] text-white/30">
+                    ({count})
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="relative">
+          <div className="relative z-10 w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 pt-16 pb-24">
+            <div className="space-y-20 md:space-y-28">
+              {SECTIONS_CONFIG.map((section, secIdx) => {
+                const categoryFilms = films.filter(
+                  (film) => (film.category || '').toLowerCase() === section.name.toLowerCase()
+                );
+
+                return (
+                  <div 
+                    key={section.name} 
+                    id={section.name.toLowerCase().replace(/\s+/g, '-')} 
+                    className="scroll-mt-36 group/sec"
+                  >
+                    {/* Section Header */}
+                    <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-white/5 pb-6 mb-8 gap-4">
+                      <div>
+                        {/* Section Counter Badge */}
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="text-orange-500 font-mono text-xs font-black tracking-widest uppercase">
+                            SECTION {section.badge}
+                          </span>
+                          <span className="w-8 h-[1px] bg-orange-500/30" />
+                          <span className="text-white/30 text-xs tracking-wider font-mono">
+                            {categoryFilms.length} {categoryFilms.length === 1 ? 'WORK' : 'WORKS'}
+                          </span>
+                        </div>
+
+                        {/* Title with decorative Glow on hover */}
+                        <div className="relative inline-block">
+                          <h2 className="text-3xl md:text-5xl font-black italic tracking-tighter text-white uppercase group-hover/sec:text-orange-500 transition-colors duration-500">
+                            {section.name}
+                          </h2>
+                          {/* Accent color blur underlay */}
+                          <div 
+                            className="absolute -inset-1 rounded-lg blur-lg opacity-0 group-hover/sec:opacity-15 transition-opacity duration-1000 -z-10"
+                            style={{ backgroundColor: section.glow }}
+                          />
+                        </div>
+
+                        <p className="text-white/40 text-xs md:text-sm mt-2 font-medium tracking-tight">
+                          {section.desc}
+                        </p>
+                      </div>
+
+                      {/* Smooth scroll-to-top button */}
+                      <button
+                        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                        className="text-white/20 hover:text-orange-500 text-[10px] font-mono tracking-widest uppercase py-1.5 px-3 border border-white/5 hover:border-orange-500/20 rounded-md bg-transparent cursor-pointer transition-all self-start md:self-auto"
+                      >
+                        BACK TO TOP ↑
+                      </button>
                     </div>
-                    <h4 className="text-xl font-black text-white tracking-tighter uppercase italic leading-none truncate mb-4">
-                      {film.title}
-                    </h4>
-                    <button 
-                      type="button"
-                      onClick={() => setSelectedVideo(film.video || 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761')}
-                      className="w-10 h-10 bg-orange-500 text-white rounded-full flex items-center justify-center cursor-pointer shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:scale-110 active:scale-95 transition-all"
-                    >
-                      <Play className="fill-current w-4 h-4 translate-x-0.5" />
-                    </button>
+
+                    {/* Movies Grid for current category */}
+                    {categoryFilms.length === 0 ? (
+                      <div className="py-16 text-center border border-dashed border-white/5 rounded-2xl bg-zinc-950/40">
+                        <p className="text-white/20 text-xs font-mono uppercase tracking-widest">
+                          No cinematic works added yet in {section.name}
+                        </p>
+                      </div>
+                    ) : (
+                      <div 
+                        className={
+                          section.name.toLowerCase() === 'branded content'
+                            ? "flex flex-row overflow-x-auto gap-6 md:gap-8 pt-4 pb-6 snap-x snap-mandatory max-w-[1600px] mx-auto scroll-smooth"
+                            : "columns-1 md:columns-2 lg:columns-3 gap-6 md:gap-8 pt-4 [column-fill:balance] max-w-[1600px] mx-auto"
+                        }
+                        style={
+                          section.name.toLowerCase() === 'branded content'
+                            ? { scrollbarWidth: 'none', msOverflowStyle: 'none' }
+                            : undefined
+                        }
+                      >
+                        {categoryFilms.map((film, idx) => {
+                          // Structural layout configuration based on different poster frames
+                          const cycle = idx % 6;
+                          let layout = {
+                            aspectClass: "aspect-[4/3] sm:aspect-[3/2] lg:aspect-[1.4/1]",
+                            badge: "CINEMATIC FEATURE",
+                            badgeColor: "text-amber-400 border-amber-500/20 bg-amber-950/30",
+                            showBillingBlock: false,
+                            itemClass: "break-inside-avoid mb-6 md:mb-8 w-full inline-block"
+                          };
+
+                          if (section.name.toLowerCase() === 'branded content') {
+                            layout = {
+                              aspectClass: "aspect-video",
+                              badge: "BRANDED CONTENT",
+                              badgeColor: "text-orange-400 border-orange-500/20 bg-orange-900/40",
+                              showBillingBlock: false,
+                              itemClass: "w-[85%] sm:w-[46%] lg:w-[31.5%] flex-shrink-0 snap-start"
+                            };
+                          } else if (cycle === 1) {
+                            // Vertical tall theatrical poster frame
+                            layout = {
+                              aspectClass: "aspect-[3/4.2] sm:aspect-[2/2.8]",
+                              badge: "THEATRICAL POSTER",
+                              badgeColor: "text-orange-500 border-orange-500/20 bg-orange-950/30",
+                              showBillingBlock: true,
+                              itemClass: "break-inside-avoid mb-6 md:mb-8 w-full inline-block"
+                            };
+                          } else if (cycle === 2) {
+                            // Medium landscape screen frame
+                            layout = {
+                              aspectClass: "aspect-video sm:aspect-[1.5/1]",
+                              badge: "PREMIERE REEL",
+                              badgeColor: "text-yellow-500 border-yellow-500/20 bg-yellow-950/30",
+                              showBillingBlock: false,
+                              itemClass: "break-inside-avoid mb-6 md:mb-8 w-full inline-block"
+                            };
+                          } else if (cycle === 3) {
+                            // Large widescreen cinematic poster frame
+                            layout = {
+                              aspectClass: "aspect-video sm:aspect-[1.6/1]",
+                              badge: "EPIC CINEMA",
+                              badgeColor: "text-red-500 border-red-500/20 bg-red-950/30",
+                              showBillingBlock: true,
+                              itemClass: "break-inside-avoid mb-6 md:mb-8 w-full inline-block"
+                            };
+                          } else if (cycle === 4) {
+                            // Tall elegant editorial portrait poster
+                            layout = {
+                              aspectClass: "aspect-[3/4.2] lg:aspect-[2/2.8]",
+                              badge: "EDITORIAL FOCUS",
+                              badgeColor: "text-cyan-400 border-cyan-400/20 bg-cyan-950/30",
+                              showBillingBlock: true,
+                              itemClass: "break-inside-avoid mb-6 md:mb-8 w-full inline-block"
+                            };
+                          } else if (cycle === 5) {
+                            // Full-width stream cap layout
+                            layout = {
+                              aspectClass: "aspect-[1.8/1] lg:aspect-[1.85/1]",
+                              badge: "STREAMING NOW",
+                              badgeColor: "text-emerald-400 border-emerald-400/20 bg-emerald-950/30",
+                              showBillingBlock: false,
+                              itemClass: "break-inside-avoid mb-6 md:mb-8 w-full inline-block"
+                            };
+                          }
+
+                          return (
+                            <motion.div 
+                              key={film.id}
+                              initial={{ opacity: 0, y: 35, scale: 0.97 }}
+                              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                              viewport={{ once: true, margin: "-100px" }}
+                              transition={{ 
+                                duration: 0.8, 
+                                ease: [0.16, 1, 0.3, 1],
+                                delay: idx * 0.05 
+                              }}
+                              className={`group relative overflow-hidden rounded-xl shadow-2xl bg-zinc-950 border border-white/5 hover:border-orange-500/30 transition-all duration-700 ease-out hover:shadow-[0_20px_50px_rgba(249,115,22,0.15)] ${layout.itemClass} ${layout.aspectClass}`}
+                            >
+                              <img 
+                                src={film.img} 
+                                alt={film.title} 
+                                loading="lazy"
+                                className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-105 group-hover:brightness-105 saturate-100 group-hover:saturate-110"
+                              />
+                              
+                              {/* Classic subtle black shadow underlay at the bottom for readability */}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/5 opacity-75 group-hover:opacity-55 transition-all duration-500 pointer-events-none" />
+
+                              {/* Film view glass glaze overlay effect */}
+                              <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
+                                <div className="absolute -inset-x-[100%] h-[200%] w-[200%] bg-gradient-to-tr from-transparent via-white/[0.03] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-[1500ms] ease-out rotate-12" />
+                              </div>
+
+                              {/* Camera viewpoint brackets */}
+                              <div className="absolute top-3 left-3 w-2.5 h-2.5 border-t border-l border-white/10 group-hover:border-orange-500/30 transition-colors duration-500 pointer-events-none" />
+                              <div className="absolute top-3 right-3 w-2.5 h-2.5 border-t border-r border-white/10 group-hover:border-orange-500/30 transition-colors duration-500 pointer-events-none" />
+                              <div className="absolute bottom-3 left-3 w-2.5 h-2.5 border-b border-l border-white/10 group-hover:border-orange-500/30 transition-colors duration-500 pointer-events-none" />
+                              <div className="absolute bottom-3 right-3 w-2.5 h-2.5 border-b border-r border-white/10 group-hover:border-orange-500/30 transition-colors duration-500 pointer-events-none" />
+                              
+                              <div className="absolute inset-0 flex flex-col justify-between p-5 md:p-6 z-20">
+                                <div className="flex justify-between items-start pointer-events-none">
+                                  <span className={`px-2 py-0.5 rounded text-[8px] tracking-widest uppercase font-mono font-bold border backdrop-blur-md transition-colors ${layout.badgeColor}`}>
+                                    {layout.badge}
+                                  </span>
+                                </div>
+                                
+                                <div className="flex flex-col items-center text-center">
+                                  <h4 className="text-base sm:text-lg md:text-xl font-black text-white tracking-tighter uppercase italic leading-none truncate w-full mb-1.5 font-sans group-hover:text-orange-500 transition-colors duration-300 drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]">
+                                    {film.title}
+                                  </h4>
+                                  <p className="text-[9px] text-white/50 uppercase tracking-widest font-mono font-bold flex items-center justify-center gap-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse shadow-[0_0_8px_rgba(249,115,22,0.8)]" />
+                                    Dreamcatchers Official
+                                  </p>
+
+                                  {/* Dramatic Film Billing Block / Credits Roll simulation */}
+                                  {layout.showBillingBlock && (
+                                    <div className="mt-4 pt-3 border-t border-white/[0.08] flex flex-col items-center justify-center text-center w-full select-none pointer-events-none pr-1">
+                                      <span className="text-[6px] tracking-[0.3em] font-mono leading-none text-white/30 uppercase">
+                                        A PRESTIGE STUDIO PRESENTATION IN ASSOCIATION WITH THE FILMMAKERS DIVISION
+                                      </span>
+                                      <span className="text-[5.5px] mt-1 tracking-[0.25em] font-mono leading-none text-white/20 uppercase">
+                                        DIRECTED BY <span className="text-white/40 font-bold">T. SHANE</span> / ORIGINAL SOUND BY <span className="text-white/40">DOLBY ATMOS</span>
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Floating Hover Play Button */}
+                              <button 
+                                type="button"
+                                onClick={() => setSelectedVideo(film.video || 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761')}
+                                className="absolute inset-0 m-auto w-14 h-14 bg-white/10 backdrop-blur-sm text-white rounded-full flex items-center justify-center scale-0 group-hover:scale-100 transition-all duration-300 pointer-events-auto cursor-pointer z-30 shadow-2xl"
+                              >
+                                <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center hover:bg-orange-400 transition-colors">
+                                  <Play className="fill-current w-4 h-4 translate-x-0.5 text-white" />
+                                </div>
+                              </button>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
-                </motion.div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

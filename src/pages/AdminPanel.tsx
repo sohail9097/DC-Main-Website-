@@ -37,7 +37,7 @@ const AdminPanel: FC = () => {
   
   // Film form hooks
   const [filmTitle, setFilmTitle] = useState('');
-  const [filmCategory, setFilmCategory] = useState('OTT');
+  const [filmCategory, setFilmCategory] = useState('Branded Content');
   const [filmImg, setFilmImg] = useState('');
   const [filmVideo, setFilmVideo] = useState('');
 
@@ -1893,10 +1893,12 @@ const AdminPanel: FC = () => {
                           onChange={(e) => setFilmCategory(e.target.value)}
                           className="w-full bg-black border border-white/10 focus:border-orange-500 outline-none rounded-xl px-4 py-3 text-sm text-white font-black uppercase"
                         >
-                          <option value="OTT">OTT</option>
-                          <option value="Branded Commercials">BRANDED COMMERCIALS</option>
-                          <option value="Music Video">MUSIC VIDEO</option>
-                          <option value="Unscripted">UNSCRIPTED</option>
+                          <option value="Branded Content">Branded Content</option>
+                          <option value="Documentaries">Documentaries</option>
+                          <option value="Travel">Travel</option>
+                          <option value="Corporate">Corporate</option>
+                          <option value="Sports">Sports</option>
+                          <option value="Lifestyle">Lifestyle</option>
                         </select>
                       </div>
                     </div>
