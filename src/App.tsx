@@ -2198,6 +2198,17 @@ function LandingPage() {
 
   const [backdropType, setBackdropType] = useState<'image' | 'video'>('video');
   const [backdropUrl, setBackdropUrl] = useState('https://player.vimeo.com/video/371433846');
+  const [isMobileView, setIsMobileView] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsMobileView(isMobileUA || window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const loadConfigs = () => {
     const type = (localStorage.getItem('home_hero_bg_type') || 'video') as 'image' | 'video';
@@ -2207,6 +2218,18 @@ function LandingPage() {
     } else {
       setBackdropUrl(localStorage.getItem('home_hero_bg_url') || 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071');
     }
+  };
+
+  const getMobileBackdropUrl = () => {
+    const customImg = localStorage.getItem('home_hero_bg_image_url') || '';
+    if (customImg) return customImg;
+    
+    const bgType = localStorage.getItem('home_hero_bg_type') || 'video';
+    const bgUrl = localStorage.getItem('home_hero_bg_url') || '';
+    if (bgType === 'image' && bgUrl) {
+      return bgUrl;
+    }
+    return 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071';
   };
 
   useEffect(() => {
@@ -2229,7 +2252,13 @@ function LandingPage() {
           style={{ opacity: heroImgOpacity }}
           className="absolute inset-0"
         >
-          {backdropType === 'video' ? (
+          {isMobileView ? (
+            <img 
+              src={getMobileBackdropUrl()} 
+              alt="Cinematic Background" 
+              className="w-full h-full object-cover opacity-80 animate-fade-in"
+            />
+          ) : backdropType === 'video' ? (
             isEmbedUrl(backdropUrl) ? (
               <iframe
                 key={backdropUrl}
@@ -2347,6 +2376,19 @@ function ScrollToTop() {
 export function ShowreelPage() {
   const navigate = useNavigate();
   const [videoUrl, setVideoUrl] = useState('');
+  const [isMobileView, setIsMobileView] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const videoElementRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsMobileView(isMobileUA || window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const bgType = localStorage.getItem('home_hero_bg_type') || 'video';
@@ -2360,6 +2402,46 @@ export function ShowreelPage() {
     }
     setVideoUrl(activeUrl);
   }, []);
+
+  // When video starts playing on mobile, attempt to request native full screen
+  const handleVideoPlay = () => {
+    if (isMobileView) {
+      const video = videoElementRef.current;
+      if (video) {
+        if (video.requestFullscreen) {
+          video.requestFullscreen().catch(() => {});
+        } else if ((video as any).webkitEnterFullscreen) {
+          try {
+            (video as any).webkitEnterFullscreen();
+          } catch (e) {}
+        }
+      }
+    }
+  };
+
+  // Tapping screen on mobile can also try to toggle browser full screen mode for maximum immersion
+  const handleContainerClick = () => {
+    if (isMobileView) {
+      const isFullscreenNow = document.fullscreenElement || (document as any).webkitFullscreenElement;
+      if (!isFullscreenNow) {
+        const container = containerRef.current;
+        if (container) {
+          if (container.requestFullscreen) {
+            container.requestFullscreen().catch(() => {});
+          } else if ((container as any).webkitRequestFullscreen) {
+            (container as any).webkitRequestFullscreen();
+          }
+        }
+        
+        const video = videoElementRef.current;
+        if (video && (video as any).webkitEnterFullscreen) {
+          try {
+            video.webkitEnterFullscreen();
+          } catch (e) {}
+        }
+      }
+    }
+  };
 
   const isEmbed = isEmbedUrl(videoUrl);
 
@@ -2409,42 +2491,76 @@ export function ShowreelPage() {
   const iframeSrc = getAutoplayUrl(videoUrl);
 
   return (
-    <div className="relative w-screen h-screen bg-black overflow-hidden flex items-center justify-center">
-      {/* Immersive Top Bar */}
-      <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-black/85 via-black/45 to-transparent z-[100] flex items-center justify-between px-6 md:px-12 pointer-events-none">
+    <div 
+      ref={containerRef}
+      onClick={handleContainerClick}
+      className="relative w-screen h-screen bg-black overflow-hidden flex items-center justify-center cursor-pointer md:cursor-default"
+    >
+      {/* Immersive Top Bar - Desktop Only */}
+      {!isMobileView && (
+        <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-black/85 via-black/45 to-transparent z-[100] flex items-center justify-between px-6 md:px-12 pointer-events-none">
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            className="group flex items-center gap-3 px-5 py-3 rounded-full bg-black/50 hover:bg-orange-500 backdrop-blur-md border border-white/10 hover:border-orange-500 text-white font-sans text-xs uppercase tracking-widest font-black transition-all duration-300 pointer-events-auto cursor-pointer shadow-[0_10px_30px_rgba(0,0,0,0.5)] transform hover:-translate-y-0.5 active:translate-y-0"
+          >
+            <ArrowLeft size={16} className="transition-transform duration-300 group-hover:-translate-x-1" />
+            <span>Back to Home</span>
+          </button>
+
+          <div className="text-right hidden sm:block md:block font-mono">
+            <p className="text-[10px] text-white/40 uppercase tracking-widest">Cinema Presentation</p>
+            <p className="text-xs text-orange-500 font-bold uppercase tracking-wider mt-0.5">Showreel Playback</p>
+          </div>
+        </div>
+      )}
+
+      {/* Floating immersive Back/Exit button for native-feel mobile interface */}
+      {isMobileView && (
         <button
           type="button"
-          onClick={() => navigate('/')}
-          className="group flex items-center gap-3 px-5 py-3 rounded-full bg-black/50 hover:bg-orange-500 backdrop-blur-md border border-white/10 hover:border-orange-500 text-white font-sans text-xs uppercase tracking-widest font-black transition-all duration-300 pointer-events-auto cursor-pointer shadow-[0_10px_30px_rgba(0,0,0,0.5)] transform hover:-translate-y-0.5 active:translate-y-0"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (document.fullscreenElement || (document as any).webkitFullscreenElement) {
+              if (document.exitFullscreen) {
+                document.exitFullscreen().catch(() => {});
+              } else if ((document as any).webkitExitFullscreen) {
+                (document as any).webkitExitFullscreen();
+              }
+            }
+            navigate('/');
+          }}
+          className="absolute top-6 left-6 z-[200] flex items-center gap-2 px-4 py-2.5 rounded-full bg-black/70 hover:bg-orange-500 backdrop-blur-md border border-white/15 text-white text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer shadow-lg active:scale-95 pointer-events-auto"
         >
-          <ArrowLeft size={16} className="transition-transform duration-300 group-hover:-translate-x-1" />
-          <span>Back to Home</span>
+          <ArrowLeft size={14} />
+          <span>Exit</span>
         </button>
-
-        <div className="text-right hidden sm:block md:block font-mono">
-          <p className="text-[10px] text-white/40 uppercase tracking-widest">Cinema Presentation</p>
-          <p className="text-xs text-orange-500 font-bold uppercase tracking-wider mt-0.5">Showreel Playback</p>
-        </div>
-      </div>
+      )}
 
       {/* Video Content Container */}
-      <div className="w-full h-full relative z-10">
+      <div className="w-full h-full relative z-10 select-none overflow-hidden">
         {videoUrl ? (
           isEmbed ? (
             <iframe
               src={iframeSrc}
               title="Showreel Player"
-              className="w-full h-full border-none"
+              className={`border-none transition-all duration-300 ${
+                isMobileView 
+                  ? 'absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[178vh] h-[100vh] min-w-[100vw] min-h-[56.25vw] max-w-none' 
+                  : 'w-full h-full'
+              }`}
               allowFullScreen
               allow="autoplay; encrypted-media; picture-in-picture"
             />
           ) : (
             <video
+              ref={videoElementRef}
               src={videoUrl}
-              className="w-full h-full object-contain bg-black"
+              className={`bg-black transition-all duration-300 ${isMobileView ? 'absolute left-0 top-0 w-full h-full object-cover' : 'w-full h-full object-contain'}`}
               controls
               autoPlay
               playsInline
+              onPlay={handleVideoPlay}
             />
           )
         ) : (
@@ -2454,6 +2570,15 @@ export function ShowreelPage() {
           </div>
         )}
       </div>
+
+      {/* Toast-like tap prompt overlay for Mobile Cinema */}
+      {isMobileView && videoUrl && (
+        <div className="absolute bottom-6 inset-x-0 mx-auto text-center z-50 pointer-events-none animate-pulse">
+          <span className="bg-black/70 text-[9px] font-bold text-white/55 tracking-widest uppercase px-3 py-1.5 rounded-full border border-white/5 shadow-2xl backdrop-blur-sm">
+            Tap screen to toggle fullscreen theatre mode
+          </span>
+        </div>
+      )}
     </div>
   );
 }

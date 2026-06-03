@@ -1,14 +1,49 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel+Decorative:wght@700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&family=Space+Grotesk:wght@700&family=Syne:wght@800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel+Decorative:wght@700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&family=Space+Grotesk:wght@700&family=Syne:wght@800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
 @import "tailwindcss";
 
+/* -----------------------------------------------------
+ * Custom @font-face declarations for Geograph
+ * ----------------------------------------------------- */
+@font-face {
+  font-family: 'Geograph';
+  src: local('Geograph'), local('Geograph Regular'), local('Geograph-Regular'), local('Geograph Web'), local('GeographWeb');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geograph';
+  src: local('Geograph Italic'), local('Geograph-Italic');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geograph';
+  src: local('Geograph Medium'), local('Geograph-Medium');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geograph';
+  src: local('Geograph Bold'), local('Geograph-Bold');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-bebas: "Bebas Neue", sans-serif;
-  --font-syne: "Syne", sans-serif;
-  --font-courier: "Courier Prime", monospace;
-  --font-playfair: "Playfair Display", serif;
-  --font-cinzel: "Cinzel Decorative", serif;
-  --font-space: "Space Grotesk", sans-serif;
+  --font-sans: "Geograph", "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-bebas: "Geograph", "Plus Jakarta Sans", "Bebas Neue", sans-serif;
+  --font-syne: "Geograph", "Plus Jakarta Sans", "Syne", sans-serif;
+  --font-courier: "Geograph", "Plus Jakarta Sans", "Courier Prime", monospace;
+  --font-playfair: "Geograph", "Plus Jakarta Sans", "Playfair Display", serif;
+  --font-cinzel: "Geograph", "Plus Jakarta Sans", "Cinzel Decorative", serif;
+  --font-space: "Geograph", "Plus Jakarta Sans", "Space Grotesk", sans-serif;
 }
 
 html {
@@ -16,6 +51,7 @@ html {
 }
 
 body {
+  font-family: "Geograph", "Plus Jakarta Sans", "Inter", sans-serif;
   @apply bg-black text-white;
   -webkit-font-smoothing: antialiased;
 }
