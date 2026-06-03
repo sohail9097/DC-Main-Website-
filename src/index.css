@@ -38,12 +38,12 @@
 
 @theme {
   --font-sans: "Geograph", "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-bebas: "Geograph", "Plus Jakarta Sans", "Bebas Neue", sans-serif;
-  --font-syne: "Geograph", "Plus Jakarta Sans", "Syne", sans-serif;
-  --font-courier: "Geograph", "Plus Jakarta Sans", "Courier Prime", monospace;
-  --font-playfair: "Geograph", "Plus Jakarta Sans", "Playfair Display", serif;
-  --font-cinzel: "Geograph", "Plus Jakarta Sans", "Cinzel Decorative", serif;
-  --font-space: "Geograph", "Plus Jakarta Sans", "Space Grotesk", sans-serif;
+  --font-bebas: "Bebas Neue", "Geograph", "Plus Jakarta Sans", sans-serif;
+  --font-syne: "Syne", "Geograph", "Plus Jakarta Sans", sans-serif;
+  --font-courier: "Courier Prime", "Geograph", "Plus Jakarta Sans", monospace;
+  --font-playfair: "Playfair Display", "Geograph", "Plus Jakarta Sans", serif;
+  --font-cinzel: "Cinzel Decorative", "Geograph", "Plus Jakarta Sans", serif;
+  --font-space: "Space Grotesk", "Geograph", "Plus Jakarta Sans", sans-serif;
 }
 
 html {

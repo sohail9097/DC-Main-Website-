@@ -1534,6 +1534,16 @@ function Footer() {
 function Intro() {
   const navigate = useNavigate();
   const [orbitImages, setOrbitImages] = useState<string[]>([]);
+  const [isMobileView, setIsMobileView] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileView(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const loadOrbitImages = () => {
@@ -1907,61 +1917,112 @@ function Intro() {
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: false }}
-            className="group relative flex flex-col items-center justify-center h-[500px] md:h-[700px] bg-transparent transition-all duration-700"
-            style={{ perspective: "1500px", transformStyle: "preserve-3d" }}
+            className="group relative flex flex-col items-center justify-center min-h-[350px] md:h-[700px] bg-transparent transition-all duration-700"
+            style={isMobileView ? {} : { perspective: "1500px", transformStyle: "preserve-3d" }}
           >
              {/* Background Atmosphere */}
-             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.1)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
-             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-orange-600/5 blur-[120px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
+             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.12)_0%,transparent_70%)] transition-opacity duration-1000 pointer-events-none opacity-100" />
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-orange-600/5 blur-[120px] rounded-full transition-opacity duration-1000 pointer-events-none opacity-100" />
 
-             {/* 3D Scene Container */}
-             <div className="relative w-full h-full flex items-center justify-center" style={{ transformStyle: "preserve-3d" }}>
+             {/* 3D or Mobile Scene Container */}
+             <div className="relative w-full h-full flex flex-col md:flex-row items-center justify-center" style={isMobileView ? {} : { transformStyle: "preserve-3d" }}>
                 
                 {/* Centered DC Text with Sun Glow */}
-                <div className="relative z-20 text-center flex items-center justify-center" style={{ transformStyle: "preserve-3d" }}>
+                <div className="relative z-20 text-center flex items-center justify-center" style={isMobileView ? {} : { transformStyle: "preserve-3d" }}>
                     {/* Sun Glow */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 md:w-96 md:h-96 bg-orange-500/20 blur-[100px] rounded-full group-hover:bg-orange-500/30 transition-all duration-1000" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 md:w-96 md:h-96 blur-[100px] rounded-full bg-orange-500/30 transition-all duration-1000" />
                     
                     <motion.span 
-                      className="text-[6rem] md:text-[18rem] font-black italic tracking-tighter text-white/5 transition-all duration-700 group-hover:text-orange-500 group-hover:drop-shadow-[0_0_80px_rgba(249,115,22,0.5)] cursor-default select-none block leading-none relative z-20"
-                      whileHover={{ scale: 1.02 }}
+                      className="text-[6rem] md:text-[18rem] font-black italic tracking-tighter text-orange-500 drop-shadow-[0_0_60px_rgba(249,115,22,0.7)] hover:drop-shadow-[0_0_90px_rgba(249,115,22,0.9)] transition-all duration-700 cursor-default select-none block leading-none relative z-20"
+                      whileHover={isMobileView ? {} : { scale: 1.02 }}
                     >
                       DC
                     </motion.span>
                 </div>
 
-                {/* Visual Orbit Path Line */}
-                <motion.div
-                  className="absolute pointer-events-none"
-                  style={{
-                    width: typeof window !== 'undefined' ? (window.innerWidth > 768 ? '930px' : '420px') : '930px',
-                    height: '210px', // Slightly deeper path for expanded Z depth
-                    transform: 'rotateX(78deg) translateY(10px)',
-                    transformStyle: 'preserve-3d',
-                  }}
-                  animate={{
-                    opacity: [0.12, 0.40, 0.12],
-                  }}
-                  transition={{
-                    duration: 6,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                >
-                  {/* Outer Dashed Orbit Ring */}
-                  <div className="absolute inset-0 rounded-full border border-dashed border-orange-500/25 group-hover:border-orange-500/40 transition-colors duration-1000 shadow-[0_0_60px_rgba(249,115,22,0.1)]" />
-                  
-                  {/* Inner Accent Ring */}
-                  <div className="absolute inset-[12px] rounded-full border border-white/5" />
-                  
-                  {/* Atmospheric Glow */}
-                  <div className="absolute inset-[-16px] rounded-full bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.03)_0%,transparent_70%)]" />
-                </motion.div>
+                {isMobileView ? (
+                  <div className="w-full flex flex-col items-center gap-4 mt-6 px-4 z-30 relative py-2">
+                    <span className="text-[9px] font-bold text-orange-500/85 tracking-[0.25em] uppercase animate-pulse">
+                      Slide to Explore Our Sets
+                    </span>
+                    <div className="w-full flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory pointer-events-auto">
+                      {activeOrbitImages.map((img, i) => {
+                        let imgUrl = '';
+                        let mediaType: 'image' | 'video' = 'image';
 
-                {/* Orbiting Planets - Now in the same container for unified stacking context */}
-                {activeOrbitImages.map((img, i) => (
-                  <OrbitingFrame key={i} index={i} total={activeOrbitImages.length} item={img} />
-                ))}
+                        if (typeof img === 'string') {
+                          imgUrl = img;
+                          const lower = img.toLowerCase();
+                          if (lower.endsWith('.mp4') || lower.endsWith('.mov') || lower.endsWith('.webm') || (lower.includes('drive.google.com/file/d/') && (lower.includes('video') || lower.includes('playback') || lower.includes('mp4')))) {
+                            mediaType = 'video';
+                          }
+                        } else if (img && typeof img === 'object') {
+                          imgUrl = img.url || '';
+                          mediaType = img.type === 'video' ? 'video' : 'image';
+                        }
+                        const transformed = transformGoogleDriveUrl(imgUrl, mediaType);
+                        return (
+                          <div 
+                            key={i} 
+                            className="flex-shrink-0 w-28 h-28 rounded-full p-1 bg-gradient-to-br from-white/20 to-transparent border border-white/10 overflow-hidden snap-center bg-black/40 shadow-xl flex items-center justify-center relative"
+                          >
+                            {mediaType === 'video' ? (
+                              <video 
+                                src={transformed} 
+                                className="w-full h-full object-cover rounded-full pointer-events-none grayscale opacity-80" 
+                                autoPlay 
+                                loop 
+                                muted 
+                                playsInline 
+                              />
+                            ) : (
+                              <img 
+                                src={transformed} 
+                                className="w-full h-full object-cover rounded-full pointer-events-none grayscale opacity-80" 
+                                alt="Orbiting set" 
+                              />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Visual Orbit Path Line */}
+                    <motion.div
+                      className="absolute pointer-events-none"
+                      style={{
+                        width: typeof window !== 'undefined' ? (window.innerWidth > 768 ? '930px' : '420px') : '930px',
+                        height: '210px', 
+                        transform: 'rotateX(78deg) translateY(10px)',
+                        transformStyle: 'preserve-3d',
+                      }}
+                      animate={{
+                        opacity: [0.12, 0.40, 0.12],
+                      }}
+                      transition={{
+                        duration: 6,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    >
+                      {/* Outer Dashed Orbit Ring */}
+                      <div className="absolute inset-0 rounded-full border border-dashed border-orange-500/25 group-hover:border-orange-500/40 transition-colors duration-1000 shadow-[0_0_60px_rgba(249,115,22,0.1)]" />
+                      
+                      {/* Inner Accent Ring */}
+                      <div className="absolute inset-[12px] rounded-full border border-white/5" />
+                      
+                      {/* Atmospheric Glow */}
+                      <div className="absolute inset-[-16px] rounded-full bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.03)_0%,transparent_70%)]" />
+                    </motion.div>
+
+                    {/* Orbiting Planets */}
+                    {activeOrbitImages.map((img, i) => (
+                      <OrbitingFrame key={i} index={i} total={activeOrbitImages.length} item={img} />
+                    ))}
+                  </>
+                )}
              </div>
           </motion.div>
 
@@ -2232,6 +2293,25 @@ function LandingPage() {
     return 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071';
   };
 
+  const getDesktopHighQualityUrl = (url: string) => {
+    if (!url) return '';
+    if (!isMobileView) {
+      let highQualityUrl = url;
+      // Convert Vimeo external SD video links (sd.mp4) to high-definition (hd.mp4)
+      if (highQualityUrl.includes('.sd.mp4')) {
+        highQualityUrl = highQualityUrl.replace('.sd.mp4', '.hd.mp4');
+      }
+      // Upgrade Vimeo profiles to HD (profile_id 139 / 164 is SD, while 174 / 175 is HD)
+      if (highQualityUrl.includes('profile_id=139')) {
+        highQualityUrl = highQualityUrl.replace('profile_id=139', 'profile_id=174');
+      } else if (highQualityUrl.includes('profile_id=164')) {
+        highQualityUrl = highQualityUrl.replace('profile_id=164', 'profile_id=174');
+      }
+      return highQualityUrl;
+    }
+    return url;
+  };
+
   useEffect(() => {
     loadConfigs();
     window.addEventListener('storage_updated_home_hero', loadConfigs);
@@ -2256,14 +2336,14 @@ function LandingPage() {
             <img 
               src={getMobileBackdropUrl()} 
               alt="Cinematic Background" 
-              className="w-full h-full object-cover opacity-80 animate-fade-in"
+              className="w-full h-full object-cover opacity-95 animate-fade-in"
             />
           ) : backdropType === 'video' ? (
             isEmbedUrl(backdropUrl) ? (
               <iframe
                 key={backdropUrl}
-                src={getEmbedUrl(backdropUrl)}
-                className="w-full h-full border-none object-cover opacity-60 scale-105 pointer-events-none"
+                src={getEmbedUrl(getDesktopHighQualityUrl(backdropUrl))}
+                className="w-full h-full border-none object-cover opacity-95 scale-105 pointer-events-none"
                 allow="autoplay; encrypted-media; picture-in-picture"
                 allowFullScreen
                 style={{
@@ -2275,23 +2355,24 @@ function LandingPage() {
             ) : (
               <video 
                 key={backdropUrl}
-                src={backdropUrl} 
+                src={getDesktopHighQualityUrl(backdropUrl)} 
                 autoPlay 
                 loop 
                 muted 
                 playsInline 
-                className="w-full h-full object-cover opacity-60"
+                preload="auto"
+                className="w-full h-full object-cover opacity-95"
               />
             )
           ) : (
             <img 
               src={backdropUrl} 
               alt="Cinematic Background" 
-              className="w-full h-full object-cover opacity-80"
+              className="w-full h-full object-cover opacity-95"
             />
           )}
-          {/* Transition overlays */}
-          <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-black via-black/10 to-transparent pointer-events-none" />
+          {/* Transition overlays - Soft bottom blend only, not a dark cover shield */}
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black to-transparent pointer-events-none" />
         </motion.div>
 
         {/* Layer 2: Main Starry Background Image (Fades in as you scroll) */}
@@ -2309,7 +2390,7 @@ function LandingPage() {
 
         {/* Global Animated Star Field */}
         <motion.div style={{ opacity: starOpacity }} className="absolute inset-0">
-          <StarField count={250} />
+          <StarField count={isMobileView ? 20 : 250} />
         </motion.div>
 
         {/* Ambient Atmosphere */}
@@ -2599,6 +2680,16 @@ const StoryChapterRow: FC<{
 }> = ({ ch, idx, timecode }) => {
   const rowRef = useRef<HTMLDivElement>(null);
   
+  const [isMobileScreen, setIsMobileScreen] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobileScreen(window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // High-fidelity individual scroll progress tracking for parallax & organic moves
   const { scrollYProgress } = useScroll({
     target: rowRef,
@@ -2612,42 +2703,24 @@ const StoryChapterRow: FC<{
   const rawScaleCard = useTransform(scrollYProgress, [0, 0.15, 0.5, 0.85, 1], [0.93, 0.98, 1, 0.98, 0.93]);
   const rawOpacity = useTransform(scrollYProgress, [0, 0.15, 0.85, 1], [0.35, 1, 1, 0.35]);
 
+  const yText = isMobileScreen ? 0 : rawYText;
+  const yCard = isMobileScreen ? 0 : rawYCard;
+  const rotateCard = isMobileScreen ? 0 : rawRotateCard;
+  const scaleCard = isMobileScreen ? 1 : rawScaleCard;
+  const opacityVal = isMobileScreen ? 1 : rawOpacity;
+
   const IconComponent = ch.icon;
 
   return (
     <motion.div
       ref={rowRef}
-      style={{ opacity: rawOpacity }}
-      className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative pl-10 lg:pl-0 min-h-[460px] py-12"
+      style={{ opacity: opacityVal }}
+      className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative min-h-[460px] py-12"
     >
-      {/* Central Chrono Node Dot Station */}
-      <div className="absolute left-[-26px] lg:left-1/2 top-10 lg:top-1/2 -translate-y-1/2 lg:-translate-x-1/2 z-20 pointer-events-none">
-        <motion.div 
-          animate={{
-            scale: [1, 1.15, 1],
-          }}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          className="w-8 h-8 rounded-full bg-black border-2 border-orange-500/60 flex items-center justify-center relative shadow-[0_0_20px_rgba(249,115,22,0.4)]"
-        >
-          <motion.div 
-            animate={{ scale: [1, 2, 1], opacity: [0.6, 0, 0.6] }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute inset-0 rounded-full border border-orange-500/40"
-          />
-          <div className="w-2.5 h-2.5 rounded-full bg-orange-500" />
-        </motion.div>
-        <span className="hidden lg:block absolute left-10 top-1/2 -translate-y-1/2 font-mono text-[8px] tracking-[0.2em] text-orange-500/80 bg-neutral-950/90 px-2 py-0.5 rounded border border-orange-500/20 whitespace-nowrap">
-          CH.{ch.id} STATION
-        </span>
-      </div>
 
       {/* Text Side (Odd/Even shifts layout for visual rhythm) */}
       <motion.div 
-        style={{ y: rawYText }}
+        style={{ y: yText }}
         className={`space-y-6 lg:col-span-7 ${idx % 2 === 1 ? 'lg:order-2' : ''}`}
       >
         <div className="flex items-center gap-4">
@@ -2689,9 +2762,9 @@ const StoryChapterRow: FC<{
       {/* Graphic Asset Side */}
       <motion.div 
         style={{ 
-          y: rawYCard,
-          rotate: rawRotateCard,
-          scale: rawScaleCard
+          y: yCard,
+          rotate: rotateCard,
+          scale: scaleCard
         }}
         className={`lg:col-span-5 flex items-center justify-center ${idx % 2 === 1 ? 'lg:order-1' : ''}`}
       >
