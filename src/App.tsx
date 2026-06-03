@@ -3121,14 +3121,6 @@ export function StoryPage() {
       {/* Content Showcase Matrix in relative Container */}
       <div ref={containerRef} className="relative max-w-7xl mx-auto px-6 md:px-12 pb-32 z-10 space-y-36 md:space-y-56">
         
-        {/* Absolute Glowing Scroll Connection Timeline Trail ribbon */}
-        <div className="absolute left-8 lg:left-[50%] top-6 bottom-6 w-[2px] bg-white/5 -translate-x-1/2 pointer-events-none">
-          <motion.div 
-            style={{ scaleY: scrollYProgress, transformOrigin: "top" }}
-            className="w-full h-full bg-gradient-to-b from-orange-500 via-amber-500 to-rose-500 shadow-[0_0_20px_rgba(249,115,22,0.6)]"
-          />
-        </div>
-
         {storyChapters.map((ch, idx) => (
           <StoryChapterRow 
             key={ch.id} 
