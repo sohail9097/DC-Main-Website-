@@ -270,13 +270,13 @@ export function Navbar() {
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-3 md:gap-4"
+            className="flex items-center gap-3 md:gap-4 group"
           >
             {logoType === 'image' && logoImageUrl ? (
               <img 
                 src={transformGoogleDriveUrl(logoImageUrl)} 
                 alt={logoTextFull} 
-                className="h-10 sm:h-12 md:h-14 object-contain max-w-[200px]" 
+                className="h-10 sm:h-12 md:h-14 object-contain max-w-[200px] transition-all duration-300 group-hover:brightness-110 group-hover:drop-shadow-[0_0_15px_rgba(249,115,22,0.6)]" 
                 referrerPolicy="no-referrer"
                 onError={() => {
                   setLogoType('text');
@@ -284,8 +284,8 @@ export function Navbar() {
               />
             ) : (
               <>
-                <span className="text-2xl md:text-4xl font-black italic tracking-tighter text-orange-500 leading-none">{logoTextShort}</span>
-                <span className="text-xs md:text-lg font-bold tracking-[0.2em] text-white hidden sm:block">{logoTextFull}</span>
+                <span className="text-2xl md:text-4xl font-black italic tracking-tighter text-orange-500 leading-none transition-all duration-300 group-hover:text-orange-400 group-hover:drop-shadow-[0_0_15px_rgba(249,115,22,0.8)]">{logoTextShort}</span>
+                <span className="text-xs md:text-lg font-bold tracking-[0.2em] text-white hidden sm:block transition-all duration-300 group-hover:text-orange-100">{logoTextFull}</span>
               </>
             )}
           </motion.div>
@@ -712,6 +712,46 @@ const ClientLogo: FC<ClientLogoProps> = ({ client }) => {
     </div>
   );
 };
+
+export interface ParagraphFrameItem {
+  id: string; // 'frame1', 'frame2', 'frame4', 'frame5', 'frame6'
+  label: string;
+  type: 'image' | 'video';
+  url: string;
+}
+
+export const DEFAULT_PARAGRAPH_FRAMES: ParagraphFrameItem[] = [
+  {
+    id: 'frame1',
+    label: 'Frame 1 (KODAK Film Slide)',
+    type: 'video',
+    url: 'https://drive.google.com/file/d/11IhUdtZgucLSQsiqe2OZb08DOhidbTmD/view?usp=sharing'
+  },
+  {
+    id: 'frame2',
+    label: 'Frame 2 (Anamorphic Strip)',
+    type: 'image',
+    url: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&q=80&w=240'
+  },
+  {
+    id: 'frame4',
+    label: 'Frame 4 (Circular Aperture)',
+    type: 'image',
+    url: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&q=80&w=200'
+  },
+  {
+    id: 'frame5',
+    label: 'Frame 5 (Skewed Clapperboard)',
+    type: 'image',
+    url: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=200'
+  },
+  {
+    id: 'frame6',
+    label: 'Frame 6 (Retro CRT Frame)',
+    type: 'image',
+    url: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=200'
+  }
+];
 
 export interface TeamMember {
   id: number;
@@ -1445,9 +1485,9 @@ function Footer() {
       <div className="max-w-[1800px] mx-auto px-6 md:px-48 lg:px-56">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 md:gap-12 mb-8 md:mb-12">
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-4 mb-6 md:mb-10">
-              <span className="text-3xl md:text-6xl font-black italic tracking-tighter text-orange-500 leading-none">DC</span>
-              <span className="text-xl md:text-4xl font-black tracking-tighter text-white uppercase italic">Dreamcatchers</span>
+            <div className="flex items-center gap-4 mb-6 md:mb-10 group cursor-default">
+              <span className="text-3xl md:text-6xl font-black italic tracking-tighter text-orange-500 leading-none transition-all duration-300 group-hover:text-orange-400 group-hover:drop-shadow-[0_0_20px_rgba(249,115,22,0.8)]">DC</span>
+              <span className="text-xl md:text-4xl font-black tracking-tighter text-white uppercase italic transition-all duration-300 group-hover:text-orange-100">Dreamcatchers</span>
             </div>
             <p className="text-white/40 leading-relaxed max-w-md text-xs md:text-sm font-medium tracking-tight">
               A high-end creative studio for brands, agencies & OTT platforms to increase visibility through advertising, films, and creative adaptations.
@@ -1570,6 +1610,52 @@ function Intro() {
 
   const activeOrbitImages = orbitImages.length > 0 ? orbitImages : DEFAULT_ORBIT_IMAGES;
 
+  const [paragraphFrames, setParagraphFrames] = useState<ParagraphFrameItem[]>(DEFAULT_PARAGRAPH_FRAMES);
+
+  useEffect(() => {
+    const loadParagraphFrames = () => {
+      const stored = localStorage.getItem('paragraph_frames');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored) as ParagraphFrameItem[];
+          const hasOldFrame1 = parsed.some(f => f.id === 'frame1' && (f.type !== 'video' || !f.url.includes('11IhUdtZgucLSQsiqe2OZb08DOhidbTmD')));
+          if (hasOldFrame1) {
+            const updated = parsed.map(f => {
+              if (f.id === 'frame1') {
+                return {
+                  ...f,
+                  type: 'video' as const,
+                  url: 'https://drive.google.com/file/d/11IhUdtZgucLSQsiqe2OZb08DOhidbTmD/view?usp=sharing'
+                };
+              }
+              return f;
+            });
+            localStorage.setItem('paragraph_frames', JSON.stringify(updated));
+            setParagraphFrames(updated);
+            return;
+          }
+          setParagraphFrames(parsed);
+          return;
+        } catch (e) {
+          console.error('Error parsing paragraph frames:', e);
+        }
+      }
+      setParagraphFrames(DEFAULT_PARAGRAPH_FRAMES);
+    };
+
+    loadParagraphFrames();
+    window.addEventListener('storage_updated_paragraph_frames', loadParagraphFrames);
+    window.addEventListener('storage', loadParagraphFrames);
+    return () => {
+      window.removeEventListener('storage_updated_paragraph_frames', loadParagraphFrames);
+      window.removeEventListener('storage', loadParagraphFrames);
+    };
+  }, []);
+
+  const getFrame = (id: string): ParagraphFrameItem => {
+    return paragraphFrames.find(f => f.id === id) || DEFAULT_PARAGRAPH_FRAMES.find(f => f.id === id)!;
+  };
+
   const lineVariants = {
     hidden: { y: "150%", rotate: 2, opacity: 0 },
     visible: {
@@ -1659,7 +1745,7 @@ function Intro() {
                     hidden: { y: 60, opacity: 0 },
                     visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } }
                   }}
-                  className="font-cinzel text-orange-500 text-xl sm:text-2xl md:text-[2.0rem] lg:text-[2.4rem] font-bold tracking-wider inline-block align-middle mr-2"
+                  className="font-sans text-orange-500 text-xl sm:text-2xl md:text-[2.0rem] lg:text-[2.4rem] font-bold tracking-wider inline-block align-middle mr-2"
                 >
                   DREAMCATCHERS FILMS PVT. LTD.
                 </motion.span>
@@ -1674,12 +1760,32 @@ function Intro() {
                   className="inline-block mx-2 align-middle shrink-0 cursor-pointer"
                 >
                   <div className="w-[3rem] h-[4rem] sm:w-[4.2rem] sm:h-[5.5rem] md:w-[5.2rem] md:h-[6.8rem] rounded-md overflow-hidden border-2 border-white/20 bg-neutral-950 shadow-[0_4px_15px_rgba(0,0,0,0.6)] relative group animate-float-gentle">
-                    <img 
-                      src="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&q=80&w=200" 
-                      className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500 scale-105 group-hover:scale-100" 
-                      alt="" 
-                      referrerPolicy="no-referrer" 
-                    />
+                    {getFrame('frame1').type === 'video' ? (
+                      isEmbedUrl(getFrame('frame1').url) ? (
+                        <iframe 
+                          src={getEmbedUrl(getFrame('frame1').url, true)} 
+                          className="absolute inset-x-[-100%] inset-y-0 w-[300%] h-full pointer-events-none scale-105 border-0"
+                          allow="autoplay"
+                          style={{ pointerEvents: 'none' }}
+                        />
+                      ) : (
+                        <video 
+                          src={transformGoogleDriveUrl(getFrame('frame1').url, 'video')} 
+                          className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-500 scale-105 group-hover:scale-100" 
+                          autoPlay 
+                          loop 
+                          muted 
+                          playsInline 
+                        />
+                      )
+                    ) : (
+                      <img 
+                        src={transformGoogleDriveUrl(getFrame('frame1').url, 'image')} 
+                        className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500 scale-105 group-hover:scale-100" 
+                        alt="" 
+                        referrerPolicy="no-referrer" 
+                      />
+                    )}
                     <div className="absolute inset-x-0 top-1 flex justify-between px-1 opacity-50 text-[5px] font-mono text-white pointer-events-none">
                       <span>▲</span><span>KODAK</span>
                     </div>
@@ -1692,9 +1798,9 @@ function Intro() {
                     hidden: { y: 60, opacity: 0 },
                     visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } }
                   }}
-                  className="font-courier italic lowercase font-normal text-white/50 text-base sm:text-xl md:text-[1.3rem] lg:text-[1.5rem] leading-snug align-middle mx-1"
+                  className="font-sans italic uppercase font-normal text-white/50 text-base sm:text-xl md:text-[1.3rem] lg:text-[1.5rem] leading-snug align-middle mx-1"
                 >
-                  is an award-winning
+                  IS AN AWARD-WINNING
                 </motion.span>
 
                 {/* Frame 2: Panoramic 2.39:1 Anamorphic Widescreen Strip */}
@@ -1707,12 +1813,32 @@ function Intro() {
                   className="inline-block mx-2 align-middle shrink-0 cursor-pointer"
                 >
                   <div className="w-[4.5rem] h-[1.9rem] sm:w-[6.4rem] sm:h-[2.7rem] md:w-[8.2rem] md:h-[3.5rem] rounded-sm overflow-hidden border-y-2 border-orange-500/50 bg-neutral-900 shadow-[0_4px_15px_rgba(0,0,0,0.6)] relative group animate-scale-gentle">
-                    <img 
-                      src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&q=80&w=240" 
-                      className="w-full h-full object-cover contrast-125 brightness-90 group-hover:brightness-100 group-hover:scale-110 transition-all duration-750" 
-                      alt="" 
-                      referrerPolicy="no-referrer" 
-                    />
+                    {getFrame('frame2').type === 'video' ? (
+                      isEmbedUrl(getFrame('frame2').url) ? (
+                        <iframe 
+                          src={getEmbedUrl(getFrame('frame2').url, true)} 
+                          className="absolute inset-0 w-full h-full pointer-events-none scale-105 border-0"
+                          allow="autoplay"
+                          style={{ pointerEvents: 'none' }}
+                        />
+                      ) : (
+                        <video 
+                          src={transformGoogleDriveUrl(getFrame('frame2').url, 'video')} 
+                          className="w-full h-full object-cover contrast-125 brightness-90 group-hover:brightness-100 group-hover:scale-110 transition-all duration-750" 
+                          autoPlay 
+                          loop 
+                          muted 
+                          playsInline 
+                        />
+                      )
+                    ) : (
+                      <img 
+                        src={transformGoogleDriveUrl(getFrame('frame2').url, 'image')} 
+                        className="w-full h-full object-cover contrast-125 brightness-90 group-hover:brightness-100 group-hover:scale-110 transition-all duration-750" 
+                        alt="" 
+                        referrerPolicy="no-referrer" 
+                      />
+                    )}
                     <div className="absolute inset-0 bg-orange-500/10 mix-blend-color group-hover:opacity-0 transition-opacity duration-300" />
                     <div className="absolute inset-x-0 bottom-0.5 flex justify-center text-[4px] font-mono text-orange-400 opacity-60 pointer-events-none">
                       2.39:1 CINEMASCOPE
@@ -1725,7 +1851,7 @@ function Intro() {
                     hidden: { y: 60, opacity: 0 },
                     visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } }
                   }}
-                  className="font-syne font-extrabold text-white/80 text-lg sm:text-xl md:text-[1.5rem] lg:text-[1.8rem] tracking-tight leading-snug align-middle ml-1"
+                  className="font-sans font-black text-white/80 text-lg sm:text-xl md:text-[1.5rem] lg:text-[1.8rem] tracking-tight leading-snug align-middle ml-1"
                 >
                   CREATIVE AGENCY HEADQUARTERED IN INDIA
                 </motion.span>
@@ -1761,7 +1887,7 @@ function Intro() {
                       hidden: { y: 60, opacity: 0 },
                       visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } }
                     }}
-                    className="font-space text-white/80 text-sm sm:text-lg md:text-[1.2rem] lg:text-[1.4rem] font-bold leading-snug align-middle mr-1"
+                    className="font-sans text-white/80 text-sm sm:text-lg md:text-[1.2rem] lg:text-[1.4rem] font-bold leading-snug align-middle mr-1"
                   >
                     AGENCY HEADQUARTERED IN INDIA.
                   </motion.span>
@@ -1771,9 +1897,9 @@ function Intro() {
                       hidden: { y: 60, opacity: 0 },
                       visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } }
                     }}
-                    className="font-playfair italic lowercase font-normal text-white/50 text-sm sm:text-lg md:text-[1.3rem] lg:text-[1.5rem] leading-snug align-middle mx-1"
+                    className="font-sans italic uppercase font-normal text-white/50 text-sm sm:text-lg md:text-[1.3rem] lg:text-[1.5rem] leading-snug align-middle mx-1"
                   >
-                    with offices in Delhi, Mumbai, Goa, as well as
+                    WITH OFFICES IN DELHI, MUMBAI, GOA, AS WELL AS
                   </motion.span>
 
                   {/* Frame 4: Circular Camera Lens / Aperture ring */}
@@ -1787,12 +1913,32 @@ function Intro() {
                   >
                     <div className="w-[3.2rem] h-[3.2rem] sm:w-[4.4rem] sm:h-[4.4rem] md:w-[5.8rem] md:h-[5.8rem] rounded-full overflow-hidden border-2 border-orange-500/60 p-[3px] bg-neutral-950 shadow-[0_0_20px_rgba(249,115,22,0.3)] relative group animate-spin-slow">
                       <div className="w-full h-full rounded-full overflow-hidden relative">
-                        <img 
-                          src="https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&q=80&w=200" 
-                          className="w-full h-full object-cover group-hover:scale-125 transition-transform duration-500" 
-                          alt="" 
-                          referrerPolicy="no-referrer" 
-                        />
+                        {getFrame('frame4').type === 'video' ? (
+                          isEmbedUrl(getFrame('frame4').url) ? (
+                            <iframe 
+                              src={getEmbedUrl(getFrame('frame4').url, true)} 
+                              className="absolute inset-y-0 inset-x-[-20%] w-[140%] h-full pointer-events-none scale-110 border-0 rounded-full"
+                              allow="autoplay"
+                              style={{ pointerEvents: 'none' }}
+                            />
+                          ) : (
+                            <video 
+                              src={transformGoogleDriveUrl(getFrame('frame4').url, 'video')} 
+                              className="w-full h-full object-cover group-hover:scale-125 transition-transform duration-500" 
+                              autoPlay 
+                              loop 
+                              muted 
+                              playsInline 
+                            />
+                          )
+                        ) : (
+                          <img 
+                            src={transformGoogleDriveUrl(getFrame('frame4').url, 'image')} 
+                            className="w-full h-full object-cover group-hover:scale-125 transition-transform duration-500" 
+                            alt="" 
+                            referrerPolicy="no-referrer" 
+                          />
+                        )}
                         <div className="absolute inset-0 border-[3px] border-black/30 rounded-full" />
                         <div className="absolute inset-0 bg-radial from-transparent to-black/80 group-hover:to-black/30 transition-all duration-300" />
                       </div>
@@ -1804,7 +1950,7 @@ function Intro() {
                       hidden: { y: 60, opacity: 0 },
                       visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } }
                     }}
-                    className="font-bebas text-orange-500 text-xl sm:text-3xl md:text-[2.2rem] lg:text-[2.6rem] tracking-wider inline-block align-middle ml-1"
+                    className="font-sans font-black text-orange-500 text-xl sm:text-3xl md:text-[2.2rem] lg:text-[2.6rem] tracking-wider inline-block align-middle ml-1"
                   >
                     DUBAI AND NAIROBI.
                   </motion.span>
@@ -1840,9 +1986,9 @@ function Intro() {
                     hidden: { y: 60, opacity: 0 },
                     visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } }
                   }}
-                  className="font-playfair italic lowercase font-bold text-orange-500 text-lg sm:text-2xl md:text-[2.0rem] lg:text-[2.3rem] inline-block align-middle mr-2"
+                  className="font-sans italic uppercase font-bold text-orange-500 text-lg sm:text-2xl md:text-[2.0rem] lg:text-[2.3rem] inline-block align-middle mr-2"
                 >
-                  for over two decades,
+                  FOR OVER TWO DECADES,
                 </motion.span>
 
                 {/* Frame 5: Parallelogram Skewed Film Panel */}
@@ -1856,12 +2002,32 @@ function Intro() {
                 >
                   <div className="w-[3.5rem] h-[2.2rem] sm:w-[5.2rem] sm:h-[3.2rem] md:w-[6.8rem] md:h-[4.2rem] rounded-md overflow-hidden border border-white/20 bg-neutral-900 shadow-[0_4px_15px_rgba(0,0,0,0.6)] relative group animate-skew-gentle">
                     <div className="w-full h-full skew-x-[12deg] scale-[1.3] group-hover:scale-[1.1] group-hover:skew-x-0 transition-all duration-500">
-                      <img 
-                        src="https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=200" 
-                        className="w-full h-full object-cover" 
-                        alt="" 
-                        referrerPolicy="no-referrer" 
-                      />
+                      {getFrame('frame5').type === 'video' ? (
+                        isEmbedUrl(getFrame('frame5').url) ? (
+                          <iframe 
+                            src={getEmbedUrl(getFrame('frame5').url, true)} 
+                            className="absolute inset-0 w-full h-full pointer-events-none scale-110 border-0"
+                            allow="autoplay"
+                            style={{ pointerEvents: 'none' }}
+                          />
+                        ) : (
+                          <video 
+                            src={transformGoogleDriveUrl(getFrame('frame5').url, 'video')} 
+                            className="w-full h-full object-cover" 
+                            autoPlay 
+                            loop 
+                            muted 
+                            playsInline 
+                          />
+                        )
+                      ) : (
+                        <img 
+                          src={transformGoogleDriveUrl(getFrame('frame5').url, 'image')} 
+                          className="w-full h-full object-cover" 
+                          alt="" 
+                          referrerPolicy="no-referrer" 
+                        />
+                      )}
                     </div>
                     <div className="absolute inset-0 bg-neutral-950/20 group-hover:bg-transparent transition-colors duration-300" />
                   </div>
@@ -1872,7 +2038,7 @@ function Intro() {
                     hidden: { y: 60, opacity: 0 },
                     visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } }
                   }}
-                  className="font-bebas text-white/70 text-base sm:text-xl md:text-[1.5rem] lg:text-[1.8rem] tracking-wider leading-snug align-middle mx-1"
+                  className="font-sans font-black text-white/70 text-base sm:text-xl md:text-[1.5rem] lg:text-[1.8rem] tracking-wider leading-snug align-middle mx-1"
                 >
                   WE HAVE PRODUCED CONTENT ACROSS FORMATS FOR
                 </motion.span>
@@ -1887,12 +2053,32 @@ function Intro() {
                   className="inline-block mx-2 align-middle shrink-0 cursor-pointer"
                 >
                   <div className="w-[3.5rem] h-[2.2rem] sm:w-[5.2rem] sm:h-[3.2rem] md:w-[6.8rem] md:h-[4.2rem] rounded-tl-[1.8rem] rounded-br-[1.8rem] rounded-tr-[0.4rem] rounded-bl-[0.4rem] overflow-hidden border border-white/25 bg-neutral-900 shadow-[0_4px_15px_rgba(0,0,0,0.6)] relative group animate-pulse-glow">
-                    <img 
-                      src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=200" 
-                      className="w-full h-full object-cover group-hover:scale-110 group-hover:rotate-1 transition-all duration-500" 
-                      alt="" 
-                      referrerPolicy="no-referrer" 
-                    />
+                    {getFrame('frame6').type === 'video' ? (
+                      isEmbedUrl(getFrame('frame6').url) ? (
+                        <iframe 
+                          src={getEmbedUrl(getFrame('frame6').url, true)} 
+                          className="absolute inset-0 w-full h-full pointer-events-none scale-110 border-0"
+                          allow="autoplay"
+                          style={{ pointerEvents: 'none' }}
+                        />
+                      ) : (
+                        <video 
+                          src={transformGoogleDriveUrl(getFrame('frame6').url, 'video')} 
+                          className="w-full h-full object-cover group-hover:scale-110 group-hover:rotate-1 transition-all duration-500" 
+                          autoPlay 
+                          loop 
+                          muted 
+                          playsInline 
+                        />
+                      )
+                    ) : (
+                      <img 
+                        src={transformGoogleDriveUrl(getFrame('frame6').url, 'image')} 
+                        className="w-full h-full object-cover group-hover:scale-110 group-hover:rotate-1 transition-all duration-500" 
+                        alt="" 
+                        referrerPolicy="no-referrer" 
+                      />
+                    )}
                     <div className="absolute inset-0 bg-cyan-500/5 mix-blend-overlay" />
                     <div className="absolute inset-0 border-[3px] border-black/40 rounded-tl-[1.8rem] rounded-br-[1.8rem] rounded-tr-[0.4rem] rounded-bl-[0.4rem]" />
                   </div>
@@ -1903,7 +2089,7 @@ function Intro() {
                     hidden: { y: 60, opacity: 0 },
                     visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } }
                   }}
-                  className="font-courier text-white/80 text-sm sm:text-lg md:text-[1.3rem] lg:text-[1.5rem] font-bold leading-snug align-middle ml-1"
+                  className="font-sans text-white/80 text-sm sm:text-lg md:text-[1.3rem] lg:text-[1.5rem] font-bold leading-snug align-middle ml-1"
                 >
                   LEADING BRANDS AND CHANNEL PARTNERS,
                 </motion.span>
@@ -1920,25 +2106,26 @@ function Intro() {
             className="group relative flex flex-col items-center justify-center min-h-[350px] md:h-[700px] bg-transparent transition-all duration-700"
             style={isMobileView ? {} : { perspective: "1500px", transformStyle: "preserve-3d" }}
           >
-             {/* Background Atmosphere */}
-             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.12)_0%,transparent_70%)] transition-opacity duration-1000 pointer-events-none opacity-100" />
-             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-orange-600/5 blur-[120px] rounded-full transition-opacity duration-1000 pointer-events-none opacity-100" />
+              {/* Background Atmosphere */}
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.12)_0%,transparent_70%)] transition-opacity duration-1000 pointer-events-none opacity-100 group-hover:bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.18)_0%,transparent_70%)]" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-orange-600/5 blur-[120px] rounded-full transition-opacity duration-1000 pointer-events-none opacity-100 group-hover:bg-orange-600/10" />
 
-             {/* 3D or Mobile Scene Container */}
-             <div className="relative w-full h-full flex flex-col md:flex-row items-center justify-center" style={isMobileView ? {} : { transformStyle: "preserve-3d" }}>
-                
-                {/* Centered DC Text with Sun Glow */}
-                <div className="relative z-20 text-center flex items-center justify-center" style={isMobileView ? {} : { transformStyle: "preserve-3d" }}>
-                    {/* Sun Glow */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 md:w-96 md:h-96 blur-[100px] rounded-full bg-orange-500/30 transition-all duration-1000" />
-                    
-                    <motion.span 
-                      className="text-[6rem] md:text-[18rem] font-black italic tracking-tighter text-orange-500 drop-shadow-[0_0_60px_rgba(249,115,22,0.7)] hover:drop-shadow-[0_0_90px_rgba(249,115,22,0.9)] transition-all duration-700 cursor-default select-none block leading-none relative z-20"
-                      whileHover={isMobileView ? {} : { scale: 1.02 }}
-                    >
-                      DC
-                    </motion.span>
-                </div>
+              {/* 3D or Mobile Scene Container */}
+              <div className="relative w-full h-full flex flex-col md:flex-row items-center justify-center" style={isMobileView ? {} : { transformStyle: "preserve-3d" }}>
+                 
+                 {/* Centered DC Text with Sun Glow */}
+                 <div className="relative z-20 text-center flex items-center justify-center" style={isMobileView ? {} : { transformStyle: "preserve-3d" }}>
+                     {/* Sun Glow */}
+                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 md:w-96 md:h-96 blur-[100px] rounded-full bg-orange-500/30 transition-all duration-1000 group-hover:bg-orange-500/60 group-hover:scale-110 pointer-events-none" />
+                     
+                     <motion.span 
+                       className="text-[6rem] md:text-[18rem] font-sans font-black italic tracking-tighter text-orange-500 drop-shadow-[0_0_60px_rgba(249,115,22,0.7)] hover:drop-shadow-[0_0_120px_rgba(249,115,22,1)] hover:text-orange-400 transition-all duration-700 cursor-default select-none block leading-none relative z-20"
+                       style={{ fontFamily: "'Geograph', 'Plus Jakarta Sans', sans-serif" }}
+                       whileHover={isMobileView ? {} : { scale: 1.05 }}
+                     >
+                       DC
+                     </motion.span>
+                 </div>
 
                 {isMobileView ? (
                   <div className="w-full flex flex-col items-center gap-4 mt-6 px-4 z-30 relative py-2">
@@ -2036,11 +2223,11 @@ function Intro() {
              <motion.div variants={itemVariants} className="flex items-center gap-6 group/dc w-full justify-start">
                 <motion.span 
                   whileHover={{ scale: 1.2, rotate: -5 }}
-                  className="text-2xl font-black italic tracking-tighter text-orange-500 leading-none cursor-default drop-shadow-[0_0_15px_rgba(249,115,22,0.3)]"
+                  className="text-2xl font-black italic tracking-tighter text-orange-500 leading-none cursor-default drop-shadow-[0_0_15px_rgba(249,115,22,0.3)] hover:drop-shadow-[0_0_25px_rgba(249,115,22,1)] hover:text-orange-400 transition-all duration-300"
                 >
                   DC
                 </motion.span>
-                <div className="h-[1px] w-36 sm:w-64 md:w-96 lg:w-[28rem] bg-gradient-to-r from-orange-500/50 via-white/10 to-transparent" />
+                <div className="h-[1px] w-36 sm:w-64 md:w-96 lg:w-[28rem] bg-gradient-to-r from-orange-500/50 via-white/10 to-transparent transition-all duration-500 group-hover/dc:from-orange-500" />
              </motion.div>
              
              <div className="overflow-hidden w-full flex justify-start">

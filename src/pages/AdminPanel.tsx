@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Navigate, Link } from 'react-router-dom';
 import { pushLocalConfigsToFirestore } from '../lib/siteSync';
 import { Users, Layout, Settings, LogOut, Home, Plus, Trash2, Edit2, ArrowUp, ArrowDown, RefreshCw, FileVideo, Image as ImageIcon, Film, Play, ChevronRight, ChevronLeft, MapPin, BookOpen, Share2, Sparkles } from 'lucide-react';
-import { DEFAULT_TEAM_MEMBERS, TeamMember, DEFAULT_ORBIT_IMAGES, DEFAULT_FILMS_LIST, DEFAULT_CLIENTS_LIST, ClientItem } from '../App';
+import { DEFAULT_TEAM_MEMBERS, TeamMember, DEFAULT_ORBIT_IMAGES, DEFAULT_FILMS_LIST, DEFAULT_CLIENTS_LIST, ClientItem, ParagraphFrameItem, DEFAULT_PARAGRAPH_FRAMES } from '../App';
 import { DEFAULT_BRAND_ITEMS, BrandItem } from './BrandPage';
 
 export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = 'image'): string {
@@ -26,7 +26,7 @@ export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = '
 const AdminPanel: FC = () => {
   const { user, isAdmin, loading, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<'categories' | 'home_manage' | 'film_manage' | 'team' | 'orbit' | 'about_manage' | 'contact_manage' | 'brand_manage'>('categories');
-  const [homeSubTab, setHomeSubTab] = useState<'hero' | 'team' | 'orbit' | 'films' | 'clients' | 'logo'>('hero');
+  const [homeSubTab, setHomeSubTab] = useState<'hero' | 'team' | 'orbit' | 'films' | 'clients' | 'logo' | 'paragraph_frames'>('hero');
 
   // Navigation Logo states
   const [navLogoType, setNavLogoType] = useState<'text' | 'image'>('text');
@@ -95,6 +95,9 @@ const AdminPanel: FC = () => {
   const [editingOrbitIndex, setEditingOrbitIndex] = useState<number | null>(null);
   const [orbitEditUrl, setOrbitEditUrl] = useState('');
   const [orbitEditType, setOrbitEditType] = useState<'image' | 'video'>('image');
+
+  // Paragraph Frame management states
+  const [paragraphFrames, setParagraphFrames] = useState<ParagraphFrameItem[]>([]);
 
   // Client/Brand management states
   const [clients, setClients] = useState<ClientItem[]>([]);
@@ -346,6 +349,18 @@ const AdminPanel: FC = () => {
       }
     } else {
       setOrbitImages(DEFAULT_ORBIT_IMAGES);
+    }
+
+    const storedParagraphFrames = localStorage.getItem('paragraph_frames');
+    if (storedParagraphFrames) {
+      try {
+        setParagraphFrames(JSON.parse(storedParagraphFrames));
+      } catch (e) {
+        console.error('Error loading paragraph_frames from LocalStorage:', e);
+        setParagraphFrames(DEFAULT_PARAGRAPH_FRAMES);
+      }
+    } else {
+      setParagraphFrames(DEFAULT_PARAGRAPH_FRAMES);
     }
 
     // Load home configs
@@ -716,6 +731,46 @@ const AdminPanel: FC = () => {
       window.dispatchEvent(new Event('storage_updated_home_hero')); // Trigger SiteSync to push to Firestore
       alert('Navigation logo settings reset successfully!');
     }
+  };
+
+  // --- Paragraph Frame handlers ---
+  const handleSaveParagraphFrames = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Pre-transform google drive urls inside before saving
+    const transformedList = paragraphFrames.map(f => ({
+      ...f,
+      url: transformGoogleDriveUrl(f.url, f.type)
+    }));
+    
+    setParagraphFrames(transformedList);
+    localStorage.setItem('paragraph_frames', JSON.stringify(transformedList));
+    
+    // Dispatch events to notify main App component immediately
+    window.dispatchEvent(new Event('storage_updated_paragraph_frames'));
+    window.dispatchEvent(new Event('storage'));
+    
+    alert('Word-Level Frames saved & synced successfully!');
+  };
+
+  const handleResetParagraphFrames = () => {
+    if (confirm('Are you sure you want to restore the default word-level frames?')) {
+      setParagraphFrames(DEFAULT_PARAGRAPH_FRAMES);
+      localStorage.setItem('paragraph_frames', JSON.stringify(DEFAULT_PARAGRAPH_FRAMES));
+      
+      window.dispatchEvent(new Event('storage_updated_paragraph_frames'));
+      window.dispatchEvent(new Event('storage'));
+      
+      alert('Word-Level Frames restored to defaults successfully!');
+    }
+  };
+
+  const handleUpdateFrameField = (id: string, field: 'type' | 'url', value: string) => {
+    setParagraphFrames(prev => prev.map(f => {
+      if (f.id === id) {
+        return { ...f, [field]: value };
+      }
+      return f;
+    }));
   };
 
   // --- Home Hero persistence handlers ---
@@ -1464,6 +1519,12 @@ const AdminPanel: FC = () => {
                   className={`px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider transition-all ${homeSubTab === 'logo' ? 'bg-orange-500 text-white' : 'bg-black border border-white/10 text-white/40 hover:text-white'}`}
                 >
                   6. Navbar brand Logo
+                </button>
+                <button 
+                  onClick={() => setHomeSubTab('paragraph_frames')}
+                  className={`px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider transition-all ${homeSubTab === 'paragraph_frames' ? 'bg-orange-500 text-white' : 'bg-black border border-white/10 text-white/40 hover:text-white'}`}
+                >
+                  7. Word-Level Frames
                 </button>
               </div>
             </div>
@@ -2242,6 +2303,126 @@ const AdminPanel: FC = () => {
                       className="px-8 py-3.5 bg-black hover:bg-zinc-950 font-extrabold uppercase text-xs tracking-widest text-white/60 hover:text-white rounded-full border border-white/10 hover:border-white/30 transition-all"
                     >
                       RESET LOGO DEFAULTS
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            )}
+
+            {homeSubTab === 'paragraph_frames' && (
+              <motion.div 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }}
+                className="bg-zinc-900 border border-white/5 p-6 md:p-10 rounded-[2.5rem] space-y-8 text-white font-sans"
+              >
+                <div>
+                  <h2 className="text-2xl font-black italic text-white uppercase mb-2">WORD-LEVEL INLINE MEDIA FRAMES</h2>
+                  <p className="text-xs text-white/50 leading-relaxed font-sans font-medium uppercase tracking-wider">
+                    Configure the 5 custom animated frames embedded inside the home introductory paragraph. You can toggle each frame to display either an image or source a background video URL.
+                  </p>
+                </div>
+
+                <form onSubmit={handleSaveParagraphFrames} className="space-y-8 font-sans">
+                  <div className="space-y-6">
+                    {paragraphFrames.map((frame, index) => {
+                      const transformedUrl = transformGoogleDriveUrl(frame.url, frame.type);
+                      return (
+                        <div 
+                          key={frame.id} 
+                          className="bg-black/40 border border-white/5 p-5 md:p-6 rounded-2xl flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between"
+                        >
+                          <div className="space-y-4 flex-1 w-full">
+                            {/* Header / Label details */}
+                            <div className="flex items-center gap-3">
+                              <span className="px-3 py-1 bg-orange-500/10 text-orange-500 text-[10px] font-black uppercase tracking-widest rounded-md border border-orange-500/20">
+                                {frame.id.toUpperCase()}
+                              </span>
+                              <h3 className="text-sm font-bold text-white uppercase">{frame.label}</h3>
+                            </div>
+
+                            {/* Type and URL Controls */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-sans">
+                              <div className="space-y-2">
+                                <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Media Type</label>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpdateFrameField(frame.id, 'type', 'image')}
+                                    className={`py-2 px-3 rounded-lg border text-[10px] font-bold uppercase tracking-wider transition-all ${frame.type === 'image' ? 'bg-orange-500/10 border-orange-500 text-orange-500' : 'bg-black border-white/5 text-white/40 hover:text-white'}`}
+                                  >
+                                    Image
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpdateFrameField(frame.id, 'type', 'video')}
+                                    className={`py-2 px-3 rounded-lg border text-[10px] font-bold uppercase tracking-wider transition-all ${frame.type === 'video' ? 'bg-orange-500/10 border-orange-500 text-orange-500' : 'bg-black border-white/5 text-white/40 hover:text-white'}`}
+                                  >
+                                    Video
+                                  </button>
+                                </div>
+                              </div>
+
+                              <div className="md:col-span-2 space-y-2">
+                                <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Source URL (Support Google Drive, Unsplash, etc.)</label>
+                                <input
+                                  type="url"
+                                  required
+                                  value={frame.url}
+                                  onChange={(e) => handleUpdateFrameField(frame.id, 'url', e.target.value)}
+                                  placeholder="Enter photo/video complete HTTPS URL..."
+                                  className="w-full bg-black border border-white/10 rounded-lg px-4 py-2 text-xs text-white focus:outline-none focus:border-orange-500 transition-colors"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Preview Area container */}
+                          <div className="w-full lg:w-36 h-28 shrink-0 bg-zinc-950 rounded-xl border border-white/5 relative overflow-hidden flex items-center justify-center">
+                            {frame.url ? (
+                              frame.type === 'video' ? (
+                                <video
+                                  src={transformedUrl}
+                                  className="w-full h-full object-cover"
+                                  autoPlay
+                                  loop
+                                  muted
+                                  playsInline
+                                />
+                              ) : (
+                                <img
+                                  src={transformedUrl}
+                                  alt="Frame Preview"
+                                  className="w-full h-full object-cover"
+                                  referrerPolicy="no-referrer"
+                                  onError={(e) => {
+                                    (e.currentTarget as HTMLImageElement).src = 'https://placehold.co/150x150/111111/ff4500/ffffff?text=Image+Error';
+                                  }}
+                                />
+                              )
+                            ) : (
+                              <span className="text-[10px] text-white/20 uppercase font-black tracking-wider">No Media</span>
+                            )}
+                            <div className="absolute inset-0 bg-radial from-transparent to-black/60 pointer-events-none" />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Form Submission buttons */}
+                  <div className="flex flex-wrap gap-4 pt-4 border-t border-white/5 font-sans">
+                    <button
+                      type="submit"
+                      className="px-8 py-3.5 bg-orange-500 hover:bg-orange-600 font-extrabold uppercase text-xs tracking-widest text-white rounded-full flex items-center gap-2 shadow-lg hover:shadow-orange-500/20 active:scale-95 transition-all"
+                    >
+                      <span>SAVE WORD-LEVEL FRAMES CONFIGURATION</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleResetParagraphFrames}
+                      className="px-8 py-3.5 bg-black hover:bg-zinc-950 font-extrabold uppercase text-xs tracking-widest text-white/60 hover:text-white rounded-full border border-white/10 hover:border-white/30 transition-all"
+                    >
+                      RESET FRAMES DEFAULTS
                     </button>
                   </div>
                 </form>
