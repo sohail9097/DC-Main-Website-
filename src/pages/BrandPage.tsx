@@ -1,7 +1,7 @@
 import { motion, useScroll, useTransform } from 'motion/react';
 import { Shield, Sparkles, Building2, Landmark, Clapperboard, ExternalLink, ArrowRight, Plus } from 'lucide-react';
 import React, { useState, useEffect, FC } from 'react';
-import { Navbar } from '../App';
+import { Navbar, transformGoogleDriveUrl } from '../App';
 
 const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
   const [stars, setStars] = useState<{ id: number; left: string; top: string; size: number; duration: number; delay: number; driftX: number; driftY: number }[]>([]);
@@ -1027,7 +1027,7 @@ export default function BrandPage() {
               {/* Actual styled vector logo */}
               <div className="transform scale-[0.9] md:scale-100 group-hover:scale-105 transition-transform duration-500 z-10 w-full h-full flex items-center justify-center">
                 {brand.logoUrl ? (
-                  <img src={brand.logoUrl} alt={brand.name} className="max-w-[85%] max-h-[85%] object-contain p-1" referrerPolicy="no-referrer" />
+                  <img src={transformGoogleDriveUrl(brand.logoUrl)} alt={brand.name} className="max-w-[85%] max-h-[85%] object-contain p-1" referrerPolicy="no-referrer" />
                 ) : (
                   brand.renderLogo ? brand.renderLogo() : (
                     <span className="text-sm font-black text-white/90 uppercase tracking-widest leading-none">{brand.name}</span>

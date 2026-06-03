@@ -2100,7 +2100,7 @@ const AdminPanel: FC = () => {
                               }}
                             >
                               {hasLogo ? (
-                                <img src={client.logoUrl} alt={client.name} className="w-full h-full object-contain p-1" referrerPolicy="no-referrer" />
+                                <img src={transformGoogleDriveUrl(client.logoUrl)} alt={client.name} className="w-full h-full object-contain p-1" referrerPolicy="no-referrer" />
                               ) : (
                                 <span>{client.name ? client.name.substring(0, 1).toUpperCase() : 'C'}</span>
                               )}
@@ -3883,7 +3883,7 @@ const AdminPanel: FC = () => {
                         {/* Logo Preview box */}
                         <div className="w-16 h-12 rounded bg-zinc-900/60 border border-white/5 flex items-center justify-center overflow-hidden shrink-0">
                           {item.logoUrl ? (
-                            <img src={item.logoUrl} alt={item.name} className="max-w-[90%] max-h-[90%] object-contain" referrerPolicy="no-referrer" />
+                            <img src={transformGoogleDriveUrl(item.logoUrl)} alt={item.name} className="max-w-[90%] max-h-[90%] object-contain" referrerPolicy="no-referrer" />
                           ) : (
                             <span className="text-[9px] font-black tracking-widest text-[#EAB308]">BUILT-IN</span>
                           )}

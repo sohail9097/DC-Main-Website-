@@ -622,11 +622,11 @@ function Clients() {
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="text-2xl md:text-6xl font-black tracking-tighter text-orange-500 uppercase italic mb-2"
+            className="font-albertus text-4xl md:text-7xl font-extrabold tracking-[0.02em] text-orange-500 uppercase italic mb-2 select-none"
           >
             Our Clients
           </motion.h3>
-          <p className="text-xs md:text-sm text-zinc-400 font-medium tracking-wide uppercase">
+          <p className="text-white/40 text-xs md:text-sm font-black uppercase tracking-[0.3em] font-mono">
             Trusted by the world's most progressive brands & organizations
           </p>
         </div>
@@ -694,7 +694,7 @@ const ClientLogo: FC<ClientLogoProps> = ({ client }) => {
     >
       {hasLogoUrl ? (
         <img 
-          src={client.logoUrl} 
+          src={transformGoogleDriveUrl(client.logoUrl)} 
           alt={client.name} 
           className="max-h-full max-w-[140px] md:max-w-[220px] object-contain pointer-events-none"
           referrerPolicy="no-referrer"
@@ -845,7 +845,7 @@ function DreamTeam() {
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-2xl md:text-6xl font-black italic tracking-tighter text-white uppercase leading-none"
+            className="font-albertus text-4xl md:text-7xl font-extrabold italic tracking-[0.02em] text-white uppercase leading-none select-none"
           >
             Dream <span className="text-orange-500">Team</span>
           </motion.h3>
@@ -1111,7 +1111,7 @@ function Portfolio() {
                 initial={{ x: -25, opacity: 0 }}
                 whileInView={{ x: 0, opacity: 1 }}
                 transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                className="text-4xl md:text-7xl font-[1000] text-orange-500 tracking-[-0.05em] uppercase italic leading-none drop-shadow-[0_0_60px_rgba(249,115,22,0.2)] pointer-events-none select-none"
+                className="font-albertus text-4xl md:text-7xl font-extrabold text-orange-500 tracking-[0.02em] uppercase italic leading-none drop-shadow-[0_0_60px_rgba(249,115,22,0.2)] pointer-events-none select-none"
               >
                 {title}
               </motion.h3>
@@ -1798,7 +1798,7 @@ function Intro() {
                     hidden: { y: 60, opacity: 0 },
                     visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } }
                   }}
-                  className="font-sans italic uppercase font-normal text-white/50 text-base sm:text-xl md:text-[1.3rem] lg:text-[1.5rem] leading-snug align-middle mx-1"
+                  className="font-sans italic uppercase font-bold text-white/50 text-base sm:text-xl md:text-[1.3rem] lg:text-[1.5rem] leading-snug align-middle mx-1"
                 >
                   IS AN AWARD-WINNING
                 </motion.span>
@@ -1897,7 +1897,7 @@ function Intro() {
                       hidden: { y: 60, opacity: 0 },
                       visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } }
                     }}
-                    className="font-sans italic uppercase font-normal text-white/50 text-sm sm:text-lg md:text-[1.3rem] lg:text-[1.5rem] leading-snug align-middle mx-1"
+                    className="font-sans italic uppercase font-bold text-white/50 text-sm sm:text-lg md:text-[1.3rem] lg:text-[1.5rem] leading-snug align-middle mx-1"
                   >
                     WITH OFFICES IN DELHI, MUMBAI, GOA, AS WELL AS
                   </motion.span>
@@ -2609,7 +2609,7 @@ function LandingPage() {
                 </div>
                 <div>
                   <span className="text-orange-500 text-[9px] md:text-[10px] font-black uppercase tracking-[0.4em] mb-4 md:mb-6 block">Our Story</span>
-                  <h3 className="text-2xl md:text-6xl font-black text-white tracking-tighter leading-[0.95] mb-6 md:mb-10 uppercase italic">Crafting <br />Legends</h3>
+                  <h3 className="font-albertus text-2xl md:text-6xl font-extrabold text-white tracking-[0.02em] leading-[0.95] mb-6 md:mb-10 uppercase italic">Crafting <br />Legends</h3>
                   <p className="text-white/50 leading-relaxed mb-8 md:mb-12 text-sm md:text-base font-medium tracking-tight px-4 md:px-0">
                     Dreamcatchers is a new age creative studio specializing in visual storytelling that moves people. We don't just shoot films; we engineer experiences that bridge the gap between imagination and reality.
                   </p>
@@ -3401,7 +3401,7 @@ export function StoryPage() {
         <div className="max-w-xl mx-auto space-y-6 relative z-10">
           <span className="text-[10px] tracking-[0.6em] font-mono text-orange-500/70 font-extrabold uppercase block">THE CONTINUING PLOT</span>
           
-          <h3 className="font-syne text-2xl md:text-3xl font-extrabold uppercase tracking-tight">
+          <h3 className="font-albertus text-2xl md:text-3xl font-extrabold uppercase tracking-widest">
             {"LET'S ENVELOPE THE NEXT CHAPTER".split(" ").map((word, i) => (
               <motion.span 
                 key={i}
