@@ -7,40 +7,52 @@ const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
   const [stars, setStars] = useState<{ id: number; left: string; top: string; size: number; duration: number; delay: number }[]>([]);
 
   useEffect(() => {
-    const newStars = Array.from({ length: count }).map((_, i) => ({
+    const optimizedCount = Math.min(count, 85);
+    const newStars = Array.from({ length: optimizedCount }).map((_, i) => ({
       id: i,
       left: `${Math.random() * 100}%`,
       top: `${Math.random() * 100}%`,
-      size: Math.random() * 2 + 0.3,
-      duration: Math.random() * 3 + 1,
-      delay: Math.random() * 5,
+      size: Math.random() * 1.6 + 0.4,
+      duration: Math.random() * 6 + 4,
+      delay: Math.random() * -10,
     }));
     setStars(newStars);
   }, [count]);
 
   return (
     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+      <style>{`
+        @keyframes starTwinkle {
+          0% {
+            opacity: 0.15;
+            transform: translate3d(0, 0, 0) scale(0.8);
+          }
+          50% {
+            opacity: 0.95;
+            transform: translate3d(0, 0, 0) scale(1.15);
+          }
+          100% {
+            opacity: 0.15;
+            transform: translate3d(0, 0, 0) scale(0.8);
+          }
+        }
+      `}</style>
       {stars.map((star) => (
-        <motion.div
+        <div
           key={star.id}
-          animate={{
-            opacity: [0, 1, 0.3, 1, 0],
-            scale: [0.8, 1.2, 0.9, 1.1, 0.8],
-          }}
-          transition={{
-            duration: star.duration,
-            repeat: Infinity,
-            delay: star.delay,
-          }}
           style={{
             position: 'absolute',
             left: star.left,
             top: star.top,
-            width: star.size,
-            height: star.size,
+            width: `${star.size}px`,
+            height: `${star.size}px`,
             background: 'white',
             borderRadius: '50%',
-          }}
+            opacity: 0.3,
+            animation: `starTwinkle ${star.duration}s infinite ease-in-out`,
+            animationDelay: `${star.delay}s`,
+            willChange: 'transform, opacity',
+          } as any}
         />
       ))}
     </div>

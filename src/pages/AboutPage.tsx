@@ -7,47 +7,57 @@ const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
   const [stars, setStars] = useState<{ id: number; left: string; top: string; size: number; duration: number; delay: number; driftX: number; driftY: number }[]>([]);
 
   useEffect(() => {
-    const newStars = Array.from({ length: count }).map((_, i) => ({
+    const optimizedCount = Math.min(count, 85);
+    const newStars = Array.from({ length: optimizedCount }).map((_, i) => ({
       id: i,
       left: `${Math.random() * 100}%`,
       top: `${Math.random() * 100}%`,
-      size: Math.random() * 2 + 0.3,
-      duration: Math.random() * 3 + 1,
-      delay: Math.random() * 5,
-      driftX: (Math.random() - 0.5) * 80,
-      driftY: (Math.random() - 0.5) * 80,
+      size: Math.random() * 1.6 + 0.4,
+      duration: Math.random() * 6 + 4,
+      delay: Math.random() * -10, // Negative delay to prevent bulk fade-ins on load
+      driftX: (Math.random() - 0.5) * 40,
+      driftY: (Math.random() - 0.5) * 40,
     }));
     setStars(newStars);
   }, [count]);
 
   return (
     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+      <style>{`
+        @keyframes starTwinkleDrift {
+          0% {
+            opacity: 0.15;
+            transform: translate3d(0px, 0px, 0) scale(0.8);
+          }
+          50% {
+            opacity: 0.95;
+            transform: translate3d(var(--drift-x), var(--drift-y), 0) scale(1.15);
+          }
+          100% {
+            opacity: 0.15;
+            transform: translate3d(0px, 0px, 0) scale(0.8);
+          }
+        }
+      `}</style>
       {stars.map((star) => (
-        <motion.div
+        <div
           key={star.id}
-          animate={{
-            opacity: [0, 1, 0.3, 1, 0.2, 0.8, 0],
-            scale: [0.8, 1.2, 0.9, 1.1, 0.8],
-            x: [0, star.driftX],
-            y: [0, star.driftY],
-          }}
-          transition={{
-            duration: star.duration * 1.5,
-            repeat: Infinity,
-            delay: star.delay,
-            ease: "easeInOut",
-          }}
           style={{
             position: 'absolute',
             left: star.left,
             top: star.top,
-            width: star.size,
-            height: star.size,
+            width: `${star.size}px`,
+            height: `${star.size}px`,
             background: 'white',
             borderRadius: '50%',
+            opacity: 0.3,
             boxShadow: star.size > 1 ? `0 0 ${star.size * 2}px rgba(255,255,255,0.4)` : 'none',
+            '--drift-x': `${star.driftX}px`,
+            '--drift-y': `${star.driftY}px`,
+            animation: `starTwinkleDrift ${star.duration}s infinite ease-in-out`,
+            animationDelay: `${star.delay}s`,
             willChange: 'transform, opacity',
-          }}
+          } as any}
         />
       ))}
     </div>

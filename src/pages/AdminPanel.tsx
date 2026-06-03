@@ -3,13 +3,47 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import { Navigate, Link } from 'react-router-dom';
 import { pushLocalConfigsToFirestore } from '../lib/siteSync';
-import { Users, Layout, Settings, LogOut, Home, Plus, Trash2, Edit2, ArrowUp, ArrowDown, RefreshCw, FileVideo, Image as ImageIcon, Film, Play, ChevronRight, ChevronLeft, MapPin, BookOpen, Share2 } from 'lucide-react';
+import { Users, Layout, Settings, LogOut, Home, Plus, Trash2, Edit2, ArrowUp, ArrowDown, RefreshCw, FileVideo, Image as ImageIcon, Film, Play, ChevronRight, ChevronLeft, MapPin, BookOpen, Share2, Sparkles } from 'lucide-react';
 import { DEFAULT_TEAM_MEMBERS, TeamMember, DEFAULT_ORBIT_IMAGES, DEFAULT_FILMS_LIST, DEFAULT_CLIENTS_LIST, ClientItem } from '../App';
+import { DEFAULT_BRAND_ITEMS, BrandItem } from './BrandPage';
+
+export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = 'image'): string {
+  if (!url) return '';
+  const trimmed = url.trim();
+  // Extract file ID from google drive share link
+  const fileIdRegex = /(?:\/file\/d\/|id=)([^/?#]+)/;
+  const match = trimmed.match(fileIdRegex);
+  if (match && match[1]) {
+    const fileId = match[1];
+    if (type === 'video') {
+      return `https://drive.google.com/uc?export=download&id=${fileId}`;
+    }
+    return `https://lh3.googleusercontent.com/d/${fileId}`;
+  }
+  return trimmed;
+}
 
 const AdminPanel: FC = () => {
   const { user, isAdmin, loading, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'categories' | 'home_manage' | 'film_manage' | 'team' | 'orbit' | 'about_manage' | 'contact_manage'>('categories');
-  const [homeSubTab, setHomeSubTab] = useState<'hero' | 'team' | 'orbit' | 'films' | 'clients'>('hero');
+  const [activeTab, setActiveTab] = useState<'categories' | 'home_manage' | 'film_manage' | 'team' | 'orbit' | 'about_manage' | 'contact_manage' | 'brand_manage'>('categories');
+  const [homeSubTab, setHomeSubTab] = useState<'hero' | 'team' | 'orbit' | 'films' | 'clients' | 'logo'>('hero');
+
+  // Navigation Logo states
+  const [navLogoType, setNavLogoType] = useState<'text' | 'image'>('text');
+  const [navLogoTextShort, setNavLogoTextShort] = useState('DC');
+  const [navLogoTextFull, setNavLogoTextFull] = useState('DREAMCATCHERS');
+  const [navLogoImageUrl, setNavLogoImageUrl] = useState('');
+  
+  // Brand Page partner state variables
+  const [brandPartners, setBrandPartners] = useState<BrandItem[]>([]);
+  const [showAddBrandForm, setShowAddBrandForm] = useState(false);
+  const [editingBrandIndex, setEditingBrandIndex] = useState<number | null>(null);
+
+  // Brand Page form fields
+  const [brandName, setBrandName] = useState('');
+  const [brandCategory, setBrandCategory] = useState<'brands' | 'govt' | 'corporates' | 'platforms'>('brands');
+  const [brandLogoUrl, setBrandLogoUrl] = useState('');
+  const [brandDescription, setBrandDescription] = useState('');
   
   // Home Page Film Section states
   const [homeFilmsVisible, setHomeFilmsVisible] = useState(true);
@@ -53,11 +87,13 @@ const AdminPanel: FC = () => {
   const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
 
   // Orbiting Frame management states
-  const [orbitImages, setOrbitImages] = useState<string[]>([]);
+  const [orbitImages, setOrbitImages] = useState<any[]>([]);
   const [showAddOrbitForm, setShowAddOrbitForm] = useState(false);
   const [orbitInputUrl, setOrbitInputUrl] = useState('');
+  const [orbitInputType, setOrbitInputType] = useState<'image' | 'video'>('image');
   const [editingOrbitIndex, setEditingOrbitIndex] = useState<number | null>(null);
   const [orbitEditUrl, setOrbitEditUrl] = useState('');
+  const [orbitEditType, setOrbitEditType] = useState<'image' | 'video'>('image');
 
   // Client/Brand management states
   const [clients, setClients] = useState<ClientItem[]>([]);
@@ -157,6 +193,94 @@ const AdminPanel: FC = () => {
     }
   };
 
+  // Brand Page partner state mutators
+  const saveBrandPartners = (updated: BrandItem[]) => {
+    setBrandPartners(updated);
+    localStorage.setItem('dc_brand_partners', JSON.stringify(updated));
+    window.dispatchEvent(new Event('storage_updated_brand_partners'));
+  };
+
+  const handleAddBrandPartner = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!brandName.trim()) return;
+
+    const newBrand: BrandItem = {
+      id: 'custom-' + Date.now().toString(),
+      name: brandName.trim(),
+      category: brandCategory,
+      logoUrl: brandLogoUrl.trim(),
+      description: brandDescription.trim()
+    };
+
+    const updated = [newBrand, ...brandPartners];
+    saveBrandPartners(updated);
+
+    // Reset Form
+    setBrandName('');
+    setBrandCategory('brands');
+    setBrandLogoUrl('');
+    setBrandDescription('');
+    setShowAddBrandForm(false);
+  };
+
+  const handleUpdateBrandPartner = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingBrandIndex === null || !brandName.trim()) return;
+
+    const updated = [...brandPartners];
+    updated[editingBrandIndex] = {
+      ...updated[editingBrandIndex],
+      name: brandName.trim(),
+      category: brandCategory,
+      logoUrl: brandLogoUrl.trim(),
+      description: brandDescription.trim()
+    };
+
+    saveBrandPartners(updated);
+
+    // Reset Form
+    setBrandName('');
+    setBrandCategory('brands');
+    setBrandLogoUrl('');
+    setBrandDescription('');
+    setEditingBrandIndex(null);
+  };
+
+  const handleEditBrandClick = (index: number) => {
+    const b = brandPartners[index];
+    setBrandName(b.name);
+    setBrandCategory(b.category);
+    setBrandLogoUrl(b.logoUrl || '');
+    setBrandDescription(b.description || '');
+    setEditingBrandIndex(index);
+    setShowAddBrandForm(false);
+  };
+
+  const handleDeleteBrandPartner = (index: number) => {
+    if (window.confirm(`Are you sure you want to remove ${brandPartners[index].name} from the Brand Page?`)) {
+      const updated = brandPartners.filter((_, i) => i !== index);
+      saveBrandPartners(updated);
+    }
+  };
+
+  const handleMoveBrandPartner = (index: number, direction: 'up' | 'down') => {
+    const updated = [...brandPartners];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= updated.length) return;
+
+    const temp = updated[index];
+    updated[index] = updated[targetIndex];
+    updated[targetIndex] = temp;
+
+    saveBrandPartners(updated);
+  };
+
+  const handleResetBrandPartners = () => {
+    if (window.confirm("Are you sure you want to restore the default 50+ elite brand partners? This will clear custom brand additions.")) {
+      saveBrandPartners(DEFAULT_BRAND_ITEMS);
+    }
+  };
+
   // About Page state variables
   const [aboutWord1, setAboutWord1] = useState('Dream');
   const [aboutWord2, setAboutWord2] = useState('Catchers');
@@ -227,6 +351,12 @@ const AdminPanel: FC = () => {
     const savedHeroBgType = localStorage.getItem('home_hero_bg_type') || 'video';
     setHomeHeroBgType(savedHeroBgType as 'image' | 'video');
 
+    // Load nav logo configs
+    setNavLogoType((localStorage.getItem('nav_logo_type') as 'text' | 'image') || 'text');
+    setNavLogoTextShort(localStorage.getItem('nav_logo_text_short') || 'DC');
+    setNavLogoTextFull(localStorage.getItem('nav_logo_text_full') || 'DREAMCATCHERS');
+    setNavLogoImageUrl(localStorage.getItem('nav_logo_image_url') || '');
+
     const savedHeroBgUrl = localStorage.getItem('home_hero_bg_url') || 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071';
     setHomeHeroBgUrl(savedHeroBgUrl);
 
@@ -270,6 +400,19 @@ const AdminPanel: FC = () => {
       }
     } else {
       setClients(DEFAULT_CLIENTS_LIST);
+    }
+
+    // Load brand partners catalogue
+    const storedBrandPartners = localStorage.getItem('dc_brand_partners');
+    if (storedBrandPartners) {
+      try {
+        setBrandPartners(JSON.parse(storedBrandPartners));
+      } catch (e) {
+        console.error('Error loading brand partners:', e);
+        setBrandPartners(DEFAULT_BRAND_ITEMS);
+      }
+    } else {
+      setBrandPartners(DEFAULT_BRAND_ITEMS);
     }
 
     // Load About configs
@@ -421,21 +564,40 @@ const AdminPanel: FC = () => {
     setShowAddOrbitForm(false);
     setOrbitInputUrl('');
     setOrbitEditUrl('');
+    setOrbitInputType('image');
+    setOrbitEditType('image');
   };
 
   // --- Orbit Frame Action Methods ---
   const handleAddOrbitImage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!orbitInputUrl.trim()) return;
-    const updated = [...orbitImages, orbitInputUrl.trim()];
+    const newItem = {
+      url: orbitInputUrl.trim(),
+      type: orbitInputType
+    };
+    const updated = [...orbitImages, newItem];
     saveOrbitImages(updated);
     setOrbitInputUrl('');
+    setOrbitInputType('image');
     setShowAddOrbitForm(false);
   };
 
   const handleStartEditOrbit = (index: number) => {
     setEditingOrbitIndex(index);
-    setOrbitEditUrl(orbitImages[index]);
+    const item = orbitImages[index];
+    if (typeof item === 'string') {
+      setOrbitEditUrl(item);
+      const lower = item.toLowerCase();
+      const isVideo = lower.endsWith('.mp4') || lower.endsWith('.mov') || lower.endsWith('.webm') || (lower.includes('drive.google.com/file/d/') && (lower.includes('video') || lower.includes('playback') || lower.includes('mp4')));
+      setOrbitEditType(isVideo ? 'video' : 'image');
+    } else if (item && typeof item === 'object') {
+      setOrbitEditUrl(item.url || '');
+      setOrbitEditType(item.type === 'video' ? 'video' : 'image');
+    } else {
+      setOrbitEditUrl('');
+      setOrbitEditType('image');
+    }
     setShowAddOrbitForm(false); // Close add form if open
   };
 
@@ -443,10 +605,14 @@ const AdminPanel: FC = () => {
     e.preventDefault();
     if (editingOrbitIndex === null || !orbitEditUrl.trim()) return;
     const updated = [...orbitImages];
-    updated[editingOrbitIndex] = orbitEditUrl.trim();
+    updated[editingOrbitIndex] = {
+      url: orbitEditUrl.trim(),
+      type: orbitEditType
+    };
     saveOrbitImages(updated);
     setEditingOrbitIndex(null);
     setOrbitEditUrl('');
+    setOrbitEditType('image');
   };
 
   const handleDeleteOrbit = (index: number) => {
@@ -512,6 +678,39 @@ const AdminPanel: FC = () => {
   const handleResetDefaults = () => {
     if (confirm('Confirm reset to original 4 default frames (Dream Team)? All additions will be cleared.')) {
       saveTeam(DEFAULT_TEAM_MEMBERS);
+    }
+  };
+
+  // --- Navigation Logo handlers ---
+  const handleSaveNavLogo = (e: React.FormEvent) => {
+    e.preventDefault();
+    const finalUrl = transformGoogleDriveUrl(navLogoImageUrl);
+    localStorage.setItem('nav_logo_type', navLogoType);
+    localStorage.setItem('nav_logo_text_short', navLogoTextShort);
+    localStorage.setItem('nav_logo_text_full', navLogoTextFull);
+    localStorage.setItem('nav_logo_image_url', finalUrl);
+    setNavLogoImageUrl(finalUrl);
+
+    // Dispatch update notification
+    window.dispatchEvent(new Event('storage_updated_home_hero')); // Trigger SiteSync to push to Firestore
+    alert('Navigation logo settings saved & synced successfully!');
+  };
+
+  const handleResetNavLogo = () => {
+    if (confirm('Are you sure you want to restore the default logo settings?')) {
+      setNavLogoType('text');
+      setNavLogoTextShort('DC');
+      setNavLogoTextFull('DREAMCATCHERS');
+      setNavLogoImageUrl('');
+
+      localStorage.removeItem('nav_logo_type');
+      localStorage.removeItem('nav_logo_text_short');
+      localStorage.removeItem('nav_logo_text_full');
+      localStorage.removeItem('nav_logo_image_url');
+
+      // Dispatch update notification
+      window.dispatchEvent(new Event('storage_updated_home_hero')); // Trigger SiteSync to push to Firestore
+      alert('Navigation logo settings reset successfully!');
     }
   };
 
@@ -921,6 +1120,14 @@ const AdminPanel: FC = () => {
             <Share2 size={20} className="text-orange-500" />
             <span>Contact & Socials</span>
           </button>
+          <button 
+            type="button"
+            onClick={() => { setActiveTab('brand_manage'); handleCancel(); }}
+            className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all font-bold font-sans ${activeTab === 'brand_manage' ? 'bg-orange-500/10 text-orange-500' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+          >
+            <Sparkles size={20} className="text-orange-500" />
+            <span>Brand Page Partners</span>
+          </button>
         </nav>
 
         <button 
@@ -949,8 +1156,10 @@ const AdminPanel: FC = () => {
                 <span>🌀 ROTATING ORBIT STARS</span>
               ) : activeTab === 'about_manage' ? (
                 <span>📖 ABOUT US CONTENT</span>
-              ) : (
+              ) : activeTab === 'contact_manage' ? (
                 <span>📬 CONTACT & SOCIAL MEDIA</span>
+              ) : (
+                <span>✨ BRAND PAGE PARTNER LOGOS</span>
               )}
             </h1>
             <p className="text-white/40 mt-1 text-sm font-medium tracking-tight">
@@ -966,7 +1175,9 @@ const AdminPanel: FC = () => {
                         ? 'Manage the rotating 3D orbit stars.'
                         : activeTab === 'about_manage'
                           ? 'Manage about details: hero text, background, genesis paragraphs, counters, and team profiles.'
-                          : 'Manage contact details (address, email, phone) and your social media profile URLs.'}
+                          : activeTab === 'contact_manage'
+                            ? 'Manage contact details (address, email, phone) and your social media profile URLs.'
+                            : 'Manage the Brand Page partners list: add, order, edit descriptions and live vector/image logos.'}
             </p>
           </div>
           
@@ -1158,6 +1369,42 @@ const AdminPanel: FC = () => {
                   </div>
                 </div>
               </motion.div>
+
+              {/* Card 5: BRAND PAGE PARTNERS */}
+              <motion.div
+                whileHover={{ scale: 1.02, y: -4 }}
+                transition={{ duration: 0.3 }}
+                onClick={() => { setActiveTab('brand_manage'); handleCancel(); }}
+                className="bg-zinc-950 font-sans border border-white/5 rounded-[2.5rem] p-8 flex flex-col justify-between min-h-[300px] hover:border-orange-500/40 hover:bg-zinc-900/10 transition-all cursor-pointer group relative overflow-hidden xl:col-span-2"
+              >
+                {/* Background watermark */}
+                <div className="absolute right-[-10%] bottom-[-10%] opacity-[0.03] group-hover:opacity-[0.07] group-hover:scale-110 transition-all duration-700 pointer-events-none">
+                  <Sparkles size={260} className="text-white" />
+                </div>
+
+                <div className="flex justify-between items-start">
+                  <div className="w-14 h-14 rounded-2xl bg-orange-500/10 flex items-center justify-center border border-orange-500/20 group-hover:bg-orange-500 group-hover:text-black transition-all">
+                    <Sparkles size={28} className="text-orange-500 group-hover:text-black transition-all" />
+                  </div>
+                  <span className="text-[10px] uppercase font-mono tracking-widest text-white/30 bg-white/5 px-3 py-1 rounded-full border border-white/5">
+                    Elite Partners
+                  </span>
+                </div>
+
+                <div>
+                  <h3 className="text-3xl font-black italic uppercase tracking-tight text-white mb-2 font-sans">
+                    BRAND PAGE PARTNERS
+                  </h3>
+                  <p className="text-xs text-white/40 font-semibold tracking-wider uppercase mb-8">
+                    MANAGE ELITE BRANDS, GOVERNMENT DEPARTMENTS, CORPORATES & BROADCAST NETWORK LOGOS
+                  </p>
+                  
+                  <div className="flex items-center gap-2 text-orange-500 group-hover:text-orange-400 font-extrabold uppercase text-xs tracking-widest transition-all font-sans">
+                    <span>MANAGE CONTENT</span>
+                    <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </motion.div>
             </div>
           </div>
         )}
@@ -1204,6 +1451,12 @@ const AdminPanel: FC = () => {
                   className={`px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider transition-all ${homeSubTab === 'clients' ? 'bg-orange-500 text-white' : 'bg-black border border-white/10 text-white/40 hover:text-white'}`}
                 >
                   5. Client/Brand Logos
+                </button>
+                <button 
+                  onClick={() => setHomeSubTab('logo')}
+                  className={`px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider transition-all ${homeSubTab === 'logo' ? 'bg-orange-500 text-white' : 'bg-black border border-white/10 text-white/40 hover:text-white'}`}
+                >
+                  6. Navbar brand Logo
                 </button>
               </div>
             </div>
@@ -1824,6 +2077,150 @@ const AdminPanel: FC = () => {
                 </div>
               </motion.div>
             )}
+
+            {homeSubTab === 'logo' && (
+              <motion.div 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }}
+                className="bg-zinc-900 border border-white/5 p-6 md:p-10 rounded-[2.5rem] space-y-8 text-white font-sans"
+              >
+                <div>
+                  <h2 className="text-2xl font-black italic text-white uppercase mb-2">NAVBAR BRAND LOGO SETTINGS</h2>
+                  <p className="text-xs text-white/50 leading-relaxed font-sans">
+                    Define how your agency brand identity appears in the top navigation bar. You can choose either an elegant text logo or upload a custom transparent graphic image logo.
+                  </p>
+                </div>
+
+                <form onSubmit={handleSaveNavLogo} className="space-y-6 font-sans">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Logo Type selector */}
+                    <div className="space-y-2">
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-orange-500">Logo Presentation Type</label>
+                      <div className="grid grid-cols-2 gap-4">
+                        <button
+                          type="button"
+                          onClick={() => setNavLogoType('text')}
+                          className={`py-3 px-4 rounded-xl border text-xs font-bold uppercase tracking-wider transition-all ${navLogoType === 'text' ? 'bg-orange-500/10 border-orange-500 text-orange-500' : 'bg-black border-white/5 text-white/50 hover:text-white'}`}
+                        >
+                          Text brand logo
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setNavLogoType('image')}
+                          className={`py-3 px-4 rounded-xl border text-xs font-bold uppercase tracking-wider transition-all ${navLogoType === 'image' ? 'bg-orange-500/10 border-orange-500 text-orange-500' : 'bg-black border-white/5 text-white/50 hover:text-white'}`}
+                        >
+                          Image graphic logo
+                        </button>
+                      </div>
+                      <p className="text-[10px] text-white/30 text-left">
+                        {navLogoType === 'text' 
+                          ? "Displays styled bold typography of your agency short initials and full name."
+                          : "Upload and display a custom transparent graphic overlay in the top-left of the screen."}
+                      </p>
+                    </div>
+
+                    {/* Logo Image URL */}
+                    {navLogoType === 'image' && (
+                      <div className="space-y-2">
+                        <label className="block text-[10px] font-black uppercase tracking-widest text-orange-500">Logo Image URL</label>
+                        <input
+                          type="url"
+                          required
+                          value={navLogoImageUrl}
+                          onChange={(e) => setNavLogoImageUrl(e.target.value)}
+                          placeholder="e.g. https://domain.com/transparent-logo.png"
+                          className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-orange-500 transition-colors"
+                        />
+                        <p className="text-[10px] text-white/30 text-left">
+                          For best results, use a transparent horizontal PNG logo (max height recommendation of 60px).
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Custom short text */}
+                    {navLogoType === 'text' && (
+                      <div className="space-y-2">
+                        <label className="block text-[10px] font-black uppercase tracking-widest text-orange-500">Logo Short Text (Accent Initials)</label>
+                        <input
+                          type="text"
+                          required
+                          maxLength={10}
+                          value={navLogoTextShort}
+                          onChange={(e) => setNavLogoTextShort(e.target.value)}
+                          placeholder="e.g. DC"
+                          className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-orange-500 transition-colors"
+                        />
+                        <p className="text-[10px] text-white/30 text-left">
+                          Short visual monogram (e.g., 'DC' for Dreamcatchers).
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Custom full text */}
+                    {navLogoType === 'text' && (
+                      <div className="space-y-2">
+                        <label className="block text-[10px] font-black uppercase tracking-widest text-orange-500">Logo Full Text (Main Name)</label>
+                        <input
+                          type="text"
+                          required
+                          maxLength={30}
+                          value={navLogoTextFull}
+                          onChange={(e) => setNavLogoTextFull(e.target.value)}
+                          placeholder="e.g. DREAMCATCHERS"
+                          className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-orange-500 transition-colors"
+                        />
+                        <p className="text-[10px] text-white/30 text-left">
+                          Displayed on desktop sizes immediately beside the accent short initials.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Preview Area */}
+                  <div className="bg-black/40 p-6 rounded-2xl border border-white/5 space-y-3">
+                    <span className="block text-[10px] font-black uppercase tracking-widest text-white/40">Visual Live Preview</span>
+                    <div className="h-16 flex items-center justify-start bg-zinc-950 px-6 rounded-xl border border-white/5 relative overflow-hidden">
+                      <div className="absolute inset-0 bg-radial from-transparent to-black pointer-events-none" />
+                      <div className="flex items-center gap-3 font-sans">
+                        {navLogoType === 'image' && navLogoImageUrl ? (
+                          <img 
+                            src={transformGoogleDriveUrl(navLogoImageUrl)} 
+                            alt="Brand Logo Preview" 
+                            className="h-10 object-contain max-w-[180px]" 
+                            referrerPolicy="no-referrer"
+                            onError={(e) => {
+                              (e.currentTarget as HTMLImageElement).src = 'https://placehold.co/150x50/ff4500/ffffff?text=Logo+Error';
+                            }}
+                          />
+                        ) : (
+                          <>
+                            <span className="text-xl md:text-2xl font-black italic tracking-tighter text-orange-500 leading-none">{navLogoTextShort}</span>
+                            <span className="text-xs md:text-sm font-bold tracking-[0.2em] text-white">{navLogoTextFull}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Form Submission buttons */}
+                  <div className="flex flex-wrap gap-4 pt-4">
+                    <button
+                      type="submit"
+                      className="px-8 py-3.5 bg-orange-500 hover:bg-orange-600 font-extrabold uppercase text-xs tracking-widest text-white rounded-full flex items-center gap-2 shadow-lg hover:shadow-orange-500/20 active:scale-95 transition-all"
+                    >
+                      <span>SAVE NAV LOGO CONFIGURATION</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleResetNavLogo}
+                      className="px-8 py-3.5 bg-black hover:bg-zinc-950 font-extrabold uppercase text-xs tracking-widest text-white/60 hover:text-white rounded-full border border-white/10 hover:border-white/30 transition-all"
+                    >
+                      RESET LOGO DEFAULTS
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            )}
           </div>
         )}
 
@@ -2312,29 +2709,70 @@ const AdminPanel: FC = () => {
 
                     <form onSubmit={editingOrbitIndex !== null ? handleSaveEditOrbit : handleAddOrbitImage} className="space-y-6">
                       <div className="space-y-2">
-                        <label className="text-xs uppercase font-bold tracking-widest text-white/60 block">Image URL</label>
+                        <label className="text-xs uppercase font-bold tracking-widest text-white/60 block">Media URL (Google Drive, Unsplash, Direct Link)</label>
                         <input
                           type="url"
                           required
-                          placeholder="https://images.unsplash.com/photo-..."
+                          placeholder="https://images.unsplash.com/photo-... or Google Drive link"
                           value={editingOrbitIndex !== null ? orbitEditUrl : orbitInputUrl}
                           onChange={(e) => editingOrbitIndex !== null ? setOrbitEditUrl(e.target.value) : setOrbitInputUrl(e.target.value)}
                           className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 text-sm focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20 transition-all font-mono"
                         />
                       </div>
 
+                      <div className="space-y-2">
+                        <label className="text-xs uppercase font-bold tracking-widest text-white/60 block">Media Type</label>
+                        <div className="flex gap-4">
+                          <button
+                            type="button"
+                            onClick={() => editingOrbitIndex !== null ? setOrbitEditType('image') : setOrbitInputType('image')}
+                            className={`flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition-all border flex items-center justify-center gap-2 ${
+                              (editingOrbitIndex !== null ? orbitEditType : orbitInputType) === 'image'
+                                ? 'bg-orange-500 text-black border-orange-500 font-black'
+                                : 'bg-black text-white/60 border-white/10 hover:text-white hover:border-white/20'
+                            }`}
+                          >
+                            <ImageIcon size={14} />
+                            <span>Photo</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => editingOrbitIndex !== null ? setOrbitEditType('video') : setOrbitInputType('video')}
+                            className={`flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-wider transition-all border flex items-center justify-center gap-2 ${
+                              (editingOrbitIndex !== null ? orbitEditType : orbitInputType) === 'video'
+                                ? 'bg-orange-500 text-black border-orange-500 font-black'
+                                : 'bg-black text-white/60 border-white/10 hover:text-white hover:border-white/20'
+                            }`}
+                          >
+                            <FileVideo size={14} />
+                            <span>Video</span>
+                          </button>
+                        </div>
+                      </div>
+
                       {/* URL Preview */}
                       <div className="p-4 bg-black/50 rounded-2xl border border-white/5 flex items-center gap-4">
                         <div className="w-16 h-16 rounded-full overflow-hidden border border-white/10 shrink-0 bg-zinc-950 flex items-center justify-center text-white/20 text-xs">
                           {(editingOrbitIndex !== null ? orbitEditUrl : orbitInputUrl) ? (
-                            <img
-                              src={editingOrbitIndex !== null ? orbitEditUrl : orbitInputUrl}
-                              alt="Preview"
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1542204172-3c3066385d0d?auto=format&fit=crop&q=80&w=500';
-                              }}
-                            />
+                            (editingOrbitIndex !== null ? orbitEditType : orbitInputType) === 'video' ? (
+                              <video
+                                src={transformGoogleDriveUrl(editingOrbitIndex !== null ? orbitEditUrl : orbitInputUrl, 'video')}
+                                className="w-full h-full object-cover"
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
+                              />
+                            ) : (
+                              <img
+                                src={transformGoogleDriveUrl(editingOrbitIndex !== null ? orbitEditUrl : orbitInputUrl, 'image')}
+                                alt="Preview"
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1542204172-3c3066385d0d?auto=format&fit=crop&q=80&w=500';
+                                }}
+                              />
+                            )
                           ) : (
                             <ImageIcon size={20} />
                           )}
@@ -2370,7 +2808,20 @@ const AdminPanel: FC = () => {
 
             {/* Orbit List Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {orbitImages.map((imgUrl, index) => {
+              {orbitImages.map((item, index) => {
+                let currentUrl = '';
+                let currentType: 'image' | 'video' = 'image';
+                if (typeof item === 'string') {
+                  currentUrl = item;
+                  const lower = item.toLowerCase();
+                  const isVideo = lower.endsWith('.mp4') || lower.endsWith('.mov') || lower.endsWith('.webm') || (lower.includes('drive.google.com/file/d/') && (lower.includes('video') || lower.includes('playback') || lower.includes('mp4')));
+                  currentType = isVideo ? 'video' : 'image';
+                } else if (item && typeof item === 'object') {
+                  currentUrl = item.url || '';
+                  currentType = item.type === 'video' ? 'video' : 'image';
+                }
+                const transformedPreviewUrl = transformGoogleDriveUrl(currentUrl, currentType);
+
                 return (
                   <div
                     key={index}
@@ -2382,21 +2833,42 @@ const AdminPanel: FC = () => {
                         {String(index + 1).padStart(2, '0')}
                       </span>
 
-                      {/* Image Thumbnail */}
-                      <div className="relative w-16 h-16 rounded-full overflow-hidden border border-white/10 shrink-0 bg-black">
-                        <img
-                          src={imgUrl}
-                          alt={`Rotating star ${index + 1}`}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1542204172-3c3066385d0d?auto=format&fit=crop&q=80&w=500';
-                          }}
-                        />
+                      {/* Image or Video Thumbnail */}
+                      <div className="relative w-16 h-16 rounded-full overflow-hidden border border-white/10 shrink-0 bg-black flex items-center justify-center">
+                        {currentType === 'video' ? (
+                          <div className="relative w-full h-full">
+                            <video
+                              src={transformedPreviewUrl}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                              autoPlay
+                              loop
+                              muted
+                              playsInline
+                            />
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                              <Play size={12} className="text-white fill-white shrink-0 animate-pulse" />
+                            </div>
+                          </div>
+                        ) : (
+                          <img
+                            src={transformedPreviewUrl}
+                            alt={`Rotating star ${index + 1}`}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1542204172-3c3066385d0d?auto=format&fit=crop&q=80&w=500';
+                            }}
+                          />
+                        )}
                       </div>
 
                       <div className="min-w-0">
-                        <h4 className="text-sm font-bold text-white truncate max-w-[200px]">Revolving Star Frame</h4>
-                        <p className="text-[10px] text-white/30 font-mono truncate max-w-[200px] mt-0.5">{imgUrl}</p>
+                        <div className="flex items-center gap-1.5">
+                          <h4 className="text-sm font-bold text-white truncate max-w-[150px]">Revolving Star Frame</h4>
+                          <span className={`text-[8px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded-full ${currentType === 'video' ? 'bg-orange-500/10 text-orange-500' : 'bg-white/10 text-white/60'}`}>
+                            {currentType}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-white/30 font-mono truncate max-w-[200px] mt-0.5">{currentUrl}</p>
                       </div>
                     </div>
 
@@ -3060,6 +3532,210 @@ const AdminPanel: FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        )}
+
+        {/* 6. BRAND PAGE PARTNERS MANAGE BLOCK */}
+        {activeTab === 'brand_manage' && (
+          <div className="space-y-8 animate-fade-in text-white font-sans max-w-5xl pb-16">
+            {/* Top Back Controls */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-zinc-900/40 p-4 rounded-3xl border border-white/5">
+              <button 
+                onClick={() => setActiveTab('categories')}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/10 hover:border-white/30 text-xs font-black uppercase tracking-wider text-white bg-black hover:text-orange-500 transition-all font-sans"
+              >
+                <ChevronLeft size={16} />
+                <span>BACK TO CONTROL CENTER</span>
+              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleResetBrandPartners}
+                  className="px-5 py-2.5 bg-yellow-600/10 hover:bg-yellow-600 hover:text-black hover:border-yellow-600 text-yellow-500 rounded-full text-xs font-black uppercase tracking-wider transition-all border border-yellow-500/10 flex items-center gap-2"
+                >
+                  <RefreshCw size={12} />
+                  <span>Restore Defaults</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setEditingBrandIndex(null);
+                    setBrandName('');
+                    setBrandCategory('brands');
+                    setBrandLogoUrl('');
+                    setBrandDescription('');
+                    setShowAddBrandForm(!showAddBrandForm);
+                  }}
+                  className="px-5 py-2.5 bg-orange-500 text-white hover:bg-orange-600 rounded-full text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2"
+                >
+                  <Plus size={14} />
+                  <span>{showAddBrandForm ? 'Close Editor' : 'Add New Partner'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Editor form (Add / Edit) */}
+            {(showAddBrandForm || editingBrandIndex !== null) && (
+              <form 
+                onSubmit={editingBrandIndex !== null ? handleUpdateBrandPartner : handleAddBrandPartner}
+                className="bg-zinc-950 border border-white/5 p-6 md:p-8 rounded-[2.5rem] space-y-6"
+              >
+                <h3 className="text-xl font-black italic uppercase tracking-tight text-orange-500 border-b border-white/5 pb-3">
+                  {editingBrandIndex !== null ? '✏️ Edit Partner Logo Profile' : '➕ Add Partner Logo Profile'}
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs uppercase tracking-widest text-zinc-400 font-bold mb-2">Partner Name (e.g. Rolex)</label>
+                    <input
+                      type="text"
+                      required
+                      value={brandName}
+                      onChange={(e) => setBrandName(e.target.value)}
+                      placeholder="Enter brand or government department name"
+                      className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs uppercase tracking-widest text-zinc-400 font-bold mb-2">Category Segment</label>
+                    <select
+                      value={brandCategory}
+                      onChange={(e) => setBrandCategory(e.target.value as any)}
+                      className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white"
+                    >
+                      <option value="brands">Brands & Retail (brands)</option>
+                      <option value="govt">Government (govt)</option>
+                      <option value="corporates">Corporates & Industrial (corporates)</option>
+                      <option value="platforms">Broadcast & Platforms (platforms)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-6">
+                  <div>
+                    <label className="block text-xs uppercase tracking-widest text-zinc-400 font-bold mb-2">Partner Logo Image Link / URL</label>
+                    <input
+                      type="text"
+                      required
+                      value={brandLogoUrl}
+                      onChange={(e) => setBrandLogoUrl(e.target.value)}
+                      placeholder="e.g. https://domain.com/logo.png"
+                      className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white font-mono"
+                    />
+                    <p className="text-xs text-white/30 mt-1 uppercase tracking-wider">
+                      Provide a direct link to an image (PNG, SVG, JPEG) representing their official brand identity.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs uppercase tracking-widest text-zinc-400 font-bold mb-2">Brief Tagline or Service Summary (Optional)</label>
+                    <input
+                      type="text"
+                      value={brandDescription}
+                      onChange={(e) => setBrandDescription(e.target.value)}
+                      placeholder="e.g. Premium luxury commercial & residential real estate."
+                      className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-4 pt-4 border-t border-white/5">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-orange-500 hover:bg-orange-600 active:scale-95 text-black font-black uppercase text-xs py-3 rounded-xl transition-all shadow-lg"
+                  >
+                    {editingBrandIndex !== null ? 'Save Partner Profile & Commit' : 'Add Brand Partner to Page'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAddBrandForm(false);
+                      setEditingBrandIndex(null);
+                    }}
+                    className="px-6 py-3 bg-zinc-900 hover:bg-zinc-800 text-white font-bold uppercase text-xs rounded-xl transition-all border border-white/5"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* List and Order block */}
+            <div className="bg-zinc-950 border border-white/5 p-6 md:p-8 rounded-[2.5rem] space-y-6">
+              <h3 className="text-lg font-black uppercase italic tracking-tight text-white border-b border-white/5 pb-3">
+                📋 Brand Page Partners Log ({brandPartners.length} Total Partners)
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {brandPartners.map((item, index) => {
+                  return (
+                    <div 
+                      key={item.id}
+                      className="bg-black/60 border border-white/5 hover:border-orange-500/20 p-4 rounded-xl flex items-center justify-between gap-4 transition-all"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        {/* Logo Preview box */}
+                        <div className="w-16 h-12 rounded bg-zinc-900/60 border border-white/5 flex items-center justify-center overflow-hidden shrink-0">
+                          {item.logoUrl ? (
+                            <img src={item.logoUrl} alt={item.name} className="max-w-[90%] max-h-[90%] object-contain" referrerPolicy="no-referrer" />
+                          ) : (
+                            <span className="text-[9px] font-black tracking-widest text-[#EAB308]">BUILT-IN</span>
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="text-sm font-black uppercase tracking-tight text-white truncate">{item.name}</h4>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-[9px] font-bold text-orange-500 uppercase tracking-widest bg-orange-500/10 px-1.5 py-0.5 rounded border border-orange-500/15">
+                              {item.category}
+                            </span>
+                            {item.description && (
+                              <span className="text-[10px] text-white/40 truncate max-w-xs">{item.description}</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Controls (edit, delete, move) */}
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => handleMoveBrandPartner(index, 'up')}
+                          disabled={index === 0}
+                          title="Move Up"
+                          className="p-1.5 rounded bg-zinc-900 text-white/60 hover:text-white disabled:opacity-20 disabled:hover:text-white/60 transition-all border border-white/5"
+                        >
+                          <ArrowUp size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleMoveBrandPartner(index, 'down')}
+                          disabled={index === brandPartners.length - 1}
+                          title="Move Down"
+                          className="p-1.5 rounded bg-zinc-900 text-white/60 hover:text-white disabled:opacity-20 disabled:hover:text-white/60 transition-all border border-white/5"
+                        >
+                          <ArrowDown size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleEditBrandClick(index)}
+                          title="Edit Partner"
+                          className="p-1.5 rounded bg-[#3B82F6]/10 text-blue-400 hover:bg-[#3B82F6] hover:text-white transition-all border border-[#3B82F6]/10"
+                        >
+                          <Edit2 size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteBrandPartner(index)}
+                          title="Delete Partner"
+                          className="p-1.5 rounded bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-500/10"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         )}
       </div>
