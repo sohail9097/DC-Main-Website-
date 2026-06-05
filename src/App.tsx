@@ -103,7 +103,7 @@ const OrbitingFrame: FC<{ index: number; total: number; item: any }> = ({ index,
 
     const update = (time: number) => {
       // Map time to angle
-      const angle = (time / 6000) + (index * (2 * Math.PI / total));
+      const angle = (time / 2200) + (index * (2 * Math.PI / total));
       
       const x = Math.sin(angle) * radiusX;
       const z = Math.cos(angle) * radiusZ;
@@ -511,7 +511,7 @@ export interface ClientItem {
   id: string;
   name: string;
   color: string;
-  size?: 'small' | 'medium' | 'large' | string;
+  size?: 'small' | 'medium' | 'large' | 'xlarge' | 'extralarge' | string;
   logoUrl?: string;
 }
 
@@ -642,7 +642,7 @@ function Clients() {
                 repeat: Infinity, 
                 ease: "linear" 
               }}
-              className="flex whitespace-nowrap gap-0 py-1"
+              className="flex whitespace-nowrap items-center gap-0 py-1"
             >
               {itemsRow1.map((client, i) => (
                 <ClientLogo key={`${client.name}-r1-${i}`} client={client} />
@@ -659,7 +659,7 @@ function Clients() {
                 repeat: Infinity, 
                 ease: "linear" 
               }}
-              className="flex whitespace-nowrap gap-0 py-1"
+              className="flex whitespace-nowrap items-center gap-0 py-1"
             >
               {itemsRow2.map((client, i) => (
                 <ClientLogo key={`${client.name}-r2-${i}`} client={client} />
@@ -688,22 +688,60 @@ const ClientLogo: FC<ClientLogoProps> = ({ client }) => {
   const [imgError, setImgError] = useState(false);
   const hasLogoUrl = client.logoUrl && client.logoUrl.trim().length > 0 && !imgError;
 
+  const size = client.size || 'medium';
+  let imgClasses = '';
+  let txtClasses = '';
+  let pxClass = 'px-6 md:px-10';
+
+  if (size === 'small') {
+    imgClasses = 'h-8 md:h-12 max-w-[120px] md:max-w-[180px]';
+    txtClasses = 'text-xs md:text-sm font-semibold';
+    pxClass = 'px-5 md:px-8';
+  } else if (size === 'medium') {
+    imgClasses = 'h-12 md:h-18 max-w-[170px] md:max-w-[260px]';
+    txtClasses = 'text-sm md:text-lg font-bold';
+    pxClass = 'px-7 md:px-11';
+  } else if (size === 'large') {
+    imgClasses = 'h-16 md:h-24 max-w-[220px] md:max-w-[340px]';
+    txtClasses = 'text-base md:text-2xl font-extrabold';
+    pxClass = 'px-9 md:px-15';
+  } else if (size === 'xlarge') {
+    imgClasses = 'h-20 md:h-28 max-w-[280px] md:max-w-[420px]';
+    txtClasses = 'text-lg md:text-3xl font-black';
+    pxClass = 'px-11 md:px-18';
+  } else if (
+    size === 'extralarge' || 
+    size === 'extra-large' || 
+    size === 'xl' || 
+    size === 'extra large'
+  ) {
+    imgClasses = 'h-24 md:h-[135px] max-w-[340px] md:max-w-[500px]';
+    txtClasses = 'text-xl md:text-4xl font-black tracking-wider';
+    pxClass = 'px-14 md:px-24';
+  } else {
+    // Default fallback (medium-ish)
+    imgClasses = 'h-12 md:h-18 max-w-[170px] md:max-w-[260px]';
+    txtClasses = 'text-sm md:text-lg font-bold';
+    pxClass = 'px-7 md:px-11';
+  }
+
+  // Wrapper height is dynamic/flexible (up to h-24 md:h-[155px]) so larger sizes fit seamlessly
   return (
     <div 
-      className="flex items-center justify-center px-8 md:px-14 h-12 md:h-18 flex-shrink-0 relative overflow-hidden select-none cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95"
+      className={`flex items-center justify-center ${pxClass} h-24 md:h-[155px] flex-shrink-0 relative overflow-hidden select-none cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95`}
     >
       {hasLogoUrl ? (
         <img 
           src={transformGoogleDriveUrl(client.logoUrl)} 
           alt={client.name} 
-          className="max-h-full max-w-[140px] md:max-w-[220px] object-contain pointer-events-none"
+          className={`${imgClasses} w-auto object-contain pointer-events-none shadow-sm`}
           referrerPolicy="no-referrer"
           onError={() => setImgError(true)}
         />
       ) : (
         <div className="flex items-center justify-center text-center">
           <span 
-            className="text-sm md:text-xl font-bold uppercase tracking-widest text-zinc-100 font-sans block hover:text-orange-500 transition-colors"
+            className={`${txtClasses} font-bold uppercase tracking-widest text-zinc-100 font-sans block hover:text-orange-500 transition-colors`}
           >
             {client.name}
           </span>
@@ -2055,7 +2093,7 @@ function Intro() {
                       opacity: [0.12, 0.40, 0.12],
                     }}
                     transition={{
-                      duration: 6,
+                      duration: 3,
                       repeat: Infinity,
                       ease: "easeInOut"
                     }}

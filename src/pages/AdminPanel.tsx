@@ -107,7 +107,7 @@ const AdminPanel: FC = () => {
   // Client form fields
   const [clientName, setClientName] = useState('');
   const [clientColor, setClientColor] = useState('#FFFFFF');
-  const [clientSize, setClientSize] = useState<'small' | 'medium' | 'large'>('small');
+  const [clientSize, setClientSize] = useState<'small' | 'medium' | 'large' | 'xlarge' | 'extralarge'>('medium');
   const [clientLogoUrl, setClientLogoUrl] = useState('');
 
   const saveClientsToStorage = (updatedClients: ClientItem[]) => {
@@ -134,7 +134,7 @@ const AdminPanel: FC = () => {
     // reset form
     setClientName('');
     setClientColor('#FFFFFF');
-    setClientSize('small');
+    setClientSize('medium');
     setClientLogoUrl('');
     setShowAddClientForm(false);
   };
@@ -157,7 +157,7 @@ const AdminPanel: FC = () => {
     // reset Form
     setClientName('');
     setClientColor('#FFFFFF');
-    setClientSize('small');
+    setClientSize('medium');
     setClientLogoUrl('');
     setEditingClientIndex(null);
   };
@@ -166,7 +166,7 @@ const AdminPanel: FC = () => {
     const client = clients[index];
     setClientName(client.name);
     setClientColor(client.color || '#FFFFFF');
-    setClientSize((client.size as any) || 'small');
+    setClientSize((client.size as any) || 'medium');
     setClientLogoUrl(client.logoUrl || '');
     setEditingClientIndex(index);
     setShowAddClientForm(false);
@@ -2024,29 +2024,48 @@ const AdminPanel: FC = () => {
                             <option value="small">Small (Clean Margin padding)</option>
                             <option value="medium">Medium (Regular Banner spacing)</option>
                             <option value="large">Large (High Prominence width)</option>
+                            <option value="xlarge">Extra Large (High visibility)</option>
+                            <option value="extralarge">Double Extra Large (Maximum visibility)</option>
                           </select>
                         </div>
                       </div>
 
                       {/* Visual Preview box */}
-                      <div className="border border-white/5 bg-black/60 p-4 rounded-2xl flex items-center gap-4">
+                      <div className="border border-white/5 bg-black/60 p-4 rounded-2xl flex flex-col gap-3">
                         <div className="text-xs uppercase tracking-wider text-zinc-500 font-bold">PREVIEW REAL-TIME:</div>
                         <div className="flex items-center gap-3 px-4 py-2 bg-zinc-900/60 rounded-full border border-white/5 cursor-default select-none max-w-sm">
                           <div 
-                            className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-xs shadow-lg ring-1 ring-white/10 overflow-hidden" 
+                            className={`rounded-xl flex items-center justify-center text-white font-black text-xs shadow-lg ring-1 ring-white/10 overflow-hidden transition-all duration-300 ${
+                              clientSize === 'small' ? 'w-10 h-10 p-1.5' :
+                              clientSize === 'medium' ? 'w-14 h-14 p-2' :
+                              clientSize === 'large' ? 'w-20 h-20 p-2.5' :
+                              clientSize === 'xlarge' ? 'w-24 h-24 p-3' :
+                              'w-28 h-28 p-3.5'
+                            }`} 
                             style={{ 
                               backgroundColor: clientColor || '#333333',
                             }}
                           >
                             {clientLogoUrl && clientLogoUrl.trim().length > 0 ? (
-                              <img src={clientLogoUrl} alt="Preview Logo" className="w-full h-full object-contain p-1.5" referrerPolicy="no-referrer" />
+                              <img src={clientLogoUrl} alt="Preview Logo" className="w-full h-full object-contain" referrerPolicy="no-referrer" />
                             ) : (
-                              <span>{clientName ? clientName.substring(0, 1).toUpperCase() : 'C'}</span>
+                              <span className={
+                                clientSize === 'small' ? 'text-xs' :
+                                clientSize === 'medium' ? 'text-lg' :
+                                clientSize === 'large' ? 'text-2xl' :
+                                clientSize === 'xlarge' ? 'text-3xl' :
+                                'text-4xl'
+                              }>{clientName ? clientName.substring(0, 1).toUpperCase() : 'C'}</span>
                             )}
                           </div>
-                          <span className="text-sm font-bold text-zinc-300">
-                            {clientName || 'Brand Name'}
-                          </span>
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-sm font-bold text-zinc-300">
+                              {clientName || 'Brand Name'}
+                            </span>
+                            <span className="text-[9px] uppercase font-mono tracking-widest text-orange-500 font-black">
+                              Size Class: {clientSize}
+                            </span>
+                          </div>
                         </div>
                       </div>
 
@@ -2109,10 +2128,21 @@ const AdminPanel: FC = () => {
                               <h4 className="text-xs font-black uppercase text-white truncate max-w-[130px]" title={client.name}>
                                 {client.name}
                               </h4>
-                              <p className="text-[9px] uppercase font-mono tracking-widest text-[#a1a1aa] mt-0.5 flex items-center gap-1">
-                                <span className="w-2 h-2 rounded-full inline-block border border-white/10" style={{ backgroundColor: client.color }} />
-                                {client.color}
-                              </p>
+                              <div className="flex flex-wrap items-center gap-2 mt-1">
+                                <p className="text-[9px] uppercase font-mono tracking-widest text-[#a1a1aa] flex items-center gap-1">
+                                  <span className="w-2 h-2 rounded-full inline-block border border-white/10" style={{ backgroundColor: client.color }} />
+                                  {client.color}
+                                </p>
+                                <span className={`text-[8px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${
+                                  client.size === 'small' ? 'bg-zinc-400/10 text-zinc-400 border border-zinc-400/10' :
+                                  client.size === 'medium' ? 'bg-teal-400/10 text-teal-400 border border-teal-400/10' :
+                                  client.size === 'large' ? 'bg-orange-400/10 text-orange-400 border border-orange-400/10' :
+                                  client.size === 'xlarge' ? 'bg-pink-400/10 text-pink-400 border border-pink-400/10' :
+                                  'bg-amber-400/10 text-amber-305 border border-amber-400/10'
+                                }`}>
+                                  {client.size || 'medium'}
+                                </span>
+                              </div>
                             </div>
                           </div>
 
