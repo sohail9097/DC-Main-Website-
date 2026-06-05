@@ -1,7 +1,8 @@
 import { motion, useScroll, useTransform } from 'motion/react';
 import { ChevronRight, ChevronLeft, Camera, Users, Target, Rocket, Instagram, Facebook, Youtube, Twitter } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef, FC } from 'react';
-import { Navbar } from '../App';
+import { Navbar, Footer, InteractiveOptions } from '../App';
 
 const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
   const [stars, setStars] = useState<{ id: number; left: string; top: string; size: number; duration: number; delay: number; driftX: number; driftY: number }[]>([]);
@@ -65,6 +66,7 @@ const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
 };
 
 const AboutPage = () => {
+  const navigate = useNavigate();
   const { scrollY } = useScroll();
   const heroImgOpacity = useTransform(scrollY, [0, 800], [1, 0.1]);
   const starOpacity = useTransform(scrollY, [100, 700], [0.3, 1]);
@@ -430,6 +432,7 @@ const AboutPage = () => {
                 <span className="text-orange-500">Dreams Together.</span>
               </motion.h2>
               <motion.button 
+                onClick={() => navigate('/contact')}
                 whileHover={{ scale: 1.05, backgroundColor: "#fff", color: "#000" }}
                 transition={{ duration: 0.4 }}
                 className="px-16 py-8 rounded-full border-2 border-white/10 text-white font-black uppercase tracking-[0.3em] text-xs md:text-sm hover:border-transparent transition-all"
@@ -438,38 +441,9 @@ const AboutPage = () => {
               </motion.button>
            </div>
         </section>
-      </main>
-
-      <footer className="relative z-10 py-16 border-t border-white/5 bg-black/40 backdrop-blur-xl">
-        <div className="max-w-[1600px] mx-auto px-6 md:px-24 flex flex-col md:flex-row justify-between items-center gap-10">
-          <div className="flex flex-col items-center md:items-start gap-4">
-            <div className="flex items-center gap-4">
-              <span className="text-4xl md:text-6xl font-black italic tracking-tighter text-orange-500 leading-none">DC</span>
-              <span className="text-2xl md:text-4xl font-black tracking-tighter text-white uppercase italic">Dreamcatchers</span>
-            </div>
-          </div>
-          <div className="flex flex-col items-center md:items-end gap-6">
-            <div className="flex gap-8 md:gap-10">
-              {[
-                { name: 'Instagram', icon: <Instagram size={18} />, color: 'hover:text-[#E4405F]' },
-                { name: 'Facebook', icon: <Facebook size={18} />, color: 'hover:text-[#1877F2]' },
-                { name: 'Youtube', icon: <Youtube size={18} />, color: 'hover:text-[#FF0000]' },
-                { name: 'Twitter', icon: <Twitter size={18} />, color: 'hover:text-[#1DA1F2]' }
-              ].map(social => (
-                <a 
-                  key={social.name} 
-                  href="#" 
-                  className={`text-white/40 transition-all duration-300 hover:scale-125 ${social.color}`}
-                  title={social.name}
-                >
-                  {social.icon}
-                </a>
-              ))}
-            </div>
-            <p className="text-white/10 text-[10px] font-bold uppercase tracking-widest">© 2026 Dreamcatchers Production.</p>
-          </div>
-        </div>
-      </footer>
+       </main>
+      <InteractiveOptions />
+      <Footer />
     </div>
   );
 };

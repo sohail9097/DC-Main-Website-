@@ -79,10 +79,17 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     } catch (err: any) {
       console.error("Google Auth failed:", err);
       let errMsg = err.message || "Sign in failed";
-      if (errMsg.includes("auth/unauthorized-domain") || errMsg.includes("unauthorized-client")) {
+      
+      const isDomainErr = errMsg.includes("auth/unauthorized-domain") || errMsg.includes("unauthorized-client");
+      const isPopupErr = errMsg.includes("cross-origin-opener-policy") || errMsg.includes("iframe");
+      const isNetworkErr = errMsg.includes("network-request-failed") || errMsg.includes("auth/network-request-failed");
+      
+      if (isDomainErr) {
         errMsg = "Domain not authorized. Please use the Passcode bypass option below!";
-      } else if (errMsg.includes("cross-origin-opener-policy") || errMsg.includes("iframe")) {
+      } else if (isPopupErr) {
         errMsg = "Third-party popup blocked by your browser. Please use the Passcode bypass tab!";
+      } else if (isNetworkErr) {
+        errMsg = "Google login blocked by browser iframe boundaries. Please use the Admin Passcode tab with code DC@9097 to enter instantly!";
       }
       setGoogleError(errMsg);
     }
@@ -217,9 +224,21 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
                     </p>
 
                     {googleError && (
-                      <div className="p-4 bg-red-950/20 border border-red-500/20 rounded-2xl flex gap-3 text-red-500 text-xs">
-                        <AlertCircle size={16} className="shrink-0 mt-0.5" />
-                        <span className="leading-relaxed font-medium">{googleError}</span>
+                      <div className="space-y-3">
+                        <div className="p-4 bg-red-950/20 border border-red-500/20 rounded-2xl flex gap-3 text-red-500 text-xs">
+                          <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                          <span className="leading-relaxed font-medium">{googleError}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveTab('passcode');
+                            setGoogleError('');
+                          }}
+                          className="w-full text-center py-1.5 px-3 border border-orange-500/20 bg-orange-500/5 hover:bg-orange-500/10 text-orange-400 hover:text-orange-300 rounded-xl text-[10px] font-bold transition-all font-mono uppercase tracking-wider cursor-pointer"
+                        >
+                          ⚡ Switch to Admin Passcode Bypass
+                        </button>
                       </div>
                     )}
 

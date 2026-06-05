@@ -1,7 +1,8 @@
 import { motion, useScroll, useTransform } from 'motion/react';
 import { Shield, Sparkles, Building2, Landmark, Clapperboard, ExternalLink, ArrowRight, Plus } from 'lucide-react';
 import React, { useState, useEffect, FC } from 'react';
-import { Navbar, transformGoogleDriveUrl } from '../App';
+import { useNavigate } from 'react-router-dom';
+import { Navbar, transformGoogleDriveUrl, Footer, InteractiveOptions } from '../App';
 
 const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
   const [stars, setStars] = useState<{ id: number; left: string; top: string; size: number; duration: number; delay: number; driftX: number; driftY: number }[]>([]);
@@ -867,6 +868,7 @@ const CATEGORIES = [
 ];
 
 export default function BrandPage() {
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [brands, setBrands] = useState<BrandItem[]>([]);
@@ -1067,7 +1069,7 @@ export default function BrandPage() {
             </p>
           </div>
           <button 
-            onClick={() => window.location.href = '/contact'}
+            onClick={() => navigate('/contact')}
             className="group flex items-center gap-6 px-8 md:px-12 py-4 md:py-6 bg-white text-black font-black uppercase tracking-[0.2em] text-[10px] md:text-xs rounded-full transition-all shadow-xl hover:bg-orange-500 hover:shadow-orange-500/20 shrink-0 self-start md:self-auto"
           >
             COLLABORATE WITH US
@@ -1076,6 +1078,8 @@ export default function BrandPage() {
         </div>
 
       </div>
+      <InteractiveOptions />
+      <Footer />
     </div>
   );
 }

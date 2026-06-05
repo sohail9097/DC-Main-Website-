@@ -1,52 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel+Decorative:wght@700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&family=Space+Grotesk:wght@700&family=Syne:wght@800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
-@import url('https://fonts.cdnfonts.com/css/albertus-mt');
-@import url('https://db.onlinewebfonts.com/c/20e36b856b3b246a4e32cf9ffdcbf144?family=Albertus');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
-/* -----------------------------------------------------
- * Custom @font-face declarations for Geograph
- * ----------------------------------------------------- */
-@font-face {
-  font-family: 'Geograph';
-  src: local('Geograph'), local('Geograph Regular'), local('Geograph-Regular'), local('Geograph Web'), local('GeographWeb');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Geograph';
-  src: local('Geograph Italic'), local('Geograph-Italic');
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Geograph';
-  src: local('Geograph Medium'), local('Geograph-Medium');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Geograph';
-  src: local('Geograph Bold'), local('Geograph-Bold');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
 @theme {
-  --font-sans: "Geograph", "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-bebas: "Bebas Neue", "Geograph", "Plus Jakarta Sans", sans-serif;
-  --font-syne: "Syne", "Geograph", "Plus Jakarta Sans", sans-serif;
-  --font-courier: "Courier Prime", "Geograph", "Plus Jakarta Sans", monospace;
-  --font-playfair: "Playfair Display", "Geograph", "Plus Jakarta Sans", serif;
-  --font-cinzel: "Cinzel Decorative", "Geograph", "Plus Jakarta Sans", serif;
-  --font-space: "Space Grotesk", "Geograph", "Plus Jakarta Sans", sans-serif;
-  --font-albertus: "Albertus MT", "Albertus", "Cinzel Decorative", serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
 html {
@@ -54,67 +10,60 @@ html {
 }
 
 body {
-  font-family: "Geograph", "Plus Jakarta Sans", "Inter", sans-serif;
   @apply bg-black text-white;
   -webkit-font-smoothing: antialiased;
-}
-
-@keyframes floatGentle {
-  0%, 100% { transform: translateY(0) rotate(-1deg) translateZ(0); }
-  50% { transform: translateY(-5px) rotate(1deg) translateZ(0); }
-}
-
-@keyframes scaleGentle {
-  0%, 100% { transform: scale(1) rotate(1deg) translateZ(0); }
-  50% { transform: scale(1.03) rotate(-1deg) translateZ(0); }
-}
-
-@keyframes spinSlow {
-  0% { transform: rotate(0deg) translateZ(0); }
-  100% { transform: rotate(360deg) translateZ(0); }
-}
-
-@keyframes skewGentle {
-  0%, 100% { transform: translateX(-3px) skewX(-12deg) translateZ(0); }
-  50% { transform: translateX(3px) skewX(-12deg) translateZ(0); }
-}
-
-@keyframes pulseGlow {
-  0%, 100% { opacity: 0.93; transform: scale(1) translateZ(0); }
-  50% { opacity: 1; transform: scale(1.02) translateZ(0); }
-}
-
-.animate-float-gentle {
-  animation: floatGentle 4.5s ease-in-out infinite;
-  will-change: transform;
-  transform: translateZ(0);
-}
-
-.animate-scale-gentle {
-  animation: scaleGentle 5s ease-in-out infinite;
-  will-change: transform;
-  transform: translateZ(0);
-}
-
-.animate-spin-slow {
-  animation: spinSlow 25s linear infinite;
-  will-change: transform;
-  transform: translateZ(0);
-}
-
-.animate-skew-gentle {
-  animation: skewGentle 4s ease-in-out infinite;
-  will-change: transform;
-  transform: translateZ(0);
-}
-
-.animate-pulse-glow {
-  animation: pulseGlow 3.2s ease-in-out infinite;
-  will-change: transform;
-  transform: translateZ(0);
 }
 
 ::selection {
   background: white;
   color: black;
+}
+
+/* Custom CSS Keyframe Animations */
+@keyframes spin-slow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes spin-reverse-slow {
+  0% { transform: rotate(360deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-7px); }
+}
+
+@keyframes scale-gentle {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.025); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(249, 115, 22, 0.1)); }
+  50% { filter: drop-shadow(0 0 25px rgba(249, 115, 22, 0.35)); }
+}
+
+/* Animation classes */
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+  transform-origin: center;
+}
+
+.animate-spin-reverse-slow {
+  animation: spin-reverse-slow 25s linear infinite;
+  transform-origin: center;
+}
+
+.animate-float-gentle {
+  animation: float-gentle 6s ease-in-out infinite;
+}
+
+.animate-scale-gentle {
+  animation: scale-gentle 8s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 4s ease-in-out infinite;
 }

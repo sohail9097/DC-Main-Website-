@@ -622,7 +622,7 @@ function Clients() {
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="font-albertus text-4xl md:text-7xl font-extrabold tracking-[0.02em] text-orange-500 uppercase italic mb-2 select-none"
+            className="font-bebas text-4xl md:text-7xl font-black italic tracking-[0.02em] text-orange-500 uppercase mb-2 select-none"
           >
             Our Clients
           </motion.h3>
@@ -816,9 +816,9 @@ function DreamTeam() {
     if (teamMembers.length === 0) return;
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev - 1 + teamMembers.length) % teamMembers.length);
-    }, 5000); // Slightly slower for better readability
+    }, 1500); // Ultra-fast auto-switch (1.5 seconds)
     return () => clearInterval(timer);
-  }, [teamMembers]);
+  }, [teamMembers, currentIndex]);
 
   if (teamMembers.length === 0) {
     return (
@@ -845,9 +845,9 @@ function DreamTeam() {
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="font-albertus text-4xl md:text-7xl font-extrabold italic tracking-[0.02em] text-white uppercase leading-none select-none"
+            className="font-bebas text-4xl md:text-7xl font-black italic tracking-[0.02em] text-orange-500 uppercase leading-none select-none"
           >
-            Dream <span className="text-orange-500">Team</span>
+            Dream Team
           </motion.h3>
         </div>        {/* Sliding Carousel */}
         <div className="relative h-[550px] md:h-[700px] flex items-center justify-center">
@@ -886,9 +886,9 @@ function DreamTeam() {
 
                   const carouselTransition = {
                     type: 'spring',
-                    stiffness: 300,
-                    damping: 26,
-                    mass: 0.55
+                    stiffness: 650,
+                    damping: 34,
+                    mass: 0.25
                   };
 
                   return (
@@ -1027,7 +1027,7 @@ const HOME_CATEGORIES = [
   {
     name: "Branded Content",
     desc: "Premium commercial campaigns & brand stories",
-    img: "https://images.unsplash.com/photo-1542204172-3c3066385d0d?auto=format&fit=crop&q=80&w=800",
+    img: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=800",
     glow: "rgba(249, 115, 22, 0.4)"
   },
   {
@@ -1051,7 +1051,7 @@ const HOME_CATEGORIES = [
   {
     name: "Sports",
     desc: "Adrenaline-fueled athletic motion & dynamics",
-    img: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80&w=800",
+    img: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&q=80&w=800",
     glow: "rgba(245, 158, 11, 0.4)"
   },
   {
@@ -1111,7 +1111,7 @@ function Portfolio() {
                 initial={{ x: -25, opacity: 0 }}
                 whileInView={{ x: 0, opacity: 1 }}
                 transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                className="font-albertus text-4xl md:text-7xl font-extrabold text-orange-500 tracking-[0.02em] uppercase italic leading-none drop-shadow-[0_0_60px_rgba(249,115,22,0.2)] pointer-events-none select-none"
+                className="font-bebas text-4xl md:text-7xl font-black italic text-orange-500 tracking-[0.02em] uppercase leading-none drop-shadow-[0_0_60px_rgba(249,115,22,0.2)] pointer-events-none select-none"
               >
                 {title}
               </motion.h3>
@@ -1143,12 +1143,16 @@ function Portfolio() {
               key={category.name}
               initial={{ opacity: 0, scale: 0.8, y: 50 }}
               whileInView={{ opacity: 1, scale: 1, y: 0 }}
+              whileHover={{ 
+                y: -6,
+                transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] }
+              }}
               transition={{ 
                 duration: 1.2, 
                 delay: idx * 0.08,
                 ease: [0.16, 1, 0.3, 1]
               }}
-              viewport={{ once: true }}
+              viewport={{ once: false, amount: 0.15 }}
               onClick={() => {
                 const sectionId = category.name.toLowerCase().replace(/\s+/g, '-');
                 navigate(`/films#${sectionId}`);
@@ -1157,7 +1161,7 @@ function Portfolio() {
             >
               {/* Giant Outer Orbit Ring - Animating with GPU-accelerated CSS floats */}
               <div 
-                className={`relative w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 rounded-full flex items-center justify-center ${
+                className={`relative w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 rounded-full flex items-center justify-center transition-transform duration-500 group-hover:scale-[1.03] ${
                   idx === 0 ? 'animate-float-gentle' : idx === 1 ? 'animate-scale-gentle' : 'animate-pulse-glow'
                 }`}
               >
@@ -1210,41 +1214,67 @@ function Portfolio() {
                     cy="50" 
                     r="47" 
                     fill="transparent" 
-                    stroke="url(#orangeGlow)" 
+                    stroke="#f97316" 
+                    strokeOpacity="0.95"
                     strokeWidth="1.5"
                     strokeDasharray="30 15 10 5"
                   />
                 </svg>
 
+                {/* Inner Counter-Rotating Aperture Ring */}
+                <svg className="absolute inset-2 w-[calc(100%-1rem)] h-[calc(100%-1rem)] pointer-events-none animate-spin-reverse-slow" viewBox="0 0 100 100">
+                  <circle 
+                    cx="50" 
+                    cy="50" 
+                    r="45" 
+                    fill="transparent" 
+                    stroke="rgba(249,115,22,0.12)" 
+                    strokeWidth="1"
+                    strokeDasharray="15 20 8 12"
+                    className="group-hover:stroke-orange-500/40 transition-colors duration-500"
+                  />
+                </svg>
+
                 {/* Outer spinning dash border on hover */}
-                <div className="absolute inset-2 rounded-full border-2 border-dashed border-orange-500/0 group-hover:border-orange-500/40 group-hover:rotate-180 transition-all duration-[2000ms] pointer-events-none" />
+                <div className="absolute inset-2 rounded-full border border-dashed border-orange-500/0 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-40 group-hover:border-orange-500 group-hover:rotate-[120deg] transition-all duration-[1200ms] ease-out pointer-events-none" />
 
                 {/* Colored glowing halo behind the frame */}
                 <div 
-                  className="absolute inset-4 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" 
+                  className="absolute inset-4 rounded-full blur-2xl opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-110 transition-all duration-700 pointer-events-none" 
                   style={{ backgroundColor: category.glow }}
                 />
 
                 {/* Inner continuous frame outline */}
-                <div className="absolute inset-3 rounded-full border border-white/5 group-hover:border-orange-500/25 transition-all duration-500 pointer-events-none" />
+                <div className="absolute inset-3 rounded-full border border-white/5 group-hover:border-orange-500/35 transition-all duration-500 pointer-events-none" />
 
                 {/* Centered Circle Mask for category artwork */}
-                <div className="absolute inset-[15px] rounded-full overflow-hidden border-[4px] border-black group-hover:border-orange-500 transition-all duration-500 z-10 shadow-2xl">
+                <div className="absolute inset-[15px] rounded-full overflow-hidden border-[4px] border-black group-hover:border-orange-500 group-hover:shadow-[0_0_35px_rgba(249,115,22,0.35)] transition-all duration-500 z-10 shadow-2xl bg-zinc-950">
                   <img 
                     src={category.img} 
-                    alt={category.name} 
-                    className="w-full h-full object-cover grayscale brightness-[0.7] group-hover:grayscale-0 group-hover:scale-110 group-hover:brightness-100 transition-all duration-700 ease-out" 
+                    alt="" 
+                    className="w-full h-full object-cover grayscale brightness-[0.65] group-hover:grayscale-0 group-hover:scale-110 group-hover:brightness-100 transition-all duration-700 ease-out" 
+                    referrerPolicy="no-referrer"
                   />
                   {/* Atmospheric dark radial vignette */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/30 group-hover:from-black/70 group-hover:via-black/20 group-hover:to-transparent transition-all duration-500" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/30 group-hover:from-black/75 group-hover:via-black/25 group-hover:to-transparent transition-all duration-500" />
 
                   {/* Category name inside frame */}
-                  <div className="absolute inset-0 flex items-center justify-center p-4 bg-black/30 group-hover:bg-black/10 transition-all duration-500">
-                    <h4 className="text-base sm:text-lg md:text-xl font-black italic tracking-tighter text-white uppercase text-center drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] group-hover:text-orange-500 group-hover:scale-105 transition-all duration-500 font-sans pointer-events-none select-none">
+                  <div className="absolute inset-0 flex items-center justify-center p-4 bg-black/40 group-hover:bg-black/15 transition-all duration-500">
+                    <h4 className="text-base sm:text-lg md:text-xl font-black italic tracking-tighter text-white uppercase text-center drop-shadow-[0_4px_10px_rgba(0,0,0,0.95)] group-hover:text-orange-500 group-hover:scale-105 transition-all duration-500 font-sans pointer-events-none select-none">
                       {category.name}
                     </h4>
                   </div>
                 </div>
+              </div>
+
+              {/* Enhanced sliding description below category circle */}
+              <div className="mt-5 flex flex-col items-center gap-1.5 max-w-[280px] mx-auto pointer-events-none select-none">
+                <span className="text-[10px] md:text-[11px] font-mono font-black tracking-[0.35em] text-orange-500/40 uppercase transition-all duration-300 group-hover:text-orange-500 group-hover:tracking-[0.5em]">
+                  EXPLORE CRAFT
+                </span>
+                <p className="text-white/30 text-[10px] md:text-[11px] font-sans font-medium leading-relaxed max-w-[210px] mx-auto opacity-0 translate-y-2 scale-95 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:text-white/70">
+                  {category.desc}
+                </p>
               </div>
             </motion.div>
           ))}
@@ -1378,7 +1408,7 @@ function Portfolio() {
   );
 }
 
-function InteractiveOptions() {
+export function InteractiveOptions() {
   const navigate = useNavigate();
   const options = [
     { name: 'CONTENT', to: '/films' },
@@ -1454,7 +1484,7 @@ function InteractiveOptions() {
   );
 }
 
-function Footer() {
+export function Footer() {
   const { user, isAdmin, login, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -1656,15 +1686,145 @@ function Intro() {
     return paragraphFrames.find(f => f.id === id) || DEFAULT_PARAGRAPH_FRAMES.find(f => f.id === id)!;
   };
 
-  const lineVariants = {
-    hidden: { y: "150%", rotate: 2, opacity: 0 },
+  const renderMiniBadge = (frameId: string, defaultImg: string) => {
+    const frame = getFrame(frameId);
+    const mediaUrl = frame?.url ? frame.url : defaultImg;
+    const isVid = frame?.type === 'video';
+    
+    return (
+      <div className="w-[1.8rem] h-[1.1rem] sm:w-[2.4rem] sm:h-[1.4rem] md:w-[3.0rem] md:h-[1.7rem] lg:w-[3.6rem] lg:h-[2.1rem] xl:w-[4.0rem] xl:h-[2.3rem] rounded-full overflow-hidden border border-white/20 bg-neutral-900 shadow-md relative group shrink-0 inline-block align-middle mx-1 sm:mx-1.5 transition-all duration-500 hover:scale-110 hover:border-orange-500/50">
+        {isVid ? (
+          isEmbedUrl(mediaUrl) ? (
+            <iframe 
+              src={getEmbedUrl(mediaUrl, true)} 
+              className="absolute inset-[0%] w-full h-full pointer-events-none scale-105 border-0 rounded-full"
+              allow="autoplay"
+              style={{ pointerEvents: 'none' }}
+            />
+          ) : (
+            <video 
+              src={transformGoogleDriveUrl(mediaUrl, 'video')} 
+              className="w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-500" 
+              autoPlay 
+              loop 
+              muted 
+              playsInline 
+            />
+          )
+        ) : (
+          <img 
+            src={transformGoogleDriveUrl(mediaUrl, 'image')} 
+            className="w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-500" 
+            alt="" 
+            referrerPolicy="no-referrer"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+      </div>
+    );
+  };
+
+  const renderEarthBadge = () => {
+    const frame = getFrame('frame4');
+    const defaultEarthUrl = "https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?auto=format&fit=crop&q=80&w=400";
+    const url = frame?.url && !frame.url.includes('1478720568477') 
+      ? frame.url 
+      : defaultEarthUrl;
+    const isVid = frame?.type === 'video' && !frame.url.includes('1478720568477');
+
+    return (
+      <motion.div 
+        whileHover={{ scale: 1.08, rotate: 1 }}
+        className="inline-block shrink-0 align-middle mx-2 sm:mx-3 my-1"
+      >
+        <div className="w-[3.6rem] h-[2.3rem] sm:w-[5.2rem] sm:h-[3.3rem] md:w-[6.8rem] md:h-[4.4rem] lg:w-[8.2rem] lg:h-[5.1rem] rounded-full overflow-hidden border border-white/20 bg-neutral-900 shadow-[0_4px_25px_rgba(0,0,0,0.8)] relative group">
+          {isVid ? (
+            isEmbedUrl(url) ? (
+              <iframe 
+                src={getEmbedUrl(url, true)} 
+                className="absolute inset-0 w-full h-full pointer-events-none scale-105 border-0 rounded-full"
+                allow="autoplay"
+                style={{ pointerEvents: 'none' }}
+              />
+            ) : (
+              <video 
+                src={transformGoogleDriveUrl(url, 'video')} 
+                className="w-full h-full object-cover brightness-110 group-hover:scale-110 transition-transform duration-700" 
+                autoPlay 
+                loop 
+                muted 
+                playsInline 
+              />
+            )
+          ) : (
+            <img 
+              src={transformGoogleDriveUrl(url, 'image')} 
+              className="w-full h-full object-cover brightness-110 group-hover:scale-110 transition-transform duration-700" 
+              alt="Earth" 
+              referrerPolicy="no-referrer"
+            />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 to-transparent pointer-events-none" />
+        </div>
+      </motion.div>
+    );
+  };
+
+  const line1Variants = {
+    hidden: { x: 120, opacity: 0 },
     visible: {
-      y: 0,
-      rotate: 0,
+      x: 0,
       opacity: 1,
       transition: { 
-        duration: 1.2, 
-        ease: [0.16, 1, 0.3, 1]
+        type: "spring",
+        stiffness: 90,
+        damping: 15,
+        duration: 1.1
+      }
+    }
+  };
+
+  const line2Variants = {
+    hidden: { x: -120, opacity: 0 },
+    visible: {
+      x: 0,
+      opacity: 1,
+      transition: { 
+        type: "spring",
+        stiffness: 90,
+        damping: 15,
+        duration: 1.1
+      }
+    }
+  };
+
+  const line3Variants = {
+    hidden: { x: 120, opacity: 0 },
+    visible: {
+      x: 0,
+      opacity: 1,
+      transition: { 
+        type: "spring",
+        stiffness: 90,
+        damping: 15,
+        duration: 1.1
+      }
+    }
+  };
+
+  const badgeRowVariants = {
+    hidden: { scale: 0.5, opacity: 0, y: 15 },
+    visible: {
+      scale: 1,
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 95,
+        damping: 14,
+        delay: 0.35,
+        staggerChildren: 0.08,
+        delayChildren: 0.45
       }
     }
   };
@@ -1705,6 +1865,21 @@ function Intro() {
     }
   };
 
+  const buttonVariants = {
+    hidden: { opacity: 0, scale: 0.6, rotate: -40 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      rotate: 0,
+      transition: {
+        type: "spring",
+        stiffness: 80,
+        damping: 14,
+        delay: 0.5
+      }
+    }
+  };
+
   return (
     <section className="pt-12 md:pt-24 pb-0 md:pb-0 overflow-hidden">
       <div className="w-full px-6 md:px-12 lg:px-16 xl:px-20 max-w-[1800px] mx-auto">
@@ -1713,392 +1888,131 @@ function Intro() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: false, margin: "-100px" }}
-          className="w-full pb-16 md:pb-24 font-sans select-none"
+          className="w-full pb-16 md:pb-24 flex flex-col md:flex-row items-start justify-between gap-12 font-sans select-none"
         >
-          {/* Three Paragraphs Layout - Styled elegantly with uppercase, italic, slightly smaller but heroic typography */}
-          <div className="w-full space-y-12 md:space-y-16">
-            {/* Paragraph 1 - Left Aligned */}
+          {/* Left Text Block */}
+          <motion.div className="w-full md:max-w-5xl text-left">
+            <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-[2.8rem] xl:text-[3.6rem] font-black italic tracking-tighter leading-[1.05] uppercase font-sans text-white overflow-hidden">
+              {/* Line 1 */}
+              <motion.div className="overflow-hidden mb-2">
+                <motion.span 
+                  variants={line1Variants}
+                  whileHover={{ scale: 1.015, x: 8, textShadow: "0 0 20px rgba(255,255,255,0.1)" }}
+                  transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                  className="block text-white/95 origin-left cursor-default hover:text-orange-500 transition-colors duration-300"
+                >
+                  DREAMCATCHERS IS A
+                </motion.span>
+              </motion.div>
+              
+              {/* Line 2 with inline oval earth image */}
+              <motion.div className="overflow-hidden mb-2">
+                <motion.div 
+                  variants={line2Variants}
+                  className="flex flex-wrap items-center gap-x-3 gap-y-2 origin-left cursor-default"
+                >
+                  {renderEarthBadge()}
+                  <motion.span 
+                    whileHover={{ scale: 1.015, x: 8 }}
+                    transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                    className="text-white/95 inline-block align-middle hover:text-orange-500 transition-colors duration-300"
+                  >
+                    CREATIVE STUDIO THAT
+                  </motion.span>
+                </motion.div>
+              </motion.div>
+              
+              {/* Line 3 */}
+              <motion.div className="overflow-hidden">
+                <motion.span 
+                  variants={line3Variants}
+                  whileHover={{ scale: 1.015, x: 8 }}
+                  transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                  className="block text-white/95 leading-none origin-left cursor-default hover:text-orange-500 transition-colors duration-300"
+                >
+                  HELPS BRANDS WITH
+                </motion.span>
+              </motion.div>
+            </h1>
+
+            {/* Badge tags row */}
             <motion.div 
-              initial="hidden"
-              whileInView="visible"
-              whileHover={{ scale: 1.01, y: -2 }}
-              viewport={{ once: false, amount: 0.15 }}
-              className="w-full max-w-5xl text-left origin-left cursor-default p-4 rounded-xl transition-colors duration-300 hover:bg-white/[0.01]"
-              variants={{
-                hidden: { opacity: 0, x: 200 },
-                visible: {
-                  opacity: 1,
-                  x: 0,
-                  transition: {
-                    type: "spring",
-                    stiffness: 45,
-                    damping: 15,
-                    staggerChildren: 0.12,
-                    delayChildren: 0.05
-                  }
-                }
-              }}
+              variants={badgeRowVariants}
+              className="mt-6 md:mt-8 flex flex-wrap md:flex-nowrap items-center gap-x-2 sm:gap-x-2.5 gap-y-2.5 text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-lg font-black italic tracking-wide uppercase font-sans text-white md:whitespace-nowrap origin-left"
             >
-              <h2 className="tracking-tighter uppercase leading-[1.3] flex flex-wrap items-center gap-y-3 overflow-hidden">
-                <motion.span 
-                  variants={{
-                    hidden: { y: 60, opacity: 0 },
-                    visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } }
-                  }}
-                  className="font-sans text-orange-500 text-xl sm:text-2xl md:text-[2.0rem] lg:text-[2.4rem] font-bold tracking-wider inline-block align-middle mr-2"
-                >
-                  DREAMCATCHERS FILMS PVT. LTD.
-                </motion.span>
-                
-                {/* Frame 1: Vertical Portrait Film Negative Gel Slide */}
-                <motion.span 
-                  variants={{
-                    hidden: { y: 60, opacity: 0, scale: 0.8 },
-                    visible: { y: 0, opacity: 1, scale: 1, transition: { duration: 0.8, ease: "easeOut" } }
-                  }}
-                  whileHover={{ scale: 1.15, rotate: 3, zIndex: 10, boxShadow: "0 0 20px rgba(249,115,22,0.4)" }}
-                  className="inline-block mx-2 align-middle shrink-0 cursor-pointer"
-                >
-                  <div className="w-[3rem] h-[4rem] sm:w-[4.2rem] sm:h-[5.5rem] md:w-[5.2rem] md:h-[6.8rem] rounded-md overflow-hidden border-2 border-white/20 bg-neutral-950 shadow-[0_4px_15px_rgba(0,0,0,0.6)] relative group animate-float-gentle">
-                    {getFrame('frame1').type === 'video' ? (
-                      isEmbedUrl(getFrame('frame1').url) ? (
-                        <iframe 
-                          src={getEmbedUrl(getFrame('frame1').url, true)} 
-                          className="absolute inset-x-[-100%] inset-y-0 w-[300%] h-full pointer-events-none scale-105 border-0"
-                          allow="autoplay"
-                          style={{ pointerEvents: 'none' }}
-                        />
-                      ) : (
-                        <video 
-                          src={transformGoogleDriveUrl(getFrame('frame1').url, 'video')} 
-                          className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-500 scale-105 group-hover:scale-100" 
-                          autoPlay 
-                          loop 
-                          muted 
-                          playsInline 
-                        />
-                      )
-                    ) : (
-                      <img 
-                        src={transformGoogleDriveUrl(getFrame('frame1').url, 'image')} 
-                        className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500 scale-105 group-hover:scale-100" 
-                        alt="" 
-                        referrerPolicy="no-referrer" 
-                      />
-                    )}
-                    <div className="absolute inset-x-0 top-1 flex justify-between px-1 opacity-50 text-[5px] font-mono text-white pointer-events-none">
-                      <span>▲</span><span>KODAK</span>
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-orange-500/10 to-transparent pointer-events-none" />
-                  </div>
-                </motion.span>
+              {/* ADVERTISING */}
+              <motion.span 
+                variants={itemVariants}
+                whileHover={{ scale: 1.03 }}
+                className="flex items-center gap-x-2 shrink-0 cursor-default"
+              >
+                {renderMiniBadge('frame2', 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=240')}
+                <span className="text-white/90 hover:text-orange-500 transition-colors duration-200">ADVERTISING,</span>
+              </motion.span>
 
-                <motion.span 
-                  variants={{
-                    hidden: { y: 60, opacity: 0 },
-                    visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } }
-                  }}
-                  className="font-sans italic uppercase font-bold text-white/50 text-base sm:text-xl md:text-[1.3rem] lg:text-[1.5rem] leading-snug align-middle mx-1"
-                >
-                  IS AN AWARD-WINNING
-                </motion.span>
+              {/* FILMS */}
+              <motion.span 
+                variants={itemVariants}
+                whileHover={{ scale: 1.03 }}
+                className="flex items-center gap-x-2 shrink-0 cursor-default"
+              >
+                {renderMiniBadge('frame5', 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=240')}
+                <span className="text-white/90 hover:text-orange-500 transition-colors duration-200">FILMS,</span>
+              </motion.span>
 
-                {/* Frame 2: Panoramic 2.39:1 Anamorphic Widescreen Strip */}
-                <motion.span 
-                  variants={{
-                    hidden: { y: 60, opacity: 0, scale: 0.8 },
-                    visible: { y: 0, opacity: 1, scale: 1, transition: { duration: 0.8, ease: "easeOut" } }
-                  }}
-                  whileHover={{ scale: 1.15, rotate: -2, zIndex: 10, boxShadow: "0 0 25px rgba(249,115,22,0.25)" }}
-                  className="inline-block mx-2 align-middle shrink-0 cursor-pointer"
-                >
-                  <div className="w-[4.5rem] h-[1.9rem] sm:w-[6.4rem] sm:h-[2.7rem] md:w-[8.2rem] md:h-[3.5rem] rounded-sm overflow-hidden border-y-2 border-orange-500/50 bg-neutral-900 shadow-[0_4px_15px_rgba(0,0,0,0.6)] relative group animate-scale-gentle">
-                    {getFrame('frame2').type === 'video' ? (
-                      isEmbedUrl(getFrame('frame2').url) ? (
-                        <iframe 
-                          src={getEmbedUrl(getFrame('frame2').url, true)} 
-                          className="absolute inset-0 w-full h-full pointer-events-none scale-105 border-0"
-                          allow="autoplay"
-                          style={{ pointerEvents: 'none' }}
-                        />
-                      ) : (
-                        <video 
-                          src={transformGoogleDriveUrl(getFrame('frame2').url, 'video')} 
-                          className="w-full h-full object-cover contrast-125 brightness-90 group-hover:brightness-100 group-hover:scale-110 transition-all duration-750" 
-                          autoPlay 
-                          loop 
-                          muted 
-                          playsInline 
-                        />
-                      )
-                    ) : (
-                      <img 
-                        src={transformGoogleDriveUrl(getFrame('frame2').url, 'image')} 
-                        className="w-full h-full object-cover contrast-125 brightness-90 group-hover:brightness-100 group-hover:scale-110 transition-all duration-750" 
-                        alt="" 
-                        referrerPolicy="no-referrer" 
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-orange-500/10 mix-blend-color group-hover:opacity-0 transition-opacity duration-300" />
-                    <div className="absolute inset-x-0 bottom-0.5 flex justify-center text-[4px] font-mono text-orange-400 opacity-60 pointer-events-none">
-                      2.39:1 CINEMASCOPE
-                    </div>
-                  </div>
-                </motion.span>
+              {/* EVENTS */}
+              <motion.span 
+                variants={itemVariants}
+                whileHover={{ scale: 1.03 }}
+                className="flex items-center gap-x-2 shrink-0 cursor-default"
+              >
+                {renderMiniBadge('frame6', 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=240')}
+                <span className="text-white/90 hover:text-orange-500 transition-colors duration-200">EVENTS,</span>
+              </motion.span>
 
-                <motion.span 
-                  variants={{
-                    hidden: { y: 60, opacity: 0 },
-                    visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } }
-                  }}
-                  className="font-sans font-black text-white/80 text-lg sm:text-xl md:text-[1.5rem] lg:text-[1.8rem] tracking-tight leading-snug align-middle ml-1"
-                >
-                  CREATIVE AGENCY HEADQUARTERED IN INDIA
-                </motion.span>
-              </h2>
+              {/* AND */}
+              <motion.span variants={itemVariants} className="text-white/40 font-bold mx-1">AND</motion.span>
+
+              {/* DOCUMENTARIES */}
+              <motion.span 
+                variants={itemVariants}
+                whileHover={{ scale: 1.03 }}
+                className="flex items-center gap-x-2 shrink-0 cursor-default"
+              >
+                {renderMiniBadge('frame1', 'https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?auto=format&fit=crop&q=80&w=240')}
+                <span className="text-orange-500 italic underline decoration-orange-500/50 decoration-2 underline-offset-4 cursor-pointer hover:text-orange-400 transition-colors duration-300">DOCUMENTARIES.</span>
+              </motion.span>
             </motion.div>
+          </motion.div>
 
-            {/* Paragraph 2 - Right Aligned (staggered slightly) */}
-            <motion.div 
-              initial="hidden"
-              whileInView="visible"
-              whileHover={{ scale: 1.01, y: -2 }}
-              viewport={{ once: false, amount: 0.15 }}
-              className="w-full flex justify-end origin-right cursor-default p-4 rounded-xl transition-colors duration-300 hover:bg-white/[0.01]"
-              variants={{
-                hidden: { opacity: 0, x: -200 },
-                visible: {
-                  opacity: 1,
-                  x: 0,
-                  transition: {
-                    type: "spring",
-                    stiffness: 45,
-                    damping: 15,
-                    staggerChildren: 0.12,
-                    delayChildren: 0.05
-                  }
-                }
+          {/* Right Navigation Arrow Button */}
+          <div className="flex items-center justify-center pt-6 md:pt-0 md:mt-[3rem] lg:mt-[4rem] xl:mt-[4.5rem] md:-translate-x-12 lg:-translate-x-20 xl:-translate-x-24">
+            <motion.button
+              variants={buttonVariants}
+              onClick={() => {
+                document.getElementById('dc-orbit-section')?.scrollIntoView({ behavior: 'smooth' });
               }}
-            >
-              <div className="w-full max-w-5xl text-right">
-                <h2 className="tracking-tighter uppercase leading-[1.3] flex flex-wrap items-center justify-end gap-y-3 overflow-hidden">
-                  <motion.span 
-                    variants={{
-                      hidden: { y: 60, opacity: 0 },
-                      visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } }
-                    }}
-                    className="font-sans text-white/80 text-sm sm:text-lg md:text-[1.2rem] lg:text-[1.4rem] font-bold leading-snug align-middle mr-1"
-                  >
-                    AGENCY HEADQUARTERED IN INDIA.
-                  </motion.span>
-
-                  <motion.span 
-                    variants={{
-                      hidden: { y: 60, opacity: 0 },
-                      visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } }
-                    }}
-                    className="font-sans italic uppercase font-bold text-white/50 text-sm sm:text-lg md:text-[1.3rem] lg:text-[1.5rem] leading-snug align-middle mx-1"
-                  >
-                    WITH OFFICES IN DELHI, MUMBAI, GOA, AS WELL AS
-                  </motion.span>
-
-                  {/* Frame 4: Circular Camera Lens / Aperture ring */}
-                  <motion.span 
-                    variants={{
-                      hidden: { y: 60, opacity: 0, scale: 0.8 },
-                      visible: { y: 0, opacity: 1, scale: 1, transition: { duration: 0.8, ease: "easeOut" } }
-                    }}
-                    whileHover={{ scale: 1.25, rotate: 15, zIndex: 10 }}
-                    className="inline-block mx-2 align-middle shrink-0 cursor-pointer"
-                  >
-                    <div className="w-[3.2rem] h-[3.2rem] sm:w-[4.4rem] sm:h-[4.4rem] md:w-[5.8rem] md:h-[5.8rem] rounded-full overflow-hidden border-2 border-orange-500/60 p-[3px] bg-neutral-950 shadow-[0_0_20px_rgba(249,115,22,0.3)] relative group animate-spin-slow">
-                      <div className="w-full h-full rounded-full overflow-hidden relative">
-                        {getFrame('frame4').type === 'video' ? (
-                          isEmbedUrl(getFrame('frame4').url) ? (
-                            <iframe 
-                              src={getEmbedUrl(getFrame('frame4').url, true)} 
-                              className="absolute inset-y-0 inset-x-[-20%] w-[140%] h-full pointer-events-none scale-110 border-0 rounded-full"
-                              allow="autoplay"
-                              style={{ pointerEvents: 'none' }}
-                            />
-                          ) : (
-                            <video 
-                              src={transformGoogleDriveUrl(getFrame('frame4').url, 'video')} 
-                              className="w-full h-full object-cover group-hover:scale-125 transition-transform duration-500" 
-                              autoPlay 
-                              loop 
-                              muted 
-                              playsInline 
-                            />
-                          )
-                        ) : (
-                          <img 
-                            src={transformGoogleDriveUrl(getFrame('frame4').url, 'image')} 
-                            className="w-full h-full object-cover group-hover:scale-125 transition-transform duration-500" 
-                            alt="" 
-                            referrerPolicy="no-referrer" 
-                          />
-                        )}
-                        <div className="absolute inset-0 border-[3px] border-black/30 rounded-full" />
-                        <div className="absolute inset-0 bg-radial from-transparent to-black/80 group-hover:to-black/30 transition-all duration-300" />
-                      </div>
-                    </div>
-                  </motion.span>
-
-                  <motion.span 
-                    variants={{
-                      hidden: { y: 60, opacity: 0 },
-                      visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } }
-                    }}
-                    className="font-sans font-black text-orange-500 text-xl sm:text-3xl md:text-[2.2rem] lg:text-[2.6rem] tracking-wider inline-block align-middle ml-1"
-                  >
-                    DUBAI AND NAIROBI.
-                  </motion.span>
-                </h2>
-              </div>
-            </motion.div>
-
-            {/* Paragraph 3 - Left Aligned */}
-            <motion.div 
-              initial="hidden"
-              whileInView="visible"
-              whileHover={{ scale: 1.01, y: -2 }}
-              viewport={{ once: false, amount: 0.15 }}
-              className="w-full max-w-5xl text-left origin-left cursor-default p-4 rounded-xl transition-colors duration-300 hover:bg-white/[0.01]"
-              variants={{
-                hidden: { opacity: 0, x: 200 },
-                visible: {
-                  opacity: 1,
-                  x: 0,
-                  transition: {
-                    type: "spring",
-                    stiffness: 45,
-                    damping: 15,
-                    staggerChildren: 0.12,
-                    delayChildren: 0.05
-                  }
-                }
+              whileHover={{ 
+                scale: 1.05,
+                rotate: 90,
+                borderColor: "rgba(249,115,22,1)", 
+                backgroundColor: "rgba(249,115,22,0.2)",
+                boxShadow: "0 0 50px rgba(249,115,22,0.8), inset 0 0 20px rgba(249,115,22,0.5)"
               }}
+              whileActive={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 120, damping: 15 }}
+              className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full border border-orange-500/40 flex items-center justify-center cursor-pointer relative bg-black/20 group shrink-0 overflow-hidden"
+              title="Next Section"
             >
-              <h2 className="tracking-tighter uppercase leading-[1.3] flex flex-wrap items-center gap-y-3 overflow-hidden">
-                <motion.span 
-                  variants={{
-                    hidden: { y: 60, opacity: 0 },
-                    visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } }
-                  }}
-                  className="font-sans italic uppercase font-bold text-orange-500 text-lg sm:text-2xl md:text-[2.0rem] lg:text-[2.3rem] inline-block align-middle mr-2"
-                >
-                  FOR OVER TWO DECADES,
-                </motion.span>
-
-                {/* Frame 5: Parallelogram Skewed Film Panel */}
-                <motion.span 
-                  variants={{
-                    hidden: { y: 60, opacity: 0, scale: 0.8 },
-                    visible: { y: 0, opacity: 1, scale: 1, transition: { duration: 0.8, ease: "easeOut" } }
-                  }}
-                  whileHover={{ scale: 1.15, skewX: 0, rotate: 2, zIndex: 10, boxShadow: "0 0 20px rgba(255,255,255,0.25)" }}
-                  className="inline-block mx-2 align-middle shrink-0 cursor-pointer"
-                >
-                  <div className="w-[3.5rem] h-[2.2rem] sm:w-[5.2rem] sm:h-[3.2rem] md:w-[6.8rem] md:h-[4.2rem] rounded-md overflow-hidden border border-white/20 bg-neutral-900 shadow-[0_4px_15px_rgba(0,0,0,0.6)] relative group animate-skew-gentle">
-                    <div className="w-full h-full skew-x-[12deg] scale-[1.3] group-hover:scale-[1.1] group-hover:skew-x-0 transition-all duration-500">
-                      {getFrame('frame5').type === 'video' ? (
-                        isEmbedUrl(getFrame('frame5').url) ? (
-                          <iframe 
-                            src={getEmbedUrl(getFrame('frame5').url, true)} 
-                            className="absolute inset-0 w-full h-full pointer-events-none scale-110 border-0"
-                            allow="autoplay"
-                            style={{ pointerEvents: 'none' }}
-                          />
-                        ) : (
-                          <video 
-                            src={transformGoogleDriveUrl(getFrame('frame5').url, 'video')} 
-                            className="w-full h-full object-cover" 
-                            autoPlay 
-                            loop 
-                            muted 
-                            playsInline 
-                          />
-                        )
-                      ) : (
-                        <img 
-                          src={transformGoogleDriveUrl(getFrame('frame5').url, 'image')} 
-                          className="w-full h-full object-cover" 
-                          alt="" 
-                          referrerPolicy="no-referrer" 
-                        />
-                      )}
-                    </div>
-                    <div className="absolute inset-0 bg-neutral-950/20 group-hover:bg-transparent transition-colors duration-300" />
-                  </div>
-                </motion.span>
-
-                <motion.span 
-                  variants={{
-                    hidden: { y: 60, opacity: 0 },
-                    visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } }
-                  }}
-                  className="font-sans font-black text-white/70 text-base sm:text-xl md:text-[1.5rem] lg:text-[1.8rem] tracking-wider leading-snug align-middle mx-1"
-                >
-                  WE HAVE PRODUCED CONTENT ACROSS FORMATS FOR
-                </motion.span>
-
-                {/* Frame 6: Retro Curved TV/CRT Glass Frame */}
-                <motion.span 
-                  variants={{
-                    hidden: { y: 60, opacity: 0, scale: 0.8 },
-                    visible: { y: 0, opacity: 1, scale: 1, transition: { duration: 0.8, ease: "easeOut" } }
-                  }}
-                  whileHover={{ scale: 1.15, rotate: -4, zIndex: 10, boxShadow: "0 0 25px rgba(249,115,22,0.4)" }}
-                  className="inline-block mx-2 align-middle shrink-0 cursor-pointer"
-                >
-                  <div className="w-[3.5rem] h-[2.2rem] sm:w-[5.2rem] sm:h-[3.2rem] md:w-[6.8rem] md:h-[4.2rem] rounded-tl-[1.8rem] rounded-br-[1.8rem] rounded-tr-[0.4rem] rounded-bl-[0.4rem] overflow-hidden border border-white/25 bg-neutral-900 shadow-[0_4px_15px_rgba(0,0,0,0.6)] relative group animate-pulse-glow">
-                    {getFrame('frame6').type === 'video' ? (
-                      isEmbedUrl(getFrame('frame6').url) ? (
-                        <iframe 
-                          src={getEmbedUrl(getFrame('frame6').url, true)} 
-                          className="absolute inset-0 w-full h-full pointer-events-none scale-110 border-0"
-                          allow="autoplay"
-                          style={{ pointerEvents: 'none' }}
-                        />
-                      ) : (
-                        <video 
-                          src={transformGoogleDriveUrl(getFrame('frame6').url, 'video')} 
-                          className="w-full h-full object-cover group-hover:scale-110 group-hover:rotate-1 transition-all duration-500" 
-                          autoPlay 
-                          loop 
-                          muted 
-                          playsInline 
-                        />
-                      )
-                    ) : (
-                      <img 
-                        src={transformGoogleDriveUrl(getFrame('frame6').url, 'image')} 
-                        className="w-full h-full object-cover group-hover:scale-110 group-hover:rotate-1 transition-all duration-500" 
-                        alt="" 
-                        referrerPolicy="no-referrer" 
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-cyan-500/5 mix-blend-overlay" />
-                    <div className="absolute inset-0 border-[3px] border-black/40 rounded-tl-[1.8rem] rounded-br-[1.8rem] rounded-tr-[0.4rem] rounded-bl-[0.4rem]" />
-                  </div>
-                </motion.span>
-
-                <motion.span 
-                  variants={{
-                    hidden: { y: 60, opacity: 0 },
-                    visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } }
-                  }}
-                  className="font-sans text-white/80 text-sm sm:text-lg md:text-[1.3rem] lg:text-[1.5rem] font-bold leading-snug align-middle ml-1"
-                >
-                  LEADING BRANDS AND CHANNEL PARTNERS,
-                </motion.span>
-              </h2>
-            </motion.div>
+              {/* Inner glowing circle */}
+              <div className="absolute inset-2 sm:inset-3 rounded-full border border-orange-500/20 group-hover:border-orange-500/60 transition-all duration-500 bg-orange-500/0 group-hover:bg-orange-500/5 shadow-[inset_0_0_15px_rgba(249,115,22,0)] group-hover:shadow-[inset_0_0_25px_rgba(249,115,22,0.6)]" />
+              
+              <ChevronRight className="w-8 h-8 sm:w-10 sm:h-10 text-orange-500/70 group-hover:text-orange-500 group-hover:scale-110 transition-all duration-500 relative z-10" strokeWidth={1.5} stroke="currentColor" />
+            </motion.button>
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 lg:gap-36 xl:gap-44 items-center pt-16 pb-16 md:pb-24 border-t border-white/5">
+        <div id="dc-orbit-section" className="grid grid-cols-1 lg:grid-cols-2 gap-20 lg:gap-36 xl:gap-44 items-center pt-16 pb-16 md:pb-24 border-t border-white/5">
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -2236,7 +2150,7 @@ function Intro() {
                    hidden: { opacity: 0 },
                    visible: { 
                      opacity: 1,
-                     transition: { staggerChildren: 0.05, delayChildren: 0.2 }
+                     transition: { staggerChildren: 0.08, delayChildren: 0.35 }
                    }
                  }}
                  className="text-xl md:text-3xl lg:text-[2.5rem] text-orange-500 font-extrabold leading-[1.15] tracking-tight uppercase italic flex flex-wrap justify-start text-left gap-y-1 max-w-[620px] md:max-w-[760px] lg:max-w-[900px]"
@@ -2250,7 +2164,7 @@ function Intro() {
                          opacity: 1, 
                          y: 0, 
                          rotateX: 0,
-                         transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
+                         transition: { duration: 1.8, ease: [0.16, 1, 0.3, 1] }
                        }
                      }}
                      whileHover={{ scale: 1.1, color: "#fff", rotate: i % 2 === 0 ? 4 : -4 }}
@@ -2265,7 +2179,7 @@ function Intro() {
              <motion.p 
                variants={{
                  hidden: { opacity: 0, x: -20 },
-                 visible: { opacity: 1, x: 0, transition: { duration: 1, delay: 0.6 } }
+                 visible: { opacity: 1, x: 0, transition: { duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.8 } }
                }}
                className="text-sm sm:text-base md:text-lg text-orange-500/50 leading-relaxed max-w-2xl font-bold border-l-2 border-orange-600/70 pl-6 text-left"
              >
@@ -2609,7 +2523,7 @@ function LandingPage() {
                 </div>
                 <div>
                   <span className="text-orange-500 text-[9px] md:text-[10px] font-black uppercase tracking-[0.4em] mb-4 md:mb-6 block">Our Story</span>
-                  <h3 className="font-albertus text-2xl md:text-6xl font-extrabold text-white tracking-[0.02em] leading-[0.95] mb-6 md:mb-10 uppercase italic">Crafting <br />Legends</h3>
+                  <h3 className="font-bebas text-2xl md:text-6xl font-black italic text-orange-500 tracking-[0.02em] leading-[0.95] mb-6 md:mb-10 uppercase">Crafting <br />Legends</h3>
                   <p className="text-white/50 leading-relaxed mb-8 md:mb-12 text-sm md:text-base font-medium tracking-tight px-4 md:px-0">
                     Dreamcatchers is a new age creative studio specializing in visual storytelling that moves people. We don't just shoot films; we engineer experiences that bridge the gap between imagination and reality.
                   </p>
@@ -3316,7 +3230,7 @@ export function StoryPage() {
           </motion.span>
           
           {/* Blockbuster Cinema Split Title */}
-          <h1 className="font-bebas text-5xl md:text-8xl tracking-wider uppercase leading-none text-white font-bold inline-block">
+          <h1 className="font-bebas text-5xl md:text-8xl tracking-[0.02em] italic uppercase leading-none text-white font-black inline-block">
             {"THE CHRONICLES OF ".split(" ").map((w, idx) => (
               <motion.span
                 key={idx}
@@ -3401,7 +3315,7 @@ export function StoryPage() {
         <div className="max-w-xl mx-auto space-y-6 relative z-10">
           <span className="text-[10px] tracking-[0.6em] font-mono text-orange-500/70 font-extrabold uppercase block">THE CONTINUING PLOT</span>
           
-          <h3 className="font-albertus text-2xl md:text-3xl font-extrabold uppercase tracking-widest">
+          <h3 className="font-bebas text-2xl md:text-3xl font-black italic uppercase tracking-[0.02em] text-orange-500">
             {"LET'S ENVELOPE THE NEXT CHAPTER".split(" ").map((word, i) => (
               <motion.span 
                 key={i}
@@ -3444,6 +3358,8 @@ export function StoryPage() {
           </div>
         </div>
       </footer>
+      <InteractiveOptions />
+      <Footer />
     </div>
   );
 }
