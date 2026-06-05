@@ -1,6 +1,6 @@
 import { motion, AnimatePresence, useScroll, useTransform, useTime } from 'motion/react';
 import { Camera, Play, ChevronLeft, ChevronRight, Menu, X, Rocket, Moon, ShieldCheck, Instagram, Facebook, Youtube, Twitter, ArrowLeft, Sparkles, Globe, Tv, Heart, Compass } from 'lucide-react';
-import { useState, useEffect, useRef, FC } from 'react';
+import { useState, useEffect, useRef, FC, memo } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import AdminPanel from './pages/AdminPanel';
@@ -606,9 +606,14 @@ function Clients() {
 
   if (clients.length === 0) return null;
   
-  // Quadruple the items to make sure it covers even very wide screen widths without gaps
-  const itemsRow1 = [...clients, ...clients, ...clients, ...clients];
-  const itemsRow2 = [...clients.slice().reverse(), ...clients.slice().reverse(), ...clients.slice().reverse(), ...clients.slice().reverse()];
+  // Ensure we have enough items to span across very wide monitors dynamically
+  let baseList = [...clients];
+  while (baseList.length < 15) {
+    baseList = [...baseList, ...clients];
+  }
+
+  const itemsRow1 = [...baseList, ...baseList];
+  const itemsRow2 = [...baseList.slice().reverse(), ...baseList.slice().reverse()];
 
   return (
     <section 
@@ -632,48 +637,65 @@ function Clients() {
         </div>
 
         {/* Scrolling Marquees */}
-        <div className="w-full space-y-6 md:space-y-8">
-          {/* Top Row - Scrolling Left to Right (animate x from -1920 to 0) */}
+        <div className="w-full space-y-6 md:space-y-8 overflow-hidden pointer-events-auto">
+          {/* Top Row - Scrolling Left to Right (CSS Animation scroll-left) */}
           <div className="flex overflow-hidden relative w-full mask-gradient py-4 md:py-6">
-            <motion.div 
-              animate={{ x: [-1920, 0] }}
-              transition={{ 
-                duration: 35, 
-                repeat: Infinity, 
-                ease: "linear" 
-              }}
-              className="flex whitespace-nowrap items-center gap-0 py-1"
-            >
+            <div className="animate-scroll-left">
               {itemsRow1.map((client, i) => (
-                <ClientLogo key={`${client.name}-r1-${i}`} client={client} />
+                <ClientLogo key={`${client.name}-r1-${client.id || i}-${i}`} client={client} />
               ))}
-            </motion.div>
+            </div>
           </div>
 
-          {/* Bottom Row - Scrolling Right to Left (animate x from 0 to -1920) */}
+          {/* Bottom Row - Scrolling Right to Left (CSS Animation scroll-right) */}
           <div className="flex overflow-hidden relative w-full mask-gradient py-4 md:py-6">
-            <motion.div 
-              animate={{ x: [0, -1920] }}
-              transition={{ 
-                duration: 38, 
-                repeat: Infinity, 
-                ease: "linear" 
-              }}
-              className="flex whitespace-nowrap items-center gap-0 py-1"
-            >
+            <div className="animate-scroll-right">
               {itemsRow2.map((client, i) => (
-                <ClientLogo key={`${client.name}-r2-${i}`} client={client} />
+                <ClientLogo key={`${client.name}-r2-${client.id || i}-${i}`} client={client} />
               ))}
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Styled inline mask for smooth fade edges on the marquee views */}
+      {/* Styled inline mask & keyframes for buttery smooth GPU-accelerated performance */}
       <style>{`
         .mask-gradient {
           mask-image: linear-gradient(to right, transparent, white 20%, white 80%, transparent);
           -webkit-mask-image: linear-gradient(to right, transparent, white 20%, white 80%, transparent);
+        }
+        @keyframes scroll-left {
+          0% {
+            transform: translate3d(0, 0, 0);
+          }
+          100% {
+            transform: translate3d(-50%, 0, 0);
+          }
+        }
+        @keyframes scroll-right {
+          0% {
+            transform: translate3d(-50%, 0, 0);
+          }
+          100% {
+            transform: translate3d(0, 0, 0);
+          }
+        }
+        .animate-scroll-left {
+          animation: scroll-left 50s linear infinite;
+          display: flex;
+          width: max-content;
+          will-change: transform;
+        }
+        .animate-scroll-right {
+          animation: scroll-right 50s linear infinite;
+          display: flex;
+          width: max-content;
+          will-change: transform;
+        }
+        /* Pause on hover to allow users to interact/inspect */
+        .animate-scroll-left:hover,
+        .animate-scroll-right:hover {
+          animation-play-state: paused;
         }
       `}</style>
     </section>
@@ -684,9 +706,14 @@ interface ClientLogoProps {
   client: ClientItem;
 }
 
-const ClientLogo: FC<ClientLogoProps> = ({ client }) => {
+const ClientLogo: FC<ClientLogoProps> = memo(({ client }) => {
   const [imgError, setImgError] = useState(false);
   const hasLogoUrl = client.logoUrl && client.logoUrl.trim().length > 0 && !imgError;
+
+  // Reset imgError if the user updates the logoUrl so the new image loads
+  useEffect(() => {
+    setImgError(false);
+  }, [client.logoUrl]);
 
   const size = client.size || 'medium';
   let imgClasses = '';
@@ -725,7 +752,6 @@ const ClientLogo: FC<ClientLogoProps> = ({ client }) => {
     pxClass = 'px-7 md:px-11';
   }
 
-  // Wrapper height is dynamic/flexible (up to h-24 md:h-[155px]) so larger sizes fit seamlessly
   return (
     <div 
       className={`flex items-center justify-center ${pxClass} h-24 md:h-[155px] flex-shrink-0 relative overflow-hidden select-none cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95`}
@@ -749,7 +775,9 @@ const ClientLogo: FC<ClientLogoProps> = ({ client }) => {
       )}
     </div>
   );
-};
+});
+
+ClientLogo.displayName = 'ClientLogo';
 
 export interface ParagraphFrameItem {
   id: string; // 'frame1', 'frame2', 'frame4', 'frame5', 'frame6'
