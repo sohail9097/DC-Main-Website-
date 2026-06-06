@@ -72,6 +72,7 @@ export interface BrandItem {
   logoUrl?: string;
   renderLogo?: () => React.ReactNode;
   description?: string;
+  logoSize?: 'small' | 'medium' | 'large' | 'xlarge';
 }
 
 export const DEFAULT_BRAND_ITEMS: BrandItem[] = [
@@ -1027,9 +1028,14 @@ export default function BrandPage() {
               <div className="absolute inset-0 bg-gradient-to-t from-orange-500/0 to-orange-500/2 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               
               {/* Actual styled vector logo */}
-              <div className="transform scale-[0.9] md:scale-100 group-hover:scale-105 transition-transform duration-500 z-10 w-full h-full flex items-center justify-center">
+              <div className={`transform transition-all duration-500 z-10 w-full h-full flex items-center justify-center ${
+                brand.logoSize === 'small' ? 'scale-[0.7]' :
+                brand.logoSize === 'large' ? 'scale-[1.05]' :
+                brand.logoSize === 'xlarge' ? 'scale-[1.2]' :
+                'scale-[0.88] md:scale-100'
+              } group-hover:scale-[1.06]`}>
                 {brand.logoUrl ? (
-                  <img src={transformGoogleDriveUrl(brand.logoUrl)} alt={brand.name} className="max-w-[85%] max-h-[85%] object-contain p-1" referrerPolicy="no-referrer" />
+                  <img src={transformGoogleDriveUrl(brand.logoUrl)} alt={brand.name} className="max-w-[90%] max-h-[90%] object-contain p-1" referrerPolicy="no-referrer" />
                 ) : (
                   brand.renderLogo ? brand.renderLogo() : (
                     <span className="text-sm font-black text-white/90 uppercase tracking-widest leading-none">{brand.name}</span>

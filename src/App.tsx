@@ -164,7 +164,7 @@ const OrbitingFrame: FC<{ index: number; total: number; item: any }> = ({ index,
           {mediaType === 'video' ? (
             <video
               src={transformedUrl}
-              className="w-full h-full object-cover rounded-full transition-all duration-1000 grayscale-[0.5] group-hover:grayscale-0 group-hover:rotate-6"
+              className="w-full h-full object-cover rounded-full transition-all duration-1000 group-hover:rotate-6"
               autoPlay
               loop
               muted
@@ -174,7 +174,7 @@ const OrbitingFrame: FC<{ index: number; total: number; item: any }> = ({ index,
           ) : (
             <img 
               src={transformedUrl} 
-              className="w-full h-full object-cover rounded-full transition-all duration-1000 grayscale-[0.5] group-hover:grayscale-0 group-hover:rotate-6" 
+              className="w-full h-full object-cover rounded-full transition-all duration-1000 group-hover:rotate-6" 
               alt="Orbiting project" 
               referrerPolicy="no-referrer"
               onError={(e) => {
@@ -819,6 +819,37 @@ export const DEFAULT_PARAGRAPH_FRAMES: ParagraphFrameItem[] = [
   }
 ];
 
+export interface VerticalItem {
+  id: string;
+  label: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  type: 'image' | 'video';
+  url: string;
+}
+
+export const DEFAULT_VERTICALS: VerticalItem[] = [
+  {
+    id: 'sports_box',
+    label: 'Sports Box Vertical',
+    title: 'SPORTS BOX',
+    subtitle: 'SPORTS VERTICAL',
+    description: 'INTERNATIONAL TOURNAMENT ORGANISING & BROADCAST',
+    type: 'video',
+    url: ''
+  },
+  {
+    id: 'dc_digital',
+    label: 'DC Digital Studio Vertical',
+    title: 'DC DIGITAL STUDIO',
+    subtitle: 'DIGITAL VERTICAL',
+    description: 'SHORT FORM, DIGITAL, AI CONTENT',
+    type: 'video',
+    url: ''
+  }
+];
+
 export interface TeamMember {
   id: number;
   name: string;
@@ -1135,6 +1166,30 @@ function Portfolio() {
   const [visible, setVisible] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<any | null>(null);
+  const [verticals, setVerticals] = useState<VerticalItem[]>(DEFAULT_VERTICALS);
+
+  useEffect(() => {
+    const loadVerticals = () => {
+      const stored = localStorage.getItem('verticals_list');
+      if (stored) {
+        try {
+          setVerticals(JSON.parse(stored));
+          return;
+        } catch (e) {
+          console.error('Error loading verticals list:', e);
+        }
+      }
+      setVerticals(DEFAULT_VERTICALS);
+    };
+
+    loadVerticals();
+    window.addEventListener('storage_updated_verticals', loadVerticals);
+    window.addEventListener('storage', loadVerticals);
+    return () => {
+      window.removeEventListener('storage_updated_verticals', loadVerticals);
+      window.removeEventListener('storage', loadVerticals);
+    };
+  }, []);
 
   useEffect(() => {
     const loadData = () => {
@@ -1318,7 +1373,7 @@ function Portfolio() {
                   <img 
                     src={category.img} 
                     alt="" 
-                    className="w-full h-full object-cover grayscale brightness-[0.65] group-hover:grayscale-0 group-hover:scale-110 group-hover:brightness-100 transition-all duration-700 ease-out" 
+                    className="w-full h-full object-cover brightness-[0.8] group-hover:scale-110 group-hover:brightness-100 transition-all duration-700 ease-out" 
                     referrerPolicy="no-referrer"
                   />
                   {/* Atmospheric dark radial vignette */}
@@ -2371,6 +2426,7 @@ const getEmbedUrl = (url: string, asBackground = true) => {
 };
 
 function LandingPage() {
+  const navigate = useNavigate();
   const { scrollY } = useScroll();
   const starOpacity = useTransform(scrollY, [100, 700], [0, 1]);
   const heroImgOpacity = useTransform(scrollY, [0, 800], [1, 0.1]);
@@ -2378,6 +2434,31 @@ function LandingPage() {
   const [backdropType, setBackdropType] = useState<'image' | 'video'>('video');
   const [backdropUrl, setBackdropUrl] = useState('https://player.vimeo.com/video/371433846');
   const [isMobileView, setIsMobileView] = useState(false);
+  const [verticals, setVerticals] = useState<VerticalItem[]>(DEFAULT_VERTICALS);
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadVerticals = () => {
+      const stored = localStorage.getItem('verticals_list');
+      if (stored) {
+        try {
+          setVerticals(JSON.parse(stored));
+          return;
+        } catch (e) {
+          console.error('Error loading verticals list in LandingPage:', e);
+        }
+      }
+      setVerticals(DEFAULT_VERTICALS);
+    };
+
+    loadVerticals();
+    window.addEventListener('storage_updated_verticals', loadVerticals);
+    window.addEventListener('storage', loadVerticals);
+    return () => {
+      window.removeEventListener('storage_updated_verticals', loadVerticals);
+      window.removeEventListener('storage', loadVerticals);
+    };
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -2526,38 +2607,426 @@ function LandingPage() {
           <Clients />
           <Portfolio />
           <DreamTeam />
-          <section id="about" className="py-12 md:py-24">
-            <div className="w-full px-6 md:px-56">
+          <section id="about" className="py-12 md:py-24 relative overflow-hidden bg-black">
+            {/* Background cinematic grid light glow */}
+            <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-[120px] pointer-events-none" />
+            
+            <div className="w-full px-6 md:px-56 relative z-10">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-24 items-center text-center lg:text-left">
-                <div className="relative group max-w-[280px] md:max-w-md mx-auto lg:mx-0">
-                  <div className="aspect-[4/5] overflow-hidden rounded-[2rem] md:rounded-[3rem] border border-white/10">
-                    <img src="https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&q=80&w=2072" alt="Behind the scenes" className="w-full h-full object-cover grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-105" />
+                {/* Left Side: Cinematic Image + Badging with scroll and continuous live floating motion */}
+                <motion.div 
+                  initial={{ opacity: 0, y: 50, scale: 0.95 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  viewport={{ once: true, margin: "-10%" }}
+                  transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+                  className="relative group max-w-[280px] md:max-w-md mx-auto lg:mx-0 cursor-pointer"
+                  onClick={() => navigate('/story')}
+                >
+                  {/* Outer glowing border element on hover */}
+                  <div className="absolute inset-x-0 inset-y-0 -m-2 rounded-[2.3rem] md:rounded-[3.3rem] bg-gradient-to-br from-orange-500/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 blur-[15px]" />
+                  
+                  <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] md:rounded-[3rem] border border-white/10 group-hover:border-orange-500/40 transition-all duration-700 shadow-2xl">
+                    <motion.img 
+                      src="https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&q=80&w=2072" 
+                      alt="Behind the scenes" 
+                      className="w-full h-full object-cover"
+                      whileHover={{ scale: 1.06, rotate: -1 }}
+                      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                    />
+                    {/* Shadow overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-70 group-hover:opacity-40 transition-opacity duration-700" />
                   </div>
-                  <div className="absolute -bottom-6 md:-bottom-10 -right-6 md:-right-10 w-32 h-32 md:w-56 md:h-56 bg-orange-500 rounded-full p-4 md:p-8 flex flex-col items-center justify-center text-center shadow-2xl rotate-12" style={{ transform: 'rotate(12deg)' }}>
-                    <span className="text-2xl md:text-5xl font-black text-white italic">14+</span>
-                    <p className="text-white/90 text-[7px] md:text-[9px] font-black uppercase tracking-widest mt-1 md:mt-2">Years on Set</p>
+
+                  {/* Circular Floating Badge with elegant entry spring animation and live floating sub-animation */}
+                  <motion.div 
+                    initial={{ scale: 0, rotate: -40, opacity: 0 }}
+                    whileInView={{ scale: 1, rotate: 12, opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ type: "spring", stiffness: 120, damping: 14, delay: 0.4 }}
+                    className="absolute -bottom-6 md:-bottom-10 -right-6 md:-right-10 w-32 h-32 md:w-56 md:h-56 z-20"
+                  >
+                    <motion.div
+                      animate={{
+                        y: [0, -8, 0],
+                        rotate: [0, 4, 0]
+                      }}
+                      transition={{
+                        repeat: Infinity,
+                        duration: 6,
+                        ease: "easeInOut"
+                      }}
+                      whileHover={{ scale: 1.12, rotate: -4 }}
+                      className="w-full h-full bg-orange-500 rounded-full p-4 md:p-8 flex flex-col items-center justify-center text-center shadow-[0_25px_60px_rgba(249,115,22,0.4)] select-none cursor-pointer hover:bg-orange-600 transition-all duration-500"
+                    >
+                      <span className="text-2xl md:text-5xl font-black text-white italic tracking-tighter">14+</span>
+                      <p className="text-white/95 text-[7px] md:text-[9px] font-black uppercase tracking-widest mt-1 md:mt-2">Years on Set</p>
+                    </motion.div>
+                  </motion.div>
+                </motion.div>
+ 
+                {/* Right Side: Copy/Narrative with text staggering transition */}
+                <motion.div
+                  initial="hidden"
+                  whileInView="show"
+                  viewport={{ once: true, margin: "-10%" }}
+                  variants={{
+                    hidden: { opacity: 0 },
+                    show: {
+                      opacity: 1,
+                      transition: {
+                        staggerChildren: 0.12,
+                        delayChildren: 0.1
+                      }
+                    }
+                  }}
+                  className="space-y-6 md:space-y-8"
+                >
+                  <div className="space-y-2">
+                    <motion.div
+                      variants={{
+                        hidden: { width: 0, opacity: 0 },
+                        show: { width: 36, opacity: 1, transition: { duration: 0.5 } }
+                      }}
+                      className="h-[2px] bg-orange-500"
+                    />
+                    <motion.span 
+                      variants={{
+                        hidden: { opacity: 0, y: 10 },
+                        show: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+                      }}
+                      className="text-orange-500 text-[10px] md:text-xs font-black uppercase tracking-[0.45em] block"
+                    >
+                      Our Story
+                    </motion.span>
                   </div>
-                </div>
-                <div>
-                  <span className="text-orange-500 text-[9px] md:text-[10px] font-black uppercase tracking-[0.4em] mb-4 md:mb-6 block">Our Story</span>
-                  <h3 className="font-bebas text-2xl md:text-6xl font-black italic text-orange-500 tracking-[0.02em] leading-[0.95] mb-6 md:mb-10 uppercase">Crafting <br />Legends</h3>
-                  <p className="text-white/50 leading-relaxed mb-8 md:mb-12 text-sm md:text-base font-medium tracking-tight px-4 md:px-0">
+
+                  <div className="overflow-hidden py-1">
+                    <motion.h3 
+                      variants={{
+                        hidden: { opacity: 0, y: 40, skewY: 4 },
+                        show: { opacity: 1, y: 0, skewY: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
+                      }}
+                      className="font-bebas text-4xl md:text-7xl font-black italic text-orange-500 tracking-[0.02em] leading-[0.9] uppercase"
+                    >
+                      Crafting <br />Legends
+                    </motion.h3>
+                  </div>
+ 
+                  <motion.p 
+                    variants={{
+                      hidden: { opacity: 0, y: 20 },
+                      show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } }
+                    }}
+                    className="text-white/60 leading-relaxed text-sm md:text-lg font-medium tracking-wide px-4 md:px-0"
+                  >
                     Dreamcatchers is a new age creative studio specializing in visual storytelling that moves people. We don't just shoot films; we engineer experiences that bridge the gap between imagination and reality.
-                  </p>
-                  <button className="flex items-center gap-4 text-white font-black uppercase tracking-[0.3em] text-[10px] md:text-xs group mx-auto lg:mx-0">
-                    Find more about us 
-                    <div className="w-8 h-8 md:w-10 md:h-10 border border-white/20 rounded-full flex items-center justify-center group-hover:border-orange-500 group-hover:bg-orange-500 transition-all">
-                      <ChevronRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-0.5" />
-                    </div>
-                  </button>
-                </div>
+                  </motion.p>
+ 
+                  <motion.div
+                    variants={{
+                      hidden: { opacity: 0, y: 20 },
+                      show: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+                    }}
+                    className="pt-2 md:pt-4"
+                  >
+                    <motion.button 
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => navigate('/story')}
+                      className="flex items-center gap-4 text-white font-black uppercase tracking-[0.3em] text-[10px] md:text-xs group mx-auto lg:mx-0 bg-transparent hover:text-orange-500 transition-colors"
+                    >
+                      Find more about us 
+                      <div className="w-8 h-8 md:w-10 md:h-10 border border-white/20 rounded-full flex items-center justify-center group-hover:border-orange-500 group-hover:bg-orange-500 transition-all duration-300">
+                        <ChevronRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1.5 duration-300 transition-transform" />
+                      </div>
+                    </motion.button>
+                  </motion.div>
+                </motion.div>
               </div>
+            </div>
+
+            {/* Sub-Brands / Verticals Integration */}
+            <div className="mt-20 md:mt-32 max-w-[1600px] mx-auto w-full">
+              <div className="text-center mb-12">
+                <motion.div 
+                  initial={{ opacity: 0, width: 0 }}
+                  whileInView={{ opacity: 1, width: 64 }}
+                  viewport={{ once: true }}
+                  className="h-1 bg-orange-500 mx-auto mb-6"
+                />
+                <motion.span 
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="text-orange-500/60 text-xs font-black uppercase tracking-[0.4em] block mb-2"
+                >
+                  Enterprise Initiatives
+                </motion.span>
+                <motion.h4 
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.1 }}
+                  className="font-bebas text-3xl md:text-5xl font-black italic tracking-wide text-white uppercase"
+                >
+                  Our Verticals & Sub-Brands
+                </motion.h4>
+              </div>
+
+              {(() => {
+                const sportsBox = verticals.find(v => v.id === 'sports_box') || DEFAULT_VERTICALS[0];
+                const dcDigital = verticals.find(v => v.id === 'dc_digital') || DEFAULT_VERTICALS[1];
+
+                return (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 max-w-[1440px] mx-auto mt-8 px-4 sm:px-8 lg:px-12 pb-8">
+                    {/* SPORTS BOX Card */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      onClick={() => sportsBox.url && setSelectedVideo(sportsBox.url)}
+                      className={`group relative flex flex-col items-center justify-between p-8 md:p-10 rounded-[2.5rem] bg-zinc-950/60 border border-zinc-900/80 backdrop-blur-md overflow-hidden select-none ${sportsBox.url ? 'cursor-pointer' : 'cursor-default'} transition-all duration-500 hover:border-orange-500/20 hover:shadow-[0_25px_60px_rgba(249,115,22,0.12)] text-center h-[520px] md:h-[580px] w-full`}
+                    >
+                      {/* Branding Area */}
+                      <div className="flex flex-col items-center justify-center select-none font-bebas mb-2">
+                        <span className="text-4xl sm:text-5xl md:text-6xl text-white font-black tracking-wider uppercase leading-none transition-transform duration-300 group-hover:scale-105">
+                          {sportsBox.title}
+                        </span>
+                        <div className="w-[115%] h-1 bg-white mt-2 mb-2 relative">
+                          <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        </div>
+                        <span className="text-2xl sm:text-3xl text-orange-500 font-extrabold tracking-[0.25em] uppercase leading-none self-end mr-1 group-hover:text-amber-400 transition-colors duration-300">
+                          BOX
+                        </span>
+                      </div>
+
+                      {/* Video Frame */}
+                      <div className="w-full aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 group-hover:border-orange-500/35 bg-neutral-900 transition-all duration-500 relative flex items-center justify-center shadow-lg">
+                        {sportsBox.url ? (
+                          isEmbedUrl(sportsBox.url) ? (
+                            <iframe 
+                              src={getEmbedUrl(sportsBox.url, true)} 
+                              className="absolute inset-0 w-full h-full pointer-events-none scale-105 border-0"
+                              allow="autoplay"
+                              style={{ pointerEvents: 'none' }}
+                            />
+                          ) : (
+                            <video 
+                              src={transformGoogleDriveUrl(sportsBox.url, 'video')} 
+                              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                              autoPlay 
+                              loop 
+                              muted 
+                              playsInline 
+                            />
+                          )
+                        ) : (
+                          <div className="absolute inset-0 bg-gradient-to-br from-zinc-950 to-zinc-900 flex flex-col items-center justify-center p-4">
+                            <div className="absolute top-3 left-3 flex items-center gap-2">
+                              <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+                              <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest font-bold">REC</span>
+                            </div>
+                            <div className="absolute bottom-3 right-3 text-[10px] font-mono text-white/30 uppercase tracking-widest font-bold">
+                              CH. 01 / LIVE
+                            </div>
+                            
+                            <svg className="w-12 h-12 text-white/10 group-hover:text-orange-500/20 group-hover:scale-110 transition-all duration-500 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                              <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
+                              <line x1="7" y1="2" x2="7" y2="22" />
+                              <line x1="17" y1="2" x2="17" y2="22" />
+                              <line x1="2" y1="12" x2="22" y2="12" />
+                              <line x1="2" y1="7" x2="7" y2="7" />
+                              <line x1="2" y1="17" x2="7" y2="17" />
+                              <line x1="17" y1="17" x2="22" y2="17" />
+                              <line x1="17" y1="7" x2="22" y2="7" />
+                            </svg>
+                            <span className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-bold">No Video Configured</span>
+                            <span className="text-[9px] text-orange-500/50 uppercase tracking-[0.1em] mt-1 font-bold">Configure in Admin Panel</span>
+                          </div>
+                        )}
+                        
+                        {sportsBox.url && (
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <motion.div 
+                              className="w-14 h-14 rounded-full bg-orange-500 flex items-center justify-center text-white shadow-xl"
+                              whileHover={{ scale: 1.1 }}
+                            >
+                              <svg className="w-6 h-6 fill-current ml-0.5" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z" />
+                              </svg>
+                            </motion.div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Texts */}
+                      <div className="space-y-2 z-10 w-full mt-4">
+                        <span className="text-orange-500 text-xs font-black uppercase tracking-[0.3em] block">
+                          {sportsBox.subtitle}
+                        </span>
+                        <p className="text-sm md:text-base font-bold text-white uppercase tracking-wider leading-relaxed">
+                          {sportsBox.description}
+                        </p>
+                      </div>
+                      
+                      {/* Corner glowing element */}
+                      <div className="absolute -bottom-16 -right-16 w-32 h-32 bg-orange-500/5 rounded-full blur-2xl group-hover:bg-orange-500/15 group-hover:scale-125 transition-all duration-500"></div>
+                    </motion.div>
+
+                    {/* DC DIGITAL STUDIO Card */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.15 }}
+                      onClick={() => dcDigital.url && setSelectedVideo(dcDigital.url)}
+                      className={`group relative flex flex-col items-center justify-between p-8 md:p-10 rounded-[2.5rem] bg-zinc-950/60 border border-zinc-900/80 backdrop-blur-md overflow-hidden select-none ${dcDigital.url ? 'cursor-pointer' : 'cursor-default'} transition-all duration-500 hover:border-orange-500/20 hover:shadow-[0_25px_60px_rgba(249,115,22,0.12)] text-center h-[520px] md:h-[580px] w-full`}
+                    >
+                      {/* Branding Area */}
+                      <div className="h-28 flex items-center justify-center mb-2">
+                        <div className="bg-white p-4 sm:p-5 rounded-2xl flex flex-col items-center justify-center w-64 sm:w-72 shadow-lg transition-all duration-500 group-hover:shadow-[0_0_35px_rgba(255,255,255,0.15)] group-hover:scale-105 relative overflow-hidden">
+                          {/* Styled bracket and ribbon graphic */}
+                          <svg className="w-16 h-10 mb-2" viewBox="0 0 160 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M42 22C34 22 32 35 32 50C32 65 34 78 42 78" stroke="black" strokeWidth="4.5" strokeLinecap="round" />
+                            <path d="M108 22C116 22 118 35 118 50C118 65 116 78 108 78" stroke="black" strokeWidth="4.5" strokeLinecap="round" />
+                            <path d="M20 78C110 74 105 26 100 26" stroke="#F97316" strokeWidth="6" strokeLinecap="round" />
+                            <path d="M17 83C116 78 102 31 96 31" stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" />
+                          </svg>
+                          
+                          {/* Clean text divider */}
+                          <div className="flex items-center justify-center gap-1.5 border-t border-zinc-200 pt-2 w-full">
+                            <span className="text-orange-600 font-extrabold font-bebas text-base sm:text-lg tracking-wider leading-none">DC</span>
+                            <span className="w-0.5 h-3.5 bg-zinc-300"></span>
+                            <span className="text-zinc-900 font-bold font-sans text-[8px] sm:text-[10px] tracking-[0.2em] uppercase leading-none">{dcDigital.title.replace('DC DIGITAL STUDIO', 'DIGITAL STUDIO')}</span>
+                          </div>
+                          <div className="text-[6px] text-zinc-400 font-medium uppercase tracking-[0.2em] font-sans mt-0.5">A DREAMCATCHERS VERTICAL</div>
+                        </div>
+                      </div>
+
+                      {/* Video Frame */}
+                      <div className="w-full aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 group-hover:border-orange-500/35 bg-neutral-900 transition-all duration-500 relative flex items-center justify-center shadow-lg">
+                        {dcDigital.url ? (
+                          isEmbedUrl(dcDigital.url) ? (
+                            <iframe 
+                              src={getEmbedUrl(dcDigital.url, true)} 
+                              className="absolute inset-0 w-full h-full pointer-events-none scale-105 border-0"
+                              allow="autoplay"
+                              style={{ pointerEvents: 'none' }}
+                            />
+                          ) : (
+                            <video 
+                              src={transformGoogleDriveUrl(dcDigital.url, 'video')} 
+                              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                              autoPlay 
+                              loop 
+                              muted 
+                              playsInline 
+                            />
+                          )
+                        ) : (
+                          <div className="absolute inset-0 bg-gradient-to-br from-zinc-950 to-zinc-900 flex flex-col items-center justify-center p-4">
+                            <div className="absolute top-3 left-3 flex items-center gap-2">
+                              <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+                              <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest font-bold">REC</span>
+                            </div>
+                            <div className="absolute bottom-3 right-3 text-[10px] font-mono text-white/30 uppercase tracking-widest font-bold">
+                              CH. 02 / LIVE
+                            </div>
+                            
+                            <svg className="w-12 h-12 text-white/10 group-hover:text-orange-500/20 group-hover:scale-110 transition-all duration-500 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                              <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
+                              <line x1="7" y1="2" x2="7" y2="22" />
+                              <line x1="17" y1="2" x2="17" y2="22" />
+                              <line x1="2" y1="12" x2="22" y2="12" />
+                              <line x1="2" y1="7" x2="7" y2="7" />
+                              <line x1="2" y1="17" x2="7" y2="17" />
+                              <line x1="17" y1="17" x2="22" y2="17" />
+                              <line x1="17" y1="7" x2="22" y2="7" />
+                            </svg>
+                            <span className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-bold">No Video Configured</span>
+                            <span className="text-[9px] text-orange-500/50 uppercase tracking-[0.1em] mt-1 font-bold">Configure in Admin Panel</span>
+                          </div>
+                        )}
+                        
+                        {dcDigital.url && (
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <motion.div 
+                              className="w-14 h-14 rounded-full bg-orange-500 flex items-center justify-center text-white shadow-xl"
+                              whileHover={{ scale: 1.1 }}
+                            >
+                              <svg className="w-6 h-6 fill-current ml-0.5" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z" />
+                              </svg>
+                            </motion.div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Texts */}
+                      <div className="space-y-2 z-10 w-full mt-4">
+                        <span className="text-orange-500 text-xs font-black uppercase tracking-[0.3em] block">
+                          {dcDigital.subtitle}
+                        </span>
+                        <p className="text-sm md:text-base font-bold text-white uppercase tracking-wider leading-relaxed">
+                          {dcDigital.description}
+                        </p>
+                      </div>
+                      
+                      {/* Corner glowing element */}
+                      <div className="absolute -bottom-16 -right-16 w-32 h-32 bg-orange-500/5 rounded-full blur-2xl group-hover:bg-orange-500/15 group-hover:scale-125 transition-all duration-500"></div>
+                    </motion.div>
+                  </div>
+                );
+              })()}
             </div>
           </section>
           <InteractiveOptions />
         </div>
       </main>
       <Footer />
+
+      {/* Vertical Lightbox Video Modal overlay */}
+      <AnimatePresence>
+        {selectedVideo && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[999] bg-black/95 flex items-center justify-center p-4 backdrop-blur-md"
+            onClick={() => setSelectedVideo(null)}
+          >
+            <button 
+              onClick={() => setSelectedVideo(null)}
+              className="absolute top-6 right-6 w-12 h-12 rounded-full border border-white/10 hover:border-white/30 text-white flex items-center justify-center bg-black hover:text-orange-500 transition-all font-sans"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <motion.div 
+              initial={{ scale: 0.9, y: 50 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 50 }}
+              className="relative w-full max-w-5xl aspect-video bg-zinc-950 rounded-3xl border border-white/5 overflow-hidden shadow-2xl"
+              onClick={e => e.stopPropagation()}
+            >
+              {isEmbedUrl(selectedVideo) ? (
+                <iframe 
+                  src={getEmbedUrl(selectedVideo, false)} 
+                  className="w-full h-full border-none" 
+                  allow="autoplay; encrypted-media; fullscreen" 
+                  allowFullScreen 
+                />
+              ) : (
+                <video 
+                  src={selectedVideo} 
+                  controls 
+                  autoPlay 
+                  className="w-full h-full object-contain" 
+                />
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -3247,25 +3716,27 @@ export function StoryPage() {
           </motion.span>
           
           {/* Blockbuster Cinema Split Title */}
-          <h1 className="font-bebas text-5xl md:text-8xl tracking-[0.02em] italic uppercase leading-none text-white font-black inline-block">
-            {"THE CHRONICLES OF ".split(" ").map((w, idx) => (
-              <motion.span
-                key={idx}
-                initial={{ opacity: 0, y: 40, filter: "blur(12px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                transition={{ duration: 0.9, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="inline-block mr-4"
-              >
-                {w}
-              </motion.span>
-            ))}
-            <span className="text-orange-500 block sm:inline">
+          <h1 className="font-bebas text-3xl sm:text-5xl md:text-7xl tracking-[0.02em] italic uppercase leading-tight text-white font-black block">
+            <span className="block mb-2">
+              {"THE CHRONICLES OF".split(" ").map((w, idx) => (
+                <motion.span
+                  key={idx}
+                  initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  transition={{ duration: 0.8, delay: idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                  className="inline-block mr-3 md:mr-4"
+                >
+                  {w}
+                </motion.span>
+              ))}
+            </span>
+            <span className="text-orange-500 block whitespace-nowrap">
               {"DREAMCATCHERS".split("").map((char, idx) => (
                 <motion.span
                   key={idx}
                   initial={{ opacity: 0, scale: 0.5, filter: "blur(8px)" }}
                   animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                  transition={{ duration: 1.1, delay: 0.4 + idx * 0.04, ease: [0.34, 1.56, 0.64, 1] }}
+                  transition={{ duration: 1.1, delay: 0.3 + idx * 0.03, ease: [0.34, 1.56, 0.64, 1] }}
                   className="inline-block"
                   style={{ textShadow: "0 0 35px rgba(249,115,22,0.4)" }}
                 >

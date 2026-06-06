@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import { Navigate, Link } from 'react-router-dom';
 import { pushLocalConfigsToFirestore } from '../lib/siteSync';
-import { Users, Layout, Settings, LogOut, Home, Plus, Trash2, Edit2, ArrowUp, ArrowDown, RefreshCw, FileVideo, Image as ImageIcon, Film, Play, ChevronRight, ChevronLeft, MapPin, BookOpen, Share2, Sparkles } from 'lucide-react';
-import { DEFAULT_TEAM_MEMBERS, TeamMember, DEFAULT_ORBIT_IMAGES, DEFAULT_FILMS_LIST, DEFAULT_CLIENTS_LIST, ClientItem, ParagraphFrameItem, DEFAULT_PARAGRAPH_FRAMES } from '../App';
+import { Users, Layout, Settings, LogOut, Home, Plus, Trash2, Edit2, ArrowUp, ArrowDown, RefreshCw, FileVideo, Image as ImageIcon, Film, Play, ChevronRight, ChevronLeft, MapPin, BookOpen, Share2, Sparkles, Upload } from 'lucide-react';
+import { DEFAULT_TEAM_MEMBERS, TeamMember, DEFAULT_ORBIT_IMAGES, DEFAULT_FILMS_LIST, DEFAULT_CLIENTS_LIST, ClientItem, ParagraphFrameItem, DEFAULT_PARAGRAPH_FRAMES, DEFAULT_VERTICALS, VerticalItem } from '../App';
 import { DEFAULT_BRAND_ITEMS, BrandItem } from './BrandPage';
 
 export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = 'image'): string {
@@ -26,7 +26,7 @@ export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = '
 const AdminPanel: FC = () => {
   const { user, isAdmin, loading, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<'categories' | 'home_manage' | 'film_manage' | 'team' | 'orbit' | 'about_manage' | 'contact_manage' | 'brand_manage'>('categories');
-  const [homeSubTab, setHomeSubTab] = useState<'hero' | 'team' | 'orbit' | 'films' | 'clients' | 'logo' | 'paragraph_frames'>('hero');
+  const [homeSubTab, setHomeSubTab] = useState<'hero' | 'team' | 'orbit' | 'films' | 'clients' | 'logo' | 'paragraph_frames' | 'verticals'>('hero');
 
   // Navigation Logo states
   const [navLogoType, setNavLogoType] = useState<'text' | 'image'>('text');
@@ -44,6 +44,9 @@ const AdminPanel: FC = () => {
   const [brandCategory, setBrandCategory] = useState<'brands' | 'govt' | 'corporates' | 'platforms'>('brands');
   const [brandLogoUrl, setBrandLogoUrl] = useState('');
   const [brandDescription, setBrandDescription] = useState('');
+  const [logoInputType, setLogoInputType] = useState<'upload' | 'url'>('upload');
+  const [isDraggingLogo, setIsDraggingLogo] = useState(false);
+  const [brandLogoSize, setBrandLogoSize] = useState<'small' | 'medium' | 'large' | 'xlarge'>('medium');
   
   // Home Page Film Section states
   const [homeFilmsVisible, setHomeFilmsVisible] = useState(true);
@@ -98,6 +101,9 @@ const AdminPanel: FC = () => {
 
   // Paragraph Frame management states
   const [paragraphFrames, setParagraphFrames] = useState<ParagraphFrameItem[]>([]);
+
+  // Verticals management states
+  const [verticalsList, setVerticalsList] = useState<VerticalItem[]>([]);
 
   // Client/Brand management states
   const [clients, setClients] = useState<ClientItem[]>([]);
@@ -204,6 +210,26 @@ const AdminPanel: FC = () => {
     window.dispatchEvent(new Event('storage_updated_brand_partners'));
   };
 
+  const handleBrandLogoFileChange = (file: File) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file (PNG, JPG, SVG, WebP, etc.).');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image is too large. Please select an image under 5MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target && typeof event.target.result === 'string') {
+        setBrandLogoUrl(event.target.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleAddBrandPartner = (e: React.FormEvent) => {
     e.preventDefault();
     if (!brandName.trim()) return;
@@ -213,7 +239,8 @@ const AdminPanel: FC = () => {
       name: brandName.trim(),
       category: brandCategory,
       logoUrl: brandLogoUrl.trim(),
-      description: brandDescription.trim()
+      description: brandDescription.trim(),
+      logoSize: brandLogoSize
     };
 
     const updated = [newBrand, ...brandPartners];
@@ -224,6 +251,7 @@ const AdminPanel: FC = () => {
     setBrandCategory('brands');
     setBrandLogoUrl('');
     setBrandDescription('');
+    setBrandLogoSize('medium');
     setShowAddBrandForm(false);
   };
 
@@ -237,7 +265,8 @@ const AdminPanel: FC = () => {
       name: brandName.trim(),
       category: brandCategory,
       logoUrl: brandLogoUrl.trim(),
-      description: brandDescription.trim()
+      description: brandDescription.trim(),
+      logoSize: brandLogoSize
     };
 
     saveBrandPartners(updated);
@@ -247,6 +276,7 @@ const AdminPanel: FC = () => {
     setBrandCategory('brands');
     setBrandLogoUrl('');
     setBrandDescription('');
+    setBrandLogoSize('medium');
     setEditingBrandIndex(null);
   };
 
@@ -254,8 +284,15 @@ const AdminPanel: FC = () => {
     const b = brandPartners[index];
     setBrandName(b.name);
     setBrandCategory(b.category);
-    setBrandLogoUrl(b.logoUrl || '');
+    const logo = b.logoUrl || '';
+    setBrandLogoUrl(logo);
     setBrandDescription(b.description || '');
+    setBrandLogoSize(b.logoSize || 'medium');
+    if (logo.startsWith('data:image/')) {
+      setLogoInputType('upload');
+    } else {
+      setLogoInputType('url');
+    }
     setEditingBrandIndex(index);
     setShowAddBrandForm(false);
   };
@@ -361,6 +398,18 @@ const AdminPanel: FC = () => {
       }
     } else {
       setParagraphFrames(DEFAULT_PARAGRAPH_FRAMES);
+    }
+
+    const storedVerticals = localStorage.getItem('verticals_list');
+    if (storedVerticals) {
+      try {
+        setVerticalsList(JSON.parse(storedVerticals));
+      } catch (e) {
+        console.error('Error loading verticals_list from LocalStorage:', e);
+        setVerticalsList(DEFAULT_VERTICALS);
+      }
+    } else {
+      setVerticalsList(DEFAULT_VERTICALS);
     }
 
     // Load home configs
@@ -770,6 +819,44 @@ const AdminPanel: FC = () => {
         return { ...f, [field]: value };
       }
       return f;
+    }));
+  };
+
+  // --- Verticals handlers ---
+  const handleSaveVerticals = (e: React.FormEvent) => {
+    e.preventDefault();
+    const transformedList = verticalsList.map(v => ({
+      ...v,
+      url: transformGoogleDriveUrl(v.url, v.type)
+    }));
+    
+    setVerticalsList(transformedList);
+    localStorage.setItem('verticals_list', JSON.stringify(transformedList));
+    
+    window.dispatchEvent(new Event('storage_updated_verticals'));
+    window.dispatchEvent(new Event('storage'));
+    
+    alert('Enterprise Verticals config saved & synced successfully!');
+  };
+
+  const handleResetVerticals = () => {
+    if (confirm('Are you sure you want to restore the default Verticals configuration?')) {
+      setVerticalsList(DEFAULT_VERTICALS);
+      localStorage.setItem('verticals_list', JSON.stringify(DEFAULT_VERTICALS));
+      
+      window.dispatchEvent(new Event('storage_updated_verticals'));
+      window.dispatchEvent(new Event('storage'));
+      
+      alert('Enterprise Verticals restored to defaults successfully!');
+    }
+  };
+
+  const handleUpdateVerticalField = (id: string, field: 'type' | 'url' | 'title' | 'subtitle' | 'description', value: string) => {
+    setVerticalsList(prev => prev.map(v => {
+      if (v.id === id) {
+        return { ...v, [field]: value };
+      }
+      return v;
     }));
   };
 
@@ -1525,6 +1612,12 @@ const AdminPanel: FC = () => {
                   className={`px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider transition-all ${homeSubTab === 'paragraph_frames' ? 'bg-orange-500 text-white' : 'bg-black border border-white/10 text-white/40 hover:text-white'}`}
                 >
                   7. Word-Level Frames
+                </button>
+                <button 
+                  onClick={() => setHomeSubTab('verticals')}
+                  className={`px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider transition-all ${homeSubTab === 'verticals' ? 'bg-orange-500 text-white' : 'bg-black border border-white/10 text-white/40 hover:text-white'}`}
+                >
+                  8. Enterprise Verticals
                 </button>
               </div>
             </div>
@@ -2453,6 +2546,165 @@ const AdminPanel: FC = () => {
                       className="px-8 py-3.5 bg-black hover:bg-zinc-950 font-extrabold uppercase text-xs tracking-widest text-white/60 hover:text-white rounded-full border border-white/10 hover:border-white/30 transition-all"
                     >
                       RESET FRAMES DEFAULTS
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            )}
+
+            {homeSubTab === 'verticals' && (
+              <motion.div 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }}
+                className="bg-zinc-900 border border-white/5 p-6 md:p-10 rounded-[2.5rem] space-y-8 text-white font-sans"
+              >
+                <div>
+                  <h2 className="text-2xl font-black italic text-white uppercase mb-2">ENTERPRISE VERTICALS & SUB-BRANDS</h2>
+                  <p className="text-xs text-white/50 leading-relaxed font-sans font-medium uppercase tracking-wider">
+                    Configure the titles, descriptions, and cinematic background videos or preview frames for "SPORTS BOX" and "DC DIGITAL STUDIO" on the Home page.
+                  </p>
+                </div>
+
+                <form onSubmit={handleSaveVerticals} className="space-y-8 font-sans">
+                  <div className="space-y-6">
+                    {verticalsList.map((vertical) => {
+                      const transformedUrl = transformGoogleDriveUrl(vertical.url, vertical.type);
+                      return (
+                        <div 
+                          key={vertical.id} 
+                          className="bg-black/40 border border-white/5 p-5 md:p-6 rounded-2xl flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between"
+                        >
+                          <div className="space-y-4 flex-1 w-full font-sans font-medium">
+                            {/* Header / Label details */}
+                            <div className="flex items-center gap-3">
+                              <span className="px-3 py-1 bg-orange-500/10 text-orange-500 text-[10px] font-black uppercase tracking-widest rounded-md border border-orange-500/20">
+                                {vertical.id.replace('_', ' ').toUpperCase()}
+                              </span>
+                              <h3 className="text-sm font-bold text-white uppercase">{vertical.label}</h3>
+                            </div>
+
+                            {/* Inputs for Title, Subtitle, Description */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div className="space-y-1">
+                                <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Item Title</label>
+                                <input
+                                  type="text"
+                                  required
+                                  value={vertical.title}
+                                  onChange={(e) => handleUpdateVerticalField(vertical.id, 'title', e.target.value)}
+                                  placeholder="e.g. SPORTS BOX"
+                                  className="w-full bg-black border border-white/10 rounded-lg px-4 py-2 text-xs text-white focus:outline-none focus:border-orange-500 transition-colors"
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Item Subtitle</label>
+                                <input
+                                  type="text"
+                                  required
+                                  value={vertical.subtitle}
+                                  onChange={(e) => handleUpdateVerticalField(vertical.id, 'subtitle', e.target.value)}
+                                  placeholder="e.g. SPORTS VERTICAL"
+                                  className="w-full bg-black border border-white/10 rounded-lg px-4 py-2 text-xs text-white focus:outline-none focus:border-orange-500 transition-colors"
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Item Description</label>
+                                <input
+                                  type="text"
+                                  required
+                                  value={vertical.description}
+                                  onChange={(e) => handleUpdateVerticalField(vertical.id, 'description', e.target.value)}
+                                  placeholder="e.g. International Live Sports"
+                                  className="w-full bg-black border border-white/10 rounded-lg px-4 py-2 text-xs text-white focus:outline-none focus:border-orange-500 transition-colors"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Type and URL Controls */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div className="space-y-2">
+                                <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Media Type</label>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpdateVerticalField(vertical.id, 'type', 'image')}
+                                    className={`py-2 px-3 rounded-lg border text-[10px] font-bold uppercase tracking-wider transition-all ${vertical.type === 'image' ? 'bg-orange-500/10 border-orange-500 text-orange-500' : 'bg-black border-white/5 text-white/40 hover:text-white'}`}
+                                  >
+                                    Image
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpdateVerticalField(vertical.id, 'type', 'video')}
+                                    className={`py-2 px-3 rounded-lg border text-[10px] font-bold uppercase tracking-wider transition-all ${vertical.type === 'video' ? 'bg-orange-500/10 border-orange-500 text-orange-500' : 'bg-black border-white/5 text-white/40 hover:text-white'}`}
+                                  >
+                                    Video
+                                  </button>
+                                </div>
+                              </div>
+
+                              <div className="md:col-span-2 space-y-2">
+                                <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Source URL (Support Google Drive share-link, Direct MP4, or YouTube link)</label>
+                                <input
+                                  type="url"
+                                  value={vertical.url || ''}
+                                  onChange={(e) => handleUpdateVerticalField(vertical.id, 'url', e.target.value)}
+                                  placeholder="Enter complete HTTPS video or image URL to showcase interactive player..."
+                                  className="w-full bg-black border border-white/10 rounded-lg px-4 py-2 text-xs text-white focus:outline-none focus:border-orange-500 transition-colors"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Preview Area container */}
+                          <div className="w-full lg:w-48 h-32 shrink-0 bg-zinc-950 rounded-xl border border-white/5 relative overflow-hidden flex items-center justify-center">
+                            {vertical.url ? (
+                              vertical.type === 'video' ? (
+                                <video
+                                  src={transformedUrl}
+                                  className="w-full h-full object-cover"
+                                  autoPlay
+                                  loop
+                                  muted
+                                  playsInline
+                                />
+                              ) : (
+                                <img
+                                  src={transformedUrl}
+                                  alt="Frame Preview"
+                                  className="w-full h-full object-cover"
+                                  referrerPolicy="no-referrer"
+                                  onError={(e) => {
+                                    (e.currentTarget as HTMLImageElement).src = 'https://placehold.co/150x150/111111/ff4500/ffffff?text=Image+Error';
+                                  }}
+                                />
+                              )
+                            ) : (
+                              <div className="flex flex-col items-center justify-center text-center p-2 font-sans">
+                                <span className="text-[10px] text-white/20 uppercase font-black tracking-wider block mb-1">Branding Only</span>
+                                <span className="text-[8px] text-orange-500/40 uppercase font-bold">Paste URL for video frame preview</span>
+                              </div>
+                            )}
+                            <div className="absolute inset-0 bg-radial from-transparent to-black/60 pointer-events-none" />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Form Submission buttons */}
+                  <div className="flex flex-wrap gap-4 pt-4 border-t border-white/5 font-sans">
+                    <button
+                      type="submit"
+                      className="px-8 py-3.5 bg-orange-500 hover:bg-orange-600 font-extrabold uppercase text-xs tracking-widest text-white rounded-full flex items-center gap-2 shadow-lg hover:shadow-orange-500/20 active:scale-95 transition-all"
+                    >
+                      <span>SAVE ENTERPRISE VERTICALS CONFIGURATION</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleResetVerticals}
+                      className="px-8 py-3.5 bg-black hover:bg-zinc-950 font-extrabold uppercase text-xs tracking-widest text-white/60 hover:text-white rounded-full border border-white/10 hover:border-white/30 transition-all"
+                    >
+                      RESET VERTICALS DEFAULTS
                     </button>
                   </div>
                 </form>
@@ -3799,6 +4051,7 @@ const AdminPanel: FC = () => {
                     setBrandCategory('brands');
                     setBrandLogoUrl('');
                     setBrandDescription('');
+                    setLogoInputType('upload');
                     setShowAddBrandForm(!showAddBrandForm);
                   }}
                   className="px-5 py-2.5 bg-orange-500 text-white hover:bg-orange-600 rounded-full text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2"
@@ -3819,7 +4072,7 @@ const AdminPanel: FC = () => {
                   {editingBrandIndex !== null ? '✏️ Edit Partner Logo Profile' : '➕ Add Partner Logo Profile'}
                 </h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
                     <label className="block text-xs uppercase tracking-widest text-zinc-400 font-bold mb-2">Partner Name (e.g. Rolex)</label>
                     <input
@@ -3845,22 +4098,152 @@ const AdminPanel: FC = () => {
                       <option value="platforms">Broadcast & Platforms (platforms)</option>
                     </select>
                   </div>
+
+                  <div>
+                    <label className="block text-xs uppercase tracking-widest text-zinc-400 font-bold mb-2">Logo Size Class</label>
+                    <select
+                      value={brandLogoSize}
+                      onChange={(e) => setBrandLogoSize(e.target.value as any)}
+                      className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white font-medium"
+                    >
+                      <option value="small">Small (65% width scale)</option>
+                      <option value="medium">Medium (85% standard scale)</option>
+                      <option value="large">Large (100% full scale)</option>
+                      <option value="xlarge">Extra Large (115% prominent scale)</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6">
-                  <div>
-                    <label className="block text-xs uppercase tracking-widest text-zinc-400 font-bold mb-2">Partner Logo Image Link / URL</label>
-                    <input
-                      type="text"
-                      required
-                      value={brandLogoUrl}
-                      onChange={(e) => setBrandLogoUrl(e.target.value)}
-                      placeholder="e.g. https://domain.com/logo.png"
-                      className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white font-mono"
-                    />
-                    <p className="text-xs text-white/30 mt-1 uppercase tracking-wider">
-                      Provide a direct link to an image (PNG, SVG, JPEG) representing their official brand identity.
-                    </p>
+                  <div className="border border-white/5 bg-black/40 p-5 rounded-2xl space-y-4">
+                    <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                      <label className="text-xs uppercase tracking-widest text-zinc-400 font-bold">Partner Brand Logo</label>
+                      <div className="flex p-0.5 bg-zinc-900 rounded-lg border border-white/5">
+                        <button
+                          type="button"
+                          onClick={() => setLogoInputType('upload')}
+                          className={`px-3 py-1 text-[10px] font-black uppercase tracking-wider rounded-md transition-all ${logoInputType === 'upload' ? 'bg-orange-500 text-black' : 'text-white/60 hover:text-white'}`}
+                        >
+                          Upload File
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setLogoInputType('url')}
+                          className={`px-3 py-1 text-[10px] font-black uppercase tracking-wider rounded-md transition-all ${logoInputType === 'url' ? 'bg-orange-500 text-black' : 'text-white/60 hover:text-white'}`}
+                        >
+                          Web image URL
+                        </button>
+                      </div>
+                    </div>
+
+                    {logoInputType === 'upload' ? (
+                      <div className="space-y-4">
+                        {/* Drag and drop zone with custom file select */}
+                        <div
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                            setIsDraggingLogo(true);
+                          }}
+                          onDragLeave={() => setIsDraggingLogo(false)}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            setIsDraggingLogo(false);
+                            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                              handleBrandLogoFileChange(e.dataTransfer.files[0]);
+                            }
+                          }}
+                          className={`relative border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
+                            isDraggingLogo 
+                              ? 'border-orange-500 bg-orange-500/5' 
+                              : brandLogoUrl.startsWith('data:image/') 
+                                ? 'border-green-500/40 bg-green-500/5' 
+                                : 'border-white/10 hover:border-white/20 bg-black/50'
+                          }`}
+                          onClick={() => {
+                            const input = document.getElementById('brandLogoFileInput');
+                            if (input) input.click();
+                          }}
+                        >
+                          <input
+                            type="file"
+                            id="brandLogoFileInput"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                handleBrandLogoFileChange(e.target.files[0]);
+                              }
+                            }}
+                          />
+                          
+                          {brandLogoUrl.startsWith('data:image/') ? (
+                            <div className="space-y-2">
+                              {/* Logo preview */}
+                              <div className="h-24 px-8 py-3 bg-zinc-900/65 rounded-xl border border-white/5 flex items-center justify-center mx-auto overflow-hidden max-w-[200px]">
+                                <img 
+                                  src={brandLogoUrl} 
+                                  alt="Preview" 
+                                  className="max-h-full max-w-full object-contain" 
+                                />
+                              </div>
+                              <p className="text-xs text-green-400 font-bold uppercase tracking-wider">✓ Logo Loaded Successfully</p>
+                              <p className="text-[10px] text-white/40 tracking-widest uppercase">Click or drag a new image file to replace</p>
+                            </div>
+                          ) : (
+                            <div className="space-y-3">
+                              <div className="w-12 h-12 rounded-full bg-zinc-900 border border-white/5 flex items-center justify-center mx-auto text-orange-500">
+                                <Upload size={20} />
+                              </div>
+                              <div className="space-y-1">
+                                <p className="text-xs font-bold text-white uppercase tracking-wider">Drag & Drop brand logo here</p>
+                                <p className="text-[10px] text-white/40 uppercase tracking-widest">or click to browse from computer (PNG, SVG, JPG, WebP)</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* If they currently have a standard HTTP logo URL and are on the upload tab, offer to clear or let them see the current state */}
+                        {brandLogoUrl && !brandLogoUrl.startsWith('data:image/') && (
+                          <div className="p-3 bg-zinc-900/40 rounded-xl border border-white/5 flex items-center justify-between text-xs text-white/60">
+                            <span className="truncate max-w-[300px]">Current Brand logo is web-hosted: <code className="text-[11px] font-mono text-orange-500">{brandLogoUrl}</code></span>
+                            <button
+                              type="button"
+                              onClick={() => setBrandLogoUrl('')}
+                              className="text-[10px] font-black uppercase text-red-500 hover:text-red-400 px-3 py-1 bg-red-500/10 rounded-lg transition-all"
+                            >
+                              Reset
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <input
+                          type="text"
+                          required
+                          value={brandLogoUrl}
+                          onChange={(e) => setBrandLogoUrl(e.target.value)}
+                          placeholder="e.g. https://domain.com/logo.png"
+                          className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white font-mono"
+                        />
+                        <p className="text-[10px] text-white/30 uppercase tracking-wider leading-relaxed">
+                          Enter a direct URL image path (PNG, SVG, JPEG, GIF) originating from a web server or cloud bucket.
+                        </p>
+                        
+                        {/* Instant miniature live web URL preview */}
+                        {brandLogoUrl && !brandLogoUrl.startsWith('data:image/') && (
+                          <div className="p-3 bg-zinc-900 border border-white/5 rounded-xl flex items-center gap-3">
+                            <div className="w-16 h-12 bg-black rounded border border-white/5 flex items-center justify-center shrink-0 overflow-hidden">
+                              <img src={transformGoogleDriveUrl(brandLogoUrl)} alt="Preview Link" className="max-w-[90%] max-h-[90%] object-contain" onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }} />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-[10px] font-bold text-white uppercase tracking-widest">Web logo preview ready</p>
+                              <p className="text-[9px] text-white/40 truncate max-w-xs">{brandLogoUrl}</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div>
@@ -3920,9 +4303,12 @@ const AdminPanel: FC = () => {
                         </div>
                         <div className="min-w-0">
                           <h4 className="text-sm font-black uppercase tracking-tight text-white truncate">{item.name}</h4>
-                          <div className="flex items-center gap-2 mt-0.5">
+                          <div className="flex flex-wrap items-center gap-2 mt-0.5">
                             <span className="text-[9px] font-bold text-orange-500 uppercase tracking-widest bg-orange-500/10 px-1.5 py-0.5 rounded border border-orange-500/15">
                               {item.category}
+                            </span>
+                            <span className="text-[9px] font-bold text-teal-400 uppercase tracking-widest bg-teal-400/10 px-1.5 py-0.5 rounded border border-teal-400/15">
+                              Size: {item.logoSize || 'medium'}
                             </span>
                             {item.description && (
                               <span className="text-[10px] text-white/40 truncate max-w-xs">{item.description}</span>

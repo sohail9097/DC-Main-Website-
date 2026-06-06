@@ -382,7 +382,7 @@ const AboutPage = () => {
                       <img 
                         src={member.img} 
                         alt={member.name} 
-                        className="w-full h-full object-cover grayscale transition-all duration-1000 group-hover/card:grayscale-0 group-hover/card:scale-110" 
+                        className="w-full h-full object-cover transition-all duration-1000 group-hover/card:scale-110" 
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover/card:opacity-40 transition-opacity" />
                     </div>
