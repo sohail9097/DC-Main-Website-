@@ -869,13 +869,14 @@ function DreamTeam() {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+  const sectionRef = useRef<HTMLElement>(null);
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev + 1) % teamMembers.length);
+    setCurrentIndex((prev) => (prev - 1 + teamMembers.length) % teamMembers.length);
   };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev - 1 + teamMembers.length) % teamMembers.length);
+    setCurrentIndex((prev) => (prev + 1) % teamMembers.length);
   };
 
   useEffect(() => {
@@ -909,17 +910,39 @@ function DreamTeam() {
     };
   }, []);
 
+  // Reset to first profile when the Dream Team section is scrolled into view
+  useEffect(() => {
+    if (teamMembers.length === 0) return;
+    
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setCurrentIndex(0);
+        }
+      },
+      { threshold: 0.15 } // Trigger when at least 15% of the section is visible in the viewport
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [teamMembers]);
+
   useEffect(() => {
     if (teamMembers.length === 0) return;
     const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev - 1 + teamMembers.length) % teamMembers.length);
+      setCurrentIndex((prev) => (prev + 1) % teamMembers.length);
     }, 1500); // Ultra-fast auto-switch (1.5 seconds)
     return () => clearInterval(timer);
   }, [teamMembers, currentIndex]);
 
   if (teamMembers.length === 0) {
     return (
-      <section id="team" className="pt-8 md:pt-16 pb-24 md:pb-48 relative overflow-hidden bg-black/20">
+      <section id="team" ref={sectionRef} className="pt-8 md:pt-16 pb-24 md:pb-48 relative overflow-hidden bg-black/20">
         <div className="max-w-[1600px] mx-auto px-6 text-center text-white/50">
           Loading team members...
         </div>
@@ -928,7 +951,7 @@ function DreamTeam() {
   }
 
   return (
-    <section id="team" className="pt-8 md:pt-16 pb-24 md:pb-48 relative overflow-hidden bg-black/20">
+    <section id="team" ref={sectionRef} className="pt-8 md:pt-16 pb-24 md:pb-48 relative overflow-hidden bg-black/20">
       <div className="max-w-[1600px] mx-auto px-6">
         <div className="text-left mb-12 md:mb-16">
           <motion.span 
@@ -1064,13 +1087,6 @@ function DreamTeam() {
                                 >
                                   {member.name}
                                 </motion.h4>
-                                <motion.p 
-                                  layout
-                                  transition={carouselTransition}
-                                  className="text-orange-500 text-[10px] md:text-sm font-bold uppercase tracking-[0.2em] mt-1 text-left"
-                                >
-                                  {member.role}
-                                </motion.p>
                               </motion.div>
                             )}
                           </AnimatePresence>
