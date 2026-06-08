@@ -1028,7 +1028,7 @@ function DreamTeam() {
                           {member.mediaType === 'video' || (member.image && (member.image.endsWith('.mp4') || member.image.includes('video') || member.image.includes('.mov'))) ? (
                             <video 
                               key={member.id}
-                              src={member.image} 
+                              src={transformGoogleDriveUrl(member.image, 'video')} 
                               autoPlay 
                               loop 
                               muted 
@@ -1039,9 +1039,10 @@ function DreamTeam() {
                             <motion.img 
                               layout
                               transition={carouselTransition}
-                              src={member.image} 
+                              src={transformGoogleDriveUrl(member.image, 'image')} 
                               alt={member.name} 
                               className="w-full h-full object-cover"
+                              referrerPolicy="no-referrer"
                             />
                           )}
                           

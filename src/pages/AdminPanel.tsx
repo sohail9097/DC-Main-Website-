@@ -3026,6 +3026,41 @@ const AdminPanel: FC = () => {
                       </div>
                     </div>
 
+                    {/* Live Preview Box */}
+                    {mediaUrl && (
+                      <div className="p-4 bg-black/40 border border-white/5 rounded-2xl space-y-2">
+                        <label className="block text-[10px] uppercase tracking-widest text-zinc-500 font-bold">Real-time Frame Preview (Auto-resolvers Active)</label>
+                        <div className="flex items-center gap-4">
+                          <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl overflow-hidden bg-black flex-shrink-0 border border-white/10 relative">
+                            {mediaType === 'video' || (mediaUrl.endsWith('.mp4') || mediaUrl.includes('video') || mediaUrl.includes('.mov')) ? (
+                              <video
+                                src={transformGoogleDriveUrl(mediaUrl, 'video')}
+                                muted
+                                loop
+                                autoPlay
+                                playsInline
+                                className="w-full h-full object-cover"
+                                onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+                              />
+                            ) : (
+                              <img
+                                src={transformGoogleDriveUrl(mediaUrl, 'image')}
+                                alt="Live Preview"
+                                className="w-full h-full object-cover"
+                                referrerPolicy="no-referrer"
+                                onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+                              />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-white uppercase tracking-wider">{name || 'Unnamed Frame'}</p>
+                            <p className="text-[10px] text-orange-500 font-bold uppercase tracking-widest mt-0.5">{role || 'No Role / Tagline'}</p>
+                            <p className="text-[9px] font-mono text-zinc-500 mt-1 truncate max-w-sm md:max-w-lg" title={mediaUrl}>{mediaUrl}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     <div className="flex justify-end gap-3 pt-4 border-t border-white/5">
                       <button
                         type="button"
@@ -3065,7 +3100,7 @@ const AdminPanel: FC = () => {
                     <div className="w-20 h-20 md:w-28 md:h-28 rounded-[1.8rem] overflow-hidden bg-black flex-shrink-0 border border-white/10 relative">
                       {isVideo ? (
                         <video
-                          src={member.image}
+                          src={transformGoogleDriveUrl(member.image, 'video')}
                           muted
                           loop
                           autoPlay
@@ -3074,9 +3109,10 @@ const AdminPanel: FC = () => {
                         />
                       ) : (
                         <img
-                          src={member.image}
+                          src={transformGoogleDriveUrl(member.image, 'image')}
                           alt={member.name}
                           className="w-full h-full object-cover"
+                          referrerPolicy="no-referrer"
                         />
                       )}
                       
