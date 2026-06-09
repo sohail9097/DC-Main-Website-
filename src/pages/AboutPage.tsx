@@ -280,7 +280,7 @@ const AboutPage = () => {
           transition={{ duration: 3, ease: "easeOut", delay: 0.6 }}
         >
           <img 
-            src={bgImg} 
+            src={transformGoogleDriveUrl(bgImg, 'image')} 
             className="w-full h-full object-cover brightness-[0.3] contrast-[1.2]"
             alt="Behind the scenes"
           />
@@ -605,7 +605,7 @@ const AboutPage = () => {
                       {/* Image Frame */}
                       <div className="w-full aspect-[4/5] rounded-[2rem] overflow-hidden relative mb-6">
                         <img 
-                          src={member.img} 
+                          src={transformGoogleDriveUrl(member.img, 'image')} 
                           alt={member.name} 
                           referrerPolicy="no-referrer"
                           className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover/card:scale-120"
