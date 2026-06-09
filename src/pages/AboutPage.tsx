@@ -1,8 +1,19 @@
-import { motion, useScroll, useTransform } from 'motion/react';
-import { ChevronRight, ChevronLeft, Camera, Users, Target, Rocket, Instagram, Facebook, Youtube, Twitter } from 'lucide-react';
+import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
+import { ChevronRight, ChevronLeft, Camera, Users, Target, Rocket, Instagram, Facebook, Youtube, Twitter, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef, FC } from 'react';
-import { Navbar, Footer, InteractiveOptions } from '../App';
+import { 
+  Navbar, 
+  Footer, 
+  InteractiveOptions, 
+  OrbitingFrame, 
+  DEFAULT_ORBIT_IMAGES,
+  DEFAULT_VERTICALS,
+  VerticalItem,
+  transformGoogleDriveUrl,
+  isEmbedUrl,
+  getEmbedUrl
+} from '../App';
 
 const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
   const [stars, setStars] = useState<{ id: number; left: string; top: string; size: number; duration: number; delay: number; driftX: number; driftY: number }[]>([]);
@@ -158,6 +169,79 @@ const AboutPage = () => {
   const { scrollYProgress } = useScroll({ target: scrollContainerRef });
   const x = useTransform(scrollYProgress, [0, 1], ["0%", "-65%"]);
 
+  const [orbitImages, setOrbitImages] = useState<string[]>([]);
+  
+  useEffect(() => {
+    const loadOrbitImages = () => {
+      const stored = localStorage.getItem('orbit_images');
+      if (stored) {
+        try {
+          setOrbitImages(JSON.parse(stored));
+          return;
+        } catch (e) {
+          console.error('Error parsing orbit images from localStorage:', e);
+        }
+      }
+      setOrbitImages(DEFAULT_ORBIT_IMAGES);
+    };
+
+    loadOrbitImages();
+    window.addEventListener('storage_updated_orbit', loadOrbitImages);
+    window.addEventListener('storage', loadOrbitImages);
+    return () => {
+      window.removeEventListener('storage_updated_orbit', loadOrbitImages);
+      window.removeEventListener('storage', loadOrbitImages);
+    };
+  }, []);
+
+  const activeOrbitImages = orbitImages.length > 0 ? orbitImages : DEFAULT_ORBIT_IMAGES;
+
+  const [verticals, setVerticals] = useState<VerticalItem[]>(DEFAULT_VERTICALS);
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadVerticals = () => {
+      const stored = localStorage.getItem('verticals_list');
+      if (stored) {
+        try {
+          setVerticals(JSON.parse(stored));
+          return;
+        } catch (e) {
+          console.error('Error loading verticals list in AboutPage:', e);
+        }
+      }
+      setVerticals(DEFAULT_VERTICALS);
+    };
+
+    loadVerticals();
+    window.addEventListener('storage_updated_verticals', loadVerticals);
+    window.addEventListener('storage', loadVerticals);
+    return () => {
+      window.removeEventListener('storage_updated_verticals', loadVerticals);
+      window.removeEventListener('storage', loadVerticals);
+    };
+  }, []);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
+    }
+  };
+
   const stats = [
     { label: stat1Lbl, value: stat1Val, icon: <Camera className="w-5 h-5" /> },
     { label: stat2Lbl, value: stat2Val, icon: <Rocket className="w-5 h-5" /> },
@@ -241,8 +325,149 @@ const AboutPage = () => {
           </motion.div>
         </section>
 
+        {/* DC Orbit Section */}
+        <section className="relative py-16 md:py-24 border-t border-white/5 overflow-hidden">
+          <div className="w-full px-6 md:px-12 lg:px-16 xl:px-20 max-w-[1800px] mx-auto">
+            <div id="dc-orbit-section" className="grid grid-cols-1 lg:grid-cols-2 gap-20 lg:gap-36 xl:gap-44 items-center">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: false }}
+                className="group relative flex flex-col items-center justify-center min-h-[350px] md:h-[700px] bg-transparent transition-all duration-700"
+                style={{ perspective: "1500px", transformStyle: "preserve-3d" }}
+              >
+                {/* Background Atmosphere */}
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.12)_0%,transparent_70%)] transition-opacity duration-1000 pointer-events-none opacity-100 group-hover:bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.18)_0%,transparent_70%)]" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-orange-600/5 blur-[120px] rounded-full transition-opacity duration-1000 pointer-events-none opacity-100 group-hover:bg-orange-600/10" />
+
+                {/* 3D Scene Container */}
+                <div className="relative w-full h-full flex items-center justify-center" style={{ transformStyle: "preserve-3d" }}>
+                   
+                   {/* Centered DC Text with Sun Glow */}
+                   <div className="relative z-20 text-center flex items-center justify-center animate-pulse-glow" style={{ transformStyle: "preserve-3d" }}>
+                       {/* Sun Glow */}
+                       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 md:w-96 md:h-96 blur-[100px] rounded-full bg-orange-500/30 transition-all duration-1000 group-hover:bg-orange-500/60 group-hover:scale-110 pointer-events-none" />
+                       
+                       <motion.span 
+                         className="text-[6rem] md:text-[18rem] font-sans font-black italic tracking-tighter text-orange-500 drop-shadow-[0_0_60px_rgba(249,115,22,0.7)] hover:drop-shadow-[0_0_120px_rgba(249,115,22,1)] hover:text-orange-400 transition-all duration-700 cursor-default select-none block leading-none relative z-20"
+                         style={{ fontFamily: "'Geograph', 'Plus Jakarta Sans', sans-serif" }}
+                         whileHover={{ scale: 1.05 }}
+                       >
+                         DC
+                       </motion.span>
+                   </div>
+
+                  <>
+                    {/* Visual Orbit Path Line */}
+                    <div
+                      className="absolute pointer-events-none"
+                      style={{
+                        width: typeof window !== 'undefined' ? (window.innerWidth > 768 ? '930px' : '285px') : '930px',
+                        height: typeof window !== 'undefined' ? (window.innerWidth > 768 ? '210px' : '70px') : '210px', 
+                        transform: 'rotateX(78deg) translateY(10px)',
+                        transformStyle: 'preserve-3d',
+                      }}
+                    >
+                      {/* Outer Dashed Orbit Ring */}
+                      <div className="absolute inset-0 rounded-full border border-dashed border-orange-500/25 group-hover:border-orange-500/40 transition-colors duration-1000 shadow-[0_0_60px_rgba(249,115,22,0.1)]" />
+                      
+                      {/* Inner Accent Ring */}
+                      <div className="absolute inset-[12px] rounded-full border border-white/5" />
+                      
+                      {/* Atmospheric Glow */}
+                      <div className="absolute inset-[-16px] rounded-full bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.03)_0%,transparent_70%)]" />
+                    </div>
+
+                    {/* Orbiting Planets */}
+                    {activeOrbitImages.map((img, i) => (
+                      <OrbitingFrame key={i} index={i} total={activeOrbitImages.length} item={img} />
+                    ))}
+                  </>
+               </div>
+              </motion.div>
+
+              <motion.div 
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: false }}
+                className="space-y-10 flex flex-col items-start text-left w-full lg:pl-10 xl:pl-16 font-sans select-none"
+              >
+                 <motion.div variants={itemVariants} className="flex items-center gap-6 group/dc w-full justify-start">
+                    <motion.span 
+                      whileHover={{ scale: 1.2, rotate: -5 }}
+                      className="text-2xl font-black italic tracking-tighter text-orange-500 leading-none cursor-default drop-shadow-[0_0_15px_rgba(249,115,22,0.3)] hover:drop-shadow-[0_0_25px_rgba(249,115,22,1)] hover:text-orange-400 transition-all duration-300"
+                    >
+                      DC
+                    </motion.span>
+                    <div className="h-[1px] w-36 sm:w-64 md:w-96 lg:w-[28rem] bg-gradient-to-r from-orange-500/50 via-white/10 to-transparent transition-all duration-500 group-hover/dc:from-orange-500" />
+                 </motion.div>
+                 
+                 <div className="overflow-hidden w-full flex justify-start">
+                   <motion.p 
+                     variants={{
+                       hidden: { opacity: 0 },
+                       visible: { 
+                         opacity: 1,
+                         transition: { staggerChildren: 0.08, delayChildren: 0.35 }
+                       }
+                     }}
+                     className="text-xl md:text-3xl lg:text-[2.5rem] text-orange-500 font-extrabold leading-[1.15] tracking-tight uppercase flex flex-wrap justify-start text-left gap-y-1 max-w-[620px] md:max-w-[760px] lg:max-w-[900px]"
+                   >
+                     {"DREAMCATCHERS BEGAN WITH TWO BROTHERS AND AN OBSESSION WITH TELLING GREAT STORIES.".split(" ").map((word, i) => (
+                       <motion.span
+                         key={i}
+                         variants={{
+                           hidden: { opacity: 0, y: 40, rotateX: -90 },
+                           visible: { 
+                             opacity: 1, 
+                             y: 0, 
+                             rotateX: 0,
+                             transition: { duration: 1.8, ease: [0.16, 1, 0.3, 1] }
+                           }
+                         }}
+                         whileHover={{ scale: 1.1, color: "#fff", rotate: i % 2 === 0 ? 4 : -4 }}
+                         className="inline-block mr-[0.25em] origin-top cursor-default transition-colors duration-200"
+                       >
+                         {word}
+                       </motion.span>
+                     ))}
+                   </motion.p>
+                 </div>
+
+                 <motion.p 
+                   variants={{
+                     hidden: { opacity: 0, x: -20 },
+                     visible: { opacity: 1, x: 0, transition: { duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.8 } }
+                   }}
+                   className="text-sm sm:text-base md:text-lg text-orange-500/50 leading-relaxed max-w-2xl font-bold border-l-2 border-orange-600/70 pl-6 text-left"
+                 >
+                   As more clients showed faith in us, our tribe grew, and here we are today! We&apos;re a happy bunch of people pushing the creative envelope.
+                 </motion.p>
+
+                 <motion.button 
+                   variants={itemVariants}
+                   onClick={() => {
+                     document.getElementById('about-genesis-section')?.scrollIntoView({ behavior: 'smooth' });
+                   }}
+                   whileHover={{ 
+                     scale: 1.03, 
+                     backgroundColor: "#f97316", 
+                     color: "#ffffff",
+                     boxShadow: "0 15px 30px -10px rgba(249,115,22,0.4)" 
+                   }}
+                   className="group flex items-center gap-5 px-10 py-5 bg-white text-black font-black uppercase tracking-[0.2em] text-[10px] md:text-xs rounded-full transition-all shadow-2xl active:scale-95 pointer-events-auto cursor-pointer"
+                 >
+                   <span>Explore Our Story</span>
+                   <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                 </motion.button>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
         {/* Content Section */}
-        <section className="relative bg-black/40 backdrop-blur-3xl border-t border-white/5 py-32 px-6">
+        <section id="about-genesis-section" className="relative bg-black/40 backdrop-blur-3xl border-t border-white/5 py-32 px-6">
           <div className="max-w-[1400px] mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-start">
               <motion.div
@@ -298,7 +523,7 @@ const AboutPage = () => {
         {/* Team Section with scroll-controlled horizontal slide */}
         <section ref={scrollContainerRef} className="relative h-[250vh] bg-black">
           {/* Sticky view frame */}
-          <div className="sticky top-0 h-screen w-full overflow-hidden bg-black flex flex-col justify-center">
+          <div className="sticky top-0 h-screen w-full overflow-hidden bg-black flex flex-col justify-between pt-16 md:pt-24 pb-12">
             
             {/* Ambient Background Notebook Ruled Lines & Margin */}
             <div className="absolute inset-0 pointer-events-none z-0">
@@ -332,19 +557,19 @@ const AboutPage = () => {
                   stroke-dashoffset: 100;
                 }
                 100% {
-                  stroke-dashoffset: 0;
+                   stroke-dashoffset: 0;
                 }
               }
             `}</style>
 
             {/* Header Area (Lower Z-index to prevent covering the cards) */}
-            <div className="absolute top-16 md:top-24 left-8 md:left-24 z-10 max-w-xl">
+            <div className="relative z-10 max-w-xl pl-8 md:pl-24">
               <div className="flex items-center gap-3 text-orange-500 font-mono tracking-widest text-xs uppercase mb-3">
                 <span className="px-2 py-0.5 rounded border border-orange-500/30 text-[10px] font-black">04</span>
                 <span>Our Tribe</span>
               </div>
-              <h2 className="text-4xl md:text-7xl font-black italic text-white tracking-tighter leading-none uppercase mb-4">
-                The Architects.
+              <h2 className="text-3xl md:text-5xl font-black text-white tracking-tighter leading-none uppercase mb-4">
+                Dream Team
               </h2>
               <p className="text-white/30 text-xs md:text-sm font-semibold uppercase tracking-widest leading-relaxed">
                 A collective of obsessed creators, technical wizards, and poetic dreamers.
@@ -352,23 +577,23 @@ const AboutPage = () => {
             </div>
 
             {/* Sliding Container Track (Higher Z-index so it slides over background elements nicely) */}
-            <div className="w-full h-[60vh] relative z-20 flex items-center">
+            <div className="w-full flex-1 relative z-20 flex items-center min-h-0">
               <motion.div 
                 style={{ x }} 
                 className="flex gap-12 md:gap-16 items-center px-[30vw]"
               >
                 {team.map((member, idx) => {
-                  // Predefined organic staggered classes
+                  // Predefined organic staggered classes - reduced off-center offsets slightly to prevent overlapping text at any viewport size
                   const staggerClasses = [
-                    "translate-y-[40px]",
-                    "-translate-y-[40px]",
+                    "translate-y-[60px]",
+                    "-translate-y-[55px]",
                     "translate-y-0",
-                    "translate-y-[70px]",
-                    "-translate-y-[50px]",
-                    "translate-y-[20px]",
-                    "-translate-y-[20px]",
-                    "translate-y-[50px]",
-                    "-translate-y-[60px]"
+                    "translate-y-[85px]",
+                    "-translate-y-[70px]",
+                    "translate-y-[30px]",
+                    "-translate-y-[35px]",
+                    "translate-y-[75px]",
+                    "-translate-y-[50px]"
                   ];
                   const yClass = staggerClasses[idx % staggerClasses.length];
 
@@ -458,6 +683,50 @@ const AboutPage = () => {
        </main>
       <InteractiveOptions />
       <Footer />
+
+      {/* Vertical Lightbox Video Modal overlay */}
+      <AnimatePresence>
+        {selectedVideo && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[999] bg-black/95 flex items-center justify-center p-4 backdrop-blur-md"
+            onClick={() => setSelectedVideo(null)}
+          >
+            <button 
+              onClick={() => setSelectedVideo(null)}
+              className="absolute top-6 right-6 w-12 h-12 rounded-full border border-white/10 hover:border-white/30 text-white flex items-center justify-center bg-black hover:text-orange-500 transition-all font-sans"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <motion.div 
+              initial={{ scale: 0.9, y: 50 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 50 }}
+              className="relative w-full max-w-5xl aspect-video bg-zinc-950 rounded-3xl border border-white/5 overflow-hidden shadow-2xl"
+              onClick={e => e.stopPropagation()}
+            >
+              {isEmbedUrl(selectedVideo) ? (
+                <iframe 
+                  src={getEmbedUrl(selectedVideo, false)} 
+                  className="w-full h-full border-none" 
+                  allow="autoplay; encrypted-media; fullscreen" 
+                  allowFullScreen 
+                />
+              ) : (
+                <video 
+                  src={selectedVideo} 
+                  controls 
+                  autoPlay 
+                  className="w-full h-full object-contain" 
+                  referrerPolicy="no-referrer"
+                />
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

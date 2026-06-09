@@ -1609,7 +1609,7 @@ const AdminPanel: FC = () => {
                   onClick={() => setHomeSubTab('clients')}
                   className={`px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider transition-all ${homeSubTab === 'clients' ? 'bg-orange-500 text-white' : 'bg-black border border-white/10 text-white/40 hover:text-white'}`}
                 >
-                  5. Client/Brand Logos
+                  5. Collaborator/Brand Logos
                 </button>
                 <button 
                   onClick={() => setHomeSubTab('logo')}
@@ -1983,7 +1983,7 @@ const AdminPanel: FC = () => {
               >
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                   <div>
-                    <h2 className="text-2xl font-black italic text-white uppercase mb-2">🤝 CLIENTS & BRAND LOGOS</h2>
+                    <h2 className="text-2xl font-black italic text-white uppercase mb-2">🤝 COLLABORATORS & BRAND LOGOS</h2>
                     <p className="text-xs text-white/40 font-semibold tracking-wider uppercase">
                       Manage partner brands, colors, names, and logos displayed in the scrolling home-page tickers.
                     </p>
