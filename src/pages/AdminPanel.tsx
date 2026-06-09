@@ -977,7 +977,7 @@ const AdminPanel: FC = () => {
     if (!aboutTeamName.trim() || !aboutTeamImg.trim()) return;
     const newMember = {
       name: aboutTeamName.trim(),
-      role: aboutTeamRole.trim() || 'Creative Core',
+      role: '',
       img: aboutTeamImg.trim()
     };
     saveAboutTeam([...aboutTeam, newMember]);
@@ -991,7 +991,7 @@ const AdminPanel: FC = () => {
     setEditingAboutTeamIndex(index);
     const member = aboutTeam[index];
     setAboutTeamName(member.name);
-    setAboutTeamRole(member.role);
+    setAboutTeamRole('');
     setAboutTeamImg(member.img);
     setShowAddAboutTeamForm(false);
   };
@@ -1002,7 +1002,7 @@ const AdminPanel: FC = () => {
     const updated = [...aboutTeam];
     updated[editingAboutTeamIndex] = {
       name: aboutTeamName.trim(),
-      role: aboutTeamRole.trim() || 'Creative Core',
+      role: '',
       img: aboutTeamImg.trim()
     };
     saveAboutTeam(updated);
@@ -3765,7 +3765,7 @@ const AdminPanel: FC = () => {
                     <h4 className="text-sm font-black uppercase tracking-wider text-orange-500 flex items-center gap-2">
                       {editingAboutTeamIndex !== null ? `✍️ EDIT TRIBE MEMBER #${editingAboutTeamIndex + 1}` : '✨ WORKSPACE: CREATE NEW MEMBER PROFILE'}
                     </h4>
-                    <form onSubmit={editingAboutTeamIndex !== null ? handleSaveEditAboutTeam : handleAddAboutTeamMember} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <form onSubmit={editingAboutTeamIndex !== null ? handleSaveEditAboutTeam : handleAddAboutTeamMember} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-[10px] uppercase font-black text-white/40 mb-2">Display Name</label>
                         <input
@@ -3774,17 +3774,6 @@ const AdminPanel: FC = () => {
                           value={aboutTeamName}
                           onChange={(e) => setAboutTeamName(e.target.value)}
                           placeholder="ARJUN SHARMA"
-                          className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] uppercase font-black text-white/40 mb-2">Tribe Role Title</label>
-                        <input
-                          type="text"
-                          required
-                          value={aboutTeamRole}
-                          onChange={(e) => setAboutTeamRole(e.target.value)}
-                          placeholder="FOUNDER / DIRECTOR"
                           className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white"
                         />
                       </div>
@@ -3801,7 +3790,7 @@ const AdminPanel: FC = () => {
                       </div>
 
                       {/* Preview avatar */}
-                      <div className="md:col-span-3 flex items-center gap-4 bg-black/40 p-4 rounded-2xl border border-white/5">
+                      <div className="md:col-span-2 flex items-center gap-4 bg-black/40 p-4 rounded-2xl border border-white/5">
                         <div className="w-14 h-14 rounded-full overflow-hidden border border-white/10 shrink-0 bg-zinc-950">
                           {aboutTeamImg ? (
                             <img src={aboutTeamImg} className="w-full h-full object-cover" alt="Preview Image" onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400'; }} />
@@ -3811,11 +3800,10 @@ const AdminPanel: FC = () => {
                         </div>
                         <div>
                           <p className="text-xs uppercase font-extrabold text-white">{aboutTeamName || 'Tribe Member Name'}</p>
-                          <p className="text-[10px] uppercase font-mono tracking-wider text-orange-500 mt-1">{aboutTeamRole || 'ROLE/DESIGNATION'}</p>
                         </div>
                       </div>
 
-                      <div className="md:col-span-3 flex justify-end gap-3 pt-2">
+                      <div className="md:col-span-2 flex justify-end gap-3 pt-2">
                         <button
                           type="button"
                           onClick={() => {
@@ -3867,7 +3855,6 @@ const AdminPanel: FC = () => {
                       {/* Middle Details */}
                       <div className="flex-1 min-w-0 pr-12">
                         <h4 className="text-sm font-black text-white truncate uppercase tracking-tight">{member.name}</h4>
-                        <p className="text-[9px] font-bold text-orange-500 tracking-wider uppercase mt-1 truncate">{member.role}</p>
                       </div>
 
                       {/* Action buttons list */}
