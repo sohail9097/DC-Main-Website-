@@ -92,10 +92,15 @@ const AboutPage = () => {
   const [stat4Lbl, setStat4Lbl] = useState('GLOBAL BRANDS');
 
   const [team, setTeam] = useState<{ name: string; role: string; img: string }[]>([
-    { name: 'ARJUN SHARMA', role: 'FOUNDER / DIRECTOR', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400' },
-    { name: 'RIYA KAPOOR', role: 'EXECUTIVE PRODUCER', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400' },
-    { name: 'VIKRAM SINGH', role: 'HEAD OF POST-PRODUCTION', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400' },
-    { name: 'SARA KHAN', role: 'CREATIVE DIRECTOR', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=400' },
+    { name: 'FARZEEN KHAN', role: 'EXECUTIVE PRODUCER', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400' },
+    { name: 'AASHOOTOSH PANDEY', role: 'EXECUTIVE PRODUCER (DELHI)', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400' },
+    { name: 'RAHUL DEROZE', role: 'CREATIVE PRODUCER', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400' },
+    { name: 'PRITI RAI', role: 'POST PRODUCTION SUPERVISOR', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400' },
+    { name: 'YATENDRA NEGI', role: 'ACCOUNTS HEAD', img: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400' },
+    { name: 'DIVYA AGRAWAL', role: 'HUMAN RESOURCE MANAGER', img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400' },
+    { name: 'KARPU SWAMI', role: 'FINANCE CONTROLLER', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400' },
+    { name: 'NAMAN KOHLI', role: 'SENIOR ASSOCIATE PRODUCER', img: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&q=80&w=400' },
+    { name: 'RAMIN YAZESHANI', role: 'ASSOCIATE PRODUCER', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400' },
   ]);
 
   const loadAboutConfigs = () => {
@@ -126,10 +131,15 @@ const AboutPage = () => {
       }
     } else {
       setTeam([
-        { name: 'ARJUN SHARMA', role: 'FOUNDER / DIRECTOR', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400' },
-        { name: 'RIYA KAPOOR', role: 'EXECUTIVE PRODUCER', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400' },
-        { name: 'VIKRAM SINGH', role: 'HEAD OF POST-PRODUCTION', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400' },
-        { name: 'SARA KHAN', role: 'CREATIVE DIRECTOR', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=400' },
+        { name: 'FARZEEN KHAN', role: 'EXECUTIVE PRODUCER', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400' },
+        { name: 'AASHOOTOSH PANDEY', role: 'EXECUTIVE PRODUCER (DELHI)', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400' },
+        { name: 'RAHUL DEROZE', role: 'CREATIVE PRODUCER', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400' },
+        { name: 'PRITI RAI', role: 'POST PRODUCTION SUPERVISOR', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400' },
+        { name: 'YATENDRA NEGI', role: 'ACCOUNTS HEAD', img: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400' },
+        { name: 'DIVYA AGRAWAL', role: 'HUMAN RESOURCE MANAGER', img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400' },
+        { name: 'KARPU SWAMI', role: 'FINANCE CONTROLLER', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400' },
+        { name: 'NAMAN KOHLI', role: 'SENIOR ASSOCIATE PRODUCER', img: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&q=80&w=400' },
+        { name: 'RAMIN YAZESHANI', role: 'ASSOCIATE PRODUCER', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400' },
       ]);
     }
   };
@@ -144,69 +154,9 @@ const AboutPage = () => {
     };
   }, []);
 
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [isPausedByUser, setIsPausedByUser] = useState(false);
-  const autoPlayTimerRef = useRef<any>(null);
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-
-    let animationFrameId: number;
-    let lastTime = performance.now();
-    
-    // Auto-scroll speed: 0.08px per ms (increased slightly)
-    const speed = 0.08; 
-
-    const updateScroll = (time: number) => {
-      if (!isPausedByUser && el) {
-        const delta = time - lastTime;
-        el.scrollLeft += speed * delta;
-        
-        // Wrap around seamlessly
-        const maxScroll = el.scrollWidth - el.clientWidth;
-        if (el.scrollLeft >= maxScroll - 5) {
-          el.scrollLeft = 10;
-        }
-      }
-      lastTime = time;
-      animationFrameId = requestAnimationFrame(updateScroll);
-    };
-
-    animationFrameId = requestAnimationFrame(updateScroll);
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      if (autoPlayTimerRef.current) {
-        clearTimeout(autoPlayTimerRef.current);
-      }
-    };
-  }, [isPausedByUser, team.length]);
-
-  const triggerUserPause = () => {
-    setIsPausedByUser(true);
-    if (autoPlayTimerRef.current) {
-      clearTimeout(autoPlayTimerRef.current);
-    }
-    autoPlayTimerRef.current = setTimeout(() => {
-      setIsPausedByUser(false);
-    }, 5000); // Resume auto scroll after 5 seconds
-  };
-
-  const handleScrollLeft = () => {
-    triggerUserPause();
-    if (scrollRef.current) {
-      const cardWidth = window.innerWidth < 768 ? 280 + 32 : 380 + 32;
-      scrollRef.current.scrollBy({ left: -cardWidth, behavior: 'smooth' });
-    }
-  };
-
-  const handleScrollRight = () => {
-    triggerUserPause();
-    if (scrollRef.current) {
-      const cardWidth = window.innerWidth < 768 ? 280 + 32 : 380 + 32;
-      scrollRef.current.scrollBy({ left: cardWidth, behavior: 'smooth' });
-    }
-  };
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: scrollContainerRef });
+  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-65%"]);
 
   const stats = [
     { label: stat1Lbl, value: stat1Val, icon: <Camera className="w-5 h-5" /> },
@@ -345,79 +295,143 @@ const AboutPage = () => {
           </div>
         </section>
 
-        {/* Team Section */}
-        <section className="py-32 px-6">
-          <div className="max-w-[1600px] mx-auto">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-20">
-              <div className="space-y-6">
-                <span className="text-orange-500 text-[10px] font-black uppercase tracking-[0.5em] block">Our Tribe</span>
-                <h2 className="text-5xl md:text-8xl font-black italic text-white tracking-tighter leading-none uppercase">The Architects.</h2>
+        {/* Team Section with scroll-controlled horizontal slide */}
+        <section ref={scrollContainerRef} className="relative h-[250vh] bg-black">
+          {/* Sticky view frame */}
+          <div className="sticky top-0 h-screen w-full overflow-hidden bg-black flex flex-col justify-center">
+            
+            {/* Ambient Background Notebook Ruled Lines & Margin */}
+            <div className="absolute inset-0 pointer-events-none z-0">
+              {/* Horizontal Ruled Lines */}
+              <div className="absolute inset-0 flex flex-col justify-between py-[12vh] opacity-[0.12]">
+                <div className="w-full h-[1px] bg-white" />
+                <div className="w-full h-[1px] bg-white" />
+                <div className="w-full h-[1px] bg-white" />
+                <div className="w-full h-[1px] bg-white" />
+                <div className="w-full h-[1px] bg-white" />
+                <div className="w-full h-[1px] bg-white" />
+                <div className="w-full h-[1px] bg-white" />
+                <div className="w-full h-[1px] bg-white" />
+                <div className="w-full h-[1px] bg-white" />
+                <div className="w-full h-[1px] bg-white" />
               </div>
-              <p className="text-white/30 max-w-md text-base md:text-lg font-medium leading-relaxed tracking-tight">
-                A collective of obsessed creators, technical wizards, and poetic dreamers committed to the craft of storytelling.
+              {/* Vertical Notebook Margin Line */}
+              <div className="absolute top-0 bottom-0 left-[10%] md:left-[14%] w-[1.5px] bg-orange-500/15" />
+            </div>
+
+            {/* Giant Faint Background Word */}
+            <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden z-0 select-none">
+              <span className="text-[28vw] font-black tracking-tighter text-white/[0.015] uppercase italic select-none">
+                the tribe
+              </span>
+            </div>
+
+            <style>{`
+              @keyframes border-trace-anim {
+                0% {
+                  stroke-dashoffset: 100;
+                }
+                100% {
+                  stroke-dashoffset: 0;
+                }
+              }
+            `}</style>
+
+            {/* Header Area (Lower Z-index to prevent covering the cards) */}
+            <div className="absolute top-16 md:top-24 left-8 md:left-24 z-10 max-w-xl">
+              <div className="flex items-center gap-3 text-orange-500 font-mono tracking-widest text-xs uppercase mb-3">
+                <span className="px-2 py-0.5 rounded border border-orange-500/30 text-[10px] font-black">04</span>
+                <span>Our Tribe</span>
+              </div>
+              <h2 className="text-4xl md:text-7xl font-black italic text-white tracking-tighter leading-none uppercase mb-4">
+                The Architects.
+              </h2>
+              <p className="text-white/30 text-xs md:text-sm font-semibold uppercase tracking-widest leading-relaxed">
+                A collective of obsessed creators, technical wizards, and poetic dreamers.
               </p>
             </div>
 
-            {/* Infinite Horizontal Scrolling Row */}
-            <div className="relative w-full py-4 group">
-              {/* Fade masks on the edges */}
-              <div className="pointer-events-none absolute inset-y-0 left-0 w-16 md:w-40 bg-gradient-to-r from-black via-black/80 to-transparent z-20" />
-              <div className="pointer-events-none absolute inset-y-0 right-0 w-16 md:w-40 bg-gradient-to-l from-black via-black/80 to-transparent z-20" />
-
-              {/* Scrollable Row */}
-              <div 
-                ref={scrollRef}
-                className="flex gap-8 overflow-x-auto scrollbar-none py-4 snap-x snap-mandatory scroll-smooth px-12 md:px-24"
-                style={{
-                  scrollbarWidth: 'none',
-                  msOverflowStyle: 'none'
-                }}
+            {/* Sliding Container Track (Higher Z-index so it slides over background elements nicely) */}
+            <div className="w-full h-[60vh] relative z-20 flex items-center">
+              <motion.div 
+                style={{ x }} 
+                className="flex gap-12 md:gap-16 items-center px-[30vw]"
               >
-                {[...team, ...team, ...team].map((member, idx) => (
-                  <div
-                    key={`${member.name}-${idx}`}
-                    className="w-[280px] md:w-[380px] flex-shrink-0 snap-center group/card relative cursor-pointer"
-                  >
-                    <div className="aspect-[3/4] overflow-hidden rounded-[3rem] border border-white/10 relative">
-                      <img 
-                        src={member.img} 
-                        alt={member.name} 
-                        className="w-full h-full object-cover transition-all duration-1000 group-hover/card:scale-110" 
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover/card:opacity-40 transition-opacity" />
+                {team.map((member, idx) => {
+                  // Predefined organic staggered classes
+                  const staggerClasses = [
+                    "translate-y-[40px]",
+                    "-translate-y-[40px]",
+                    "translate-y-0",
+                    "translate-y-[70px]",
+                    "-translate-y-[50px]",
+                    "translate-y-[20px]",
+                    "-translate-y-[20px]",
+                    "translate-y-[50px]",
+                    "-translate-y-[60px]"
+                  ];
+                  const yClass = staggerClasses[idx % staggerClasses.length];
+
+                  return (
+                    <div 
+                      key={`${member.name}-${idx}`}
+                      className={`bg-transparent w-[230px] md:w-[280px] flex-shrink-0 relative group/card transition-all duration-500 select-none pb-4 ${yClass}`}
+                    >
+                      {/* Image Frame */}
+                      <div className="w-full aspect-[4/5] rounded-[2rem] overflow-hidden relative mb-6">
+                        <img 
+                          src={member.img} 
+                          alt={member.name} 
+                          referrerPolicy="no-referrer"
+                          className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover/card:scale-120"
+                        />
+
+                        {/* Circular looping orange tracer border on hover directly orbiting around the image borders */}
+                        <div className="absolute inset-0 pointer-events-none z-20 rounded-[2rem] opacity-0 group-hover/card:opacity-100 transition-opacity duration-300">
+                          <svg className="absolute inset-0 w-full h-full rounded-[2rem]" viewBox="0 0 100 100" preserveAspectRatio="none">
+                            <rect
+                              x="0"
+                              y="0"
+                              width="100"
+                              height="100"
+                              rx="6"
+                              ry="4.5"
+                              fill="none"
+                              stroke="#f97316"
+                              strokeWidth="1.5"
+                              pathLength="100"
+                              style={{
+                                strokeDasharray: '25 75',
+                                animation: 'border-trace-anim 3.2s linear infinite'
+                              }}
+                            />
+                          </svg>
+                        </div>
+                      </div>
+
+                      {/* Name Only */}
+                      <div className="text-center relative z-10 px-2">
+                        <h4 className="text-lg md:text-xl font-black tracking-widest text-white uppercase italic group-hover/card:text-orange-500 transition-colors duration-300">
+                          {member.name}
+                        </h4>
+                      </div>
                     </div>
-                    <div className="absolute inset-x-0 bottom-10 px-10 whitespace-normal">
-                      <h4 className="text-2xl font-black text-white tracking-tighter uppercase italic mb-1">
-                        {member.name}
-                      </h4>
-                      <p className="text-orange-500 text-[9px] font-black uppercase tracking-[0.3em]">
-                        {member.role}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Left Arrow Button */}
-              <button 
-                type="button"
-                onClick={handleScrollLeft}
-                className="absolute left-4 md:left-10 top-1/2 -translate-y-1/2 z-30 w-12 h-12 md:w-16 md:h-16 flex items-center justify-center rounded-full bg-black/60 hover:bg-orange-500 text-white hover:text-black border border-white/10 hover:border-orange-500/50 transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] active:scale-95 cursor-pointer backdrop-blur-md group-hover:scale-105"
-                aria-label="Previous Profile"
-              >
-                <ChevronLeft className="w-5 h-5 md:w-8 md:h-8" />
-              </button>
-
-              {/* Right Arrow Button */}
-              <button 
-                type="button"
-                onClick={handleScrollRight}
-                className="absolute right-4 md:right-10 top-1/2 -translate-y-1/2 z-30 w-12 h-12 md:w-16 md:h-16 flex items-center justify-center rounded-full bg-black/60 hover:bg-orange-500 text-white hover:text-black border border-white/10 hover:border-orange-500/50 transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] active:scale-95 cursor-pointer backdrop-blur-md group-hover:scale-105"
-                aria-label="Next Profile"
-              >
-                <ChevronRight className="w-5 h-5 md:w-8 md:h-8" />
-              </button>
+                  );
+                })}
+              </motion.div>
             </div>
+
+            {/* Horizontal Scroll Progress bar / Tip */}
+            <div className="absolute bottom-16 right-8 md:right-24 z-20 flex items-center gap-4 text-white/20 text-[10px] font-black uppercase tracking-widest">
+              <span>Scroll down to slide</span>
+              <div className="w-12 h-[1px] bg-white/20 relative overflow-hidden">
+                <motion.div 
+                  style={{ scaleX: scrollYProgress }} 
+                  className="absolute inset-0 bg-orange-500 origin-left"
+                />
+              </div>
+            </div>
+
           </div>
         </section>
 

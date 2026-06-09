@@ -2026,11 +2026,11 @@ function Intro() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: false, margin: "-100px" }}
-          className="w-full pb-16 md:pb-24 flex flex-col md:flex-row items-start justify-between gap-12 font-sans select-none"
+          className="w-full pb-16 md:pb-24 flex flex-col md:flex-row items-start justify-between gap-12 font-geograph select-none"
         >
           {/* Left Text Block */}
           <motion.div className="w-full md:max-w-5xl text-left">
-            <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-[2.8rem] xl:text-[3.6rem] font-black italic tracking-tighter leading-[1.05] uppercase font-sans text-white overflow-hidden">
+            <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-[2.8rem] xl:text-[3.6rem] font-black tracking-tighter leading-[1.05] uppercase font-geograph text-white overflow-hidden">
               {/* Line 1 */}
               <motion.div className="overflow-hidden mb-2">
                 <motion.span 
@@ -2076,7 +2076,7 @@ function Intro() {
             {/* Badge tags row */}
             <motion.div 
               variants={badgeRowVariants}
-              className="mt-6 md:mt-8 flex flex-wrap md:flex-nowrap items-center gap-x-2 sm:gap-x-2.5 gap-y-2.5 text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-lg font-black italic tracking-wide uppercase font-sans text-white md:whitespace-nowrap origin-left"
+              className="mt-6 md:mt-8 flex flex-wrap md:flex-nowrap items-center gap-x-2 sm:gap-x-2.5 gap-y-2.5 text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-lg font-black italic tracking-wide uppercase font-geograph text-white md:whitespace-nowrap origin-left"
             >
               {/* ADVERTISING */}
               <motion.span 
@@ -2242,7 +2242,7 @@ function Intro() {
                      transition: { staggerChildren: 0.08, delayChildren: 0.35 }
                    }
                  }}
-                 className="text-xl md:text-3xl lg:text-[2.5rem] text-orange-500 font-extrabold leading-[1.15] tracking-tight uppercase italic flex flex-wrap justify-start text-left gap-y-1 max-w-[620px] md:max-w-[760px] lg:max-w-[900px]"
+                 className="text-xl md:text-3xl lg:text-[2.5rem] text-orange-500 font-extrabold font-geograph leading-[1.15] tracking-tight uppercase flex flex-wrap justify-start text-left gap-y-1 max-w-[620px] md:max-w-[760px] lg:max-w-[900px]"
                >
                  {"DREAMCATCHERS BEGAN WITH TWO BROTHERS AND AN OBSESSION WITH TELLING GREAT STORIES.".split(" ").map((word, i) => (
                    <motion.span
@@ -2559,12 +2559,14 @@ function LandingPage() {
               <iframe
                 key={backdropUrl}
                 src={getEmbedUrl(getDesktopHighQualityUrl(backdropUrl))}
-                className="w-full h-full border-none object-cover opacity-95 scale-105 pointer-events-none"
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border-none opacity-95 scale-105 pointer-events-none"
                 allow="autoplay; encrypted-media; picture-in-picture"
                 allowFullScreen
                 style={{
-                  width: '100%',
-                  height: '100%',
+                  width: '177.77vh',
+                  height: '100vh',
+                  minWidth: '100vw',
+                  minHeight: '56.25vw',
                   pointerEvents: 'none',
                 }}
               />
@@ -3229,11 +3231,7 @@ export function ShowreelPage() {
             <iframe
               src={iframeSrc}
               title="Showreel Player"
-              className={`border-none transition-all duration-300 ${
-                isMobileView 
-                  ? 'absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[178vh] h-[100vh] min-w-[100vw] min-h-[56.25vw] max-w-none' 
-                  : 'w-full h-full'
-              }`}
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[178vh] h-[100vh] min-w-[100vw] min-h-[56.25vw] max-w-none border-none transition-all duration-300"
               allowFullScreen
               allow="autoplay; encrypted-media; picture-in-picture"
             />
@@ -3241,7 +3239,7 @@ export function ShowreelPage() {
             <video
               ref={videoElementRef}
               src={videoUrl}
-              className={`bg-black transition-all duration-300 ${isMobileView ? 'absolute left-0 top-0 w-full h-full object-cover' : 'w-full h-full object-contain'}`}
+              className="absolute left-0 top-0 w-full h-full object-cover bg-black transition-all duration-300"
               controls
               autoPlay
               playsInline
