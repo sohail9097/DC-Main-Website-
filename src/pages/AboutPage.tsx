@@ -1,7 +1,7 @@
-import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
+import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'motion/react';
 import { ChevronRight, ChevronLeft, Camera, Users, Target, Rocket, Instagram, Facebook, Youtube, Twitter, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useState, useEffect, useRef, FC } from 'react';
+import { useState, useEffect, useRef, useMemo, FC } from 'react';
 import { 
   Navbar, 
   Footer, 
@@ -114,6 +114,33 @@ const AboutPage = () => {
     { name: 'RAMIN YAZESHANI', role: 'ASSOCIATE PRODUCER', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400' },
   ]);
 
+  const wavyBackgroundPaths = useMemo(() => {
+    const linesCount = 70;
+    const width = 1600;
+    const height = 900;
+    const paths: string[] = [];
+
+    for (let i = 0; i <= linesCount; i++) {
+      const yNorm = i / linesCount;
+      const yBase = yNorm * height;
+      const points: string[] = [];
+      const segments = 45;
+
+      for (let j = 0; j <= segments; j++) {
+        const xNorm = j / segments;
+        const x = xNorm * width;
+
+        // Taper waves off at left and right boundaries
+        const baseAmplitude = Math.sin(xNorm * Math.PI);
+        const wave = Math.sin(xNorm * Math.PI * 2.5 - yNorm * 2.2) * 55 * baseAmplitude;
+        
+        points.push(`${x.toFixed(1)},${(yBase + wave).toFixed(1)}`);
+      }
+      paths.push(`M ${points.join(' L ')}`);
+    }
+    return paths;
+  }, []);
+
   const loadAboutConfigs = () => {
     setWord1(localStorage.getItem('about_bgt_word1') || 'Dream');
     setWord2(localStorage.getItem('about_bgt_word2') || 'Catchers');
@@ -168,6 +195,23 @@ const AboutPage = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: scrollContainerRef });
   const x = useTransform(scrollYProgress, [0, 1], ["0%", "-65%"]);
+  
+  // Staggered custom spring physics for organic fluid waves (inertia, mass, and drag)
+  const springConfig1 = { stiffness: 45, damping: 18, mass: 0.8 };
+  const springConfig2 = { stiffness: 30, damping: 12, mass: 1.0 };
+  const springConfig3 = { stiffness: 60, damping: 22, mass: 0.6 };
+
+  const scrollWaveX1_A = useSpring(useTransform(scrollYProgress, [0, 1], [0, 180]), springConfig1);
+  const scrollWaveX1_B = useSpring(useTransform(scrollYProgress, [0, 1], [0, 180]), springConfig2);
+  const scrollWaveX1_C = useSpring(useTransform(scrollYProgress, [0, 1], [0, 180]), springConfig3);
+
+  const scrollWaveX2_A = useSpring(useTransform(scrollYProgress, [0, 1], [0, -180]), springConfig1);
+  const scrollWaveX2_B = useSpring(useTransform(scrollYProgress, [0, 1], [0, -180]), springConfig2);
+  const scrollWaveX2_C = useSpring(useTransform(scrollYProgress, [0, 1], [0, -180]), springConfig3);
+
+  const scrollWaveY_A = useSpring(useTransform(scrollYProgress, [0, 1], [0, 50]), springConfig1);
+  const scrollWaveY_B = useSpring(useTransform(scrollYProgress, [0, 1], [0, 50]), springConfig2);
+  const scrollWaveY_C = useSpring(useTransform(scrollYProgress, [0, 1], [0, 50]), springConfig3);
 
   const [orbitImages, setOrbitImages] = useState<string[]>([]);
   
@@ -525,24 +569,61 @@ const AboutPage = () => {
           {/* Sticky view frame */}
           <div className="sticky top-0 h-screen w-full overflow-hidden bg-black flex flex-col justify-between pt-16 md:pt-24 pb-12">
             
-            {/* Ambient Background Notebook Ruled Lines & Margin */}
-            <div className="absolute inset-0 pointer-events-none z-0">
-              {/* Horizontal Ruled Lines */}
-              <div className="absolute inset-0 flex flex-col justify-between py-[12vh] opacity-[0.12]">
-                <div className="w-full h-[1px] bg-white" />
-                <div className="w-full h-[1px] bg-white" />
-                <div className="w-full h-[1px] bg-white" />
-                <div className="w-full h-[1px] bg-white" />
-                <div className="w-full h-[1px] bg-white" />
-                <div className="w-full h-[1px] bg-white" />
-                <div className="w-full h-[1px] bg-white" />
-                <div className="w-full h-[1px] bg-white" />
-                <div className="w-full h-[1px] bg-white" />
-                <div className="w-full h-[1px] bg-white" />
-              </div>
-              {/* Vertical Notebook Margin Line */}
-              <div className="absolute top-0 bottom-0 left-[10%] md:left-[14%] w-[1.5px] bg-orange-500/15" />
-            </div>
+             {/* Ambient Background Wavy Lining styled like requested design with interactive scroll waving */}
+             <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden bg-black flex items-center justify-center">
+                <svg 
+                 className="w-full h-full opacity-100" 
+                 viewBox="0 0 1600 900" 
+                 preserveAspectRatio="none"
+               >
+                 {wavyBackgroundPaths.map((d, idx) => {
+                   let selectedX;
+                   let selectedY;
+                   const mod3 = idx % 3;
+                   const mod2 = idx % 2;
+
+                   if (mod2 === 0) {
+                     if (mod3 === 0) {
+                       selectedX = scrollWaveX1_A;
+                     } else if (mod3 === 1) {
+                       selectedX = scrollWaveX1_B;
+                     } else {
+                       selectedX = scrollWaveX1_C;
+                     }
+                   } else {
+                     if (mod3 === 0) {
+                       selectedX = scrollWaveX2_A;
+                     } else if (mod3 === 1) {
+                       selectedX = scrollWaveX2_B;
+                     } else {
+                       selectedX = scrollWaveX2_C;
+                     }
+                   }
+
+                   if (mod3 === 0) {
+                     selectedY = scrollWaveY_A;
+                   } else if (mod3 === 1) {
+                     selectedY = scrollWaveY_B;
+                   } else {
+                     selectedY = scrollWaveY_C;
+                   }
+
+                   return (
+                     <motion.path
+                       key={idx}
+                       d={d}
+                       fill="none"
+                       stroke="rgba(255, 255, 255, 0.45)"
+                       strokeWidth="1.5"
+                       style={{
+                         x: selectedX,
+                         y: selectedY
+                       }}
+                     />
+                   );
+                 })}
+               </svg>
+             </div>
 
             {/* Giant Faint Background Word */}
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden z-0 select-none">
@@ -671,7 +752,7 @@ const AboutPage = () => {
                 <span className="text-orange-500">Dreams Together.</span>
               </motion.h2>
               <motion.button 
-                onClick={() => navigate('/contact')}
+                onClick={() => navigate('/#contact-section')}
                 whileHover={{ scale: 1.05, backgroundColor: "#fff", color: "#000" }}
                 transition={{ duration: 0.4 }}
                 className="px-16 py-8 rounded-full border-2 border-white/10 text-white font-black uppercase tracking-[0.3em] text-xs md:text-sm hover:border-transparent transition-all"

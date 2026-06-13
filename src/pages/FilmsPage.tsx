@@ -311,17 +311,6 @@ const FilmsPage = () => {
                     {/* Section Header */}
                     <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-white/5 pb-6 mb-8 gap-4">
                       <div>
-                        {/* Section Counter Badge */}
-                        <div className="flex items-center gap-3 mb-2">
-                          <span className="text-orange-500 font-mono text-xs font-black tracking-widest uppercase">
-                            SECTION {section.badge}
-                          </span>
-                          <span className="w-8 h-[1px] bg-orange-500/30" />
-                          <span className="text-white/30 text-xs tracking-wider font-mono">
-                            {categoryFilms.length} {categoryFilms.length === 1 ? 'WORK' : 'WORKS'}
-                          </span>
-                        </div>
-
                         {/* Title with decorative Glow on hover */}
                         <div className="relative inline-block">
                           <h2 className="text-3xl md:text-5xl font-black italic tracking-tighter text-white uppercase group-hover/sec:text-orange-500 transition-colors duration-500">

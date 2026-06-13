@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from 'motion/react';
 import { Shield, Sparkles, Building2, Landmark, Clapperboard, ExternalLink, ArrowRight, Plus } from 'lucide-react';
-import React, { useState, useEffect, FC } from 'react';
+import React, { useState, useEffect, FC, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navbar, transformGoogleDriveUrl, Footer, InteractiveOptions } from '../App';
 
@@ -871,6 +871,7 @@ const CATEGORIES = [
 export default function BrandPage() {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState<string>('all');
+  const selectorRef = useRef<HTMLDivElement>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [brands, setBrands] = useState<BrandItem[]>([]);
 
@@ -974,7 +975,10 @@ export default function BrandPage() {
         </div>
 
         {/* Dynamic Category Selector Menu Layout */}
-        <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between sticky top-[95px] z-40 bg-black/80 backdrop-blur-xl py-6 border-b border-white/5 px-4 -mx-4 rounded-b-2xl">
+        <div 
+          ref={selectorRef}
+          className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between sticky top-[95px] z-40 bg-black/80 backdrop-blur-xl py-6 border-b border-white/5 px-4 -mx-4 rounded-b-2xl scroll-mt-32"
+        >
           <div className="flex flex-wrap gap-2">
             {CATEGORIES.map(category => {
               const IconComp = category.icon;
@@ -983,7 +987,10 @@ export default function BrandPage() {
               return (
                 <button
                    key={category.id}
-                  onClick={() => setActiveCategory(category.id)}
+                  onClick={() => {
+                    setActiveCategory(category.id);
+                    selectorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 ${
                     isActive 
                       ? 'bg-orange-500 text-black shadow-lg shadow-orange-500/20' 
@@ -1075,7 +1082,7 @@ export default function BrandPage() {
             </p>
           </div>
           <button 
-            onClick={() => navigate('/contact')}
+            onClick={() => navigate('/#contact-section')}
             className="group flex items-center gap-6 px-8 md:px-12 py-4 md:py-6 bg-white text-black font-black uppercase tracking-[0.2em] text-[10px] md:text-xs rounded-full transition-all shadow-xl hover:bg-orange-500 hover:shadow-orange-500/20 shrink-0 self-start md:self-auto"
           >
             COLLABORATE WITH US

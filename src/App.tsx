@@ -1,14 +1,15 @@
 import { motion, AnimatePresence, useScroll, useTransform, useTime } from 'motion/react';
-import { Camera, Play, ChevronLeft, ChevronRight, Menu, X, Rocket, Moon, ShieldCheck, Instagram, Facebook, Youtube, Twitter, ArrowLeft, Sparkles, Globe, Tv, Heart, Compass } from 'lucide-react';
+import { Camera, Play, ChevronLeft, ChevronRight, Menu, X, Rocket, Moon, ShieldCheck, Instagram, Facebook, Youtube, Twitter, ArrowLeft, Sparkles, Globe, Tv, Heart, Compass, Mail, Phone, MapPin, Send } from 'lucide-react';
 import { useState, useEffect, useRef, FC, memo } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import AdminPanel from './pages/AdminPanel';
 import FilmsPage from './pages/FilmsPage';
 import AboutPage from './pages/AboutPage';
-import ContactPage from './pages/ContactPage';
 import BrandPage from './pages/BrandPage';
 import { initSiteSync } from './lib/siteSync';
+import GlobalPresenceMap from './components/GlobalPresenceMap';
+import { CinematicSlideshow } from './components/CinematicSlideshow';
 
 // --- Components ---
 
@@ -247,7 +248,6 @@ export function Navbar() {
     { name: 'Content', to: '/films', path: '/films' },
     { name: 'Brand', to: '/brand', path: '/brand' },
     { name: 'About Us', to: '/about', path: '/about' },
-    { name: 'Contact Us', to: '/contact', path: '/contact' },
   ];
 
   const isActive = (path?: string) => {
@@ -283,10 +283,14 @@ export function Navbar() {
                 }}
               />
             ) : (
-              <>
-                <span className="text-2xl md:text-4xl font-black italic tracking-tighter text-orange-500 leading-none transition-all duration-300 group-hover:text-orange-400 group-hover:drop-shadow-[0_0_15px_rgba(249,115,22,0.8)]">{logoTextShort}</span>
-                <span className="text-xs md:text-lg font-bold tracking-[0.2em] text-white hidden sm:block transition-all duration-300 group-hover:text-orange-100">{logoTextFull}</span>
-              </>
+              <div className="flex items-center gap-0.5 select-none group">
+                <span className="text-lg sm:text-xl md:text-2xl font-black tracking-wider text-white uppercase transition-colors duration-300 group-hover:text-orange-400">
+                  DREAMCATCHERS
+                </span>
+                <span className="text-lg sm:text-xl md:text-2xl font-black tracking-wider text-orange-500 uppercase">
+                  .TV
+                </span>
+              </div>
             )}
           </motion.div>
         </Link>
@@ -334,7 +338,14 @@ export function Navbar() {
                 referrerPolicy="no-referrer"
               />
             ) : (
-              <span className="text-lg font-bold tracking-widest">{logoTextFull}</span>
+              <div className="flex items-center gap-0.5 select-none">
+                <span className="text-lg font-black tracking-wider text-white uppercase">
+                  DREAMCATCHERS
+                </span>
+                <span className="text-lg font-black tracking-wider text-orange-500 uppercase">
+                  .TV
+                </span>
+              </div>
             )}
             <button onClick={() => setIsMenuOpen(false)}><X /></button>
           </div>
@@ -453,7 +464,14 @@ function Hero() {
           </button>
           <button 
             type="button"
-            onClick={() => navigate('/contact')}
+            onClick={() => {
+              const el = document.getElementById('contact-section');
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+              } else {
+                navigate('/#contact-section');
+              }
+            }}
             className="px-6 md:px-10 py-3 md:py-5 border border-white/20 text-white hover:border-white font-black uppercase tracking-[0.2em] text-[10px] md:text-xs rounded-full hover:border-orange-500/50 hover:bg-white/5 transition-all pointer-events-auto cursor-pointer"
           >
             Contact Us
@@ -627,7 +645,7 @@ function Clients() {
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="font-bebas text-4xl md:text-7xl font-black italic tracking-[0.02em] text-orange-500 uppercase mb-2 select-none"
+            className="font-bebas text-3xl md:text-5xl lg:text-6xl font-black tracking-[0.02em] text-orange-500 uppercase mb-2 select-none"
           >
             Collaborators
           </motion.h3>
@@ -1552,7 +1570,7 @@ export function InteractiveOptions() {
     { name: 'CONTENT', to: '/films' },
     { name: 'BRAND', to: '/brand' },
     { name: 'ABOUT US', to: '/about' },
-    { name: 'CONTACT US', to: '/contact' },
+    { name: 'CONTACT US', to: '/#contact-section' },
   ];
 
   return (
@@ -1630,21 +1648,25 @@ export function Footer() {
   const [facebook, setFacebook] = useState('#');
   const [youtube, setYoutube] = useState('#');
   const [twitter, setTwitter] = useState('#');
+  const [contactAddress, setContactAddress] = useState("820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
 
   const loadSocials = () => {
     setInstagram(localStorage.getItem('social_instagram') || '#');
     setFacebook(localStorage.getItem('social_facebook') || '#');
     setYoutube(localStorage.getItem('social_youtube') || '#');
     setTwitter(localStorage.getItem('social_twitter') || '#');
+    setContactAddress(localStorage.getItem('contact_address') || "820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
   };
 
   useEffect(() => {
     loadSocials();
     window.addEventListener('storage', loadSocials);
     window.addEventListener('storage_updated_socials', loadSocials);
+    window.addEventListener('storage_updated_contact', loadSocials);
     return () => {
       window.removeEventListener('storage', loadSocials);
       window.removeEventListener('storage_updated_socials', loadSocials);
+      window.removeEventListener('storage_updated_contact', loadSocials);
     };
   }, []);
 
@@ -1666,7 +1688,7 @@ export function Footer() {
             <h5 className="text-orange-500 text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] mb-6 md:mb-10">Inquiries</h5>
             <div className="space-y-4 md:space-y-6">
               <a href="mailto:hello@dreamcatchers.com" className="block text-lg md:text-xl font-bold text-white hover:text-orange-400 transition-all tracking-tight">hello@dreamcatchers.com</a>
-              <p className="text-white/30 text-sm italic">Lower Parel, Mumbai, India</p>
+              <p className="text-white/30 text-sm italic">{contactAddress}</p>
               
               <div className="pt-6 border-t border-white/5">
                 {user ? (
@@ -2345,6 +2367,22 @@ function LandingPage() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const [contactTitleFirst, setContactTitleFirst] = useState("Let's");
+  const [contactTitleOrange, setContactTitleOrange] = useState("Connect.");
+  const [contactSubtitle, setContactSubtitle] = useState("Start your cinematic journey today.");
+  const [contactEmail, setContactEmail] = useState("hello@dreamcatchers.com");
+  const [contactPhone, setContactPhone] = useState("+91 98765 43210");
+  const [contactAddress, setContactAddress] = useState("820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
+
+  const loadContactConfigs = () => {
+    setContactTitleFirst(localStorage.getItem('contact_title_first') || "Let's");
+    setContactTitleOrange(localStorage.getItem('contact_title_orange') || "Connect.");
+    setContactSubtitle(localStorage.getItem('contact_subtitle') || "Start your cinematic journey today.");
+    setContactEmail(localStorage.getItem('contact_email') || "hello@dreamcatchers.com");
+    setContactPhone(localStorage.getItem('contact_phone') || "+91 98765 43210");
+    setContactAddress(localStorage.getItem('contact_address') || "820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
+  };
+
   const loadConfigs = () => {
     const type = (localStorage.getItem('home_hero_bg_type') || 'video') as 'image' | 'video';
     setBackdropType(type);
@@ -2388,11 +2426,16 @@ function LandingPage() {
 
   useEffect(() => {
     loadConfigs();
+    loadContactConfigs();
     window.addEventListener('storage_updated_home_hero', loadConfigs);
+    window.addEventListener('storage_updated_contact', loadContactConfigs);
     window.addEventListener('storage', loadConfigs);
+    window.addEventListener('storage', loadContactConfigs);
     return () => {
       window.removeEventListener('storage_updated_home_hero', loadConfigs);
+      window.removeEventListener('storage_updated_contact', loadContactConfigs);
       window.removeEventListener('storage', loadConfigs);
+      window.removeEventListener('storage', loadContactConfigs);
     };
   }, []);
 
@@ -2480,150 +2523,14 @@ function LandingPage() {
         <div className="h-screen pointer-events-none" /> {/* Spacer for fixed hero */}
         
         <div className="relative z-10">
-          <Intro />
+          <CinematicSlideshow />
           <Clients />
-          <Portfolio />
-          <DreamTeam />
           <section id="about" className="py-12 md:py-24 relative overflow-hidden bg-black">
             {/* Background cinematic grid light glow */}
             <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-[120px] pointer-events-none" />
             
-            <div className="w-full px-6 md:px-56 relative z-10">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-24 items-center text-center lg:text-left">
-                {/* Left Side: Cinematic Image + Badging with scroll and continuous live floating motion */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 50, scale: 0.95 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: true, margin: "-10%" }}
-                  transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-                  className="relative group max-w-[280px] md:max-w-md mx-auto lg:mx-0 cursor-pointer"
-                  onClick={() => navigate('/story')}
-                >
-                  {/* Outer glowing border element on hover */}
-                  <div className="absolute inset-x-0 inset-y-0 -m-2 rounded-[2.3rem] md:rounded-[3.3rem] bg-gradient-to-br from-orange-500/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 blur-[15px]" />
-                  
-                  <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] md:rounded-[3rem] border border-white/10 group-hover:border-orange-500/40 transition-all duration-700 shadow-2xl">
-                    <motion.img 
-                      src="https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&q=80&w=2072" 
-                      alt="Behind the scenes" 
-                      className="w-full h-full object-cover"
-                      whileHover={{ scale: 1.06, rotate: -1 }}
-                      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    />
-                    {/* Shadow overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-70 group-hover:opacity-40 transition-opacity duration-700" />
-                  </div>
-
-                  {/* Circular Floating Badge with elegant entry spring animation and live floating sub-animation */}
-                  <motion.div 
-                    initial={{ scale: 0, rotate: -40, opacity: 0 }}
-                    whileInView={{ scale: 1, rotate: 12, opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ type: "spring", stiffness: 120, damping: 14, delay: 0.4 }}
-                    className="absolute -bottom-6 md:-bottom-10 -right-6 md:-right-10 w-32 h-32 md:w-56 md:h-56 z-20"
-                  >
-                    <motion.div
-                      animate={{
-                        y: [0, -8, 0],
-                        rotate: [0, 4, 0]
-                      }}
-                      transition={{
-                        repeat: Infinity,
-                        duration: 6,
-                        ease: "easeInOut"
-                      }}
-                      whileHover={{ scale: 1.12, rotate: -4 }}
-                      className="w-full h-full bg-orange-500 rounded-full p-4 md:p-8 flex flex-col items-center justify-center text-center shadow-[0_25px_60px_rgba(249,115,22,0.4)] select-none cursor-pointer hover:bg-orange-600 transition-all duration-500"
-                    >
-                      <span className="text-2xl md:text-5xl font-black text-white italic tracking-tighter">14+</span>
-                      <p className="text-white/95 text-[7px] md:text-[9px] font-black uppercase tracking-widest mt-1 md:mt-2">Years on Set</p>
-                    </motion.div>
-                  </motion.div>
-                </motion.div>
- 
-                {/* Right Side: Copy/Narrative with text staggering transition */}
-                <motion.div
-                  initial="hidden"
-                  whileInView="show"
-                  viewport={{ once: true, margin: "-10%" }}
-                  variants={{
-                    hidden: { opacity: 0 },
-                    show: {
-                      opacity: 1,
-                      transition: {
-                        staggerChildren: 0.12,
-                        delayChildren: 0.1
-                      }
-                    }
-                  }}
-                  className="space-y-6 md:space-y-8"
-                >
-                  <div className="space-y-2">
-                    <motion.div
-                      variants={{
-                        hidden: { width: 0, opacity: 0 },
-                        show: { width: 36, opacity: 1, transition: { duration: 0.5 } }
-                      }}
-                      className="h-[2px] bg-orange-500"
-                    />
-                    <motion.span 
-                      variants={{
-                        hidden: { opacity: 0, y: 10 },
-                        show: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-                      }}
-                      className="text-orange-500 text-[10px] md:text-xs font-black uppercase tracking-[0.45em] block"
-                    >
-                      Our Story
-                    </motion.span>
-                  </div>
-
-                  <div className="overflow-hidden py-1">
-                    <motion.h3 
-                      variants={{
-                        hidden: { opacity: 0, y: 40, skewY: 4 },
-                        show: { opacity: 1, y: 0, skewY: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
-                      }}
-                      className="font-bebas text-4xl md:text-7xl font-black italic text-orange-500 tracking-[0.02em] leading-[0.9] uppercase"
-                    >
-                      Crafting <br />Legends
-                    </motion.h3>
-                  </div>
- 
-                  <motion.p 
-                    variants={{
-                      hidden: { opacity: 0, y: 20 },
-                      show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } }
-                    }}
-                    className="text-white/60 leading-relaxed text-sm md:text-lg font-medium tracking-wide px-4 md:px-0"
-                  >
-                    Dreamcatchers is a new age creative studio specializing in visual storytelling that moves people. We don't just shoot films; we engineer experiences that bridge the gap between imagination and reality.
-                  </motion.p>
- 
-                  <motion.div
-                    variants={{
-                      hidden: { opacity: 0, y: 20 },
-                      show: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-                    }}
-                    className="pt-2 md:pt-4"
-                  >
-                    <motion.button 
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => navigate('/story')}
-                      className="flex items-center gap-4 text-white font-black uppercase tracking-[0.3em] text-[10px] md:text-xs group mx-auto lg:mx-0 bg-transparent hover:text-orange-500 transition-colors"
-                    >
-                      Find more about us 
-                      <div className="w-8 h-8 md:w-10 md:h-10 border border-white/20 rounded-full flex items-center justify-center group-hover:border-orange-500 group-hover:bg-orange-500 transition-all duration-300">
-                        <ChevronRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1.5 duration-300 transition-transform" />
-                      </div>
-                    </motion.button>
-                  </motion.div>
-                </motion.div>
-              </div>
-            </div>
-
             {/* Sub-Brands / Verticals Integration */}
-            <div className="mt-20 md:mt-32 max-w-[1600px] mx-auto w-full">
+            <div className="max-w-[1600px] mx-auto w-full">
               <div className="text-center mb-12">
                 <motion.div 
                   initial={{ opacity: 0, width: 0 }}
@@ -2661,26 +2568,54 @@ function LandingPage() {
                       initial={{ opacity: 0, y: 30 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
-                      onClick={() => sportsBox.url && setSelectedVideo(sportsBox.url)}
-                      className={`group relative flex flex-col items-center justify-between p-8 md:p-10 rounded-[2.5rem] bg-zinc-950/60 border border-zinc-900/80 backdrop-blur-md overflow-hidden select-none ${sportsBox.url ? 'cursor-pointer' : 'cursor-default'} transition-all duration-500 hover:border-orange-500/20 hover:shadow-[0_25px_60px_rgba(249,115,22,0.12)] text-center h-[520px] md:h-[580px] w-full`}
+                      onClick={() => window.open('https://www.sportsbox.in/', '_blank', 'noopener,noreferrer')}
+                      className="group relative flex flex-col items-center justify-between p-8 md:p-10 rounded-[2.5rem] bg-zinc-950/40 border border-zinc-900/60 backdrop-blur-xl overflow-hidden select-none cursor-pointer transition-all duration-500 hover:border-orange-500/40 hover:shadow-[0_0_80px_rgba(249,115,22,0.18)] text-center h-[540px] md:h-[600px] w-full"
                     >
+                      {/* Industrial Tech corner markings */}
+                      <div className="absolute top-5 left-5 w-4 h-4 border-t-2 border-l-2 border-white/10 group-hover:border-orange-500/50 transition-colors duration-500 pointer-events-none" />
+                      <div className="absolute top-5 right-5 w-4 h-4 border-t-2 border-r-2 border-white/10 group-hover:border-orange-500/50 transition-colors duration-500 pointer-events-none" />
+                      <div className="absolute bottom-5 left-5 w-4 h-4 border-b-2 border-l-2 border-white/10 group-hover:border-orange-500/50 transition-colors duration-500 pointer-events-none" />
+                      <div className="absolute bottom-5 right-5 w-4 h-4 border-b-2 border-r-2 border-white/10 group-hover:border-orange-500/50 transition-colors duration-500 pointer-events-none" />
+                      
+                      {/* Moving Digital Scanline Grid backdrop */}
+                      <div className="absolute inset-0 opacity-[0.03] group-hover:opacity-[0.06] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] transition-opacity duration-500 pointer-events-none" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-orange-500/[0.01] to-transparent pointer-events-none group-hover:from-orange-500/[0.04] transition-all duration-500" />
+
                       {/* Branding Area */}
-                      <div className="flex flex-col items-center justify-center select-none font-bebas mb-2">
-                        <span className="text-4xl sm:text-5xl md:text-6xl text-white font-black tracking-wider uppercase leading-none transition-transform duration-300 group-hover:scale-105">
+                      <div className="flex flex-col items-center justify-center select-none font-bebas mb-2 relative z-10">
+                        <span className="text-4xl sm:text-5xl md:text-6xl text-white font-black tracking-wider uppercase leading-none transition-transform duration-500 group-hover:scale-105 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-orange-100">
                           {sportsBox.title}
                         </span>
-                        <div className="w-[115%] h-1 bg-white mt-2 mb-2 relative">
+                        <div className="w-[125%] h-[2px] bg-white/10 mt-3 mb-2 relative overflow-hidden">
+                          <div className="absolute top-0 bottom-0 left-0 w-8 bg-gradient-to-r from-transparent via-orange-500 to-transparent animate-[shimmer_2s_infinite]" />
                           <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                         </div>
-                        <span className="text-2xl sm:text-3xl text-orange-500 font-extrabold tracking-[0.25em] uppercase leading-none self-end mr-1 group-hover:text-amber-400 transition-colors duration-300">
+                        <span className="text-2xl sm:text-3xl text-orange-500 font-extrabold tracking-[0.25em] uppercase leading-none self-end mr-1 group-hover:text-amber-400 group-hover:translate-x-1 transition-all duration-300">
                           BOX
                         </span>
                       </div>
 
-                      {/* Video Frame */}
-                      <div className="w-full aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 group-hover:border-orange-500/35 bg-neutral-900 transition-all duration-500 relative flex items-center justify-center shadow-lg">
+                      {/* Creative Frame */}
+                      <div className="w-full aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 group-hover:border-orange-500/40 bg-zinc-950 transition-all duration-500 relative flex items-center justify-center shadow-[0_15px_45px_0_rgba(0,0,0,0.5)]">
+                        {/* Camera L-Bracket Reticles inside frame */}
+                        <div className="absolute top-3 left-3 w-2 h-2 border-t border-l border-white/20 group-hover:border-orange-500/40 z-25 pointer-events-none" />
+                        <div className="absolute top-3 right-3 w-2 h-2 border-t border-r border-white/20 group-hover:border-orange-500/40 z-25 pointer-events-none" />
+                        <div className="absolute bottom-3 left-3 w-2 h-2 border-b border-l border-white/20 group-hover:border-orange-500/40 z-25 pointer-events-none" />
+                        <div className="absolute bottom-3 right-3 w-2 h-2 border-b border-r border-white/20 group-hover:border-orange-500/40 z-25 pointer-events-none" />
+
                         {sportsBox.url ? (
-                          isEmbedUrl(sportsBox.url) ? (
+                          sportsBox.type === 'image' ? (
+                            <div className="w-full h-full relative group/img overflow-hidden">
+                              <img 
+                                src={transformGoogleDriveUrl(sportsBox.url, 'image')}
+                                alt={sportsBox.title}
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                referrerPolicy="no-referrer"
+                              />
+                              {/* Premium acrylic reflection sweep */}
+                              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent -translate-x-full group-hover/img:animate-[shine_1.2s_ease-in-out_infinite] z-10 pointer-events-none" />
+                            </div>
+                          ) : isEmbedUrl(sportsBox.url) ? (
                             <iframe 
                               src={getEmbedUrl(sportsBox.url, true)} 
                               className="absolute inset-0 w-full h-full pointer-events-none scale-105 border-0"
@@ -2698,27 +2633,33 @@ function LandingPage() {
                             />
                           )
                         ) : (
-                          <div className="absolute inset-0 bg-gradient-to-br from-zinc-950 to-zinc-900 flex flex-col items-center justify-center p-4">
-                            <div className="absolute top-3 left-3 flex items-center gap-2">
-                              <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
-                              <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest font-bold">REC</span>
+                          // Ultra-creative High-Tech Live Broadcast Radar Sweeper Placeholder
+                          <div className="absolute inset-0 bg-gradient-to-br from-zinc-950 to-neutral-900 flex flex-col items-center justify-center p-4 overflow-hidden">
+                            {/* Rotating radar line */}
+                            <div className="absolute w-[200%] h-[200%] bg-[conic-gradient(from_0deg,rgba(249,115,22,0.12),transparent_60deg)] animate-[spin_6s_linear_infinite] rounded-full pointer-events-none" />
+                            
+                            {/* Radial HUD rings */}
+                            <div className="absolute w-44 h-44 rounded-full border border-orange-500/5 animate-[pulse_3s_infinite]" />
+                            <div className="absolute w-28 h-28 rounded-full border border-orange-500/5" />
+                            <div className="absolute w-12 h-12 rounded-full border border-orange-500/10" />
+
+                            <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
+                              <span className="w-2 h-2 rounded-full bg-red-600 animate-ping" />
+                              <span className="text-[10px] font-mono text-orange-500 uppercase tracking-widest font-black">SYS_ACTIVE</span>
                             </div>
-                            <div className="absolute bottom-3 right-3 text-[10px] font-mono text-white/30 uppercase tracking-widest font-bold">
-                              CH. 01 / LIVE
+                            <div className="absolute bottom-4 right-4 text-[9px] font-mono text-white/30 uppercase tracking-widest font-bold z-10">
+                              MONITOR - 01 / PROD
                             </div>
                             
-                            <svg className="w-12 h-12 text-white/10 group-hover:text-orange-500/20 group-hover:scale-110 transition-all duration-500 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                              <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
-                              <line x1="7" y1="2" x2="7" y2="22" />
-                              <line x1="17" y1="2" x2="17" y2="22" />
-                              <line x1="2" y1="12" x2="22" y2="12" />
-                              <line x1="2" y1="7" x2="7" y2="7" />
-                              <line x1="2" y1="17" x2="7" y2="17" />
-                              <line x1="17" y1="17" x2="22" y2="17" />
-                              <line x1="17" y1="7" x2="22" y2="7" />
-                            </svg>
-                            <span className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-bold">No Video Configured</span>
-                            <span className="text-[9px] text-orange-500/50 uppercase tracking-[0.1em] mt-1 font-bold">Configure in Admin Panel</span>
+                            <div className="relative z-10 flex flex-col items-center">
+                              <svg className="w-12 h-12 text-white/10 group-hover:text-orange-500/30 group-hover:scale-110 transition-all duration-500 mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                                <path d="M2 12h20" />
+                              </svg>
+                              <span className="text-[11px] text-white/50 uppercase tracking-[0.25em] font-black">SPORTS_CENTRAL_HUB</span>
+                              <span className="text-[9px] text-orange-500/60 uppercase tracking-[0.1em] mt-1 font-bold">CONFIGURE IMAGE / VIDEO IN ADMIN</span>
+                            </div>
                           </div>
                         )}
                         
@@ -2726,11 +2667,17 @@ function LandingPage() {
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                             <motion.div 
                               className="w-14 h-14 rounded-full bg-orange-500 flex items-center justify-center text-white shadow-xl"
-                              whileHover={{ scale: 1.1 }}
+                              whileHover={{ scale: 1.15 }}
                             >
-                              <svg className="w-6 h-6 fill-current ml-0.5" viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z" />
-                              </svg>
+                              {sportsBox.type === 'image' ? (
+                                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                              ) : (
+                                <svg className="w-6 h-6 fill-current ml-0.5" viewBox="0 0 24 24">
+                                  <path d="M8 5v14l11-7z" />
+                                </svg>
+                              )}
                             </motion.div>
                           </div>
                         )}
@@ -2738,16 +2685,16 @@ function LandingPage() {
 
                       {/* Texts */}
                       <div className="space-y-2 z-10 w-full mt-4">
-                        <span className="text-orange-500 text-xs font-black uppercase tracking-[0.3em] block">
+                        <span className="text-orange-500 text-xs font-black uppercase tracking-[0.3em] block group-hover:text-amber-400 transition-colors duration-300">
                           {sportsBox.subtitle}
                         </span>
-                        <p className="text-sm md:text-base font-bold text-white uppercase tracking-wider leading-relaxed">
+                        <p className="text-sm md:text-base font-black text-white uppercase tracking-wider leading-relaxed group-hover:text-white/90 transition-colors">
                           {sportsBox.description}
                         </p>
                       </div>
                       
                       {/* Corner glowing element */}
-                      <div className="absolute -bottom-16 -right-16 w-32 h-32 bg-orange-500/5 rounded-full blur-2xl group-hover:bg-orange-500/15 group-hover:scale-125 transition-all duration-500"></div>
+                      <div className="absolute -bottom-16 -right-16 w-32 h-32 bg-orange-500/5 rounded-full blur-2xl group-hover:bg-orange-500/20 group-hover:scale-135 transition-all duration-700"></div>
                     </motion.div>
 
                     {/* DC DIGITAL STUDIO Card */}
@@ -2757,33 +2704,55 @@ function LandingPage() {
                       viewport={{ once: true }}
                       transition={{ delay: 0.15 }}
                       onClick={() => dcDigital.url && setSelectedVideo(dcDigital.url)}
-                      className={`group relative flex flex-col items-center justify-between p-8 md:p-10 rounded-[2.5rem] bg-zinc-950/60 border border-zinc-900/80 backdrop-blur-md overflow-hidden select-none ${dcDigital.url ? 'cursor-pointer' : 'cursor-default'} transition-all duration-500 hover:border-orange-500/20 hover:shadow-[0_25px_60px_rgba(249,115,22,0.12)] text-center h-[520px] md:h-[580px] w-full`}
+                      className={`group relative flex flex-col items-center justify-between p-8 md:p-10 rounded-[2.5rem] bg-zinc-950/40 border border-zinc-900/60 backdrop-blur-xl overflow-hidden select-none ${dcDigital.url ? 'cursor-pointer' : 'cursor-default'} transition-all duration-500 hover:border-amber-500/30 hover:shadow-[0_0_80px_rgba(245,158,11,0.14)] text-center h-[540px] md:h-[600px] w-full`}
                     >
-                      {/* Branding Area */}
-                      <div className="h-28 flex items-center justify-center mb-2">
-                        <div className="bg-white p-4 sm:p-5 rounded-2xl flex flex-col items-center justify-center w-64 sm:w-72 shadow-lg transition-all duration-500 group-hover:shadow-[0_0_35px_rgba(255,255,255,0.15)] group-hover:scale-105 relative overflow-hidden">
-                          {/* Styled bracket and ribbon graphic */}
-                          <svg className="w-16 h-10 mb-2" viewBox="0 0 160 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M42 22C34 22 32 35 32 50C32 65 34 78 42 78" stroke="black" strokeWidth="4.5" strokeLinecap="round" />
-                            <path d="M108 22C116 22 118 35 118 50C118 65 116 78 108 78" stroke="black" strokeWidth="4.5" strokeLinecap="round" />
-                            <path d="M20 78C110 74 105 26 100 26" stroke="#F97316" strokeWidth="6" strokeLinecap="round" />
-                            <path d="M17 83C116 78 102 31 96 31" stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" />
-                          </svg>
-                          
-                          {/* Clean text divider */}
-                          <div className="flex items-center justify-center gap-1.5 border-t border-zinc-200 pt-2 w-full">
-                            <span className="text-orange-600 font-extrabold font-bebas text-base sm:text-lg tracking-wider leading-none">DC</span>
-                            <span className="w-0.5 h-3.5 bg-zinc-300"></span>
-                            <span className="text-zinc-900 font-bold font-sans text-[8px] sm:text-[10px] tracking-[0.2em] uppercase leading-none">{dcDigital.title.replace('DC DIGITAL STUDIO', 'DIGITAL STUDIO')}</span>
+                      {/* Sophisticated dual-corner markers */}
+                      <div className="absolute top-5 left-5 w-4 h-4 border-t-2 border-l-2 border-white/10 group-hover:border-amber-500/50 transition-colors duration-500 pointer-events-none" />
+                      <div className="absolute top-5 right-5 w-4 h-4 border-t-2 border-r-2 border-white/10 group-hover:border-amber-500/50 transition-colors duration-500 pointer-events-none" />
+                      <div className="absolute bottom-5 left-5 w-4 h-4 border-b-2 border-l-2 border-white/10 group-hover:border-amber-500/50 transition-colors duration-500 pointer-events-none" />
+                      <div className="absolute bottom-5 right-5 w-4 h-4 border-b-2 border-r-2 border-white/10 group-hover:border-amber-500/50 transition-colors duration-500 pointer-events-none" />
+                      
+                      {/* Grid Backdrop */}
+                      <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:30px_30px] pointer-events-none" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-amber-500/[0.01] to-transparent pointer-events-none group-hover:from-amber-500/[0.04] transition-all duration-500" />
+
+                      {/* Branding Area with highly interactive 3D style floating logo */}
+                      <div className="h-28 flex items-center justify-center mb-2 relative z-10 w-full">
+                        <motion.div 
+                          whileHover={{ y: -6, scale: 1.05, rotate: -0.5 }}
+                          className="bg-white p-5 rounded-2xl flex flex-col items-center justify-center w-64 sm:w-72 shadow-[0_10px_30px_rgba(0,0,0,0.4)] border border-white/50 transition-all duration-500 group-hover:shadow-[0_15px_45px_rgba(255,255,255,0.18)] relative overflow-hidden"
+                        >
+                          {/* Clean typography layout without graphical logo */}
+                          <div className="flex items-center justify-center gap-1.5 w-full">
+                            <span className="text-orange-600 font-extrabold font-bebas text-lg sm:text-xl tracking-wider leading-none">DC</span>
+                            <span className="w-0.5 h-4 bg-zinc-300"></span>
+                            <span className="text-zinc-900 font-bold font-sans text-xs sm:text-sm tracking-[0.1em] uppercase leading-none">{dcDigital.title.replace('DC DIGITAL STUDIO', 'DIGITAL STUDIO')}</span>
                           </div>
-                          <div className="text-[6px] text-zinc-400 font-medium uppercase tracking-[0.2em] font-sans mt-0.5">A DREAMCATCHERS VERTICAL</div>
-                        </div>
+                          <div className="text-[7px] text-zinc-400 font-black uppercase tracking-[0.2em] font-sans mt-1.5">A DREAMCATCHERS VERTICAL</div>
+                        </motion.div>
                       </div>
 
-                      {/* Video Frame */}
-                      <div className="w-full aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 group-hover:border-orange-500/35 bg-neutral-900 transition-all duration-500 relative flex items-center justify-center shadow-lg">
+                      {/* Creative Frame */}
+                      <div className="w-full aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 group-hover:border-amber-500/35 bg-zinc-950 transition-all duration-500 relative flex items-center justify-center shadow-[0_15px_45px_0_rgba(0,0,0,0.5)]">
+                        {/* Camera L-Bracket Reticles inside frame */}
+                        <div className="absolute top-3 left-3 w-2 h-2 border-t border-l border-white/20 group-hover:border-amber-500/40 z-25 pointer-events-none" />
+                        <div className="absolute top-3 right-3 w-2 h-2 border-t border-r border-white/20 group-hover:border-amber-500/40 z-25 pointer-events-none" />
+                        <div className="absolute bottom-3 left-3 w-2 h-2 border-b border-l border-white/20 group-hover:border-amber-500/40 z-25 pointer-events-none" />
+                        <div className="absolute bottom-3 right-3 w-2 h-2 border-b border-r border-white/20 group-hover:border-amber-500/40 z-25 pointer-events-none" />
+
                         {dcDigital.url ? (
-                          isEmbedUrl(dcDigital.url) ? (
+                          dcDigital.type === 'image' ? (
+                            <div className="w-full h-full relative group/img overflow-hidden">
+                              <img 
+                                src={transformGoogleDriveUrl(dcDigital.url, 'image')}
+                                alt={dcDigital.title}
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                referrerPolicy="no-referrer"
+                              />
+                              {/* Premium acrylic reflection sweep */}
+                              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent -translate-x-full group-hover/img:animate-[shine_1.2s_ease-in-out_infinite] z-10 pointer-events-none" />
+                            </div>
+                          ) : isEmbedUrl(dcDigital.url) ? (
                             <iframe 
                               src={getEmbedUrl(dcDigital.url, true)} 
                               className="absolute inset-0 w-full h-full pointer-events-none scale-105 border-0"
@@ -2801,27 +2770,41 @@ function LandingPage() {
                             />
                           )
                         ) : (
-                          <div className="absolute inset-0 bg-gradient-to-br from-zinc-950 to-zinc-900 flex flex-col items-center justify-center p-4">
-                            <div className="absolute top-3 left-3 flex items-center gap-2">
-                              <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
-                              <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest font-bold">REC</span>
+                          // Ultra-creative High-Tech Equalizer Audioscape / Constellation Placeholder
+                          <div className="absolute inset-0 bg-gradient-to-br from-zinc-950 to-neutral-900 flex flex-col items-center justify-center p-4 overflow-hidden">
+                            {/* Soundwave wave visualization lines */}
+                            <div className="absolute bottom-6 flex gap-[3px] items-end h-20 w-4/5 justify-center opacity-10 group-hover:opacity-20 transition-opacity duration-500">
+                              {[60, 85, 45, 95, 70, 55, 90, 100, 40, 80, 65, 85, 50, 75, 95, 60, 45, 70, 80, 55, 90, 40].map((h, i) => (
+                                <motion.div
+                                  key={`eq-${i}`}
+                                  className="w-[20px] rounded-t-sm bg-orange-500"
+                                  animate={{ height: [`${h * 0.2}%`, `${h * 0.8}%`, `${h * 0.2}%`] }}
+                                  transition={{
+                                    repeat: Infinity,
+                                    duration: 1.2 + (i % 5) * 0.2,
+                                    ease: "easeInOut"
+                                  }}
+                                />
+                              ))}
                             </div>
-                            <div className="absolute bottom-3 right-3 text-[10px] font-mono text-white/30 uppercase tracking-widest font-bold">
-                              CH. 02 / LIVE
+
+                            <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                              <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest font-bold">DIGITAL_FEED</span>
+                            </div>
+                            <div className="absolute bottom-4 right-4 text-[9px] font-mono text-white/30 uppercase tracking-widest font-bold z-10">
+                              CH. 02 / STREAM
                             </div>
                             
-                            <svg className="w-12 h-12 text-white/10 group-hover:text-orange-500/20 group-hover:scale-110 transition-all duration-500 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                              <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
-                              <line x1="7" y1="2" x2="7" y2="22" />
-                              <line x1="17" y1="2" x2="17" y2="22" />
-                              <line x1="2" y1="12" x2="22" y2="12" />
-                              <line x1="2" y1="7" x2="7" y2="7" />
-                              <line x1="2" y1="17" x2="7" y2="17" />
-                              <line x1="17" y1="17" x2="22" y2="17" />
-                              <line x1="17" y1="7" x2="22" y2="7" />
-                            </svg>
-                            <span className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-bold">No Video Configured</span>
-                            <span className="text-[9px] text-orange-500/50 uppercase tracking-[0.1em] mt-1 font-bold">Configure in Admin Panel</span>
+                            <div className="relative z-10 flex flex-col items-center">
+                              <svg className="w-12 h-12 text-white/10 group-hover:text-amber-500/20 group-hover:scale-110 transition-all duration-500 mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" />
+                                <path d="M21 16V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" />
+                                <path d="M9 12l2 2 4-4" />
+                              </svg>
+                              <span className="text-[11px] text-white/50 uppercase tracking-[0.25em] font-black">AI_CREATIVE_SYSTEM</span>
+                              <span className="text-[9px] text-amber-500/60 uppercase tracking-[0.1em] mt-1 font-bold">CONFIGURE IMAGE / VIDEO IN ADMIN</span>
+                            </div>
                           </div>
                         )}
                         
@@ -2829,11 +2812,17 @@ function LandingPage() {
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                             <motion.div 
                               className="w-14 h-14 rounded-full bg-orange-500 flex items-center justify-center text-white shadow-xl"
-                              whileHover={{ scale: 1.1 }}
+                              whileHover={{ scale: 1.15 }}
                             >
-                              <svg className="w-6 h-6 fill-current ml-0.5" viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z" />
-                              </svg>
+                              {dcDigital.type === 'image' ? (
+                                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                              ) : (
+                                <svg className="w-6 h-6 fill-current ml-0.5" viewBox="0 0 24 24">
+                                  <path d="M8 5v14l11-7z" />
+                                </svg>
+                              )}
                             </motion.div>
                           </div>
                         )}
@@ -2841,25 +2830,149 @@ function LandingPage() {
 
                       {/* Texts */}
                       <div className="space-y-2 z-10 w-full mt-4">
-                        <span className="text-orange-500 text-xs font-black uppercase tracking-[0.3em] block">
+                        <span className="text-orange-500 text-xs font-black uppercase tracking-[0.3em] block group-hover:text-amber-400 transition-colors duration-300">
                           {dcDigital.subtitle}
                         </span>
-                        <p className="text-sm md:text-base font-bold text-white uppercase tracking-wider leading-relaxed">
+                        <p className="text-sm md:text-base font-black text-white uppercase tracking-wider leading-relaxed group-hover:text-white/90 transition-colors">
                           {dcDigital.description}
                         </p>
                       </div>
                       
                       {/* Corner glowing element */}
-                      <div className="absolute -bottom-16 -right-16 w-32 h-32 bg-orange-500/5 rounded-full blur-2xl group-hover:bg-orange-500/15 group-hover:scale-125 transition-all duration-500"></div>
+                      <div className="absolute -bottom-16 -right-16 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl group-hover:bg-amber-500/20 group-hover:scale-135 transition-all duration-700"></div>
                     </motion.div>
                   </div>
                 );
               })()}
             </div>
+
+            {/* Integrated Contact Section under Verticals */}
+            <div id="contact-section" className="mt-32 md:mt-48 max-w-[1440px] mx-auto w-full px-6 sm:px-8 lg:px-12 relative z-10 pb-8 scroll-mt-24">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
+                {/* Left Side: Contact Details Card Grid */}
+                <div className="space-y-12">
+                  <div>
+                    <h5 className="text-orange-500 text-xs font-black uppercase tracking-[0.4em] block mb-2">Connecting Minds</h5>
+                    <h2 className="text-5xl md:text-7xl font-bebas font-black tracking-tighter uppercase leading-[0.85] text-white">
+                      {contactTitleFirst} <span className="text-orange-500">{contactTitleOrange}</span>
+                    </h2>
+                    <p className="text-white/40 text-[10px] md:text-xs font-black uppercase tracking-[0.4em] mt-3">{contactSubtitle}</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-6">
+                    <motion.div
+                      initial={{ opacity: 0, x: -35 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.6 }}
+                      className="p-8 md:p-10 bg-zinc-950/60 border border-zinc-900/80 rounded-[2rem] hover:bg-orange-500 hover:border-transparent transition-all duration-500 group cursor-pointer flex flex-col justify-between min-h-[170px]"
+                      onClick={() => window.location.href = `mailto:${contactEmail}`}
+                    >
+                      <div className="text-orange-500 group-hover:text-black mb-6 transition-colors">
+                        <Mail className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <p className="text-white/30 group-hover:text-black/60 text-[10px] font-black uppercase tracking-widest mb-1 transition-colors">
+                          Email Us
+                        </p>
+                        <p className="text-lg md:text-xl font-bold text-white group-hover:text-black tracking-tight break-all transition-colors font-sans">
+                          {contactEmail}
+                        </p>
+                      </div>
+                    </motion.div>
+
+                    <motion.div
+                      initial={{ opacity: 0, x: -35 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.6, delay: 0.1 }}
+                      className="p-8 md:p-10 bg-zinc-950/60 border border-zinc-900/80 rounded-[2rem] hover:bg-orange-500 hover:border-transparent transition-all duration-500 group cursor-pointer flex flex-col justify-between min-h-[170px]"
+                      onClick={() => window.location.href = `tel:${contactPhone}`}
+                    >
+                      <div className="text-orange-500 group-hover:text-black mb-6 transition-colors">
+                        <Phone className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <p className="text-white/30 group-hover:text-black/60 text-[10px] font-black uppercase tracking-widest mb-1 transition-colors">
+                          Call Us
+                        </p>
+                        <p className="text-lg md:text-xl font-bold text-white group-hover:text-black tracking-tight transition-colors font-sans">
+                          {contactPhone}
+                        </p>
+                      </div>
+                    </motion.div>
+
+                    <motion.div
+                      initial={{ opacity: 0, x: -35 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.6, delay: 0.2 }}
+                      className="p-8 md:p-10 bg-zinc-950/60 border border-zinc-900/80 rounded-[2rem] hover:bg-orange-500 hover:border-transparent transition-all duration-500 group cursor-default flex flex-col justify-between min-h-[170px] sm:col-span-2 lg:col-span-1 xl:col-span-2"
+                    >
+                      <div className="text-orange-500 group-hover:text-black mb-6 transition-colors">
+                        <MapPin className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <p className="text-white/30 group-hover:text-black/60 text-[10px] font-black uppercase tracking-widest mb-1 transition-colors">
+                          Visit Us
+                        </p>
+                        <p className="text-lg md:text-xl font-bold text-white group-hover:text-black tracking-tight transition-colors font-sans uppercase">
+                          {contactAddress}
+                        </p>
+                      </div>
+                    </motion.div>
+                  </div>
+                </div>
+
+                {/* Right Side: Contact Submission Form */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8 }}
+                  className="bg-zinc-950/60 border border-zinc-900/80 rounded-[2.5rem] p-8 md:p-12 backdrop-blur-md relative overflow-hidden"
+                >
+                  <form onSubmit={(e) => { e.preventDefault(); alert("Success! Your message was sent beautifully."); }} className="space-y-6 relative z-10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-4 font-sans">Your Name</label>
+                        <input type="text" className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-sm tracking-wide" placeholder="Arjun Sharma" required />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-4 font-sans">Your Email</label>
+                        <input type="email" className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-sm tracking-wide" placeholder="arjun@example.com" required />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-4 font-sans">Subject</label>
+                      <input type="text" className="w-full bg-white/5 border border-white/15 rounded-2xl px-5 py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-sm tracking-wide" placeholder="Project Inquiry" required />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-4 font-sans">Message</label>
+                      <textarea rows={4} className="w-full bg-white/5 border border-white/15 rounded-2xl px-5 py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-sm tracking-wide" placeholder="Tell us about your dream..." required></textarea>
+                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.02, backgroundColor: "#f97316", color: "#000" }}
+                      whileTap={{ scale: 0.98 }}
+                      type="submit"
+                      className="w-full py-5 rounded-2xl bg-white/10 text-white font-black uppercase tracking-[0.3em] flex items-center justify-center gap-3 transition-all text-sm shadow-xl"
+                    >
+                      <Send className="w-4 h-4" />
+                      Submit Request
+                    </motion.button>
+                  </form>
+                </motion.div>
+              </div>
+            </div>
           </section>
+
           <InteractiveOptions />
         </div>
       </main>
+
+      {/* Real-time coordinates global presence map */}
+      <GlobalPresenceMap />
+
       <Footer />
 
       {/* Vertical Lightbox Video Modal overlay */}
@@ -2885,21 +2998,37 @@ function LandingPage() {
               className="relative w-full max-w-5xl aspect-video bg-zinc-950 rounded-3xl border border-white/5 overflow-hidden shadow-2xl"
               onClick={e => e.stopPropagation()}
             >
-              {isEmbedUrl(selectedVideo) ? (
-                <iframe 
-                  src={getEmbedUrl(selectedVideo, false)} 
-                  className="w-full h-full border-none" 
-                  allow="autoplay; encrypted-media; fullscreen" 
-                  allowFullScreen 
-                />
-              ) : (
-                <video 
-                  src={selectedVideo} 
-                  controls 
-                  autoPlay 
-                  className="w-full h-full object-contain" 
-                />
-              )}
+              {(() => {
+                const isImage = selectedVideo.startsWith('data:image') || 
+                                selectedVideo.startsWith('blob:') || 
+                                /\.(jpeg|jpg|gif|png|webp|svg)($|\?)/i.test(selectedVideo) ||
+                                verticals.some(v => v.url === selectedVideo && v.type === 'image');
+                if (isImage) {
+                  return (
+                    <img 
+                      src={transformGoogleDriveUrl(selectedVideo, 'image')} 
+                      alt="Vertical Media Preview" 
+                      className="w-full h-full object-contain mx-auto" 
+                      referrerPolicy="no-referrer"
+                    />
+                  );
+                }
+                return isEmbedUrl(selectedVideo) ? (
+                  <iframe 
+                    src={getEmbedUrl(selectedVideo, false)} 
+                    className="w-full h-full border-none" 
+                    allow="autoplay; encrypted-media; fullscreen" 
+                    allowFullScreen 
+                  />
+                ) : (
+                  <video 
+                    src={transformGoogleDriveUrl(selectedVideo, 'video')} 
+                    controls 
+                    autoPlay 
+                    className="w-full h-full object-contain" 
+                  />
+                );
+              })()}
             </motion.div>
           </motion.div>
         )}
@@ -2909,11 +3038,20 @@ function LandingPage() {
 }
 
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
 
   useEffect(() => {
+    if (hash) {
+      const el = document.getElementById(hash.substring(1));
+      if (el) {
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }, 150);
+        return;
+      }
+    }
     window.scrollTo(0, 0);
-  }, [pathname]);
+  }, [pathname, hash]);
 
   return null;
 }
@@ -3704,7 +3842,7 @@ export function StoryPage() {
           <div className="pt-8 flex flex-col sm:flex-row gap-4 items-center justify-center">
             <button 
               type="button"
-              onClick={() => navigate('/contact')}
+              onClick={() => navigate('/#contact-section')}
               className="px-8 py-4 bg-orange-500 hover:bg-orange-600 font-bold uppercase tracking-widest text-[10px] md:text-xs rounded-full transition-all text-black hover:scale-105 active:scale-95 shadow-[0_0_25px_rgba(249,115,22,0.4)]"
             >
               Contact Dreamcatchers
@@ -3743,7 +3881,6 @@ export default function App() {
         <Route path="/films" element={<FilmsPage />} />
         <Route path="/brand" element={<BrandPage />} />
         <Route path="/about" element={<AboutPage />} />
-        <Route path="/contact" element={<ContactPage />} />
         <Route path="/admin" element={<AdminPanel />} />
       </Routes>
     </>

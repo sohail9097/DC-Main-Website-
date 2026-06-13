@@ -6,6 +6,7 @@ import { pushLocalConfigsToFirestore } from '../lib/siteSync';
 import { Users, Layout, Settings, LogOut, Home, Plus, Trash2, Edit2, ArrowUp, ArrowDown, RefreshCw, FileVideo, Image as ImageIcon, Film, Play, ChevronRight, ChevronLeft, MapPin, BookOpen, Share2, Sparkles, Upload } from 'lucide-react';
 import { DEFAULT_TEAM_MEMBERS, TeamMember, DEFAULT_ORBIT_IMAGES, DEFAULT_FILMS_LIST, DEFAULT_CLIENTS_LIST, ClientItem, ParagraphFrameItem, DEFAULT_PARAGRAPH_FRAMES, DEFAULT_VERTICALS, VerticalItem } from '../App';
 import { DEFAULT_BRAND_ITEMS, BrandItem } from './BrandPage';
+import { DEFAULT_SLIDES, CinematicSlide } from '../components/CinematicSlideshow';
 
 export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = 'image'): string {
   if (!url) return '';
@@ -26,7 +27,8 @@ export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = '
 const AdminPanel: FC = () => {
   const { user, isAdmin, loading, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<'categories' | 'home_manage' | 'film_manage' | 'team' | 'orbit' | 'about_manage' | 'contact_manage' | 'brand_manage'>('categories');
-  const [homeSubTab, setHomeSubTab] = useState<'hero' | 'team' | 'orbit' | 'films' | 'clients' | 'logo' | 'paragraph_frames' | 'verticals'>('hero');
+  const [homeSubTab, setHomeSubTab] = useState<'hero' | 'team' | 'orbit' | 'films' | 'clients' | 'logo' | 'paragraph_frames' | 'verticals' | 'slides'>('hero');
+  const [slidesList, setSlidesList] = useState<CinematicSlide[]>([]);
 
   // Navigation Logo states
   const [navLogoType, setNavLogoType] = useState<'text' | 'image'>('text');
@@ -354,7 +356,7 @@ const AdminPanel: FC = () => {
   const [contactSubtitle, setContactSubtitle] = useState("Start your cinematic journey today.");
   const [contactEmail, setContactEmail] = useState("hello@dreamcatchers.com");
   const [contactPhone, setContactPhone] = useState("+91 98765 43210");
-  const [contactAddress, setContactAddress] = useState("Lower Parel, Mumbai, India");
+  const [contactAddress, setContactAddress] = useState("820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
 
   // Social media links state variables
   const [socialInstagram, setSocialInstagram] = useState('#');
@@ -410,6 +412,18 @@ const AdminPanel: FC = () => {
       }
     } else {
       setVerticalsList(DEFAULT_VERTICALS);
+    }
+
+    const storedSlides = localStorage.getItem('cinematic_slides_list');
+    if (storedSlides) {
+      try {
+        setSlidesList(JSON.parse(storedSlides));
+      } catch (e) {
+        console.error('Error loading cinematic_slides_list from LocalStorage:', e);
+        setSlidesList(DEFAULT_SLIDES);
+      }
+    } else {
+      setSlidesList(DEFAULT_SLIDES);
     }
 
     // Load home configs
@@ -529,7 +543,7 @@ const AdminPanel: FC = () => {
     setContactSubtitle(localStorage.getItem('contact_subtitle') || "Start your cinematic journey today.");
     setContactEmail(localStorage.getItem('contact_email') || "hello@dreamcatchers.com");
     setContactPhone(localStorage.getItem('contact_phone') || "+91 98765 43210");
-    setContactAddress(localStorage.getItem('contact_address') || "Lower Parel, Mumbai, India");
+    setContactAddress(localStorage.getItem('contact_address') || "820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
 
     // Load Social configs
     setSocialInstagram(localStorage.getItem('social_instagram') || '#');
@@ -865,6 +879,44 @@ const AdminPanel: FC = () => {
     }));
   };
 
+  // --- Slideshow handlers ---
+  const handleSaveSlideshow = (e: React.FormEvent) => {
+    e.preventDefault();
+    const transformedList = slidesList.map(s => ({
+      ...s,
+      imageUrl: transformGoogleDriveUrl(s.imageUrl, 'image')
+    }));
+    
+    setSlidesList(transformedList);
+    localStorage.setItem('cinematic_slides_list', JSON.stringify(transformedList));
+    
+    window.dispatchEvent(new Event('storage_updated_cinematic_slides'));
+    window.dispatchEvent(new Event('storage'));
+    
+    alert('Cinematic Slideshow config saved & synced successfully!');
+  };
+
+  const handleResetSlideshow = () => {
+    if (confirm('Are you sure you want to restore the default 9 Cinematic Slides?')) {
+      setSlidesList(DEFAULT_SLIDES);
+      localStorage.setItem('cinematic_slides_list', JSON.stringify(DEFAULT_SLIDES));
+      
+      window.dispatchEvent(new Event('storage_updated_cinematic_slides'));
+      window.dispatchEvent(new Event('storage'));
+      
+      alert('Cinematic Slides restored to defaults successfully!');
+    }
+  };
+
+  const handleUpdateSlideField = (id: string, field: 'title' | 'description' | 'imageUrl', value: string) => {
+    setSlidesList(prev => prev.map(s => {
+      if (s.id === id) {
+        return { ...s, [field]: value };
+      }
+      return s;
+    }));
+  };
+
   // --- Home Hero persistence handlers ---
   const handleSaveHomeHero = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1118,7 +1170,7 @@ const AdminPanel: FC = () => {
       setContactSubtitle("Start your cinematic journey today.");
       setContactEmail("hello@dreamcatchers.com");
       setContactPhone("+91 98765 43210");
-      setContactAddress("Lower Parel, Mumbai, India");
+      setContactAddress("820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
 
       setSocialInstagram('#');
       setSocialFacebook('#');
@@ -1628,6 +1680,12 @@ const AdminPanel: FC = () => {
                   className={`px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider transition-all ${homeSubTab === 'verticals' ? 'bg-orange-500 text-white' : 'bg-black border border-white/10 text-white/40 hover:text-white'}`}
                 >
                   8. Enterprise Verticals
+                </button>
+                <button 
+                  onClick={() => setHomeSubTab('slides')}
+                  className={`px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider transition-all ${homeSubTab === 'slides' ? 'bg-orange-500 text-white' : 'bg-black border border-white/10 text-white/40 hover:text-white'}`}
+                >
+                  9. Cinematic Slideshow
                 </button>
               </div>
             </div>
@@ -2630,37 +2688,135 @@ const AdminPanel: FC = () => {
                               </div>
                             </div>
 
-                            {/* Type and URL Controls */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                              <div className="space-y-2">
-                                <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Media Type</label>
-                                <div className="grid grid-cols-2 gap-2">
-                                  <button
-                                    type="button"
-                                    onClick={() => handleUpdateVerticalField(vertical.id, 'type', 'image')}
-                                    className={`py-2 px-3 rounded-lg border text-[10px] font-bold uppercase tracking-wider transition-all ${vertical.type === 'image' ? 'bg-orange-500/10 border-orange-500 text-orange-500' : 'bg-black border-white/5 text-white/40 hover:text-white'}`}
-                                  >
-                                    Image
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleUpdateVerticalField(vertical.id, 'type', 'video')}
-                                    className={`py-2 px-3 rounded-lg border text-[10px] font-bold uppercase tracking-wider transition-all ${vertical.type === 'video' ? 'bg-orange-500/10 border-orange-500 text-orange-500' : 'bg-black border-white/5 text-white/40 hover:text-white'}`}
-                                  >
-                                    Video
-                                  </button>
+                            {/* Type, URL and Upload Controls */}
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="space-y-2">
+                                  <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Media Type</label>
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleUpdateVerticalField(vertical.id, 'type', 'image')}
+                                      className={`py-2 px-3 rounded-lg border text-[10px] font-bold uppercase tracking-wider transition-all ${vertical.type === 'image' ? 'bg-orange-500/10 border-orange-500 text-orange-500' : 'bg-black border-white/5 text-white/40 hover:text-white'}`}
+                                    >
+                                      Image
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleUpdateVerticalField(vertical.id, 'type', 'video')}
+                                      className={`py-2 px-3 rounded-lg border text-[10px] font-bold uppercase tracking-wider transition-all ${vertical.type === 'video' ? 'bg-orange-500/10 border-orange-500 text-orange-500' : 'bg-black border-white/5 text-white/40 hover:text-white'}`}
+                                    >
+                                      Video
+                                    </button>
+                                  </div>
+                                </div>
+
+                                <div className="md:col-span-2 space-y-2">
+                                  <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Source URL (Support Google Drive share-link, Direct MP4, or YouTube link)</label>
+                                  <input
+                                    type="url"
+                                    value={vertical.url || ''}
+                                    onChange={(e) => handleUpdateVerticalField(vertical.id, 'url', e.target.value)}
+                                    placeholder="Enter complete HTTPS video or image URL to showcase interactive player..."
+                                    className="w-full bg-black border border-white/10 rounded-lg px-4 py-2 text-xs text-white focus:outline-none focus:border-orange-500 transition-colors"
+                                  />
                                 </div>
                               </div>
 
-                              <div className="md:col-span-2 space-y-2">
-                                <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Source URL (Support Google Drive share-link, Direct MP4, or YouTube link)</label>
-                                <input
-                                  type="url"
-                                  value={vertical.url || ''}
-                                  onChange={(e) => handleUpdateVerticalField(vertical.id, 'url', e.target.value)}
-                                  placeholder="Enter complete HTTPS video or image URL to showcase interactive player..."
-                                  className="w-full bg-black border border-white/10 rounded-lg px-4 py-2 text-xs text-white focus:outline-none focus:border-orange-500 transition-colors"
-                                />
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Local File Upload Drop-Zone */}
+                                <div className="space-y-1">
+                                  <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Or Upload Local Image File</label>
+                                  <div className="relative border border-dashed border-white/15 hover:border-orange-500/50 rounded-xl px-4 py-3 bg-black/40 flex items-center justify-center gap-3 transition-all cursor-pointer group">
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                          if (file.size > 2 * 1024 * 1024) {
+                                            alert("Note: To prevent issues with dashboard backup sizes, we recommend images under 2MB. Please select a smaller image or optimize it.");
+                                            return;
+                                          }
+                                          const reader = new FileReader();
+                                          reader.onload = (event) => {
+                                            if (event.target && typeof event.target.result === 'string') {
+                                              handleUpdateVerticalField(vertical.id, 'url', event.target.result);
+                                              handleUpdateVerticalField(vertical.id, 'type', 'image');
+                                            }
+                                          };
+                                          reader.readAsDataURL(file);
+                                        }
+                                      }}
+                                      className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                                    />
+                                    <svg className="w-5 h-5 text-white/30 group-hover:text-orange-500 transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                    </svg>
+                                    <div className="text-left font-sans">
+                                      <p className="text-[10px] text-white/85 font-black uppercase tracking-wider group-hover:text-white transition-colors">Select Local Image</p>
+                                      <p className="text-[8px] text-white/40 uppercase">JPEG, PNG, WebP (Max 2MB)</p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Curated Prebuilt Quick-Apply Accent Presets */}
+                                <div className="space-y-1">
+                                  <label className="block text-[9px] font-black uppercase tracking-widest text-white/40 font-mono text-orange-500">Quick-Apply Creative Presets</label>
+                                  <div className="flex gap-2 h-full items-start">
+                                    {vertical.id === 'sports_box' ? (
+                                      <>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            handleUpdateVerticalField(vertical.id, 'url', 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80&w=1200');
+                                            handleUpdateVerticalField(vertical.id, 'type', 'image');
+                                          }}
+                                          className="flex-1 bg-black/60 hover:bg-neutral-900 border border-white/5 hover:border-orange-500/40 p-2 rounded-xl text-left transition-all group"
+                                        >
+                                          <span className="block text-[10px] text-white/80 font-bold uppercase truncate group-hover:text-white">Stadium Lights</span>
+                                          <span className="block text-[8px] text-orange-500/60 uppercase font-mono tracking-wider mt-0.5">Arena Theme</span>
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            handleUpdateVerticalField(vertical.id, 'url', 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&q=80&w=1200');
+                                            handleUpdateVerticalField(vertical.id, 'type', 'image');
+                                          }}
+                                          className="flex-1 bg-black/60 hover:bg-neutral-900 border border-white/5 hover:border-orange-500/40 p-2 rounded-xl text-left transition-all group"
+                                        >
+                                          <span className="block text-[10px] text-white/80 font-bold uppercase truncate group-hover:text-white">Action Energy</span>
+                                          <span className="block text-[8px] text-orange-500/60 uppercase font-mono tracking-wider mt-0.5">High Performance</span>
+                                        </button>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            handleUpdateVerticalField(vertical.id, 'url', 'https://images.unsplash.com/photo-1542744094-3a31f103e35f?auto=format&fit=crop&q=80&w=1200');
+                                            handleUpdateVerticalField(vertical.id, 'type', 'image');
+                                          }}
+                                          className="flex-1 bg-black/60 hover:bg-neutral-900 border border-white/5 hover:border-amber-500/40 p-2 rounded-xl text-left transition-all group"
+                                        >
+                                          <span className="block text-[10px] text-white/80 font-bold uppercase truncate group-hover:text-white">Digital Agency</span>
+                                          <span className="block text-[8px] text-amber-500/60 uppercase font-mono tracking-wider mt-0.5">Modern Work</span>
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            handleUpdateVerticalField(vertical.id, 'url', 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1200');
+                                            handleUpdateVerticalField(vertical.id, 'type', 'image');
+                                          }}
+                                          className="flex-1 bg-black/60 hover:bg-neutral-900 border border-white/5 hover:border-amber-500/40 p-2 rounded-xl text-left transition-all group"
+                                        >
+                                          <span className="block text-[10px] text-white/80 font-bold uppercase truncate group-hover:text-white">AI Art Render</span>
+                                          <span className="block text-[8px] text-amber-500/60 uppercase font-mono tracking-wider mt-0.5">Organic Wave</span>
+                                        </button>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -2715,6 +2871,150 @@ const AdminPanel: FC = () => {
                       className="px-8 py-3.5 bg-black hover:bg-zinc-950 font-extrabold uppercase text-xs tracking-widest text-white/60 hover:text-white rounded-full border border-white/10 hover:border-white/30 transition-all"
                     >
                       RESET VERTICALS DEFAULTS
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            )}
+
+            {homeSubTab === 'slides' && (
+              <motion.div 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }}
+                className="bg-zinc-900 border border-white/5 p-6 md:p-10 rounded-[2.5rem] space-y-8 text-white font-sans"
+              >
+                <div>
+                  <h2 className="text-2xl font-black italic text-white uppercase mb-2">9 CINEMATIC SLIDESHOW</h2>
+                  <p className="text-xs text-white/50 leading-relaxed font-sans font-medium uppercase tracking-wider">
+                    Configure the titles, descriptions, and high-fidelity background images for the 9-slide scrolling section located between the Hero and Collaborators sections.
+                  </p>
+                </div>
+
+                <form onSubmit={handleSaveSlideshow} className="space-y-8 font-sans">
+                  <div className="space-y-6">
+                    {slidesList.map((slide, index) => {
+                      const transformedUrl = transformGoogleDriveUrl(slide.imageUrl, 'image');
+                      return (
+                        <div 
+                          key={slide.id} 
+                          className="bg-black/40 border border-white/5 p-5 md:p-6 rounded-2xl flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between"
+                        >
+                          <div className="space-y-4 flex-1 w-full font-sans font-medium">
+                            <div className="flex items-center gap-3">
+                              <span className="px-3 py-1 bg-orange-500/10 text-orange-500 text-[10px] font-black uppercase tracking-widest rounded-md border border-orange-500/20">
+                                SLIDE 0{index + 1} ({slide.id.replace('_', ' ').toUpperCase()})
+                              </span>
+                              <h3 className="text-sm font-bold text-white uppercase">{slide.title}</h3>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="space-y-1">
+                                <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Slide Title</label>
+                                <input
+                                  type="text"
+                                  required
+                                  value={slide.title}
+                                  onChange={(e) => handleUpdateSlideField(slide.id, 'title', e.target.value)}
+                                  placeholder="Slide Category Title"
+                                  className="w-full bg-black border border-white/10 rounded-lg px-4 py-2 text-xs text-white focus:outline-none focus:border-orange-500 transition-colors"
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Slide Image URL (Compatible with Google Drive share-link, Unsplash, etc.)</label>
+                                <input
+                                  type="url"
+                                  required
+                                  value={slide.imageUrl}
+                                  onChange={(e) => handleUpdateSlideField(slide.id, 'imageUrl', e.target.value)}
+                                  placeholder="Enter complete HTTPS image source URL..."
+                                  className="w-full bg-black border border-white/10 rounded-lg px-4 py-2 text-xs text-white focus:outline-none focus:border-orange-500 transition-colors"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Slide Description / Subtext</label>
+                              <textarea
+                                required
+                                rows={2}
+                                value={slide.description}
+                                onChange={(e) => handleUpdateSlideField(slide.id, 'description', e.target.value)}
+                                placeholder="Explain this cinematic genre or collection..."
+                                className="w-full bg-black border border-white/10 rounded-lg px-4 py-2 text-xs text-white focus:outline-none focus:border-orange-500 transition-colors resize-none"
+                              />
+                            </div>
+
+                            {/* Local Image File upload drop zone specifically for this slide */}
+                            <div className="space-y-1">
+                              <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Or Upload Local Slide Image</label>
+                              <div className="relative border border-dashed border-white/15 hover:border-orange-500/50 rounded-xl px-4 py-3 bg-black/40 flex items-center justify-center gap-3 transition-all cursor-pointer group">
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      if (file.size > 2 * 1024 * 1024) {
+                                        alert("Note: To prevent issues with database backup sizes, we recommend images under 2MB. Please select a smaller or optimized image.");
+                                        return;
+                                      }
+                                      const reader = new FileReader();
+                                      reader.onload = (event) => {
+                                        if (event.target && typeof event.target.result === 'string') {
+                                          handleUpdateSlideField(slide.id, 'imageUrl', event.target.result);
+                                        }
+                                      };
+                                      reader.readAsDataURL(file);
+                                    }
+                                  }}
+                                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                                />
+                                <svg className="w-5 h-5 text-white/30 group-hover:text-orange-500 transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                <div className="text-left font-sans">
+                                  <p className="text-[10px] text-white/85 font-black uppercase tracking-wider group-hover:text-white transition-colors">Select Local Image for Slide 0{index + 1}</p>
+                                  <p className="text-[8px] text-white/40 uppercase">JPEG, PNG, WebP (Max 2MB)</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Preview container */}
+                          <div className="w-full lg:w-48 h-32 shrink-0 bg-zinc-950 rounded-xl border border-white/5 relative overflow-hidden flex items-center justify-center">
+                            {slide.imageUrl ? (
+                              <img
+                                src={transformedUrl}
+                                alt={`Slide ${index + 1} Preview`}
+                                className="w-full h-full object-cover"
+                                referrerPolicy="no-referrer"
+                                onError={(e) => {
+                                  (e.currentTarget as HTMLImageElement).src = 'https://placehold.co/150x150/111111/ff4500/ffffff?text=Image+Error';
+                                }}
+                              />
+                            ) : (
+                              <span className="text-[8px] text-white/20 uppercase font-black font-sans">No URL Entered</span>
+                            )}
+                            <div className="absolute inset-0 bg-radial from-transparent to-black/60 pointer-events-none" />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex flex-wrap gap-4 pt-4 border-t border-white/5 font-sans">
+                    <button
+                      type="submit"
+                      className="px-8 py-3.5 bg-orange-500 hover:bg-orange-600 font-extrabold uppercase text-xs tracking-widest text-white rounded-full flex items-center gap-2 shadow-lg hover:shadow-orange-500/20 active:scale-95 transition-all"
+                    >
+                      <span>SAVE CINEMATIC SLIDESHOW CONFIGURATION</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleResetSlideshow}
+                      className="px-8 py-3.5 bg-black hover:bg-zinc-950 font-extrabold uppercase text-xs tracking-widest text-white/60 hover:text-white rounded-full border border-white/10 hover:border-white/30 transition-all font-sans"
+                    >
+                      RESET 9 SLIDES TO DEFAULTS
                     </button>
                   </div>
                 </form>
@@ -3793,7 +4093,7 @@ const AdminPanel: FC = () => {
                       <div className="md:col-span-2 flex items-center gap-4 bg-black/40 p-4 rounded-2xl border border-white/5">
                         <div className="w-14 h-14 rounded-full overflow-hidden border border-white/10 shrink-0 bg-zinc-950">
                           {aboutTeamImg ? (
-                            <img src={aboutTeamImg} className="w-full h-full object-cover" alt="Preview Image" onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400'; }} />
+                            <img src={transformGoogleDriveUrl(aboutTeamImg, 'image')} className="w-full h-full object-cover" alt="Preview Image" onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400'; }} />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-white/20"><Users size={20} /></div>
                           )}
@@ -3845,7 +4145,7 @@ const AdminPanel: FC = () => {
                       {/* Left Thumbnail */}
                       <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 border border-white/10 bg-zinc-950">
                         <img
-                          src={member.img}
+                          src={transformGoogleDriveUrl(member.img, 'image')}
                           alt={member.name}
                           className="w-full h-full object-cover scale-100 group-hover:scale-105 duration-500 transition-transform"
                           onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400'; }}
