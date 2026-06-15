@@ -159,35 +159,48 @@ export const CinematicSlideshow: FC = memo(() => {
         {/* Slides rendering block */}
         <div className="absolute inset-0 z-10 w-full h-full flex items-center justify-center">
           {slides.map((slide, idx) => {
-            // Apply standard card pile-up / slide-up coordinates matching user intent
-            const slideStart = Math.max(0, (idx - 0.72) / 9);
-            const slideActive = idx / 9;
-            const slideDone = Math.min(1, (idx + 0.72) / 9);
-            const slideNext = Math.min(1, (idx + 1) / 9);
-
-            // Interpolated motion variables
-            // For index 0, it stays at 0% and slides out to -100%.
-            // For intermediate slides, they enter from bottom (100%), stay at 0%, and exit to top (-100%).
-            // For the final slide (index 8), it enters from bottom (100%), stays at 0% until the end of the container, with no exit animation. This prevents the blank black screen issue.
+            const totalSlides = slides.length || 9;
             const isFirst = idx === 0;
             const isLast = idx === slides.length - 1;
 
-            const yRange = isFirst 
-              ? [0, slideDone, slideNext] 
-              : isLast 
-                ? [slideStart, slideActive, 1] 
-                : [slideStart, slideActive, slideDone, slideNext];
+            // Compute start and end offsets for slide exit transition
+            const startOffset = idx / totalSlides;
+            const endOffset = (idx + 1) / totalSlides;
 
-            const yOutput = isFirst 
-              ? ['0%', '0%', '-100%'] 
-              : isLast 
-                ? ['100%', '0%', '0%'] 
-                : ['100%', '0%', '0%', '-100%'];
+            let yRange: number[];
+            let yOutput: string[];
+
+            if (isFirst) {
+              yRange = [0, endOffset, 1];
+              yOutput = ['0%', '-100%', '-100%'];
+            } else if (isLast) {
+              yRange = [0, startOffset, 1];
+              yOutput = ['0%', '0%', '0%'];
+            } else {
+              yRange = [0, startOffset, endOffset, 1];
+              yOutput = ['0%', '0%', '-100%', '-100%'];
+            }
 
             const y = useTransform(scrollYProgress, yRange, yOutput);
+            
+            // Calculate halfway point of the slide's vertical exit transition
+            const midOffset = startOffset + 0.5 * (endOffset - startOffset);
 
-            // Keep opacity fully solid at 1 to prevent black background from showing through during transitions
-            const opacity = 1;
+            let opacityRange: number[];
+            let opacityOutput: number[];
+
+            if (isFirst) {
+              opacityRange = [0, midOffset, endOffset, 1];
+              opacityOutput = [1, 1, 0, 0];
+            } else if (isLast) {
+              opacityRange = [0, startOffset, 1];
+              opacityOutput = [1, 1, 1];
+            } else {
+              opacityRange = [0, startOffset, midOffset, endOffset, 1];
+              opacityOutput = [1, 1, 1, 0, 0];
+            }
+
+            const opacity = useTransform(scrollYProgress, opacityRange, opacityOutput);
 
             // Keep scale flat at 1 to prevent visual gaps/margins reveals that show black edges
             const scale = 1;
@@ -197,7 +210,7 @@ export const CinematicSlideshow: FC = memo(() => {
             return (
               <motion.div
                 key={slide.id}
-                style={{ y, opacity, scale }}
+                style={{ y, opacity, scale, zIndex: totalSlides - idx }}
                 className="absolute inset-0 w-full h-full flex items-center justify-center overflow-hidden bg-black origin-center"
               >
                 {/* Background Image with slow zoom transition */}
@@ -205,7 +218,7 @@ export const CinematicSlideshow: FC = memo(() => {
                   <img
                     src={transformUrl(slide.imageUrl)}
                     alt={slide.title}
-                    className="w-full h-full object-cover select-none pointer-events-none"
+                    className="w-full h-full object-contain select-none pointer-events-none"
                     referrerPolicy="no-referrer"
                   />
                 </div>
