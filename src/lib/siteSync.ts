@@ -18,6 +18,8 @@ const CONFIG_KEYS = [
   'dc_films',
   'dc_clients',
   'dc_brand_partners',
+  'paragraph_frames',
+  'verticals_list',
   'about_bgt_word1', 'about_bgt_word2', 'about_bgt_tagline', 'about_hero_bg', 'about_genesis_sub', 'about_genesis_title', 'about_genesis_p1', 'about_genesis_p2',
   'about_stat1_val', 'about_stat1_lbl', 'about_stat2_val', 'about_stat2_lbl', 'about_stat3_val', 'about_stat3_lbl', 'about_stat4_val', 'about_stat4_lbl',
   'about_team',
@@ -115,7 +117,9 @@ export function initSiteSync() {
     'storage_updated_films',
     'storage_updated_socials',
     'storage_updated_brand_partners',
-    'storage_updated_cinematic_slides'
+    'storage_updated_cinematic_slides',
+    'storage_updated_paragraph_frames',
+    'storage_updated_verticals'
   ];
 
   adminUpdateEvents.forEach(evt => {

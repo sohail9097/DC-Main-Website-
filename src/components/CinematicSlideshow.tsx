@@ -1,6 +1,18 @@
 import { useRef, memo, FC, useState, useEffect } from 'react';
-import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
-import { Film, Compass, Tv, Camera, Play, Sparkles, BookOpen, Layers, Zap, Info } from 'lucide-react';
+import { motion, useScroll, useTransform, useInView, useSpring } from 'motion/react';
+import { 
+  Film, 
+  Compass, 
+  Tv, 
+  Camera, 
+  Play, 
+  Sparkles, 
+  BookOpen, 
+  Layers, 
+  Zap, 
+  ArrowDown,
+  ArrowRight
+} from 'lucide-react';
 
 export interface CinematicSlide {
   id: string;
@@ -78,30 +90,58 @@ const ICONS_MAP: Record<string, any> = {
   aerial_adventure: Zap
 };
 
+const getButtonLabel = (title: string) => {
+  const t = title.toLowerCase();
+  if (t.includes('photo')) return 'VIEW WORK';
+  if (t.includes('video')) return 'VIEW OUR FILMS';
+  if (t.includes('drone') || t.includes('aerial')) return 'VIEW REEL';
+  if (t.includes('brand') || t.includes('content')) return 'VIEW CASE STUDY';
+  if (t.includes('commercial') || t.includes('ad')) return 'PLAY ADWORK';
+  if (t.includes('document')) return 'WATCH FILM';
+  if (t.includes('music')) return 'PLAY VIDEO';
+  return 'VIEW CASE STUDY';
+};
+
+const makeKeys = (...vals: number[]) => {
+  const result: number[] = [];
+  let last = 0;
+  for (const v of vals) {
+    const clamped = Math.max(last, Math.min(1, v));
+    result.push(clamped);
+    last = clamped;
+  }
+  return result;
+};
+
 export const CinematicSlideshow: FC = memo(() => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [slides, setSlides] = useState<CinematicSlide[]>(DEFAULT_SLIDES);
-  
-  // Track scroll position of the entirepinned slide container
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  // Track scroll position of the entire pinned slide container
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start start', 'end end']
   });
 
-  // Calculate current active slide index for side navigation indicator
-  const [activeIndex, setActiveIndex] = useState(0);
+  // Create a beautiful, physics-based smooth scroll progress to remove scroll jitter
+  const smoothScrollYProgress = useSpring(scrollYProgress, {
+    stiffness: 65,
+    damping: 28,
+    restDelta: 0.0001
+  });
 
+  // Keep tracking current active indices
   useEffect(() => {
     const handleScrollUpdate = (latest: number) => {
-      // Calculate active slide index based on scroll position (0 to 1 split into 9 chunks)
-      const fractionalIndex = latest * 9;
-      const idx = Math.min(8, Math.max(0, Math.floor(fractionalIndex)));
-      setActiveIndex(idx);
+      const fractionalIndex = latest * (slides.length || 1);
+      const idx = Math.floor(fractionalIndex);
+      setActiveIndex(Math.min((slides.length || 1) - 1, Math.max(0, idx)));
     };
 
-    const unsubscribe = scrollYProgress.on('change', handleScrollUpdate);
+    const unsubscribe = smoothScrollYProgress.on('change', handleScrollUpdate);
     return () => unsubscribe();
-  }, [scrollYProgress]);
+  }, [smoothScrollYProgress, slides.length]);
 
   // Load slides config from localStorage to ensure perfect admin customization sync
   useEffect(() => {
@@ -110,7 +150,7 @@ export const CinematicSlideshow: FC = memo(() => {
       if (stored) {
         try {
           const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length === 9) {
+          if (Array.isArray(parsed) && parsed.length > 0) {
             setSlides(parsed);
           } else {
             setSlides(DEFAULT_SLIDES);
@@ -138,7 +178,6 @@ export const CinematicSlideshow: FC = memo(() => {
   const transformUrl = (url: string) => {
     if (!url) return '';
     if (url.includes('drive.google.com')) {
-      // Extract file id
       const matches = url.match(/(?:\/file\/d\/|id=)([^/?]+)/);
       if (matches && matches[1]) {
         return `https://docs.google.com/uc?export=download&id=${matches[1]}`;
@@ -151,78 +190,138 @@ export const CinematicSlideshow: FC = memo(() => {
     <section 
       ref={containerRef} 
       className="relative z-20 w-full bg-black overflow-visible"
-      style={{ height: '900vh' }} // 9 slides * 100vh of scrolling room
+      style={{ height: `${slides.length * 180}vh` }}
       id="cinematic-slides"
     >
       <div className="sticky top-0 left-0 h-screen w-full overflow-hidden bg-black flex flex-col justify-between">
-        
-        {/* Slides rendering block */}
+
+        {/* Stacked Slides Layer rendering block */}
         <div className="absolute inset-0 z-10 w-full h-full flex items-center justify-center">
           {slides.map((slide, idx) => {
             const totalSlides = slides.length || 9;
-            const isFirst = idx === 0;
-            const isLast = idx === slides.length - 1;
+            const segmentSize = 1 / totalSlides;
+            // Overlap transition fraction - k = 1.0 removes the flat holding phase, creating a perfectly continuous, direct hand-off scroll progress
+            const k = 1.0;
+            const transitionSize = k * segmentSize;
 
-            // Compute start and end offsets for slide exit transition
-            const startOffset = idx / totalSlides;
-            const endOffset = (idx + 1) / totalSlides;
+            const incomingStart = idx * segmentSize - transitionSize;
+            const incomingEnd = idx * segmentSize;
+            const outgoingStart = (idx + 1) * segmentSize - transitionSize;
+            const outgoingEnd = (idx + 1) * segmentSize;
 
+            // Slide translation: "image top se gayab na ho, niche slide upar aaye and cover kre"
+            // The upper (current) image remains stationary at "0%" as subsequent slides slide on top of them.
+            // Incoming slides start offscreen at "100%" (bottom) and slide UP to "0%" as they become active.
+            // Since incoming slides slide ON TOP of existing ones, z-index increases with the slide index.
             let yRange: number[];
             let yOutput: string[];
 
-            if (isFirst) {
-              yRange = [0, endOffset, 1];
-              yOutput = ['0%', '-100%', '-100%'];
-            } else if (isLast) {
-              yRange = [0, startOffset, 1];
-              yOutput = ['0%', '0%', '0%'];
+            if (idx === 0) {
+              // The first slide is active immediately at 0% and remains covered by subsequent slides
+              yRange = [0, 1];
+              yOutput = ['0%', '0%'];
             } else {
-              yRange = [0, startOffset, endOffset, 1];
-              yOutput = ['0%', '0%', '-100%', '-100%'];
+              // Subsequent slides start at 100% and slide up to 0% as they become active
+              if (incomingStart <= 0) {
+                yRange = [0, incomingEnd, 1];
+                yOutput = ['100%', '0%', '0%'];
+              } else {
+                yRange = [0, incomingStart, incomingEnd, 1];
+                yOutput = ['100%', '100%', '0%', '0%'];
+              }
             }
 
-            const y = useTransform(scrollYProgress, yRange, yOutput);
-            
-            // Calculate halfway point of the slide's vertical exit transition
-            const midOffset = startOffset + 0.5 * (endOffset - startOffset);
+            const y = useTransform(smoothScrollYProgress, yRange, yOutput);
+            // Since incoming slides slide ON TOP of older slides, z-index increases with the slide index
+            const zIndex = idx + 1;
 
-            let opacityRange: number[];
-            let opacityOutput: number[];
+            // Background image stays stable and flat during slide shifts
+            const scale = 1.0;
 
-            if (isFirst) {
-              opacityRange = [0, midOffset, endOffset, 1];
-              opacityOutput = [1, 1, 0, 0];
-            } else if (isLast) {
-              opacityRange = [0, startOffset, 1];
-              opacityOutput = [1, 1, 1];
+            // Text translations driven strictly by smooth scroll progress to trigger cinematic staggered entry/exit offsets
+            let textY;
+
+            if (idx === 0) {
+              // First slide starts active at 0vh, then scrolls up smoothly with its slide and subtle parallax
+              const keys = [0, outgoingEnd, 1];
+              textY = useTransform(
+                smoothScrollYProgress,
+                keys,
+                ["0vh", "-100vh", "-100vh"]
+              );
+            } else if (idx === totalSlides - 1) {
+              // Last slide's text starts active relative to its rising container to slide in 1:1
+              const keys = [0, incomingStart, incomingEnd, 1];
+              textY = useTransform(
+                smoothScrollYProgress,
+                keys,
+                ["0vh", "0vh", "0vh", "0vh"]
+              );
             } else {
-              opacityRange = [0, startOffset, midOffset, endOffset, 1];
-              opacityOutput = [1, 1, 1, 0, 0];
+              // Middle slides
+              if (incomingStart === 0) {
+                // For slide 1, incomingStart is 0, so avoid duplicate 0 in keys
+                const keys = [0, incomingEnd, outgoingEnd, 1];
+                textY = useTransform(
+                  smoothScrollYProgress,
+                  keys,
+                  ["0vh", "0vh", "-100vh", "-100vh"]
+                );
+              } else {
+                const keys = [0, incomingStart, incomingEnd, outgoingEnd, 1];
+                textY = useTransform(
+                  smoothScrollYProgress,
+                  keys,
+                  ["0vh", "0vh", "0vh", "-100vh", "-100vh"]
+                );
+              }
             }
-
-            const opacity = useTransform(scrollYProgress, opacityRange, opacityOutput);
-
-            // Keep scale flat at 1 to prevent visual gaps/margins reveals that show black edges
-            const scale = 1;
-
-            const Icon = ICONS_MAP[slide.id] || Film;
 
             return (
               <motion.div
                 key={slide.id}
-                style={{ y, opacity, scale, zIndex: totalSlides - idx }}
-                className="absolute inset-0 w-full h-full flex items-center justify-center overflow-hidden bg-black origin-center"
+                style={{ y, zIndex }}
+                className="absolute inset-0 w-full h-full flex items-center justify-center overflow-hidden bg-black"
               >
-                {/* Background Image with slow zoom transition */}
-                <div className="absolute inset-0 w-full h-full">
+                {/* Background Image without visual scaling gaps */}
+                <div className="absolute inset-0 w-full h-full pb-[1px]">
                   <img
                     src={transformUrl(slide.imageUrl)}
                     alt={slide.title}
-                    className="w-full h-full object-contain select-none pointer-events-none"
+                    className="w-full h-full object-cover select-none pointer-events-none"
                     referrerPolicy="no-referrer"
                   />
+                  {/* Premium, soft overlay at the bottom to ensure stunning text readability */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent z-12" />
                 </div>
 
+                {/* Premium floating text block - High-fidelity pure slide translation with absolutely NO fade */}
+                <motion.div 
+                  style={{ y: textY }}
+                  className="absolute bottom-20 md:bottom-[100px] left-6 md:left-[80px] right-6 md:right-[80px] z-20 text-left pointer-events-none select-none"
+                >
+                  <div className="w-full md:max-w-none">
+                    <h2 
+                      style={{ 
+                        fontFamily: '"Barlow Condensed", sans-serif'
+                      }}
+                      className="font-condensed text-4xl md:text-[5.5rem] font-bold text-white tracking-[-0.015em] leading-[1.05] mb-3"
+                    >
+                      {slide.title}
+                    </h2>
+                    
+                    <p 
+                      style={{ 
+                        fontFamily: '"Barlow Condensed", sans-serif'
+                      }}
+                      className="font-condensed text-sm md:text-[1.85rem] font-normal text-white/90 tracking-[0.015em] leading-[1.35] w-full"
+                    >
+                      {slide.description}
+                    </p>
+
+
+                  </div>
+                </motion.div>
 
               </motion.div>
             );
