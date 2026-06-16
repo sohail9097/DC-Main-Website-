@@ -2446,7 +2446,23 @@ function LandingPage() {
       const stored = localStorage.getItem('dc_locations');
       if (stored) {
         try {
-          setLocations(JSON.parse(stored));
+          const parsed = JSON.parse(stored) as OperationalLocation[];
+          const merged = parsed.map(loc => {
+            const def = DEFAULT_LOCATIONS.find(d => d.id === loc.id);
+            if (def) {
+              return {
+                ...def,
+                ...loc,
+                path: def.path || loc.path,
+                textY: typeof def.textY !== 'undefined' ? def.textY : loc.textY,
+                fontSize: typeof def.fontSize !== 'undefined' ? def.fontSize : loc.fontSize,
+                city: def.city || loc.city,
+                localText: def.localText || loc.localText
+              };
+            }
+            return loc;
+          });
+          setLocations(merged);
           return;
         } catch (e) {
           console.error('Error loading locations list in LandingPage:', e);

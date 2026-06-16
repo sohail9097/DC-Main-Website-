@@ -558,7 +558,23 @@ const AdminPanel: FC = () => {
     const storedLocs = localStorage.getItem('dc_locations');
     if (storedLocs) {
       try {
-        setLocations(JSON.parse(storedLocs));
+        const parsed = JSON.parse(storedLocs) as OperationalLocation[];
+        const merged = parsed.map(loc => {
+          const def = DEFAULT_LOCATIONS.find(d => d.id === loc.id);
+          if (def) {
+            return {
+              ...def,
+              ...loc,
+              path: def.path || loc.path,
+              textY: typeof def.textY !== 'undefined' ? def.textY : loc.textY,
+              fontSize: typeof def.fontSize !== 'undefined' ? def.fontSize : loc.fontSize,
+              city: def.city || loc.city,
+              localText: def.localText || loc.localText
+            };
+          }
+          return loc;
+        });
+        setLocations(merged);
       } catch (e) {
         console.error('Error loading dc_locations in Admin:', e);
         setLocations(DEFAULT_LOCATIONS);
