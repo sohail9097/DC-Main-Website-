@@ -2453,11 +2453,11 @@ function LandingPage() {
               return {
                 ...def,
                 ...loc,
-                path: def.path || loc.path,
-                textY: typeof def.textY !== 'undefined' ? def.textY : loc.textY,
-                fontSize: typeof def.fontSize !== 'undefined' ? def.fontSize : loc.fontSize,
-                city: def.city || loc.city,
-                localText: def.localText || loc.localText
+                path: loc.path || def.path,
+                textY: typeof loc.textY !== 'undefined' ? loc.textY : def.textY,
+                fontSize: typeof loc.fontSize !== 'undefined' ? loc.fontSize : def.fontSize,
+                city: loc.city || def.city,
+                localText: loc.localText || def.localText
               };
             }
             return loc;

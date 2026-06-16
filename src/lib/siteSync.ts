@@ -26,7 +26,8 @@ const CONFIG_KEYS = [
   'contact_title_first', 'contact_title_orange', 'contact_subtitle', 'contact_email', 'contact_phone', 'contact_address',
   'social_instagram', 'social_facebook', 'social_youtube', 'social_twitter',
   'nav_logo_type', 'nav_logo_text_short', 'nav_logo_text_full', 'nav_logo_image_url',
-  'cinematic_slides_list'
+  'cinematic_slides_list',
+  'dc_locations'
 ];
 
 let isWritingToFirestore = false;
@@ -119,7 +120,8 @@ export function initSiteSync() {
     'storage_updated_brand_partners',
     'storage_updated_cinematic_slides',
     'storage_updated_paragraph_frames',
-    'storage_updated_verticals'
+    'storage_updated_verticals',
+    'storage_updated_locations'
   ];
 
   adminUpdateEvents.forEach(evt => {

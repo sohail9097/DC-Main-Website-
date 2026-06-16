@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import { Navigate, Link } from 'react-router-dom';
 import { pushLocalConfigsToFirestore } from '../lib/siteSync';
-import { Users, Layout, Settings, LogOut, Home, Plus, Trash2, Edit2, ArrowUp, ArrowDown, RefreshCw, FileVideo, Image as ImageIcon, Film, Play, ChevronRight, ChevronLeft, MapPin, BookOpen, Share2, Sparkles, Upload } from 'lucide-react';
+import { Users, Layout, Settings, LogOut, Home, Plus, Trash2, Edit2, ArrowUp, ArrowDown, RefreshCw, FileVideo, Image as ImageIcon, Film, Play, ChevronRight, ChevronLeft, MapPin, BookOpen, Share2, Sparkles, Upload, Check, Save } from 'lucide-react';
 import { DEFAULT_TEAM_MEMBERS, TeamMember, DEFAULT_ORBIT_IMAGES, DEFAULT_FILMS_LIST, DEFAULT_CLIENTS_LIST, ClientItem, ParagraphFrameItem, DEFAULT_PARAGRAPH_FRAMES, DEFAULT_VERTICALS, VerticalItem, DEFAULT_LOCATIONS, OperationalLocation } from '../App';
 import { DEFAULT_BRAND_ITEMS, BrandItem } from './BrandPage';
 import { DEFAULT_SLIDES, CinematicSlide } from '../components/CinematicSlideshow';
@@ -366,6 +366,7 @@ const AdminPanel: FC = () => {
 
   // Operational locations state variables
   const [locations, setLocations] = useState<OperationalLocation[]>([]);
+  const [mapSavedStatus, setMapSavedStatus] = useState<string>('');
 
   // Load from localStorage
   useEffect(() => {
@@ -565,11 +566,11 @@ const AdminPanel: FC = () => {
             return {
               ...def,
               ...loc,
-              path: def.path || loc.path,
-              textY: typeof def.textY !== 'undefined' ? def.textY : loc.textY,
-              fontSize: typeof def.fontSize !== 'undefined' ? def.fontSize : loc.fontSize,
-              city: def.city || loc.city,
-              localText: def.localText || loc.localText
+              path: loc.path || def.path,
+              textY: typeof loc.textY !== 'undefined' ? loc.textY : def.textY,
+              fontSize: typeof loc.fontSize !== 'undefined' ? loc.fontSize : def.fontSize,
+              city: loc.city || def.city,
+              localText: loc.localText || def.localText
             };
           }
           return loc;
@@ -4425,7 +4426,7 @@ const AdminPanel: FC = () => {
                             onClick={() => {
                               const updated = [...locations];
                               updated[idx] = { ...updated[idx], mapImage: "" };
-                              saveLocations(updated);
+                              setLocations(updated);
                             }}
                             className="text-[10px] uppercase tracking-widest font-black text-rose-500 hover:text-rose-450 transition-colors bg-rose-500/5 px-2.5 py-1 rounded-md border border-rose-500/10"
                           >
@@ -4445,7 +4446,7 @@ const AdminPanel: FC = () => {
                               onChange={(e) => {
                                 const updated = [...locations];
                                 updated[idx] = { ...updated[idx], mapsUrl: e.target.value };
-                                saveLocations(updated);
+                                setLocations(updated);
                               }}
                               placeholder="https://maps.google.com/?q=..."
                               className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-2.5 text-sm text-white font-mono"
@@ -4462,7 +4463,7 @@ const AdminPanel: FC = () => {
                                 const url = transformGoogleDriveUrl(e.target.value);
                                 const updated = [...locations];
                                 updated[idx] = { ...updated[idx], mapImage: url };
-                                saveLocations(updated);
+                                setLocations(updated);
                               }}
                               placeholder="Enter image URL or upload file on right..."
                               className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-2.5 text-sm text-white"
@@ -4495,7 +4496,7 @@ const AdminPanel: FC = () => {
                                       if (evt.target && typeof evt.target.result === "string") {
                                         const updated = [...locations];
                                         updated[idx] = { ...updated[idx], mapImage: evt.target.result };
-                                        saveLocations(updated);
+                                        setLocations(updated);
                                       }
                                     };
                                     reader.readAsDataURL(file);
@@ -4531,19 +4532,51 @@ const AdminPanel: FC = () => {
                 })}
               </div>
 
-              <div className="pt-4 border-t border-white/5 flex gap-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (confirm("Reset all operational map base URLs and custom images to original defaults?")) {
-                      saveLocations(DEFAULT_LOCATIONS);
-                    }
-                  }}
-                  className="px-5 py-2.5 bg-zinc-800 hover:bg-white hover:text-black active:scale-95 text-white border border-white/10 rounded-xl transition-all font-bold uppercase text-xs tracking-wider flex items-center gap-2"
-                >
-                  <RefreshCw size={12} />
-                  <span>Restore Map Defaults</span>
-                </button>
+              <div className="pt-4 border-t border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      saveLocations(locations);
+                      setMapSavedStatus('Map configuration successfully committed!');
+                      setTimeout(() => setMapSavedStatus(''), 4000);
+                    }}
+                    className="px-6 py-3 bg-orange-500 hover:bg-orange-600 active:scale-95 text-black border border-orange-500 rounded-xl transition-all font-black uppercase text-xs tracking-wider flex items-center gap-2 shadow-lg"
+                  >
+                    <Save size={14} />
+                    <span>Apply & Save Map Changes</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (confirm("Reset all operational map base URLs and custom images to original defaults?")) {
+                        saveLocations(DEFAULT_LOCATIONS);
+                        setLocations(DEFAULT_LOCATIONS);
+                        setMapSavedStatus('Map configuration reset to defaults!');
+                        setTimeout(() => setMapSavedStatus(''), 4000);
+                      }
+                    }}
+                    className="px-5 py-2.5 bg-zinc-800 hover:bg-white hover:text-black active:scale-95 text-white border border-white/10 rounded-xl transition-all font-bold uppercase text-xs tracking-wider flex items-center gap-2"
+                  >
+                    <RefreshCw size={12} />
+                    <span>Restore Map Defaults</span>
+                  </button>
+                </div>
+
+                <AnimatePresence>
+                  {mapSavedStatus && (
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      className="text-xs text-emerald-400 font-mono font-bold flex items-center gap-1.5 bg-emerald-500/10 px-3.5 py-2 rounded-xl border border-emerald-500/20"
+                    >
+                      <Check size={14} className="text-emerald-400 animate-pulse" />
+                      <span>{mapSavedStatus}</span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
           </div>
