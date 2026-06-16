@@ -232,7 +232,6 @@ export const CinematicSlideshow: FC = memo(() => {
             }
 
             const y = useTransform(smoothScrollYProgress, yRange, yOutput);
-            // Since incoming slides slide ON TOP of older slides, z-index increases with the slide index
             const zIndex = idx + 1;
 
             // Background image stays stable and flat during slide shifts

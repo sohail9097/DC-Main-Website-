@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Navigate, Link } from 'react-router-dom';
 import { pushLocalConfigsToFirestore } from '../lib/siteSync';
 import { Users, Layout, Settings, LogOut, Home, Plus, Trash2, Edit2, ArrowUp, ArrowDown, RefreshCw, FileVideo, Image as ImageIcon, Film, Play, ChevronRight, ChevronLeft, MapPin, BookOpen, Share2, Sparkles, Upload } from 'lucide-react';
-import { DEFAULT_TEAM_MEMBERS, TeamMember, DEFAULT_ORBIT_IMAGES, DEFAULT_FILMS_LIST, DEFAULT_CLIENTS_LIST, ClientItem, ParagraphFrameItem, DEFAULT_PARAGRAPH_FRAMES, DEFAULT_VERTICALS, VerticalItem } from '../App';
+import { DEFAULT_TEAM_MEMBERS, TeamMember, DEFAULT_ORBIT_IMAGES, DEFAULT_FILMS_LIST, DEFAULT_CLIENTS_LIST, ClientItem, ParagraphFrameItem, DEFAULT_PARAGRAPH_FRAMES, DEFAULT_VERTICALS, VerticalItem, DEFAULT_LOCATIONS, OperationalLocation } from '../App';
 import { DEFAULT_BRAND_ITEMS, BrandItem } from './BrandPage';
 import { DEFAULT_SLIDES, CinematicSlide } from '../components/CinematicSlideshow';
 
@@ -364,6 +364,9 @@ const AdminPanel: FC = () => {
   const [socialYoutube, setSocialYoutube] = useState('#');
   const [socialTwitter, setSocialTwitter] = useState('#');
 
+  // Operational locations state variables
+  const [locations, setLocations] = useState<OperationalLocation[]>([]);
+
   // Load from localStorage
   useEffect(() => {
     const stored = localStorage.getItem('dream_team');
@@ -550,6 +553,19 @@ const AdminPanel: FC = () => {
     setSocialFacebook(localStorage.getItem('social_facebook') || '#');
     setSocialYoutube(localStorage.getItem('social_youtube') || '#');
     setSocialTwitter(localStorage.getItem('social_twitter') || '#');
+
+    // Load Operational Locations
+    const storedLocs = localStorage.getItem('dc_locations');
+    if (storedLocs) {
+      try {
+        setLocations(JSON.parse(storedLocs));
+      } catch (e) {
+        console.error('Error loading dc_locations in Admin:', e);
+        setLocations(DEFAULT_LOCATIONS);
+      }
+    } else {
+      setLocations(DEFAULT_LOCATIONS);
+    }
   }, []);
 
   // Save to localStorage
@@ -565,6 +581,12 @@ const AdminPanel: FC = () => {
     localStorage.setItem('orbit_images', JSON.stringify(updated));
     // Trigger custom state sync event for orbit frame
     window.dispatchEvent(new Event('storage_updated_orbit'));
+  };
+
+  const saveLocations = (updated: OperationalLocation[]) => {
+    setLocations(updated);
+    localStorage.setItem('dc_locations', JSON.stringify(updated));
+    window.dispatchEvent(new Event('storage_updated_locations'));
   };
 
   if (loading) {
@@ -4354,6 +4376,160 @@ const AdminPanel: FC = () => {
                 </button>
               </div>
             </form>
+
+            {/* Corporate Stations & Maps Management section */}
+            <div className="bg-zinc-950 border border-white/5 p-6 md:p-8 rounded-[2.5rem] space-y-6">
+              <div className="border-b border-white/5 pb-3">
+                <h3 className="text-lg font-black uppercase italic tracking-tight text-orange-500 flex items-center gap-2">
+                  <MapPin size={20} className="text-orange-500" />
+                  <span>Corporate Stations & Map Controls</span>
+                </h3>
+                <p className="text-xs text-white/40 mt-1">
+                  Upload custom map images and link Google Map coordinates for each global shoot base or corporate station.
+                </p>
+              </div>
+
+              <div className="space-y-6">
+                {locations.map((loc, idx) => {
+                  return (
+                    <div key={loc.id} className="bg-zinc-900/30 border border-white/5 p-5 rounded-2xl space-y-4">
+                      <div className="flex items-center justify-between pb-2 border-b border-white/5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center border border-orange-500/20">
+                            <span className="text-orange-500 font-sans text-xs font-black italic">{idx + 1}</span>
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-black uppercase tracking-wider text-white">{loc.cityAlt}</h4>
+                            <p className="text-[10px] text-zinc-500">{loc.title}</p>
+                          </div>
+                        </div>
+                        {loc.mapImage && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = [...locations];
+                              updated[idx] = { ...updated[idx], mapImage: "" };
+                              saveLocations(updated);
+                            }}
+                            className="text-[10px] uppercase tracking-widest font-black text-rose-500 hover:text-rose-450 transition-colors bg-rose-500/5 px-2.5 py-1 rounded-md border border-rose-500/10"
+                          >
+                            Reset to Vector Map
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-4">
+                          {/* Google Map URL Input */}
+                          <div>
+                            <label className="block text-xs uppercase tracking-widest text-zinc-400 font-bold mb-2">Google Map Redirect URL (On Click)</label>
+                            <input
+                              type="text"
+                              value={loc.mapsUrl}
+                              onChange={(e) => {
+                                const updated = [...locations];
+                                updated[idx] = { ...updated[idx], mapsUrl: e.target.value };
+                                saveLocations(updated);
+                              }}
+                              placeholder="https://maps.google.com/?q=..."
+                              className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-2.5 text-sm text-white font-mono"
+                            />
+                          </div>
+
+                          {/* Text input path for Web Image URL */}
+                          <div>
+                            <label className="block text-xs uppercase tracking-widest text-zinc-400 font-bold mb-2">Map Image URL</label>
+                            <input
+                              type="text"
+                              value={loc.mapImage || ""}
+                              onChange={(e) => {
+                                const url = transformGoogleDriveUrl(e.target.value);
+                                const updated = [...locations];
+                                updated[idx] = { ...updated[idx], mapImage: url };
+                                saveLocations(updated);
+                              }}
+                              placeholder="Enter image URL or upload file on right..."
+                              className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-2.5 text-sm text-white"
+                            />
+                          </div>
+                        </div>
+
+                        {/* File Upload / Image drag-and-drop preview block */}
+                        <div>
+                          <label className="block text-xs uppercase tracking-widest text-zinc-400 font-bold mb-2">Map Image File (Upload)</label>
+                          <div className="grid grid-cols-3 gap-3 h-[96px]">
+                            {/* drag and drop file selector box */}
+                            <div
+                              onClick={() => {
+                                const fInput = document.getElementById(`file-input-loc-${loc.id}`);
+                                if (fInput) fInput.click();
+                              }}
+                              className="col-span-2 relative border border-dashed border-white/15 hover:border-orange-500/50 bg-black/40 rounded-xl flex flex-col items-center justify-center text-center cursor-pointer transition-all p-2 group"
+                            >
+                              <input
+                                id={`file-input-loc-${loc.id}`}
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => {
+                                  if (e.target.files && e.target.files[0]) {
+                                    const file = e.target.files[0];
+                                    const reader = new FileReader();
+                                    reader.onload = (evt) => {
+                                      if (evt.target && typeof evt.target.result === "string") {
+                                        const updated = [...locations];
+                                        updated[idx] = { ...updated[idx], mapImage: evt.target.result };
+                                        saveLocations(updated);
+                                      }
+                                    };
+                                    reader.readAsDataURL(file);
+                                  }
+                                }}
+                              />
+                              <Upload size={18} className="text-zinc-500 group-hover:text-orange-500 transition-colors mb-1" />
+                              <span className="text-[9px] font-black uppercase text-zinc-400 select-none">UPLOAD FILE</span>
+                              <span className="text-[8px] text-zinc-500 select-none">PNG, JPG, WebP</span>
+                            </div>
+
+                            {/* Map element Preview */}
+                            <div className="border border-white/5 bg-black rounded-xl overflow-hidden flex items-center justify-center relative justify-items-center">
+                              {loc.mapImage ? (
+                                <img
+                                  src={loc.mapImage}
+                                  alt="Preview"
+                                  className="w-full h-full object-contain p-1.5"
+                                  referrerPolicy="no-referrer"
+                                />
+                              ) : (
+                                <div className="text-center p-2">
+                                  <span className="text-[8px] font-mono font-bold text-zinc-500 block uppercase">VECTOR</span>
+                                  <span className="text-[7px] text-zinc-600 block mt-0.5 font-bold">ACTIVE</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="pt-4 border-t border-white/5 flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (confirm("Reset all operational map base URLs and custom images to original defaults?")) {
+                      saveLocations(DEFAULT_LOCATIONS);
+                    }
+                  }}
+                  className="px-5 py-2.5 bg-zinc-800 hover:bg-white hover:text-black active:scale-95 text-white border border-white/10 rounded-xl transition-all font-bold uppercase text-xs tracking-wider flex items-center gap-2"
+                >
+                  <RefreshCw size={12} />
+                  <span>Restore Map Defaults</span>
+                </button>
+              </div>
+            </div>
           </div>
         )}
 

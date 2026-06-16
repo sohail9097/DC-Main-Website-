@@ -1,5 +1,5 @@
 import { motion, AnimatePresence, useScroll, useTransform, useTime } from 'motion/react';
-import { Camera, Play, ChevronLeft, ChevronRight, Menu, X, Rocket, Moon, ShieldCheck, Instagram, Facebook, Youtube, Twitter, ArrowLeft, Sparkles, Globe, Tv, Heart, Compass, Mail, Phone, MapPin, Send } from 'lucide-react';
+import { Camera, Play, ChevronLeft, ChevronRight, Menu, X, Rocket, Moon, ShieldCheck, Instagram, Facebook, Youtube, Twitter, ArrowLeft, ArrowRight, Sparkles, Globe, Tv, Heart, Compass, Mail, Phone, MapPin, Send } from 'lucide-react';
 import { useState, useEffect, useRef, FC, memo } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
@@ -8,7 +8,6 @@ import FilmsPage from './pages/FilmsPage';
 import AboutPage from './pages/AboutPage';
 import BrandPage from './pages/BrandPage';
 import { initSiteSync } from './lib/siteSync';
-import GlobalPresenceMap from './components/GlobalPresenceMap';
 import { CinematicSlideshow } from './components/CinematicSlideshow';
 
 // --- Components ---
@@ -263,8 +262,15 @@ export function Navbar() {
     return false;
   };
 
+  const isBrandPage = location.pathname === '/brand';
+  const isScrolledOrBrand = isScrolled || isBrandPage;
+
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 bg-transparent ${isScrolled ? 'py-4' : 'py-10'}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+      isScrolledOrBrand 
+        ? 'bg-black/60 backdrop-blur-md border-b border-white/5 shadow-xl shadow-black/20' 
+        : 'bg-transparent'
+    } ${isScrolled ? 'py-4' : 'py-10'}`}>
       <div className="max-w-[1920px] mx-auto px-6 md:px-24 lg:px-40 flex justify-between items-center">
         <Link to="/">
           <motion.div 
@@ -645,7 +651,7 @@ function Clients() {
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="font-bebas text-3xl md:text-5xl lg:text-6xl font-black tracking-[0.02em] text-orange-500 uppercase mb-2 select-none"
+            className="font-helvetica-cond text-3xl md:text-5xl lg:text-6xl font-black tracking-[0.02em] text-orange-500 uppercase mb-2 select-none"
           >
             Collaborators
           </motion.h3>
@@ -875,6 +881,106 @@ export interface TeamMember {
   image: string;
   mediaType?: 'image' | 'video';
 }
+
+export interface OperationalLocation {
+  id: string;
+  city: string;
+  cityAlt: string;
+  title: string;
+  address: string;
+  phone: string;
+  specialty: string;
+  meta: string;
+  localText: string;
+  textY: number;
+  fontSize: number;
+  mapsUrl: string;
+  path: string;
+  mapImage?: string;
+}
+
+export const DEFAULT_LOCATIONS: OperationalLocation[] = [
+  {
+    id: "delhi",
+    city: "DELHI",
+    cityAlt: "Delhi NCR",
+    title: "North India Hub",
+    address: "820, Sector 21A, Pocket E, Sector 21, Gurugram, Delhi OCR, India",
+    phone: "+91 98765 43211",
+    specialty: "Brand Ad Strategy & Design",
+    meta: "EST. 2016",
+    localText: "दिल्ली",
+    textY: 62,
+    fontSize: 10.5,
+    mapsUrl: "https://maps.google.com/?q=820,+Sector+21A,+Pocket+E,+Sector+21,+Gurugram,+Delhi+OCR",
+    path: "M60 22 C75 22, 95 32, 95 52 C95 72, 75 88, 60 94 C45 88, 25 72, 25 52 C25 32, 45 22, 60 22 Z",
+    mapImage: ""
+  },
+  {
+    id: "mumbai",
+    city: "MUMBAI",
+    cityAlt: "Mumbai",
+    title: "Corporate HQ & Post",
+    address: "Grand Oasis Towers, Lower Parel, Mumbai, MH 400013, India",
+    phone: "+91 98765 43210",
+    specialty: "Film Division & Concert VFX",
+    meta: "EST. 2012",
+    localText: "मुम्बई",
+    textY: 53,
+    fontSize: 10,
+    mapsUrl: "https://maps.google.com/?q=Grand+Oasis+Towers,+Lower+Parel,+Mumbai",
+    path: "M55 18 C65 18, 68 30, 62 45 C56 60, 58 72, 50 85 C42 96, 38 102, 36 104 C34 99, 30 87, 34 74 C38 61, 34 48, 40 34 C46 20, 42 18, 55 18 Z",
+    mapImage: ""
+  },
+  {
+    id: "goa",
+    city: "GOA",
+    cityAlt: "Goa",
+    title: "Creative Sanctuary",
+    address: "Arpora-Vagator Creative Hub, Bardez, Goa 403509, India",
+    phone: "+91 98765 43212",
+    specialty: "Experimental Art & Writers Retreat",
+    meta: "EST. 2019",
+    localText: "गोवा",
+    textY: 58,
+    fontSize: 10.5,
+    mapsUrl: "https://maps.google.com/?q=Arpora-Vagator+Creative+Hub,+Goa",
+    path: "M45 22 C60 26, 72 35, 70 52 C68 70, 55 85, 50 96 C42 85, 32 70, 35 52 C38 35, 29 26, 45 22 Z",
+    mapImage: ""
+  },
+  {
+    id: "uae",
+    city: "UAE (DUBAI)",
+    cityAlt: "Dubai",
+    title: "MENA Headquarters",
+    address: "Executive Office 402, Building 7, Dubai Media City, Dubai, UAE",
+    phone: "+971 4 123 4567",
+    specialty: "Global Co-Prod & Distribution",
+    meta: "EST. 2021",
+    localText: "دبي",
+    textY: 56,
+    fontSize: 12,
+    mapsUrl: "https://maps.google.com/?q=Dubai+Media+City",
+    path: "M32 82 C45 68, 65 54, 78 40 C83 30, 78 20, 83 15 C88 10, 93 20, 88 35 C83 48, 73 62, 58 76 C48 86, 35 91, 32 82 Z",
+    mapImage: ""
+  },
+  {
+    id: "kenya",
+    city: "KENYA (NAIROBI)",
+    cityAlt: "Nairobi",
+    title: "Wilderness Production Base",
+    address: "The Hub Office Park, Dagoretti Road, Karen, Nairobi, Kenya",
+    phone: "+254 20 9876543",
+    specialty: "Wildlife Documentaries Unit",
+    meta: "EST. 2023",
+    localText: "KENYA",
+    textY: 58,
+    fontSize: 9,
+    mapsUrl: "https://maps.google.com/?q=Karen,+Nairobi,+Kenya",
+    path: "M48 22 C66 22, 80 35, 85 52 C90 70, 72 87, 58 94 C44 87, 26 70, 30 52 C34 35, 30 22, 48 22 Z",
+    mapImage: ""
+  }
+];
 
 export const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
   { id: 1, name: 'Vikram Singh', role: 'Founder & Director', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=600', mediaType: 'image' },
@@ -2333,6 +2439,30 @@ function LandingPage() {
   const [isMobileView, setIsMobileView] = useState(false);
   const [verticals, setVerticals] = useState<VerticalItem[]>(DEFAULT_VERTICALS);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  const [locations, setLocations] = useState<OperationalLocation[]>(DEFAULT_LOCATIONS);
+
+  useEffect(() => {
+    const loadLocations = () => {
+      const stored = localStorage.getItem('dc_locations');
+      if (stored) {
+        try {
+          setLocations(JSON.parse(stored));
+          return;
+        } catch (e) {
+          console.error('Error loading locations list in LandingPage:', e);
+        }
+      }
+      setLocations(DEFAULT_LOCATIONS);
+    };
+
+    loadLocations();
+    window.addEventListener('storage_updated_locations', loadLocations);
+    window.addEventListener('storage', loadLocations);
+    return () => {
+      window.removeEventListener('storage_updated_locations', loadLocations);
+      window.removeEventListener('storage', loadLocations);
+    };
+  }, []);
 
   useEffect(() => {
     const loadVerticals = () => {
@@ -2529,80 +2659,121 @@ function LandingPage() {
             {/* Background cinematic grid light glow */}
             <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-[120px] pointer-events-none" />
             
+            {/* Stars background that animates smoothly when scrolled into view */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92 }}
+              whileInView={{ opacity: 0.75, scale: 1 }}
+              viewport={{ once: false, margin: "-100px" }}
+              transition={{ 
+                opacity: { duration: 1.2, ease: "easeOut" },
+                scale: { duration: 1.5, ease: [0.16, 1, 0.3, 1] }
+              }}
+              className="absolute inset-0 pointer-events-none z-0"
+            >
+              <StarField count={110} />
+            </motion.div>
+            
             {/* Sub-Brands / Verticals Integration */}
-            <div className="max-w-[1600px] mx-auto w-full">
-              <div className="text-center mb-12">
-                <motion.div 
-                  initial={{ opacity: 0, width: 0 }}
-                  whileInView={{ opacity: 1, width: 64 }}
-                  viewport={{ once: true }}
-                  className="h-1 bg-orange-500 mx-auto mb-6"
-                />
-                <motion.span 
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  className="text-orange-500/60 text-xs font-black uppercase tracking-[0.4em] block mb-2"
-                >
-                  Enterprise Initiatives
-                </motion.span>
-                <motion.h4 
-                  initial={{ opacity: 0, y: 15 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.1 }}
-                  className="font-bebas text-3xl md:text-5xl font-black italic tracking-wide text-white uppercase"
+            <div className="max-w-[1600px] mx-auto w-full relative z-10 px-6 md:px-16">
+              <div className="text-left mb-8 md:mb-14">
+                <motion.h3 
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                  className="font-helvetica-cond text-3xl md:text-5xl lg:text-6xl font-black tracking-[0.02em] text-orange-500 uppercase mb-2 select-none"
                 >
                   Our Verticals & Sub-Brands
-                </motion.h4>
+                </motion.h3>
+                <p className="text-white/40 text-xs md:text-sm font-black uppercase tracking-[0.3em] font-mono">
+                  Enterprise Initiatives
+                </p>
               </div>
 
               {(() => {
                 const sportsBox = verticals.find(v => v.id === 'sports_box') || DEFAULT_VERTICALS[0];
                 const dcDigital = verticals.find(v => v.id === 'dc_digital') || DEFAULT_VERTICALS[1];
 
+                const cardContainerVariants = {
+                  hidden: (direction: number) => ({
+                    opacity: 0,
+                    x: direction * 40,
+                    y: 30,
+                    scale: 0.97,
+                  }),
+                  visible: {
+                    opacity: 1,
+                    x: 0,
+                    y: 0,
+                    scale: 1,
+                    transition: {
+                      duration: 0.7,
+                      ease: [0.16, 1, 0.3, 1],
+                      staggerChildren: 0.1,
+                      delayChildren: 0.05,
+                    }
+                  }
+                };
+
+                const cardChildVariants = {
+                  hidden: { opacity: 0, y: 15, scale: 0.98 },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    transition: {
+                      duration: 0.5,
+                      ease: [0.16, 1, 0.3, 1],
+                    }
+                  }
+                };
+
                 return (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 max-w-[1440px] mx-auto mt-8 px-4 sm:px-8 lg:px-12 pb-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 max-w-[1440px] mx-auto mt-8 px-4 sm:px-8 lg:px-12 pb-8" style={{ perspective: 1200 }}>
                     {/* SPORTS BOX Card */}
                     <motion.div
-                      initial={{ opacity: 0, y: 30 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
+                      custom={-1}
+                      variants={cardContainerVariants}
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ once: true, margin: "-100px" }}
+                      whileHover={{ 
+                        y: -8, 
+                        scale: 1.01,
+                        transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] }
+                      }}
                       onClick={() => window.open('https://www.sportsbox.in/', '_blank', 'noopener,noreferrer')}
-                      className="group relative flex flex-col items-center justify-between p-8 md:p-10 rounded-[2.5rem] bg-zinc-950/40 border border-zinc-900/60 backdrop-blur-xl overflow-hidden select-none cursor-pointer transition-all duration-500 hover:border-orange-500/40 hover:shadow-[0_0_80px_rgba(249,115,22,0.18)] text-center h-[540px] md:h-[600px] w-full"
+                      className="group relative flex flex-col items-center justify-between p-8 md:p-10 rounded-[2.5rem] bg-zinc-950/40 backdrop-blur-xl overflow-hidden select-none cursor-pointer text-center h-[540px] md:h-[610px] w-full"
                     >
-                      {/* Industrial Tech corner markings */}
-                      <div className="absolute top-5 left-5 w-4 h-4 border-t-2 border-l-2 border-white/10 group-hover:border-orange-500/50 transition-colors duration-500 pointer-events-none" />
-                      <div className="absolute top-5 right-5 w-4 h-4 border-t-2 border-r-2 border-white/10 group-hover:border-orange-500/50 transition-colors duration-500 pointer-events-none" />
-                      <div className="absolute bottom-5 left-5 w-4 h-4 border-b-2 border-l-2 border-white/10 group-hover:border-orange-500/50 transition-colors duration-500 pointer-events-none" />
-                      <div className="absolute bottom-5 right-5 w-4 h-4 border-b-2 border-r-2 border-white/10 group-hover:border-orange-500/50 transition-colors duration-500 pointer-events-none" />
-                      
                       {/* Moving Digital Scanline Grid backdrop */}
                       <div className="absolute inset-0 opacity-[0.03] group-hover:opacity-[0.06] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] transition-opacity duration-500 pointer-events-none" />
                       <div className="absolute inset-0 bg-gradient-to-t from-orange-500/[0.01] to-transparent pointer-events-none group-hover:from-orange-500/[0.04] transition-all duration-500" />
 
-                      {/* Branding Area */}
-                      <div className="flex flex-col items-center justify-center select-none font-bebas mb-2 relative z-10">
-                        <span className="text-4xl sm:text-5xl md:text-6xl text-white font-black tracking-wider uppercase leading-none transition-transform duration-500 group-hover:scale-105 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-orange-100">
-                          {sportsBox.title}
-                        </span>
-                        <div className="w-[125%] h-[2px] bg-white/10 mt-3 mb-2 relative overflow-hidden">
-                          <div className="absolute top-0 bottom-0 left-0 w-8 bg-gradient-to-r from-transparent via-orange-500 to-transparent animate-[shimmer_2s_infinite]" />
-                          <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        </div>
-                        <span className="text-2xl sm:text-3xl text-orange-500 font-extrabold tracking-[0.25em] uppercase leading-none self-end mr-1 group-hover:text-amber-400 group-hover:translate-x-1 transition-all duration-300">
-                          BOX
-                        </span>
-                      </div>
+                      {/* Branding Area of equal size to DC Digital, styled with original Sportsbox logo from first image */}
+                      <motion.div 
+                        variants={cardChildVariants}
+                        className="h-28 flex items-center justify-center mb-2 relative z-10 w-full"
+                      >
+                        <motion.div 
+                          whileHover={{ y: -4, scale: 1.03 }}
+                          className="bg-zinc-950 p-5 rounded-2xl flex items-center justify-center w-64 sm:w-72 shadow-[0_10px_30px_rgba(0,0,0,0.4)] border border-white/10 transition-[border-color,box-shadow] duration-500 group-hover:shadow-[0_15px_45px_rgba(239,61,51,0.15)] group-hover:border-orange-500/30 relative overflow-hidden"
+                        >
+                          <div className="flex items-center justify-center gap-3">
+                            <div className="w-[42px] h-[42px] bg-[#ef3d33] rounded-[10px] flex items-center justify-center shadow-[0_4px_12px_rgba(239,61,51,0.3)] flex-shrink-0">
+                              <span className="text-white font-helvetica-cond font-black italic text-2xl tracking-tighter select-none -translate-x-[0.5px]">S</span>
+                            </div>
+                            <div className="flex items-center text-xl sm:text-2xl font-helvetica-cond font-black italic tracking-[-0.01em] uppercase select-none leading-none">
+                              <span className="text-white">SPORTS</span>
+                              <span className="text-[#ef3d33]">BOX</span>
+                            </div>
+                          </div>
+                        </motion.div>
+                      </motion.div>
 
                       {/* Creative Frame */}
-                      <div className="w-full aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 group-hover:border-orange-500/40 bg-zinc-950 transition-all duration-500 relative flex items-center justify-center shadow-[0_15px_45px_0_rgba(0,0,0,0.5)]">
-                        {/* Camera L-Bracket Reticles inside frame */}
-                        <div className="absolute top-3 left-3 w-2 h-2 border-t border-l border-white/20 group-hover:border-orange-500/40 z-25 pointer-events-none" />
-                        <div className="absolute top-3 right-3 w-2 h-2 border-t border-r border-white/20 group-hover:border-orange-500/40 z-25 pointer-events-none" />
-                        <div className="absolute bottom-3 left-3 w-2 h-2 border-b border-l border-white/20 group-hover:border-orange-500/40 z-25 pointer-events-none" />
-                        <div className="absolute bottom-3 right-3 w-2 h-2 border-b border-r border-white/20 group-hover:border-orange-500/40 z-25 pointer-events-none" />
-
+                      <motion.div 
+                        variants={cardChildVariants}
+                        className="w-full aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 group-hover:border-orange-500/40 bg-zinc-950 transition-[border-color,box-shadow] duration-500 relative flex items-center justify-center shadow-[0_15px_45px_0_rgba(0,0,0,0.5)]"
+                      >
                         {sportsBox.url ? (
                           sportsBox.type === 'image' ? (
                             <div className="w-full h-full relative group/img overflow-hidden">
@@ -2681,17 +2852,20 @@ function LandingPage() {
                             </motion.div>
                           </div>
                         )}
-                      </div>
+                      </motion.div>
 
                       {/* Texts */}
-                      <div className="space-y-2 z-10 w-full mt-4">
+                      <motion.div 
+                        variants={cardChildVariants}
+                        className="space-y-2 z-10 w-full mt-4"
+                      >
                         <span className="text-orange-500 text-xs font-black uppercase tracking-[0.3em] block group-hover:text-amber-400 transition-colors duration-300">
                           {sportsBox.subtitle}
                         </span>
                         <p className="text-sm md:text-base font-black text-white uppercase tracking-wider leading-relaxed group-hover:text-white/90 transition-colors">
                           {sportsBox.description}
                         </p>
-                      </div>
+                      </motion.div>
                       
                       {/* Corner glowing element */}
                       <div className="absolute -bottom-16 -right-16 w-32 h-32 bg-orange-500/5 rounded-full blur-2xl group-hover:bg-orange-500/20 group-hover:scale-135 transition-all duration-700"></div>
@@ -2699,28 +2873,31 @@ function LandingPage() {
 
                     {/* DC DIGITAL STUDIO Card */}
                     <motion.div
-                      initial={{ opacity: 0, y: 30 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.15 }}
+                      custom={1}
+                      variants={cardContainerVariants}
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ once: true, margin: "-100px" }}
+                      whileHover={{ 
+                        y: -8, 
+                        scale: 1.01,
+                        transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] }
+                      }}
                       onClick={() => dcDigital.url && setSelectedVideo(dcDigital.url)}
-                      className={`group relative flex flex-col items-center justify-between p-8 md:p-10 rounded-[2.5rem] bg-zinc-950/40 border border-zinc-900/60 backdrop-blur-xl overflow-hidden select-none ${dcDigital.url ? 'cursor-pointer' : 'cursor-default'} transition-all duration-500 hover:border-amber-500/30 hover:shadow-[0_0_80px_rgba(245,158,11,0.14)] text-center h-[540px] md:h-[600px] w-full`}
+                      className={`group relative flex flex-col items-center justify-between p-8 md:p-10 rounded-[2.5rem] bg-zinc-950/40 backdrop-blur-xl overflow-hidden select-none ${dcDigital.url ? 'cursor-pointer' : 'cursor-default'} transition-[background-color,border-color,box-shadow] duration-500 hover:shadow-[0_0_80px_rgba(245,158,11,0.14)] text-center h-[540px] md:h-[610px] w-full`}
                     >
-                      {/* Sophisticated dual-corner markers */}
-                      <div className="absolute top-5 left-5 w-4 h-4 border-t-2 border-l-2 border-white/10 group-hover:border-amber-500/50 transition-colors duration-500 pointer-events-none" />
-                      <div className="absolute top-5 right-5 w-4 h-4 border-t-2 border-r-2 border-white/10 group-hover:border-amber-500/50 transition-colors duration-500 pointer-events-none" />
-                      <div className="absolute bottom-5 left-5 w-4 h-4 border-b-2 border-l-2 border-white/10 group-hover:border-amber-500/50 transition-colors duration-500 pointer-events-none" />
-                      <div className="absolute bottom-5 right-5 w-4 h-4 border-b-2 border-r-2 border-white/10 group-hover:border-amber-500/50 transition-colors duration-500 pointer-events-none" />
-                      
                       {/* Grid Backdrop */}
                       <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:30px_30px] pointer-events-none" />
                       <div className="absolute inset-0 bg-gradient-to-t from-amber-500/[0.01] to-transparent pointer-events-none group-hover:from-amber-500/[0.04] transition-all duration-500" />
 
                       {/* Branding Area with highly interactive 3D style floating logo */}
-                      <div className="h-28 flex items-center justify-center mb-2 relative z-10 w-full">
+                      <motion.div 
+                        variants={cardChildVariants}
+                        className="h-28 flex items-center justify-center mb-2 relative z-10 w-full"
+                      >
                         <motion.div 
-                          whileHover={{ y: -6, scale: 1.05, rotate: -0.5 }}
-                          className="bg-white p-5 rounded-2xl flex flex-col items-center justify-center w-64 sm:w-72 shadow-[0_10px_30px_rgba(0,0,0,0.4)] border border-white/50 transition-all duration-500 group-hover:shadow-[0_15px_45px_rgba(255,255,255,0.18)] relative overflow-hidden"
+                          whileHover={{ y: -4, scale: 1.03 }}
+                          className="bg-white p-5 rounded-2xl flex flex-col items-center justify-center w-64 sm:w-72 shadow-[0_10px_30px_rgba(0,0,0,0.4)] border border-white/50 transition-[border-color,box-shadow] duration-500 group-hover:shadow-[0_15px_45px_rgba(255,255,255,0.18)] relative overflow-hidden"
                         >
                           {/* Clean typography layout without graphical logo */}
                           <div className="flex items-center justify-center gap-1.5 w-full">
@@ -2730,16 +2907,13 @@ function LandingPage() {
                           </div>
                           <div className="text-[7px] text-zinc-400 font-black uppercase tracking-[0.2em] font-sans mt-1.5">A DREAMCATCHERS VERTICAL</div>
                         </motion.div>
-                      </div>
+                      </motion.div>
 
                       {/* Creative Frame */}
-                      <div className="w-full aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 group-hover:border-amber-500/35 bg-zinc-950 transition-all duration-500 relative flex items-center justify-center shadow-[0_15px_45px_0_rgba(0,0,0,0.5)]">
-                        {/* Camera L-Bracket Reticles inside frame */}
-                        <div className="absolute top-3 left-3 w-2 h-2 border-t border-l border-white/20 group-hover:border-amber-500/40 z-25 pointer-events-none" />
-                        <div className="absolute top-3 right-3 w-2 h-2 border-t border-r border-white/20 group-hover:border-amber-500/40 z-25 pointer-events-none" />
-                        <div className="absolute bottom-3 left-3 w-2 h-2 border-b border-l border-white/20 group-hover:border-amber-500/40 z-25 pointer-events-none" />
-                        <div className="absolute bottom-3 right-3 w-2 h-2 border-b border-r border-white/20 group-hover:border-amber-500/40 z-25 pointer-events-none" />
-
+                      <motion.div 
+                        variants={cardChildVariants}
+                        className="w-full aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 group-hover:border-amber-500/35 bg-zinc-950 transition-[border-color,box-shadow] duration-500 relative flex items-center justify-center shadow-[0_15px_45px_0_rgba(0,0,0,0.5)]"
+                      >
                         {dcDigital.url ? (
                           dcDigital.type === 'image' ? (
                             <div className="w-full h-full relative group/img overflow-hidden">
@@ -2826,17 +3000,20 @@ function LandingPage() {
                             </motion.div>
                           </div>
                         )}
-                      </div>
+                      </motion.div>
 
                       {/* Texts */}
-                      <div className="space-y-2 z-10 w-full mt-4">
+                      <motion.div 
+                        variants={cardChildVariants}
+                        className="space-y-2 z-10 w-full mt-4"
+                      >
                         <span className="text-orange-500 text-xs font-black uppercase tracking-[0.3em] block group-hover:text-amber-400 transition-colors duration-300">
                           {dcDigital.subtitle}
                         </span>
                         <p className="text-sm md:text-base font-black text-white uppercase tracking-wider leading-relaxed group-hover:text-white/90 transition-colors">
                           {dcDigital.description}
                         </p>
-                      </div>
+                      </motion.div>
                       
                       {/* Corner glowing element */}
                       <div className="absolute -bottom-16 -right-16 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl group-hover:bg-amber-500/20 group-hover:scale-135 transition-all duration-700"></div>
@@ -2848,28 +3025,35 @@ function LandingPage() {
 
             {/* Integrated Contact Section under Verticals */}
             <div id="contact-section" className="mt-32 md:mt-48 max-w-[1440px] mx-auto w-full px-6 sm:px-8 lg:px-12 relative z-10 pb-8 scroll-mt-24">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 mb-0">
                 {/* Left Side: Contact Details Card Grid */}
                 <div className="space-y-12">
-                  <div>
-                    <h5 className="text-orange-500 text-xs font-black uppercase tracking-[0.4em] block mb-2">Connecting Minds</h5>
-                    <h2 className="text-5xl md:text-7xl font-bebas font-black tracking-tighter uppercase leading-[0.85] text-white">
-                      {contactTitleFirst} <span className="text-orange-500">{contactTitleOrange}</span>
-                    </h2>
-                    <p className="text-white/40 text-[10px] md:text-xs font-black uppercase tracking-[0.4em] mt-3">{contactSubtitle}</p>
-                  </div>
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                    className="text-left"
+                  >
+                    <h3 className="font-helvetica-cond text-3xl md:text-5xl lg:text-6xl font-black tracking-[0.02em] text-orange-500 uppercase mb-2 select-none">
+                      {contactTitleFirst} {contactTitleOrange}
+                    </h3>
+                    <p className="text-white/40 text-xs md:text-sm font-black uppercase tracking-[0.3em] font-mono">
+                      {contactSubtitle}
+                    </p>
+                  </motion.div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-6">
                     <motion.div
-                      initial={{ opacity: 0, x: -35 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.6 }}
+                      initial={{ opacity: 0, x: -50, rotate: -2, scale: 0.95 }}
+                      whileInView={{ opacity: 1, x: 0, rotate: 0, scale: 1 }}
+                      viewport={{ once: false, amount: 0.15 }}
+                      transition={{ type: "spring", stiffness: 90, damping: 15 }}
+                      whileHover={{ y: -8, scale: 1.02 }}
                       className="p-8 md:p-10 bg-zinc-950/60 border border-zinc-900/80 rounded-[2rem] hover:bg-orange-500 hover:border-transparent transition-all duration-500 group cursor-pointer flex flex-col justify-between min-h-[170px]"
                       onClick={() => window.location.href = `mailto:${contactEmail}`}
                     >
                       <div className="text-orange-500 group-hover:text-black mb-6 transition-colors">
-                        <Mail className="w-6 h-6" />
+                        <Mail className="w-6 h-6 animate-pulse" />
                       </div>
                       <div>
                         <p className="text-white/30 group-hover:text-black/60 text-[10px] font-black uppercase tracking-widest mb-1 transition-colors">
@@ -2882,15 +3066,16 @@ function LandingPage() {
                     </motion.div>
 
                     <motion.div
-                      initial={{ opacity: 0, x: -35 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.6, delay: 0.1 }}
+                      initial={{ opacity: 0, x: -50, rotate: 2, scale: 0.95 }}
+                      whileInView={{ opacity: 1, x: 0, rotate: 0, scale: 1 }}
+                      viewport={{ once: false, amount: 0.15 }}
+                      transition={{ type: "spring", stiffness: 90, damping: 15, delay: 0.1 }}
+                      whileHover={{ y: -8, scale: 1.02 }}
                       className="p-8 md:p-10 bg-zinc-950/60 border border-zinc-900/80 rounded-[2rem] hover:bg-orange-500 hover:border-transparent transition-all duration-500 group cursor-pointer flex flex-col justify-between min-h-[170px]"
                       onClick={() => window.location.href = `tel:${contactPhone}`}
                     >
                       <div className="text-orange-500 group-hover:text-black mb-6 transition-colors">
-                        <Phone className="w-6 h-6" />
+                        <Phone className="w-6 h-6 animate-pulse" />
                       </div>
                       <div>
                         <p className="text-white/30 group-hover:text-black/60 text-[10px] font-black uppercase tracking-widest mb-1 transition-colors">
@@ -2901,46 +3086,41 @@ function LandingPage() {
                         </p>
                       </div>
                     </motion.div>
-
-                    <motion.div
-                      initial={{ opacity: 0, x: -35 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.6, delay: 0.2 }}
-                      className="p-8 md:p-10 bg-zinc-950/60 border border-zinc-900/80 rounded-[2rem] hover:bg-orange-500 hover:border-transparent transition-all duration-500 group cursor-default flex flex-col justify-between min-h-[170px] sm:col-span-2 lg:col-span-1 xl:col-span-2"
-                    >
-                      <div className="text-orange-500 group-hover:text-black mb-6 transition-colors">
-                        <MapPin className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <p className="text-white/30 group-hover:text-black/60 text-[10px] font-black uppercase tracking-widest mb-1 transition-colors">
-                          Visit Us
-                        </p>
-                        <p className="text-lg md:text-xl font-bold text-white group-hover:text-black tracking-tight transition-colors font-sans uppercase">
-                          {contactAddress}
-                        </p>
-                      </div>
-                    </motion.div>
                   </div>
+
+                  {/* Added elegant Offices title block aligned below cards with animation matching collaborators */}
+                  <motion.div 
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                    className="pt-4 text-left"
+                  >
+                    <h3 className="font-helvetica-cond text-3xl md:text-5xl lg:text-6xl font-black tracking-[0.02em] text-orange-500 uppercase mb-2 select-none">
+                      Offices
+                    </h3>
+                    <p className="text-white/40 text-xs md:text-sm font-black uppercase tracking-[0.3em] font-mono">
+                      Our Locations
+                    </p>
+                  </motion.div>
                 </div>
 
                 {/* Right Side: Contact Submission Form */}
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.96 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8 }}
+                  initial={{ opacity: 0, scale: 0.94, y: 50 }}
+                  whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                  viewport={{ once: false, amount: 0.15 }}
+                  transition={{ type: "spring", stiffness: 80, damping: 18 }}
                   className="bg-zinc-950/60 border border-zinc-900/80 rounded-[2.5rem] p-8 md:p-12 backdrop-blur-md relative overflow-hidden"
                 >
                   <form onSubmit={(e) => { e.preventDefault(); alert("Success! Your message was sent beautifully."); }} className="space-y-6 relative z-10">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-4 font-sans">Your Name</label>
-                        <input type="text" className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-sm tracking-wide" placeholder="Arjun Sharma" required />
+                        <input type="text" className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-sm tracking-wide" placeholder="Enter your name" required />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-4 font-sans">Your Email</label>
-                        <input type="email" className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-sm tracking-wide" placeholder="arjun@example.com" required />
+                        <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-4 font-sans">Your Email / Contact Number</label>
+                        <input type="text" className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-sm tracking-wide" placeholder="Enter your mail or contact number" required />
                       </div>
                     </div>
                     <div className="space-y-2">
@@ -2963,15 +3143,146 @@ function LandingPage() {
                   </form>
                 </motion.div>
               </div>
+
+              {/* Seamless Locations block in the same contact-section */}
+              <div className="mt-12 relative z-10">
+                {/* Custom Inline Keyframe Styling for the dynamic laser scanning and top-tier aesthetic touches */}
+                <style>{`
+                  @keyframes laserScan {
+                    0% { transform: translateY(0); opacity: 0; }
+                    10% { opacity: 0.8; }
+                    90% { opacity: 0.8; }
+                    100% { transform: translateY(200px); opacity: 0; }
+                  }
+                  .animate-laser-scan {
+                    animation: laserScan 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+                  }
+                `}</style>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                  {locations.map((loc, idx) => (
+                    <motion.div
+                      key={loc.id}
+                      initial={{ opacity: 0, y: 60, scale: 0.92, rotate: idx % 2 === 0 ? -1.5 : 1.5 }}
+                      whileInView={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
+                      viewport={{ once: false, amount: 0.12 }}
+                      transition={{ 
+                        type: "spring", 
+                        stiffness: 70, 
+                        damping: 15, 
+                        delay: idx * 0.05 
+                      }}
+                      whileHover={{ y: -6, scale: 1.02 }}
+                      onClick={() => window.open(loc.mapsUrl, '_blank')}
+                      className="group relative p-4 bg-[#050505] border border-zinc-900 rounded-[1.8rem] hover:border-orange-500/30 hover:bg-[#070707] transition-all duration-300 cursor-pointer flex flex-col justify-between overflow-hidden min-h-[290px] shadow-lg"
+                    >
+                      {/* Top Graphic Map Visual Block */}
+                      <div className="h-[200px] w-full bg-zinc-950/60 border border-zinc-900/60 rounded-[1.4rem] flex items-center justify-center relative overflow-hidden transition-all duration-300">
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.04)_0%,transparent_100%)] pointer-events-none" />
+                        
+                        {/* Dynamic Neon Laser scanning line */}
+                        <div className="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-orange-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20 animate-laser-scan" />
+
+                        {loc.mapImage ? (
+                          <motion.img 
+                            src={loc.mapImage} 
+                            alt={loc.cityAlt}
+                            animate={{
+                              y: [2, -6, 2],
+                              rotate: [-0.5, 0.5, -0.5]
+                            }}
+                            transition={{
+                              duration: 4.5 + idx * 0.4,
+                              repeat: Infinity,
+                              repeatType: "reverse",
+                              ease: "easeInOut"
+                            }}
+                            className="absolute inset-0 w-full h-full object-contain p-3 group-hover:scale-110 group-hover:rotate-[-2deg] group-hover:drop-shadow-[0_0_25px_rgba(249,115,22,0.9)] transition-all duration-500"
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          /* 3D Stacked Map outline layers with interactive separating/expanding stack coordinates */
+                          <motion.svg 
+                            viewBox="-10 -10 140 140" 
+                            animate={{
+                              y: [3, -5, 3],
+                            }}
+                            transition={{
+                              duration: 4.2 + idx * 0.4,
+                              repeat: Infinity,
+                              repeatType: "reverse",
+                              ease: "easeInOut"
+                            }}
+                            className="w-[140px] h-[140px] drop-shadow-2xl relative z-10 select-none pointer-events-none group-hover:scale-110 group-hover:rotate-[-3deg] group-hover:drop-shadow-[0_0_25px_rgba(249,115,22,0.85)] transition-all duration-500"
+                          >
+                            <g transform="translate(0, 0)">
+                              {/* Layer 1 (bottom-most background shadow layer - expands deepest on hover) */}
+                              <g className="transition-transform duration-500 ease-out translate-x-[2px] translate-y-[2px] group-hover:translate-x-[14px] group-hover:translate-y-[14px]">
+                                <path d={loc.path} fill="#000000" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.12" />
+                              </g>
+                              
+                              {/* Layer 2 (middle shadow layer) */}
+                              <g className="transition-transform duration-500 ease-out translate-x-[1.5px] translate-y-[1.5px] group-hover:translate-x-[10.5px] group-hover:translate-y-[10.5px]">
+                                <path d={loc.path} fill="#000000" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.22" />
+                              </g>
+                              
+                              {/* Layer 3 (elevated layer) */}
+                              <g className="transition-transform duration-500 ease-out translate-x-[1px] translate-y-[1px] group-hover:translate-x-[7px] group-hover:translate-y-[7px]">
+                                <path d={loc.path} fill="#030303" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.32" />
+                              </g>
+                              
+                              {/* Layer 4 (close layer) */}
+                              <g className="transition-transform duration-500 ease-out translate-x-[0.5px] translate-y-[0.5px] group-hover:translate-x-[3.5px] group-hover:translate-y-[3.5px]">
+                                <path d={loc.path} fill="#0a0a0a" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.45" />
+                              </g>
+                              
+                              {/* Main Top Layer (floats up and to the left dynamically on hover) */}
+                              <g className="transition-transform duration-500 ease-out translate-x-0 translate-y-0 group-hover:-translate-x-[3px] group-hover:-translate-y-[3px]">
+                                <path 
+                                  d={loc.path} 
+                                  fill="#f97316" 
+                                  stroke="#ffffff" 
+                                  strokeWidth="1.5" 
+                                  className="group-hover:fill-[#ea580c] transition-colors duration-300" 
+                                />
+                                
+                                {/* Centered Bold Identifier Text inside Map with elegant styling */}
+                                <text 
+                                  x="60" 
+                                  y={loc.textY || 58} 
+                                  textAnchor="middle" 
+                                  fill="#000000" 
+                                  fontSize={loc.fontSize || 10} 
+                                  fontWeight="900" 
+                                  className="font-sans font-black tracking-normal select-none pointer-events-none uppercase transition-all duration-300 group-hover:fill-[#ffffff]"
+                                >
+                                  {loc.city.includes("DUBAI") ? "DUBAI" : loc.city.includes("KENYA") ? "KENYA" : loc.city}
+                                </text>
+                              </g>
+                            </g>
+                          </motion.svg>
+                        )}
+                      </div>
+
+                      {/* Info & Redirection Metadata Section */}
+                      <div className="pt-3 pb-1 text-left pointer-events-none">
+                        <div className="flex items-center justify-between">
+                          <span className="text-white text-base font-black tracking-wide uppercase font-sans group-hover:text-orange-500 transition-colors duration-300">
+                            {loc.cityAlt}
+                          </span>
+                          <ArrowRight className="w-5 h-5 text-white/50 group-hover:text-orange-400 group-hover:translate-x-1.5 transition-all duration-300 animate-pulse" />
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
             </div>
           </section>
 
           <InteractiveOptions />
         </div>
       </main>
-
-      {/* Real-time coordinates global presence map */}
-      <GlobalPresenceMap />
 
       <Footer />
 
