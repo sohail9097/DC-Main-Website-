@@ -24,6 +24,36 @@ export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = '
   return trimmed;
 }
 
+export function isYouTubeUrl(url: string | undefined): boolean {
+  if (!url) return false;
+  const lowercase = url.toLowerCase();
+  return lowercase.includes('youtube.com') || lowercase.includes('youtu.be');
+}
+
+export function getYouTubeWatchUrl(url: string | undefined): string {
+  if (!url) return '';
+  try {
+    let videoId = '';
+    if (url.includes('youtube.com/watch')) {
+      const urlObj = new URL(url);
+      videoId = urlObj.searchParams.get('v') || '';
+    } else if (url.includes('youtu.be/')) {
+      videoId = url.split('youtu.be/')[1]?.split('?')[0]?.split('&')[0];
+    } else if (url.includes('youtube.com/embed/')) {
+      videoId = url.split('youtube.com/embed/')[1]?.split('?')[0]?.split('&')[0];
+    } else if (url.includes('youtube.com/shorts/')) {
+      videoId = url.split('youtube.com/shorts/')[1]?.split('?')[0]?.split('&')[0];
+    }
+    
+    if (videoId) {
+      return `https://www.youtube.com/watch?v=${videoId}`;
+    }
+  } catch (e) {
+    console.error('Error parsing YouTube URL:', e);
+  }
+  return url;
+}
+
 const AdminPanel: FC = () => {
   const { user, isAdmin, loading, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<'categories' | 'home_manage' | 'film_manage' | 'team' | 'orbit' | 'about_manage' | 'contact_manage' | 'brand_manage'>('categories');
@@ -3152,12 +3182,12 @@ const AdminPanel: FC = () => {
                       </div>
 
                       <div>
-                        <label className="block text-xs uppercase tracking-widest text-zinc-400 font-black mb-2">Playable movie trailer / Video URL (direct mp4 or url)</label>
+                        <label className="block text-xs uppercase tracking-widest text-zinc-400 font-black mb-2">YouTube Video Link</label>
                         <input
                           type="text"
                           value={filmVideo}
                           onChange={(e) => setFilmVideo(e.target.value)}
-                          placeholder="Paste local cinema mp4 link or Youtube trailer watch link"
+                          placeholder="Paste YouTube watch link, share link, shorts, or embed URL"
                           className="w-full bg-black border border-white/10 focus:border-orange-500 outline-none rounded-xl px-4 py-3 text-sm text-white"
                         />
                       </div>
@@ -3198,24 +3228,62 @@ const AdminPanel: FC = () => {
                     animate={{ opacity: 1, y: 0 }}
                     className="bg-zinc-900/60 rounded-[2rem] border border-white/5 overflow-hidden flex flex-col justify-between group"
                   >
-                    <div className="relative aspect-video bg-black overflow-hidden">
+                    <div 
+                      onClick={() => {
+                        if (film.video) {
+                          const urlToOpen = isYouTubeUrl(film.video) ? getYouTubeWatchUrl(film.video) : film.video;
+                          window.open(urlToOpen, '_blank', 'noopener,noreferrer');
+                        }
+                      }}
+                      className={`relative aspect-video bg-black overflow-hidden ${film.video ? 'cursor-pointer group/poster' : ''}`}
+                      title={film.video ? (isYouTubeUrl(film.video) ? 'Click to open in YouTube' : 'Click to open video') : undefined}
+                    >
                       <img 
-                        src={film.img} 
+                        src={transformGoogleDriveUrl(film.img)} 
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                         alt="cover" 
+                        referrerPolicy="no-referrer"
                       />
-                      <span className="absolute top-4 left-4 text-[9px] uppercase font-black bg-orange-500 text-white px-3 py-1 rounded-full tracking-widest shadow-lg">
+                      <span className="absolute top-4 left-4 text-[9px] uppercase font-black bg-orange-500 text-white px-3 py-1 rounded-full tracking-widest shadow-lg z-10">
                         {film.category || 'OTT'}
                       </span>
-                      <span className="absolute bottom-4 right-4 text-[9px] uppercase font-mono bg-black/70 text-white/75 px-3 py-1 rounded-md border border-white/10">
+                      <span className="absolute bottom-4 right-4 text-[9px] uppercase font-mono bg-black/70 text-white/75 px-3 py-1 rounded-md border border-white/10 z-10">
                         Seq #{idx + 1}
                       </span>
+
+                      {/* On-Hover Play / YouTube Indicator */}
+                      {film.video && (
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/poster:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-2 z-20">
+                          <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center shadow-lg transform scale-90 group-hover/poster:scale-100 transition-transform duration-300">
+                            {isYouTubeUrl(film.video) ? (
+                              <svg className="w-6 h-6 fill-current text-white" viewBox="0 0 24 24">
+                                <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.518 3.545 12 3.545 12 3.545s-7.518 0-9.388.507a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.87.507 9.388.507 9.388.507s7.518 0 9.388-.507a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                              </svg>
+                            ) : (
+                              <Play className="w-5 h-5 fill-current text-white translate-x-0.5" />
+                            )}
+                          </div>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-white bg-black/60 px-2.5 py-1 rounded border border-white/10">
+                            {isYouTubeUrl(film.video) ? 'Open in YouTube' : 'Play Video'}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="p-6 space-y-4 text-white font-sans">
                       <div>
                         <h4 className="text-md font-black tracking-tight uppercase italic text-white line-clamp-1">{film.title}</h4>
-                        <p className="text-[10px] text-white/30 truncate mt-1">{film.video || 'No custom trailer link'}</p>
+                        <p 
+                          className={`text-[10px] truncate mt-1 ${film.video ? 'text-orange-400 hover:underline cursor-pointer font-medium' : 'text-white/30'}`}
+                          onClick={() => {
+                            if (film.video) {
+                              const urlToOpen = isYouTubeUrl(film.video) ? getYouTubeWatchUrl(film.video) : film.video;
+                              window.open(urlToOpen, '_blank', 'noopener,noreferrer');
+                            }
+                          }}
+                        >
+                          {film.video || 'No custom trailer link'}
+                        </p>
                       </div>
 
                       <div className="flex justify-between items-center border-t border-white/5 pt-4">

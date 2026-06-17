@@ -705,13 +705,13 @@ function Clients() {
           }
         }
         .animate-scroll-left {
-          animation: scroll-left 50s linear infinite;
+          animation: scroll-left 90s linear infinite;
           display: flex;
           width: max-content;
           will-change: transform;
         }
         .animate-scroll-right {
-          animation: scroll-right 50s linear infinite;
+          animation: scroll-right 90s linear infinite;
           display: flex;
           width: max-content;
           will-change: transform;
@@ -861,7 +861,7 @@ export const DEFAULT_VERTICALS: VerticalItem[] = [
     subtitle: 'SPORTS VERTICAL',
     description: 'INTERNATIONAL TOURNAMENT ORGANISING & BROADCAST',
     type: 'video',
-    url: ''
+    url: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761'
   },
   {
     id: 'dc_digital',
@@ -870,7 +870,7 @@ export const DEFAULT_VERTICALS: VerticalItem[] = [
     subtitle: 'DIGITAL VERTICAL',
     description: 'SHORT FORM, DIGITAL, AI CONTENT',
     type: 'video',
-    url: ''
+    url: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761'
   }
 ];
 
@@ -1306,6 +1306,7 @@ function Portfolio() {
   const [title, setTitle] = useState('Films');
   const [visible, setVisible] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  const [hoveredFilmId, setHoveredFilmId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<any | null>(null);
   const [verticals, setVerticals] = useState<VerticalItem[]>(DEFAULT_VERTICALS);
 
@@ -1586,37 +1587,75 @@ function Portfolio() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {films.filter(film => film.category === selectedCategory.name).map((film, idx) => (
-                    <motion.div
-                      key={film.id || idx}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.05 }}
-                      onClick={() => {
-                        setSelectedVideo(film.video || 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761');
-                      }}
-                      className="group relative aspect-video overflow-hidden rounded-2xl cursor-pointer bg-zinc-950 border border-white/5 shadow-lg"
-                    >
-                      <img
-                        src={film.img}
-                        alt={film.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent opacity-90 group-hover:opacity-75 transition-opacity" />
-                      
-                      <div className="absolute inset-x-0 bottom-0 p-6">
-                        <h5 className="text-lg font-black text-white uppercase italic leading-none truncate group-hover:text-orange-500 transition-colors">
-                          {film.title}
-                        </h5>
-                      </div>
+                  {films.filter(film => film.category === selectedCategory.name).map((film, idx) => {
+                    const videoUrl = film.video || 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761';
+                    const isYouTube = isYouTubeUrl(videoUrl);
+                    const isEmbed = isEmbedUrl(videoUrl);
+                    const isHovered = hoveredFilmId === film.id;
 
-                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 backdrop-blur-sm text-white rounded-full flex items-center justify-center scale-0 group-hover:scale-100 transition-all duration-300">
-                        <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
-                          <Play className="w-4 h-4 fill-current translate-x-0.5" />
+                    return (
+                      <motion.div
+                        key={film.id || idx}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        onMouseEnter={() => setHoveredFilmId(film.id)}
+                        onMouseLeave={() => setHoveredFilmId(null)}
+                        onClick={() => {
+                          if (isYouTube) {
+                            window.open(getYouTubeWatchUrl(videoUrl), '_blank', 'noopener,noreferrer');
+                          } else {
+                            setSelectedVideo(videoUrl);
+                          }
+                        }}
+                        className="group relative aspect-video overflow-hidden rounded-2xl cursor-pointer bg-zinc-950 border border-white/5 shadow-lg"
+                      >
+                        <img
+                          src={transformGoogleDriveUrl(film.img)}
+                          alt={film.title}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          referrerPolicy="no-referrer"
+                        />
+
+                        {/* On-Hover Video Player/Preview Overlay */}
+                        {isHovered && (
+                          <div className="absolute inset-0 w-full h-full pointer-events-none z-10 overflow-hidden rounded-2xl">
+                            {isEmbed ? (
+                              <iframe 
+                                src={getEmbedUrl(videoUrl, true)} 
+                                className="absolute inset-0 w-full h-full scale-110 border-0 pointer-events-none"
+                                allow="autoplay; encrypted-media"
+                                style={{ pointerEvents: 'none' }}
+                              />
+                            ) : (
+                              <video 
+                                src={transformGoogleDriveUrl(videoUrl, 'video')} 
+                                autoPlay 
+                                loop 
+                                muted 
+                                playsInline
+                                className="absolute inset-0 w-full h-full object-cover scale-105" 
+                              />
+                            )}
+                          </div>
+                        )}
+
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent opacity-90 group-hover:opacity-75 transition-opacity z-20 pointer-events-none" />
+                        
+                        <div className="absolute inset-x-0 bottom-0 p-6 z-30 pointer-events-none">
+                          <h5 className="text-lg font-black text-white uppercase italic leading-none truncate group-hover:text-orange-500 transition-colors">
+                            {film.title}
+                          </h5>
                         </div>
-                      </div>
-                    </motion.div>
-                  ))}
+
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 backdrop-blur-sm text-white rounded-full flex items-center justify-center scale-0 group-hover:scale-100 transition-all duration-300 z-30 pointer-events-auto">
+                          <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
+                            <Play className="w-4 h-4 fill-current translate-x-0.5 animate-pulse" />
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
                 </div>
               )}
             </motion.div>
@@ -1656,7 +1695,7 @@ function Portfolio() {
                 />
               ) : (
                 <video 
-                  src={selectedVideo} 
+                  src={transformGoogleDriveUrl(selectedVideo, 'video')} 
                   controls 
                   autoPlay 
                   className="w-full h-full object-contain" 
@@ -2316,6 +2355,36 @@ const getVimeoEmbedUrl = (url: string) => {
   return url;
 };
 
+export const isYouTubeUrl = (url: string) => {
+  if (!url) return false;
+  const lowercase = url.toLowerCase();
+  return lowercase.includes('youtube.com') || lowercase.includes('youtu.be');
+};
+
+export const getYouTubeWatchUrl = (url: string): string => {
+  if (!url) return '';
+  try {
+    let videoId = '';
+    if (url.includes('youtube.com/watch')) {
+      const urlObj = new URL(url);
+      videoId = urlObj.searchParams.get('v') || '';
+    } else if (url.includes('youtu.be/')) {
+      videoId = url.split('youtu.be/')[1]?.split('?')[0]?.split('&')[0];
+    } else if (url.includes('youtube.com/embed/')) {
+      videoId = url.split('youtube.com/embed/')[1]?.split('?')[0]?.split('&')[0];
+    } else if (url.includes('youtube.com/shorts/')) {
+      videoId = url.split('youtube.com/shorts/')[1]?.split('?')[0]?.split('&')[0];
+    }
+    
+    if (videoId) {
+      return `https://www.youtube.com/watch?v=${videoId}`;
+    }
+  } catch (e) {
+    console.error('Error parsing YouTube URL:', e);
+  }
+  return url;
+};
+
 export const isEmbedUrl = (url: string) => {
   if (!url) return false;
   const lowercase = url.toLowerCase();
@@ -2389,6 +2458,9 @@ export const getEmbedUrl = (url: string, asBackground = true) => {
       } else if (url.includes('youtu.be/')) {
         const videoId = url.split('youtu.be/')[1]?.split('?')[0];
         if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
+      } else if (url.includes('/shorts/')) {
+        const videoId = url.split('/shorts/')[1]?.split('?')[0];
+        if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
       }
       const urlObj = new URL(embedUrl);
       urlObj.searchParams.set('autoplay', '1');
@@ -2439,6 +2511,7 @@ function LandingPage() {
   const [isMobileView, setIsMobileView] = useState(false);
   const [verticals, setVerticals] = useState<VerticalItem[]>(DEFAULT_VERTICALS);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  const [inlinePlayingId, setInlinePlayingId] = useState<string | null>(null);
   const [locations, setLocations] = useState<OperationalLocation[]>(DEFAULT_LOCATIONS);
 
   useEffect(() => {
@@ -2532,20 +2605,21 @@ function LandingPage() {
   const loadConfigs = () => {
     const type = (localStorage.getItem('home_hero_bg_type') || 'video') as 'image' | 'video';
     setBackdropType(type);
+    const storedUrl = localStorage.getItem('home_hero_bg_url');
     if (type === 'video') {
-      setBackdropUrl(localStorage.getItem('home_hero_bg_url') || 'https://player.vimeo.com/video/371433846');
+      setBackdropUrl(storedUrl && storedUrl.trim() !== '' ? storedUrl : 'https://player.vimeo.com/video/371433846');
     } else {
-      setBackdropUrl(localStorage.getItem('home_hero_bg_url') || 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071');
+      setBackdropUrl(storedUrl && storedUrl.trim() !== '' ? storedUrl : 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071');
     }
   };
 
   const getMobileBackdropUrl = () => {
     const customImg = localStorage.getItem('home_hero_bg_image_url') || '';
-    if (customImg) return customImg;
+    if (customImg && customImg.trim() !== '') return customImg;
     
     const bgType = localStorage.getItem('home_hero_bg_type') || 'video';
     const bgUrl = localStorage.getItem('home_hero_bg_url') || '';
-    if (bgType === 'image' && bgUrl) {
+    if (bgType === 'image' && bgUrl && bgUrl.trim() !== '') {
       return bgUrl;
     }
     return 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071';
@@ -2712,19 +2786,17 @@ function LandingPage() {
                 const cardContainerVariants = {
                   hidden: (direction: number) => ({
                     opacity: 0,
-                    x: direction * 40,
-                    y: 30,
-                    scale: 0.97,
+                    x: direction === -1 ? -320 : 320,
                   }),
                   visible: {
                     opacity: 1,
                     x: 0,
-                    y: 0,
-                    scale: 1,
                     transition: {
-                      duration: 0.7,
-                      ease: [0.16, 1, 0.3, 1],
-                      staggerChildren: 0.1,
+                      type: "spring",
+                      stiffness: 75,
+                      damping: 18,
+                      mass: 1.1,
+                      staggerChildren: 0.08,
                       delayChildren: 0.05,
                     }
                   }
@@ -2751,14 +2823,21 @@ function LandingPage() {
                       variants={cardContainerVariants}
                       initial="hidden"
                       whileInView="visible"
-                      viewport={{ once: true, margin: "-100px" }}
+                      viewport={{ once: false, margin: "-100px" }}
+                      style={{ transformOrigin: "bottom center" }}
                       whileHover={{ 
                         y: -8, 
                         scale: 1.01,
                         transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] }
                       }}
-                      onClick={() => window.open('https://www.sportsbox.in/', '_blank', 'noopener,noreferrer')}
-                      className="group relative flex flex-col items-center justify-between p-8 md:p-10 rounded-[2.5rem] bg-zinc-950/40 backdrop-blur-xl overflow-hidden select-none cursor-pointer text-center h-[540px] md:h-[610px] w-full"
+                      onClick={(e) => {
+                        if (sportsBox.url && sportsBox.type !== 'image') {
+                          setInlinePlayingId('sports_box');
+                        } else {
+                          window.open('https://www.sportsbox.in/', '_blank', 'noopener,noreferrer');
+                        }
+                      }}
+                      className="group relative flex flex-col items-center justify-between p-8 md:p-10 rounded-[2.5rem] bg-zinc-950/40 border border-orange-500/25 backdrop-blur-xl overflow-hidden select-none cursor-pointer text-center h-[540px] md:h-[610px] w-full hover:border-orange-500/50 hover:shadow-[0_0_80px_rgba(249,115,22,0.14)] transition-all duration-500"
                     >
                       {/* Moving Digital Scanline Grid backdrop */}
                       <div className="absolute inset-0 opacity-[0.03] group-hover:opacity-[0.06] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] transition-opacity duration-500 pointer-events-none" />
@@ -2788,9 +2867,39 @@ function LandingPage() {
                       {/* Creative Frame */}
                       <motion.div 
                         variants={cardChildVariants}
-                        className="w-full aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 group-hover:border-orange-500/40 bg-zinc-950 transition-[border-color,box-shadow] duration-500 relative flex items-center justify-center shadow-[0_15px_45px_0_rgba(0,0,0,0.5)]"
+                        className="w-full aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 group-hover:border-orange-500/40 bg-zinc-950 transition-[border-color,box-shadow] duration-500 relative flex items-center justify-center shadow-[0_15px_45px_0_rgba(0,0,0,0.5)] z-20"
                       >
-                        {sportsBox.url ? (
+                        {inlinePlayingId === 'sports_box' && sportsBox.url ? (
+                          <div className="absolute inset-0 w-full h-full bg-black z-30 flex items-center justify-center animate-fade-in" onClick={(e) => e.stopPropagation()}>
+                            {isEmbedUrl(sportsBox.url) ? (
+                              <iframe 
+                                src={getEmbedUrl(sportsBox.url, false)} 
+                                title={sportsBox.title} 
+                                className="w-full h-full border-none object-cover" 
+                                allowFullScreen
+                                allow="autoplay; encrypted-media; picture-in-picture"
+                              />
+                            ) : (
+                              <video 
+                                src={transformGoogleDriveUrl(sportsBox.url, 'video')} 
+                                controls 
+                                autoPlay 
+                                className="w-full h-full object-contain" 
+                              />
+                            )}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setInlinePlayingId(null);
+                              }}
+                              className="absolute top-3 right-3 z-40 p-1.5 bg-black/80 hover:bg-black text-white hover:text-orange-500 rounded-full border border-white/10 transition-all shadow-xl flex items-center justify-center cursor-pointer pointer-events-auto"
+                              title="Close Video"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ) : sportsBox.url ? (
                           sportsBox.type === 'image' ? (
                             <div className="w-full h-full relative group/img overflow-hidden">
                               <img 
@@ -2804,10 +2913,10 @@ function LandingPage() {
                             </div>
                           ) : isEmbedUrl(sportsBox.url) ? (
                             <iframe 
-                              src={getEmbedUrl(sportsBox.url, true)} 
-                              className="absolute inset-0 w-full h-full pointer-events-none scale-105 border-0"
-                              allow="autoplay"
-                              style={{ pointerEvents: 'none' }}
+                               src={getEmbedUrl(sportsBox.url, true)} 
+                               className="absolute inset-0 w-full h-full pointer-events-none scale-105 border-0"
+                               allow="autoplay"
+                               style={{ pointerEvents: 'none' }}
                             />
                           ) : (
                             <video 
@@ -2850,8 +2959,16 @@ function LandingPage() {
                           </div>
                         )}
                         
-                        {sportsBox.url && (
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        {sportsBox.url && inlinePlayingId !== 'sports_box' && (
+                          <div 
+                            onClick={(e) => {
+                              if (sportsBox.type !== 'image') {
+                                e.stopPropagation();
+                                setInlinePlayingId('sports_box');
+                              }
+                            }}
+                            className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center cursor-pointer pointer-events-auto"
+                          >
                             <motion.div 
                               className="w-14 h-14 rounded-full bg-orange-500 flex items-center justify-center text-white shadow-xl"
                               whileHover={{ scale: 1.15 }}
@@ -2893,14 +3010,19 @@ function LandingPage() {
                       variants={cardContainerVariants}
                       initial="hidden"
                       whileInView="visible"
-                      viewport={{ once: true, margin: "-100px" }}
+                      viewport={{ once: false, margin: "-100px" }}
+                      style={{ transformOrigin: "bottom center" }}
                       whileHover={{ 
                         y: -8, 
                         scale: 1.01,
                         transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] }
                       }}
-                      onClick={() => dcDigital.url && setSelectedVideo(dcDigital.url)}
-                      className={`group relative flex flex-col items-center justify-between p-8 md:p-10 rounded-[2.5rem] bg-zinc-950/40 backdrop-blur-xl overflow-hidden select-none ${dcDigital.url ? 'cursor-pointer' : 'cursor-default'} transition-[background-color,border-color,box-shadow] duration-500 hover:shadow-[0_0_80px_rgba(245,158,11,0.14)] text-center h-[540px] md:h-[610px] w-full`}
+                      onClick={() => {
+                        if (dcDigital.url && dcDigital.type !== 'image') {
+                          setInlinePlayingId('dc_digital');
+                        }
+                      }}
+                      className={`group relative flex flex-col items-center justify-between p-8 md:p-10 rounded-[2.5rem] bg-zinc-950/40 border border-orange-500/25 backdrop-blur-xl overflow-hidden select-none ${dcDigital.url ? 'cursor-pointer' : 'cursor-default'} transition-[background-color,border-color,box-shadow] duration-500 hover:border-orange-500/50 hover:shadow-[0_0_80px_rgba(249,115,22,0.14)] text-center h-[540px] md:h-[610px] w-full`}
                     >
                       {/* Grid Backdrop */}
                       <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:30px_30px] pointer-events-none" />
@@ -2928,9 +3050,39 @@ function LandingPage() {
                       {/* Creative Frame */}
                       <motion.div 
                         variants={cardChildVariants}
-                        className="w-full aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 group-hover:border-amber-500/35 bg-zinc-950 transition-[border-color,box-shadow] duration-500 relative flex items-center justify-center shadow-[0_15px_45px_0_rgba(0,0,0,0.5)]"
+                        className="w-full aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 group-hover:border-amber-500/35 bg-zinc-950 transition-[border-color,box-shadow] duration-500 relative flex items-center justify-center shadow-[0_15px_45px_0_rgba(0,0,0,0.5)] z-20"
                       >
-                        {dcDigital.url ? (
+                        {inlinePlayingId === 'dc_digital' && dcDigital.url ? (
+                          <div className="absolute inset-0 w-full h-full bg-black z-30 flex items-center justify-center animate-fade-in" onClick={(e) => e.stopPropagation()}>
+                            {isEmbedUrl(dcDigital.url) ? (
+                              <iframe 
+                                src={getEmbedUrl(dcDigital.url, false)} 
+                                title={dcDigital.title} 
+                                className="w-full h-full border-none object-cover" 
+                                allowFullScreen
+                                allow="autoplay; encrypted-media; picture-in-picture"
+                              />
+                            ) : (
+                              <video 
+                                src={transformGoogleDriveUrl(dcDigital.url, 'video')} 
+                                controls 
+                                autoPlay 
+                                className="w-full h-full object-contain" 
+                              />
+                            )}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setInlinePlayingId(null);
+                              }}
+                              className="absolute top-3 right-3 z-40 p-1.5 bg-black/80 hover:bg-black text-white hover:text-orange-500 rounded-full border border-white/10 transition-all shadow-xl flex items-center justify-center cursor-pointer pointer-events-auto"
+                              title="Close Video"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ) : dcDigital.url ? (
                           dcDigital.type === 'image' ? (
                             <div className="w-full h-full relative group/img overflow-hidden">
                               <img 
@@ -2944,10 +3096,10 @@ function LandingPage() {
                             </div>
                           ) : isEmbedUrl(dcDigital.url) ? (
                             <iframe 
-                              src={getEmbedUrl(dcDigital.url, true)} 
-                              className="absolute inset-0 w-full h-full pointer-events-none scale-105 border-0"
-                              allow="autoplay"
-                              style={{ pointerEvents: 'none' }}
+                               src={getEmbedUrl(dcDigital.url, true)} 
+                               className="absolute inset-0 w-full h-full pointer-events-none scale-105 border-0"
+                               allow="autoplay"
+                               style={{ pointerEvents: 'none' }}
                             />
                           ) : (
                             <video 
@@ -2998,8 +3150,16 @@ function LandingPage() {
                           </div>
                         )}
                         
-                        {dcDigital.url && (
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        {dcDigital.url && inlinePlayingId !== 'dc_digital' && (
+                          <div 
+                            onClick={(e) => {
+                              if (dcDigital.type !== 'image') {
+                                e.stopPropagation();
+                                setInlinePlayingId('dc_digital');
+                              }
+                            }}
+                            className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center cursor-pointer pointer-events-auto"
+                          >
                             <motion.div 
                               className="w-14 h-14 rounded-full bg-orange-500 flex items-center justify-center text-white shadow-xl"
                               whileHover={{ scale: 1.15 }}
@@ -3065,10 +3225,10 @@ function LandingPage() {
                       viewport={{ once: false, amount: 0.15 }}
                       transition={{ type: "spring", stiffness: 90, damping: 15 }}
                       whileHover={{ y: -8, scale: 1.02 }}
-                      className="p-8 md:p-10 bg-zinc-950/60 border border-zinc-900/80 rounded-[2rem] hover:bg-orange-500 hover:border-transparent transition-all duration-500 group cursor-pointer flex flex-col justify-between min-h-[170px]"
+                      className="p-8 md:p-10 bg-zinc-950/60 border border-orange-500/30 rounded-[2rem] hover:bg-orange-500 hover:border-transparent transition-all duration-500 group cursor-pointer flex flex-col justify-between min-h-[170px]"
                       onClick={() => window.location.href = `mailto:${contactEmail}`}
                     >
-                      <div className="text-orange-500 group-hover:text-black mb-6 transition-colors">
+                      <div className="text-orange-500 group-hover:text-black mb-6 transition-colors font-sans">
                         <Mail className="w-6 h-6 animate-pulse" />
                       </div>
                       <div>
@@ -3087,7 +3247,7 @@ function LandingPage() {
                       viewport={{ once: false, amount: 0.15 }}
                       transition={{ type: "spring", stiffness: 90, damping: 15, delay: 0.1 }}
                       whileHover={{ y: -8, scale: 1.02 }}
-                      className="p-8 md:p-10 bg-zinc-950/60 border border-zinc-900/80 rounded-[2rem] hover:bg-orange-500 hover:border-transparent transition-all duration-500 group cursor-pointer flex flex-col justify-between min-h-[170px]"
+                      className="p-8 md:p-10 bg-zinc-950/60 border border-orange-500/30 rounded-[2rem] hover:bg-orange-500 hover:border-transparent transition-all duration-500 group cursor-pointer flex flex-col justify-between min-h-[170px]"
                       onClick={() => window.location.href = `tel:${contactPhone}`}
                     >
                       <div className="text-orange-500 group-hover:text-black mb-6 transition-colors">
@@ -3126,7 +3286,7 @@ function LandingPage() {
                   whileInView={{ opacity: 1, scale: 1, y: 0 }}
                   viewport={{ once: false, amount: 0.15 }}
                   transition={{ type: "spring", stiffness: 80, damping: 18 }}
-                  className="bg-zinc-950/60 border border-zinc-900/80 rounded-[2.5rem] p-8 md:p-12 backdrop-blur-md relative overflow-hidden"
+                  className="bg-zinc-950/60 border border-orange-500/30 rounded-[2.5rem] p-8 md:p-12 backdrop-blur-md relative overflow-hidden"
                 >
                   <form onSubmit={(e) => { e.preventDefault(); alert("Success! Your message was sent beautifully."); }} className="space-y-6 relative z-10">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -3162,42 +3322,27 @@ function LandingPage() {
 
               {/* Seamless Locations block in the same contact-section */}
               <div className="mt-12 relative z-10">
-                {/* Custom Inline Keyframe Styling for the dynamic laser scanning and top-tier aesthetic touches */}
-                <style>{`
-                  @keyframes laserScan {
-                    0% { transform: translateY(0); opacity: 0; }
-                    10% { opacity: 0.8; }
-                    90% { opacity: 0.8; }
-                    100% { transform: translateY(200px); opacity: 0; }
-                  }
-                  .animate-laser-scan {
-                    animation: laserScan 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-                  }
-                `}</style>
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
                   {locations.map((loc, idx) => (
                     <motion.div
-                      key={loc.id}
-                      initial={{ opacity: 0, y: 60, scale: 0.92, rotate: idx % 2 === 0 ? -1.5 : 1.5 }}
-                      whileInView={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
-                      viewport={{ once: false, amount: 0.12 }}
-                      transition={{ 
-                        type: "spring", 
-                        stiffness: 70, 
-                        damping: 15, 
-                        delay: idx * 0.05 
-                      }}
+                       key={loc.id}
+                       initial={{ opacity: 0, y: idx % 2 === 0 ? 55 : -55 }}
+                       whileInView={{ opacity: 1, y: 0 }}
+                       viewport={{ once: false, amount: 0.15 }}
+                       transition={{ 
+                         type: "spring",
+                         stiffness: 45,
+                         damping: 14,
+                         mass: 1.2,
+                         delay: idx * 0.08 
+                       }}
                       whileHover={{ y: -6, scale: 1.02 }}
                       onClick={() => window.open(loc.mapsUrl, '_blank')}
-                      className="group relative p-4 bg-[#050505] border border-zinc-900 rounded-[1.8rem] hover:border-orange-500/30 hover:bg-[#070707] transition-all duration-300 cursor-pointer flex flex-col justify-between overflow-hidden min-h-[290px] shadow-lg"
+                      className="group relative p-4 bg-[#050505] border border-orange-500/20 rounded-[1.8rem] hover:border-orange-500/60 hover:bg-[#070707] transition-[background-color,border-color,box-shadow] duration-500 ease-out cursor-pointer flex flex-col justify-between overflow-hidden min-h-[290px] shadow-lg"
                     >
                       {/* Top Graphic Map Visual Block */}
-                      <div className="h-[200px] w-full bg-zinc-950/60 border border-zinc-900/60 rounded-[1.4rem] flex items-center justify-center relative overflow-hidden transition-all duration-300">
+                      <div className="h-[200px] w-full bg-zinc-950/60 border border-orange-500/10 rounded-[1.4rem] flex items-center justify-center relative overflow-hidden transition-all duration-300 group-hover:border-orange-500/30">
                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.04)_0%,transparent_100%)] pointer-events-none" />
-                        
-                        {/* Dynamic Neon Laser scanning line */}
-                        <div className="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-orange-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20 animate-laser-scan" />
 
                         {loc.mapImage ? (
                           <motion.img 

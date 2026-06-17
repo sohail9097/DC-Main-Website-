@@ -327,6 +327,7 @@ const AboutPage = () => {
             src={transformGoogleDriveUrl(bgImg, 'image')} 
             className="w-full h-full object-cover brightness-[0.3] contrast-[1.2]"
             alt="Behind the scenes"
+            referrerPolicy="no-referrer"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black" />
         </motion.div>
