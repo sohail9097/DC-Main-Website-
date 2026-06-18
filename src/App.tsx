@@ -2786,44 +2786,38 @@ function LandingPage() {
                 const cardContainerVariants = {
                   hidden: (direction: number) => ({
                     opacity: 0,
-                    x: direction === -1 ? -320 : 320,
+                    x: direction === -1 ? -450 : 450,
+                    scale: 0.94
                   }),
                   visible: {
                     opacity: 1,
                     x: 0,
+                    scale: 1,
                     transition: {
-                      type: "spring",
-                      stiffness: 75,
-                      damping: 18,
-                      mass: 1.1,
-                      staggerChildren: 0.08,
-                      delayChildren: 0.05,
+                      type: "tween",
+                      duration: 1.25,
+                      ease: [0.16, 1, 0.3, 1]
                     }
                   }
                 };
 
                 const cardChildVariants = {
-                  hidden: { opacity: 0, y: 15, scale: 0.98 },
-                  visible: {
-                    opacity: 1,
-                    y: 0,
-                    scale: 1,
-                    transition: {
-                      duration: 0.5,
-                      ease: [0.16, 1, 0.3, 1],
-                    }
-                  }
+                  hidden: { opacity: 1 },
+                  visible: { opacity: 1 }
                 };
 
                 return (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 max-w-[1440px] mx-auto mt-8 px-4 sm:px-8 lg:px-12 pb-8" style={{ perspective: 1200 }}>
+                  <motion.div 
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: false, amount: 0.12 }}
+                    className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 max-w-[1440px] mx-auto mt-8 px-4 sm:px-8 lg:px-12 pb-8" 
+                    style={{ perspective: 1200 }}
+                  >
                     {/* SPORTS BOX Card */}
                     <motion.div
                       custom={-1}
                       variants={cardContainerVariants}
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: false, margin: "-100px" }}
                       style={{ transformOrigin: "bottom center" }}
                       whileHover={{ 
                         y: -8, 
@@ -2837,7 +2831,7 @@ function LandingPage() {
                           window.open('https://www.sportsbox.in/', '_blank', 'noopener,noreferrer');
                         }
                       }}
-                      className="group relative flex flex-col items-center justify-between p-8 md:p-10 rounded-[2.5rem] bg-zinc-950/40 border border-orange-500/25 backdrop-blur-xl overflow-hidden select-none cursor-pointer text-center h-[540px] md:h-[610px] w-full hover:border-orange-500/50 hover:shadow-[0_0_80px_rgba(249,115,22,0.14)] transition-all duration-500"
+                      className="group relative flex flex-col items-center justify-between p-8 md:p-10 rounded-[2.5rem] bg-zinc-950/40 border border-orange-500/25 backdrop-blur-xl overflow-hidden select-none cursor-pointer text-center h-[540px] md:h-[610px] w-full hover:border-orange-500/50 hover:shadow-[0_0_80px_rgba(249,115,22,0.14)] transition-[background-color,border-color,box-shadow] duration-500"
                     >
                       {/* Moving Digital Scanline Grid backdrop */}
                       <div className="absolute inset-0 opacity-[0.03] group-hover:opacity-[0.06] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] transition-opacity duration-500 pointer-events-none" />
@@ -3008,9 +3002,6 @@ function LandingPage() {
                     <motion.div
                       custom={1}
                       variants={cardContainerVariants}
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: false, margin: "-100px" }}
                       style={{ transformOrigin: "bottom center" }}
                       whileHover={{ 
                         y: -8, 
@@ -3194,7 +3185,7 @@ function LandingPage() {
                       {/* Corner glowing element */}
                       <div className="absolute -bottom-16 -right-16 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl group-hover:bg-amber-500/20 group-hover:scale-135 transition-all duration-700"></div>
                     </motion.div>
-                  </div>
+                  </motion.div>
                 );
               })()}
             </div>

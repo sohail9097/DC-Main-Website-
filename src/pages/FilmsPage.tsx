@@ -366,57 +366,109 @@ const FilmsPage = () => {
               }
 
               return (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 pt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 pt-4 grid-flow-row-dense auto-rows-auto">
                   {categoryFilms.map((film, idx) => {
                     const videoUrl = film.video || 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761';
                     
+                    // Elegantly mapped layout configurations to match user's collage layout perfectly
+                    const layoutConfigs = [
+                      {
+                        colSpan: "col-span-1",
+                        rowSpan: "row-span-1",
+                        aspect: "aspect-[1.5/1]"
+                      },
+                      {
+                        colSpan: "col-span-1",
+                        rowSpan: "row-span-1",
+                        aspect: "aspect-[1.4/1]"
+                      },
+                      {
+                        colSpan: "col-span-1",
+                        rowSpan: "md:row-span-2",
+                        aspect: "aspect-[2/3]"
+                      },
+                      {
+                        colSpan: "col-span-1",
+                        rowSpan: "row-span-1",
+                        aspect: "aspect-[16/10]"
+                      },
+                      {
+                        colSpan: "col-span-1",
+                        rowSpan: "row-span-1",
+                        aspect: "aspect-[1.6/1]"
+                      },
+                      {
+                        colSpan: "col-span-1",
+                        rowSpan: "md:row-span-2",
+                        aspect: "aspect-[2/3]"
+                      },
+                      {
+                        colSpan: "col-span-1",
+                        rowSpan: "row-span-1",
+                        aspect: "aspect-[16/9]"
+                      },
+                      {
+                        colSpan: "col-span-1",
+                        rowSpan: "row-span-1",
+                        aspect: "aspect-[1.85/1]"
+                      }
+                    ];
+                    const cfg = layoutConfigs[idx % layoutConfigs.length];
+                    
                     return (
-                      <motion.div 
-                        key={film.id}
-                        initial={{ opacity: 0, y: 35, scale: 0.97 }}
-                        whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                        viewport={{ once: true, margin: "-100px" }}
-                        transition={{ 
-                          duration: 0.8, 
-                          ease: [0.16, 1, 0.3, 1],
-                          delay: idx * 0.05 
-                        }}
-                        className="group relative overflow-hidden rounded-xl shadow-2xl bg-zinc-950 border border-orange-500/10 hover:border-orange-500/80 transition-all duration-700 ease-out hover:shadow-[0_20px_50px_rgba(249,115,22,0.2)] aspect-video cursor-pointer"
-                        onClick={() => {
-                          setSelectedVideo(videoUrl);
-                        }}
-                      >
-                        <img 
-                          src={transformGoogleDriveUrl(film.img)} 
-                          alt={film.title} 
-                          loading="lazy"
-                          referrerPolicy="no-referrer"
-                          className="w-full h-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-105"
-                        />
+                      <div key={film.id} className={`${cfg.colSpan} ${cfg.rowSpan}`}>
+                        <motion.div 
+                          className={`group relative overflow-hidden rounded-2xl shadow-xl bg-zinc-950 border border-white/5 hover:border-orange-500/60 transition-all duration-500 ease-out cursor-pointer w-full hover:shadow-[0_15px_40px_rgba(249,115,22,0.15)] ${cfg.aspect}`}
+                          initial={{ opacity: 0, y: 30, scale: 0.97 }}
+                          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                          viewport={{ once: true, margin: "-40px" }}
+                          transition={{ 
+                            duration: 0.6, 
+                            ease: [0.16, 1, 0.3, 1],
+                            delay: (idx % 3) * 0.08
+                          }}
+                          onClick={() => {
+                            setSelectedVideo(videoUrl);
+                          }}
+                        >
+                          <img 
+                            src={transformGoogleDriveUrl(film.img)} 
+                            alt={film.title} 
+                            loading="lazy"
+                            referrerPolicy="no-referrer"
+                            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                          />
 
-                        {/* Category badge heading overlay inside each video card frame */}
-                        {film.category && (
-                          <div className="absolute top-4 left-4 z-20">
-                            <span className="px-3 py-1 text-[10px] font-bold font-mono tracking-widest uppercase rounded-full bg-orange-500/90 text-white backdrop-blur-md shadow-lg border border-orange-400/20">
-                              {film.category}
-                            </span>
+                          {/* Subtle spotlight backdrop override on hover */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent group-hover:via-black/30 duration-500 transition-all pointer-events-none" />
+
+                          {/* Category badge heading overlay inside each video card frame */}
+                          {film.category && (
+                            <div className="absolute top-4 left-4 z-20">
+                              <span className="px-2.5 py-1 text-[8px] font-bold font-mono tracking-widest uppercase rounded-full bg-black/80 text-orange-400 backdrop-blur-md shadow border border-orange-500/20">
+                                {film.category}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Title bottom overlay */}
+                          <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6 z-20 flex flex-col justify-end translate-y-1 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
+                            <h3 className="text-sm sm:text-base font-bold tracking-wide text-white uppercase font-sans">
+                              {film.title}
+                            </h3>
+                            <p className="text-[9px] text-white/50 uppercase tracking-widest font-mono mt-0.5">
+                              Launch Playback →
+                            </p>
                           </div>
-                        )}
 
-                        {/* Title bottom overlay */}
-                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-4 sm:p-5 z-20 flex flex-col justify-end translate-y-1 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
-                          <h3 className="text-sm sm:text-base font-bold tracking-tight text-white">
-                            {film.title}
-                          </h3>
-                        </div>
-
-                        {/* Central Play Button */}
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/30 transition-colors duration-500 z-10">
-                          <div className="w-12 h-12 sm:w-14 sm:h-14 bg-orange-500 hover:bg-orange-400 text-white rounded-full flex items-center justify-center transition-all duration-300 shadow-[0_4px_20px_rgba(249,115,22,0.45)] group-hover:scale-110">
-                            <Play className="fill-current w-5 h-5 sm:w-6 sm:h-6 translate-x-0.5 text-white" />
+                          {/* Central Play Button */}
+                          <div className="absolute inset-0 flex items-center justify-center z-10 transition-colors duration-500">
+                            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-orange-500 group-hover:bg-orange-600 text-white rounded-full flex items-center justify-center transition-all duration-300 shadow-[0_4px_15px_rgba(249,115,22,0.35)] group-hover:scale-110">
+                              <Play className="fill-current w-4 h-4 sm:w-5 sm:h-5 translate-x-0.5 text-white" />
+                            </div>
                           </div>
-                        </div>
-                      </motion.div>
+                        </motion.div>
+                      </div>
                     );
                   })}
                 </div>
