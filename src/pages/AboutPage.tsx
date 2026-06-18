@@ -518,7 +518,7 @@ const AboutPage = () => {
               <motion.div
                 initial={{ opacity: 0, x: -50 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: false }}
                 transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
                 className="space-y-10"
               >
@@ -545,7 +545,7 @@ const AboutPage = () => {
                     key={stat.label}
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
+                    viewport={{ once: false }}
                     transition={{ duration: 0.8, delay: idx * 0.1 }}
                     className="p-8 md:p-12 bg-white/5 rounded-[2.5rem] border border-white/5 group hover:bg-orange-500 transition-all duration-700"
                   >

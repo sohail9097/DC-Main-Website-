@@ -326,12 +326,12 @@ const FilmsPage = () => {
           <div className="relative z-10 w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 pt-16 pb-24">
             
             {/* Unified Section Header */}
-            <div className="border-b border-white/5 pb-6 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-4">
-              <div>
-                <h2 className="text-3xl md:text-5xl font-black italic tracking-tighter text-white uppercase">
-                  {selectedCategory === 'All' ? 'ALL WORKS' : selectedCategory}
+            <div className="border-b border-white/[0.08] pb-8 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+              <div className="space-y-3">
+                <h2 className="font-bebas text-5xl md:text-7xl font-bold tracking-wide text-orange-500 uppercase leading-none">
+                  {selectedCategory === 'All' ? 'OUR WORKS' : selectedCategory}
                 </h2>
-                <p className="text-white/40 text-xs md:text-sm mt-2 font-medium tracking-tight">
+                <p className="text-white/50 text-[10px] md:text-xs tracking-[0.25em] md:tracking-[0.35em] uppercase font-mono leading-relaxed max-w-4xl block">
                   {selectedCategory === 'All' 
                     ? 'Explore our full collection of cinematic masterpieces across all genres.' 
                     : SECTIONS_CONFIG.find(sec => sec.name === selectedCategory)?.desc || ''}
@@ -344,7 +344,7 @@ const FilmsPage = () => {
                   onClick={() => setSelectedCategory('All')}
                   className="text-orange-500 hover:text-orange-400 text-xs font-semibold tracking-wider uppercase font-mono py-1.5 px-3 border border-orange-500/20 hover:border-orange-500/50 rounded-md bg-orange-500/5 cursor-pointer transition-all self-start md:self-auto"
                 >
-                  Show All Works
+                  Show Our Works
                 </button>
               )}
             </div>
@@ -421,7 +421,7 @@ const FilmsPage = () => {
                           className={`group relative overflow-hidden rounded-2xl shadow-xl bg-zinc-950 border border-white/5 hover:border-orange-500/60 transition-all duration-500 ease-out cursor-pointer w-full hover:shadow-[0_15px_40px_rgba(249,115,22,0.15)] ${cfg.aspect}`}
                           initial={{ opacity: 0, y: 30, scale: 0.97 }}
                           whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                          viewport={{ once: true, margin: "-40px" }}
+                          viewport={{ once: false, margin: "-40px" }}
                           transition={{ 
                             duration: 0.6, 
                             ease: [0.16, 1, 0.3, 1],

@@ -4284,7 +4284,7 @@ export function StoryPage() {
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
-                viewport={{ once: true }}
+                viewport={{ once: false }}
                 className="inline-block mr-2"
               >
                 {word}
@@ -4296,7 +4296,7 @@ export function StoryPage() {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.5 }}
-            viewport={{ once: true }}
+            viewport={{ once: false }}
             className="text-white/40 text-xs sm:text-sm font-mono uppercase tracking-wider leading-relaxed"
           >
             HAVE A SIGNIFICANT CONCEPT WAITING TO BE TOLD? LET&apos;S CRAFT IT CINEMATICALLY TOGETHER.
