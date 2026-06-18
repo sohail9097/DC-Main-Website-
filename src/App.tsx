@@ -1297,6 +1297,30 @@ const HOME_CATEGORIES = [
     desc: "Cozy spaces, curated travel, luxury & foods",
     img: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=800",
     glow: "rgba(139, 92, 246, 0.4)"
+  },
+  {
+    name: "Reality TV / Live",
+    desc: "High-energy television formats, live productions & real-time events",
+    img: "https://images.unsplash.com/photo-1516280440614-37939bbacd6a?auto=format&fit=crop&q=80&w=800",
+    glow: "rgba(239, 68, 68, 0.4)"
+  },
+  {
+    name: "Commercials",
+    desc: "Dynamic short-form advert films & promotional campaigns",
+    img: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=800",
+    glow: "rgba(6, 182, 212, 0.4)"
+  },
+  {
+    name: "Influencer",
+    desc: "Premium creator-driven lifestyle content & social-first stories",
+    img: "https://images.unsplash.com/photo-1542435503-956c469947f6?auto=format&fit=crop&q=80&w=800",
+    glow: "rgba(236, 72, 153, 0.4)"
+  },
+  {
+    name: "Anthem",
+    desc: "Empowering sonic & visual brand anthems that inspire audiences",
+    img: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800",
+    glow: "rgba(250, 204, 21, 0.4)"
   }
 ];
 

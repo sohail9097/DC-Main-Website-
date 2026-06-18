@@ -3170,6 +3170,10 @@ const AdminPanel: FC = () => {
                           <option value="Corporate">Corporate</option>
                           <option value="Sports">Sports</option>
                           <option value="Lifestyle">Lifestyle</option>
+                          <option value="Reality TV / Live">Reality TV / Live</option>
+                          <option value="Commercials">Commercials</option>
+                          <option value="Influencer">Influencer</option>
+                          <option value="Anthem">Anthem</option>
                         </select>
                       </div>
                     </div>

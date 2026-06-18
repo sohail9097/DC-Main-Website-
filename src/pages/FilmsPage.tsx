@@ -102,6 +102,30 @@ const SECTIONS_CONFIG = [
     desc: "Cozy spaces, curated travel, luxury & foods",
     glow: "rgba(139, 92, 246, 0.4)",
     badge: "06"
+  },
+  {
+    name: "Reality TV / Live",
+    desc: "High-energy television formats, live productions & real-time events",
+    glow: "rgba(239, 68, 68, 0.4)",
+    badge: "07"
+  },
+  {
+    name: "Commercials",
+    desc: "Dynamic short-form advert films & promotional campaigns",
+    glow: "rgba(6, 182, 212, 0.4)",
+    badge: "08"
+  },
+  {
+    name: "Influencer",
+    desc: "Premium creator-driven lifestyle content & social-first stories",
+    glow: "rgba(236, 72, 153, 0.4)",
+    badge: "09"
+  },
+  {
+    name: "Anthem",
+    desc: "Empowering sonic & visual brand anthems that inspire audiences",
+    glow: "rgba(250, 204, 21, 0.4)",
+    badge: "10"
   }
 ];
 
@@ -375,12 +399,12 @@ const FilmsPage = () => {
                       {
                         colSpan: "col-span-1",
                         rowSpan: "row-span-1",
-                        aspect: "aspect-[1.5/1]"
+                        aspect: "aspect-[1.42/1]"
                       },
                       {
                         colSpan: "col-span-1",
                         rowSpan: "row-span-1",
-                        aspect: "aspect-[1.4/1]"
+                        aspect: "aspect-[1.42/1]"
                       },
                       {
                         colSpan: "col-span-1",
@@ -395,17 +419,17 @@ const FilmsPage = () => {
                       {
                         colSpan: "col-span-1",
                         rowSpan: "row-span-1",
-                        aspect: "aspect-[16/10]"
+                        aspect: "aspect-[1.42/1]"
                       },
                       {
                         colSpan: "col-span-1",
                         rowSpan: "row-span-1",
-                        aspect: "aspect-[1.6/1]"
+                        aspect: "aspect-[1.42/1]"
                       },
                       {
                         colSpan: "col-span-1",
                         rowSpan: "row-span-1",
-                        aspect: "aspect-[16/9]"
+                        aspect: "aspect-[1.42/1]"
                       },
                       {
                         colSpan: "col-span-1",
@@ -415,7 +439,7 @@ const FilmsPage = () => {
                       {
                         colSpan: "col-span-1",
                         rowSpan: "row-span-1",
-                        aspect: "aspect-[1.85/1]"
+                        aspect: "aspect-[1.42/1]"
                       }
                     ];
 
@@ -430,15 +454,24 @@ const FilmsPage = () => {
                       cfg = {
                         colSpan: "col-span-1",
                         rowSpan: "row-span-1",
-                        aspect: "aspect-[1.5/1]"
+                        aspect: "aspect-[1.42/1]"
                       };
                     } else {
                       const autoIndex = categoryFilms.slice(0, idx).filter(f => !f.frameType || f.frameType === 'auto').length;
                       cfg = layoutConfigs[autoIndex % layoutConfigs.length];
                     }
                     
+                    // Subtle vertical stagger offsets to position frames slightly up and down for an elegant asymmetrical collage effect
+                    const staggerOffsets = [
+                      "md:-translate-y-3",
+                      "md:translate-y-3",
+                      "md:-translate-y-1.5",
+                      "md:translate-y-1.5",
+                    ];
+                    const staggerClass = staggerOffsets[idx % staggerOffsets.length];
+                    
                     return (
-                      <div key={film.id} className={`${cfg.colSpan} ${cfg.rowSpan}`}>
+                      <div key={film.id} className={`${cfg.colSpan} ${cfg.rowSpan} ${staggerClass} transition-transform duration-500`}>
                         <motion.div 
                           className={`group relative overflow-hidden rounded-2xl shadow-xl bg-zinc-950 border border-white/5 hover:border-orange-500/60 transition-all duration-500 ease-out cursor-pointer w-full hover:shadow-[0_15px_40px_rgba(249,115,22,0.15)] ${cfg.aspect}`}
                           initial={{ opacity: 0, y: 30, scale: 0.97 }}
@@ -474,19 +507,23 @@ const FilmsPage = () => {
                           )}
 
                           {/* Title bottom overlay */}
-                          <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6 z-20 flex flex-col justify-end translate-y-1 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
-                            <h3 className="text-sm sm:text-base font-bold tracking-wide text-white uppercase font-sans">
+                          <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 z-20 flex items-center gap-3 bg-gradient-to-t from-black/95 via-black/55 to-transparent pt-12 transition-all duration-300">
+                            <div className="w-10 h-10 sm:w-11 sm:h-11 bg-orange-500 group-hover:bg-orange-600 text-white rounded-full flex items-center justify-center transition-all duration-300 shadow-[0_4px_15px_rgba(249,115,22,0.35)] group-hover:scale-110 flex-shrink-0">
+                               <Play className="fill-current w-3.5 h-3.5 translate-x-0.5 text-white" />
+                             </div>
+                             <div className="flex-1 min-w-0">
+                               <h3 className="text-xs sm:text-sm font-bold tracking-wide text-white uppercase font-sans truncate pr-2">
                               {film.title}
                             </h3>
-                            <p className="text-[9px] text-white/50 uppercase tracking-widest font-mono mt-0.5">
-                              Launch Playback →
-                            </p>
+                            <p className="text-[8.5px] sm:text-[9.5px] text-zinc-400 font-mono tracking-widest uppercase mt-1 flex items-center gap-1 leading-none">
+                              Launch Playback <span className="text-orange-500 group-hover:translate-x-1 transition-transform inline-block font-sans font-bold">→</span>
+                            </p></div>
                           </div>
 
                           {/* Central Play Button */}
-                          <div className="absolute inset-0 flex items-center justify-center z-10 transition-colors duration-500">
+                          <div className="hidden">
                             <div className="w-12 h-12 sm:w-14 sm:h-14 bg-orange-500 group-hover:bg-orange-600 text-white rounded-full flex items-center justify-center transition-all duration-300 shadow-[0_4px_15px_rgba(249,115,22,0.35)] group-hover:scale-110">
-                              <Play className="fill-current w-4 h-4 sm:w-5 sm:h-5 translate-x-0.5 text-white" />
+                              <Play className="fill-current text-white w-4 h-4 sm:w-5 sm:h-5 translate-x-0.5" />
                             </div>
                           </div>
                         </motion.div>
