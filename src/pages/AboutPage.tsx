@@ -377,7 +377,7 @@ const AboutPage = () => {
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: false }}
+                viewport={{ once: true }}
                 className="group relative flex flex-col items-center justify-center min-h-[350px] md:h-[700px] bg-transparent transition-all duration-700"
                 style={{ perspective: "1500px", transformStyle: "preserve-3d" }}
               >
@@ -435,7 +435,7 @@ const AboutPage = () => {
                 variants={containerVariants}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: false }}
+                viewport={{ once: true }}
                 className="space-y-10 flex flex-col items-start text-left w-full lg:pl-10 xl:pl-16 font-sans select-none"
               >
                  <motion.div variants={itemVariants} className="flex items-center gap-6 group/dc w-full justify-start">
@@ -518,7 +518,7 @@ const AboutPage = () => {
               <motion.div
                 initial={{ opacity: 0, x: -50 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: false }}
+                viewport={{ once: true }}
                 transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
                 className="space-y-10"
               >
@@ -545,7 +545,7 @@ const AboutPage = () => {
                     key={stat.label}
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: false }}
+                    viewport={{ once: true }}
                     transition={{ duration: 0.8, delay: idx * 0.1 }}
                     className="p-8 md:p-12 bg-white/5 rounded-[2.5rem] border border-white/5 group hover:bg-orange-500 transition-all duration-700"
                   >

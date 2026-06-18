@@ -1439,7 +1439,7 @@ function Portfolio() {
                 delay: idx * 0.08,
                 ease: [0.16, 1, 0.3, 1]
               }}
-              viewport={{ once: false, amount: 0.15 }}
+              viewport={{ once: true, amount: 0.15 }}
               onClick={() => {
                 const sectionId = category.name.toLowerCase().replace(/\s+/g, '-');
                 navigate(`/films#${sectionId}`);
@@ -2216,7 +2216,7 @@ function Intro() {
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: false, margin: "-100px" }}
+          viewport={{ once: true, margin: "-100px" }}
           className="w-full pb-16 md:pb-24 flex flex-col md:flex-row items-start justify-between gap-12 font-geograph select-none"
         >
           {/* Left Text Block */}
@@ -2777,7 +2777,7 @@ function LandingPage() {
             <motion.div
               initial={{ opacity: 0, scale: 0.92 }}
               whileInView={{ opacity: 0.75, scale: 1 }}
-              viewport={{ once: false, margin: "-100px" }}
+              viewport={{ once: true, margin: "-100px" }}
               transition={{ 
                 opacity: { duration: 1.2, ease: "easeOut" },
                 scale: { duration: 1.5, ease: [0.16, 1, 0.3, 1] }
@@ -2834,7 +2834,7 @@ function LandingPage() {
                   <motion.div 
                     initial="hidden"
                     whileInView="visible"
-                    viewport={{ once: false, amount: 0.12 }}
+                    viewport={{ once: true, amount: 0.12 }}
                     className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 max-w-[1440px] mx-auto mt-8 px-4 sm:px-8 lg:px-12 pb-8" 
                     style={{ perspective: 1200 }}
                   >
@@ -3237,7 +3237,7 @@ function LandingPage() {
                     <motion.div
                       initial={{ opacity: 0, x: -50, rotate: -2, scale: 0.95 }}
                       whileInView={{ opacity: 1, x: 0, rotate: 0, scale: 1 }}
-                      viewport={{ once: false, amount: 0.15 }}
+                      viewport={{ once: true, amount: 0.15 }}
                       transition={{ type: "spring", stiffness: 90, damping: 15 }}
                       whileHover={{ y: -8, scale: 1.02 }}
                       className="p-8 md:p-10 bg-zinc-950/60 border border-orange-500/30 rounded-[2rem] hover:bg-orange-500 hover:border-transparent transition-all duration-500 group cursor-pointer flex flex-col justify-between min-h-[170px]"
@@ -3259,7 +3259,7 @@ function LandingPage() {
                     <motion.div
                       initial={{ opacity: 0, x: -50, rotate: 2, scale: 0.95 }}
                       whileInView={{ opacity: 1, x: 0, rotate: 0, scale: 1 }}
-                      viewport={{ once: false, amount: 0.15 }}
+                      viewport={{ once: true, amount: 0.15 }}
                       transition={{ type: "spring", stiffness: 90, damping: 15, delay: 0.1 }}
                       whileHover={{ y: -8, scale: 1.02 }}
                       className="p-8 md:p-10 bg-zinc-950/60 border border-orange-500/30 rounded-[2rem] hover:bg-orange-500 hover:border-transparent transition-all duration-500 group cursor-pointer flex flex-col justify-between min-h-[170px]"
@@ -3299,7 +3299,7 @@ function LandingPage() {
                 <motion.div
                   initial={{ opacity: 0, scale: 0.94, y: 50 }}
                   whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                  viewport={{ once: false, amount: 0.15 }}
+                  viewport={{ once: true, amount: 0.15 }}
                   transition={{ type: "spring", stiffness: 80, damping: 18 }}
                   className="bg-zinc-950/60 border border-orange-500/30 rounded-[2.5rem] p-8 md:p-12 backdrop-blur-md relative overflow-hidden"
                 >
@@ -3343,7 +3343,7 @@ function LandingPage() {
                        key={loc.id}
                        initial={{ opacity: 0, y: idx % 2 === 0 ? 55 : -55 }}
                        whileInView={{ opacity: 1, y: 0 }}
-                       viewport={{ once: false, amount: 0.15 }}
+                       viewport={{ once: true, amount: 0.15 }}
                        transition={{ 
                          type: "spring",
                          stiffness: 45,
@@ -4308,7 +4308,7 @@ export function StoryPage() {
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
-                viewport={{ once: false }}
+                viewport={{ once: true }}
                 className="inline-block mr-2"
               >
                 {word}
@@ -4320,7 +4320,7 @@ export function StoryPage() {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.5 }}
-            viewport={{ once: false }}
+            viewport={{ once: true }}
             className="text-white/40 text-xs sm:text-sm font-mono uppercase tracking-wider leading-relaxed"
           >
             HAVE A SIGNIFICANT CONCEPT WAITING TO BE TOLD? LET&apos;S CRAFT IT CINEMATICALLY TOGETHER.

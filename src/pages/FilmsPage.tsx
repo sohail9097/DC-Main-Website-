@@ -476,7 +476,7 @@ const FilmsPage = () => {
                           className={`group relative overflow-hidden rounded-2xl shadow-xl bg-zinc-950 border border-white/5 hover:border-orange-500/60 transition-all duration-500 ease-out cursor-pointer w-full hover:shadow-[0_15px_40px_rgba(249,115,22,0.15)] ${cfg.aspect}`}
                           initial={{ opacity: 0, y: 30, scale: 0.97 }}
                           whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                          viewport={{ once: false, margin: "-40px" }}
+                          viewport={{ once: true, margin: "-10px" }}
                           transition={{ 
                             duration: 0.6, 
                             ease: [0.16, 1, 0.3, 1],
