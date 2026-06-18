@@ -118,7 +118,7 @@ const FilmsPage = () => {
   const titleXRight = useTransform(scrollY, [0, 500], [0, 100]);
   const titleXLeft = useTransform(scrollY, [0, 500], [0, -100]);
 
-  const [films, setFilms] = useState<{ id: string; title: string; category?: string; img: string; video?: string }[]>([]);
+  const [films, setFilms] = useState<{ id: string; title: string; category?: string; img: string; video?: string; frameType?: string }[]>([]);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [inlinePlayingId, setInlinePlayingId] = useState<string | null>(null);
@@ -384,7 +384,12 @@ const FilmsPage = () => {
                       },
                       {
                         colSpan: "col-span-1",
-                        rowSpan: "md:row-span-2",
+                        rowSpan: "md:row-span-2", // 1st vertical frame: right column
+                        aspect: "aspect-[2/3]"
+                      },
+                      {
+                        colSpan: "col-span-1",
+                        rowSpan: "md:row-span-2", // 2nd vertical frame: left column
                         aspect: "aspect-[2/3]"
                       },
                       {
@@ -399,13 +404,13 @@ const FilmsPage = () => {
                       },
                       {
                         colSpan: "col-span-1",
-                        rowSpan: "md:row-span-2",
-                        aspect: "aspect-[2/3]"
+                        rowSpan: "row-span-1",
+                        aspect: "aspect-[16/9]"
                       },
                       {
                         colSpan: "col-span-1",
-                        rowSpan: "row-span-1",
-                        aspect: "aspect-[16/9]"
+                        rowSpan: "md:row-span-2", // 3rd vertical frame: center column
+                        aspect: "aspect-[2/3]"
                       },
                       {
                         colSpan: "col-span-1",
@@ -413,7 +418,24 @@ const FilmsPage = () => {
                         aspect: "aspect-[1.85/1]"
                       }
                     ];
-                    const cfg = layoutConfigs[idx % layoutConfigs.length];
+
+                    let cfg;
+                    if (film.frameType === 'vertical') {
+                      cfg = {
+                        colSpan: "col-span-1",
+                        rowSpan: "md:row-span-2",
+                        aspect: "aspect-[2/3]"
+                      };
+                    } else if (film.frameType === 'landscape') {
+                      cfg = {
+                        colSpan: "col-span-1",
+                        rowSpan: "row-span-1",
+                        aspect: "aspect-[1.5/1]"
+                      };
+                    } else {
+                      const autoIndex = categoryFilms.slice(0, idx).filter(f => !f.frameType || f.frameType === 'auto').length;
+                      cfg = layoutConfigs[autoIndex % layoutConfigs.length];
+                    }
                     
                     return (
                       <div key={film.id} className={`${cfg.colSpan} ${cfg.rowSpan}`}>

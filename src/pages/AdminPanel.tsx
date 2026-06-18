@@ -110,6 +110,7 @@ const AdminPanel: FC = () => {
   const [filmCategory, setFilmCategory] = useState('Branded Content');
   const [filmImg, setFilmImg] = useState('');
   const [filmVideo, setFilmVideo] = useState('');
+  const [filmFrameType, setFilmFrameType] = useState<string>('auto');
 
   // Carousel management states
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
@@ -1278,12 +1279,14 @@ const AdminPanel: FC = () => {
       title: filmTitle,
       category: filmCategory,
       img: filmImg,
-      video: filmVideo || 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761'
+      video: filmVideo || 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761',
+      frameType: filmFrameType || 'auto'
     };
     saveFilms([...films, newFilm]);
     setFilmTitle('');
     setFilmImg('');
     setFilmVideo('');
+    setFilmFrameType('auto');
     setShowAddFilmForm(false);
   };
 
@@ -1294,6 +1297,7 @@ const AdminPanel: FC = () => {
     setFilmCategory(film.category || 'OTT');
     setFilmImg(film.img);
     setFilmVideo(film.video || '');
+    setFilmFrameType(film.frameType || 'auto');
     setShowAddFilmForm(false);
   };
 
@@ -1306,13 +1310,15 @@ const AdminPanel: FC = () => {
       title: filmTitle,
       category: filmCategory,
       img: filmImg,
-      video: filmVideo || 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761'
+      video: filmVideo || 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761',
+      frameType: filmFrameType || 'auto'
     };
     saveFilms(updated);
     setEditingFilmIndex(null);
     setFilmTitle('');
     setFilmImg('');
     setFilmVideo('');
+    setFilmFrameType('auto');
   };
 
   const handleDeleteFilm = (index: number) => {
@@ -3193,10 +3199,52 @@ const AdminPanel: FC = () => {
                       </div>
                     </div>
 
+                    <div className="bg-black/40 p-5 rounded-2xl border border-white/5 space-y-3">
+                      <label className="block text-xs uppercase tracking-widest text-zinc-400 font-black font-sans">Frame Aspect Orientation Option</label>
+                      <div className="grid grid-cols-3 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setFilmFrameType('auto')}
+                          className={`py-2.5 px-3 rounded-xl text-xs font-black uppercase tracking-wider border transition-all ${
+                            filmFrameType === 'auto'
+                              ? 'bg-orange-500 border-orange-500 text-white'
+                              : 'bg-black border-white/10 text-zinc-400 hover:border-white/30 hover:text-white'
+                          }`}
+                        >
+                          ⚙ Auto Collage
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setFilmFrameType('landscape')}
+                          className={`py-2.5 px-3 rounded-xl text-xs font-black uppercase tracking-wider border transition-all ${
+                            filmFrameType === 'landscape'
+                              ? 'bg-emerald-500 border-emerald-500 text-white'
+                              : 'bg-black border-white/10 text-zinc-400 hover:border-white/30 hover:text-white'
+                          }`}
+                        >
+                          ↔ Landscape
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setFilmFrameType('vertical')}
+                          className={`py-2.5 px-3 rounded-xl text-xs font-black uppercase tracking-wider border transition-all ${
+                            filmFrameType === 'vertical'
+                              ? 'bg-indigo-500 border-indigo-500 text-white'
+                              : 'bg-black border-white/10 text-zinc-400 hover:border-white/30 hover:text-white'
+                          }`}
+                        >
+                          ↕ Vertical
+                        </button>
+                      </div>
+                      <p className="text-zinc-500 text-[10px] font-mono uppercase tracking-wider leading-relaxed">
+                        Customize how this film card builds on the Portfolio page. &quot;Vertical&quot; represents tall portrait/reel shapes. &quot;Landscape&quot; forces widescreen ratios. &quot;Auto Collage&quot; leverages our rhythmic asymmetrical portfolio mosaic grid.
+                      </p>
+                    </div>
+
                     <div className="flex gap-3 justify-end pt-4">
                       <button
                         type="button"
-                        onClick={() => { setShowAddFilmForm(false); setEditingFilmIndex(null); setFilmTitle(''); setFilmImg(''); setFilmVideo(''); }}
+                        onClick={() => { setShowAddFilmForm(false); setEditingFilmIndex(null); setFilmTitle(''); setFilmImg(''); setFilmVideo(''); setFilmFrameType('auto'); }}
                         className="px-6 py-3 border border-white/10 font-bold uppercase text-[11px] rounded-full text-white/50 hover:text-white"
                       >
                         CANCEL
@@ -3272,6 +3320,19 @@ const AdminPanel: FC = () => {
 
                     <div className="p-6 space-y-4 text-white font-sans">
                       <div>
+                        <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                          <span className="bg-orange-500 text-black text-[10px] font-mono font-black uppercase px-2 py-0.5 rounded shadow-md">
+                            REEL #{idx + 1}
+                          </span>
+                          <span className="text-zinc-500 text-[10px] font-bold">●</span>
+                          <span className={`text-[9px] font-bold font-mono uppercase px-2 py-0.5 rounded tracking-wider border ${
+                            film.frameType === 'vertical' ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30' :
+                            film.frameType === 'landscape' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' :
+                            'bg-zinc-800 text-zinc-400 border-zinc-700'
+                          }`}>
+                            {film.frameType === 'vertical' ? 'Vertical ↕' : film.frameType === 'landscape' ? 'Landscape ↔' : 'Auto Collage ⚙'}
+                          </span>
+                        </div>
                         <h4 className="text-md font-black tracking-tight uppercase italic text-white line-clamp-1">{film.title}</h4>
                         <p 
                           className={`text-[10px] truncate mt-1 ${film.video ? 'text-orange-400 hover:underline cursor-pointer font-medium' : 'text-white/30'}`}
