@@ -1768,14 +1768,14 @@ export function InteractiveOptions() {
             />
 
             {/* Static Content */}
-            <div className="relative z-10 flex flex-col items-center">
+            <div className="relative z-10 flex flex-col items-center overflow-visible">
               <motion.h2
                 variants={{
                   initial: { scale: 1, color: "#fff" },
                   hover: { scale: 1.1, color: "#000" }
                 }}
                 transition={{ duration: 0.4 }}
-                className="text-3xl md:text-8xl font-black italic tracking-tighter uppercase leading-none"
+                className="text-3xl md:text-8xl font-black italic tracking-tighter uppercase leading-none px-4 md:px-8"
               >
                 {option.name}
               </motion.h2>
@@ -1841,9 +1841,9 @@ export function Footer() {
 
   return (
     <footer className="py-8 md:py-12 bg-zinc-950/20 backdrop-blur-xl border-t border-white/5">
-      <div className="max-w-[1800px] mx-auto px-6 md:px-48 lg:px-56">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 md:gap-12 mb-8 md:mb-12">
-          <div className="lg:col-span-2">
+      <div className="max-w-[1800px] mx-auto px-6 md:px-12 lg:px-24 xl:px-36">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 mb-8 md:mb-12">
+          <div className="md:col-span-2">
             <div className="flex items-center gap-4 mb-6 md:mb-10 group cursor-default">
               <span className="text-3xl md:text-6xl font-black italic tracking-tighter text-orange-500 leading-none transition-all duration-300 group-hover:text-orange-400 group-hover:drop-shadow-[0_0_20px_rgba(249,115,22,0.8)]">DC</span>
               <span className="text-xl md:text-4xl font-black tracking-tighter text-white uppercase italic transition-all duration-300 group-hover:text-orange-100">Dreamcatchers</span>
