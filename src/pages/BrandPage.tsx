@@ -1008,7 +1008,7 @@ export default function BrandPage() {
         {/* Grid representing active Partner items */}
         <motion.div 
           layout
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mt-12"
+          className="grid grid-cols-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-4 mt-6 md:mt-12"
         >
           <AnimatePresence mode="popLayout">
             {filteredBrands.map((brand) => (
@@ -1019,29 +1019,29 @@ export default function BrandPage() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 25, scale: 0.95 }}
                 transition={{ duration: 0.35, ease: 'easeOut' }}
-                className="group relative h-36 bg-zinc-950 border border-white/5 rounded-2xl flex flex-col justify-center items-center overflow-hidden hover:border-orange-500/30 transition-all duration-500 p-4"
+                className="group relative h-20 xs:h-24 sm:h-28 md:h-36 bg-zinc-950 border border-white/5 rounded-2xl flex flex-col justify-center items-center overflow-hidden hover:border-orange-500/30 transition-all duration-500 p-1 md:p-4"
               >
                 {/* Highlight background glowing ring */}
                 <div className="absolute inset-0 bg-gradient-to-t from-orange-500/0 to-orange-500/2 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
                 {/* Actual styled vector logo */}
                 <div className={`transform transition-all duration-500 z-10 w-full h-full flex items-center justify-center ${
-                  brand.logoSize === 'small' ? 'scale-[0.7]' :
-                  brand.logoSize === 'large' ? 'scale-[1.05]' :
-                  brand.logoSize === 'xlarge' ? 'scale-[1.2]' :
-                  'scale-[0.88] md:scale-100'
+                  brand.logoSize === 'small' ? 'scale-[0.45] md:scale-[0.7]' :
+                  brand.logoSize === 'large' ? 'scale-[0.75] md:scale-[1.05]' :
+                  brand.logoSize === 'xlarge' ? 'scale-[0.85] md:scale-[1.2]' :
+                  'scale-[0.55] md:scale-100'
                 } group-hover:scale-[1.06]`}>
                   {brand.logoUrl ? (
-                    <img src={transformGoogleDriveUrl(brand.logoUrl)} alt={brand.name} className="max-w-[90%] max-h-[90%] object-contain p-1" referrerPolicy="no-referrer" />
+                    <img src={transformGoogleDriveUrl(brand.logoUrl)} alt={brand.name} className="max-w-[95%] max-h-[95%] object-contain" referrerPolicy="no-referrer" />
                   ) : (
                     brand.renderLogo ? brand.renderLogo() : (
-                      <span className="text-sm font-black text-white/90 uppercase tracking-widest leading-none">{brand.name}</span>
+                      <span className="text-[7px] xs:text-[9px] sm:text-xs md:text-sm font-black text-white/90 uppercase tracking-widest leading-none text-center px-1">{brand.name}</span>
                     )
                   )}
                 </div>
 
                 {/* hover descriptive tag identifier */}
-                <div className="absolute inset-x-0 bottom-0 p-2.5 bg-black/90 border-t border-white/10 flex flex-col items-center justify-center text-center translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-20">
+                <div className="absolute inset-x-0 bottom-0 p-2.5 bg-black/90 border-t border-white/10 hidden md:flex flex-col items-center justify-center text-center translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-20">
                   <span className="text-[9px] font-black text-white tracking-widest uppercase">{brand.name}</span>
                   {brand.description && (
                     <span className="text-[7.5px] text-white/40 tracking-wider uppercase mt-0.5 line-clamp-1">{brand.description}</span>

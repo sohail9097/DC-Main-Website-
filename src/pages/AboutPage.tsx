@@ -1061,22 +1061,22 @@ const AboutPage = () => {
                className={`w-full flex-grow relative z-20 flex items-center min-h-0 overflow-x-hidden py-10 select-none ${isDraggingTeam ? 'cursor-grabbing' : 'cursor-grab'}`}
                style={{ scrollBehavior: 'auto' }}
              >
-               <div className="flex gap-0 w-max px-[10vw]">
+               <div className="flex gap-0 w-max px-[4vw] md:px-[10vw]">
                  {([...team, ...team, ...team]).map((member, idx) => {
                     return (
                       <div 
                         key={`${member.name}-${idx}`}
-                        className="bg-transparent w-[240px] md:w-[320px] flex-shrink-0 relative group/card select-none flex flex-col items-center border-r-[16px] md:border-r-[24px] border-black pt-8 pb-7"
+                        className="bg-transparent w-[27vw] min-w-[100px] max-w-[135px] md:w-[320px] md:max-w-none flex-shrink-0 relative group/card select-none flex flex-col items-center border-r-[4px] md:border-r-[24px] border-black pt-4 pb-3.5 md:pt-8 md:pb-7"
                       >
                         {/* Top Perforation Sprocket Holes */}
-                        <div className="absolute top-2.5 left-0 right-0 h-2.5 flex justify-between px-1 pointer-events-none select-none z-20 gap-1.5 overflow-hidden">
+                        <div className="absolute top-1 md:top-2.5 left-0 right-0 h-1 md:h-2.5 flex justify-between px-0.5 md:px-1 pointer-events-none select-none z-20 gap-0.5 md:gap-1.5 overflow-hidden">
                           {Array.from({ length: 8 }).map((_, s) => (
-                            <div key={`sprocket-top-${s}`} className="w-4 h-2.5 bg-white/95 shadow-sm flex-shrink-0" />
+                            <div key={`sprocket-top-${s}`} className="w-1.5 md:w-4 h-1 md:h-2.5 bg-white/95 shadow-sm flex-shrink-0" />
                           ))}
                         </div>
 
                         {/* Image Frame - Perfect Square, Zero Rounded Corners */}
-                        <div className="w-full aspect-[3/4] overflow-hidden relative mb-3 z-10 border border-zinc-800 group-hover/card:border-orange-500 transition-colors duration-300 rounded-none bg-zinc-900/40">
+                        <div className="w-full aspect-[3/4] overflow-hidden relative mb-1.5 md:mb-3 z-10 border border-zinc-800 group-hover/card:border-orange-500 transition-colors duration-300 rounded-none bg-zinc-900/40">
                           <img 
                             src={transformGoogleDriveUrl(member.img, 'image')} 
                             alt={member.name} 
@@ -1087,19 +1087,19 @@ const AboutPage = () => {
                         </div>
 
                         {/* Name and Role */}
-                        <div className="text-center relative z-10 px-2 pointer-events-none select-none">
-                          <h4 className="text-base md:text-lg font-black tracking-widest text-zinc-300 uppercase italic group-hover/card:text-orange-500 transition-colors duration-300">
+                        <div className="text-center relative z-10 px-1 md:px-2 pointer-events-none select-none">
+                          <h4 className="text-[10px] xs:text-[11px] md:text-lg font-black tracking-wider md:tracking-widest text-zinc-300 uppercase group-hover/card:text-orange-500 transition-colors duration-300 line-clamp-1">
                             {member.name}
                           </h4>
-                          <p className="text-[9px] md:text-[10px] font-mono tracking-widest text-zinc-500 uppercase mt-1">
+                          <p className="text-[7.5px] xs:text-[9px] md:text-[10px] font-mono tracking-widest text-zinc-500 uppercase mt-0.5 md:mt-1">
                             {member.role}
                           </p>
                         </div>
 
                         {/* Bottom Perforation Sprocket Holes */}
-                        <div className="absolute bottom-2.5 left-0 right-0 h-2.5 flex justify-between px-1 pointer-events-none select-none z-20 gap-1.5 overflow-hidden">
+                        <div className="absolute bottom-1 md:bottom-2.5 left-0 right-0 h-1 md:h-2.5 flex justify-between px-0.5 md:px-1 pointer-events-none select-none z-20 gap-0.5 md:gap-1.5 overflow-hidden">
                           {Array.from({ length: 8 }).map((_, s) => (
-                            <div key={`sprocket-bottom-${s}`} className="w-4 h-2.5 bg-white/95 shadow-sm flex-shrink-0" />
+                            <div key={`sprocket-bottom-${s}`} className="w-1.5 md:w-4 h-1 md:h-2.5 bg-white/95 shadow-sm flex-shrink-0" />
                           ))}
                         </div>
                       </div>

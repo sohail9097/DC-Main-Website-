@@ -705,16 +705,24 @@ function Clients() {
           }
         }
         .animate-scroll-left {
-          animation: scroll-left 90s linear infinite;
+          animation: scroll-left 32s linear infinite;
           display: flex;
           width: max-content;
           will-change: transform;
         }
         .animate-scroll-right {
-          animation: scroll-right 90s linear infinite;
+          animation: scroll-right 32s linear infinite;
           display: flex;
           width: max-content;
           will-change: transform;
+        }
+        @media (min-width: 768px) {
+          .animate-scroll-left {
+            animation: scroll-left 90s linear infinite;
+          }
+          .animate-scroll-right {
+            animation: scroll-right 90s linear infinite;
+          }
         }
         /* Pause on hover to allow users to interact/inspect */
         .animate-scroll-left:hover,
@@ -742,43 +750,43 @@ const ClientLogo: FC<ClientLogoProps> = memo(({ client }) => {
   const size = client.size || 'medium';
   let imgClasses = '';
   let txtClasses = '';
-  let pxClass = 'px-6 md:px-10';
+  let pxClass = 'px-4 md:px-10';
 
   if (size === 'small') {
-    imgClasses = 'h-8 md:h-12 max-w-[120px] md:max-w-[180px]';
-    txtClasses = 'text-xs md:text-sm font-semibold';
-    pxClass = 'px-5 md:px-8';
+    imgClasses = 'h-5 md:h-12 max-w-[70px] md:max-w-[180px]';
+    txtClasses = 'text-[9px] md:text-sm font-semibold';
+    pxClass = 'px-3 md:px-8';
   } else if (size === 'medium') {
-    imgClasses = 'h-12 md:h-18 max-w-[170px] md:max-w-[260px]';
-    txtClasses = 'text-sm md:text-lg font-bold';
-    pxClass = 'px-7 md:px-11';
+    imgClasses = 'h-6 md:h-18 max-w-[90px] md:max-w-[260px]';
+    txtClasses = 'text-[10px] md:text-lg font-bold';
+    pxClass = 'px-4 md:px-11';
   } else if (size === 'large') {
-    imgClasses = 'h-16 md:h-24 max-w-[220px] md:max-w-[340px]';
-    txtClasses = 'text-base md:text-2xl font-extrabold';
-    pxClass = 'px-9 md:px-15';
+    imgClasses = 'h-8 md:h-24 max-w-[110px] md:max-w-[340px]';
+    txtClasses = 'text-xs md:text-2xl font-extrabold';
+    pxClass = 'px-5 md:px-15';
   } else if (size === 'xlarge') {
-    imgClasses = 'h-20 md:h-28 max-w-[280px] md:max-w-[420px]';
-    txtClasses = 'text-lg md:text-3xl font-black';
-    pxClass = 'px-11 md:px-18';
+    imgClasses = 'h-10 md:h-28 max-w-[130px] md:max-w-[420px]';
+    txtClasses = 'text-xs md:text-3xl font-black';
+    pxClass = 'px-5 md:px-18';
   } else if (
     size === 'extralarge' || 
     size === 'extra-large' || 
     size === 'xl' || 
     size === 'extra large'
   ) {
-    imgClasses = 'h-24 md:h-[135px] max-w-[340px] md:max-w-[500px]';
-    txtClasses = 'text-xl md:text-4xl font-black tracking-wider';
-    pxClass = 'px-14 md:px-24';
+    imgClasses = 'h-12 md:h-[135px] max-w-[150px] md:max-w-[500px]';
+    txtClasses = 'text-sm md:text-4xl font-black tracking-wider';
+    pxClass = 'px-6 md:px-24';
   } else {
     // Default fallback (medium-ish)
-    imgClasses = 'h-12 md:h-18 max-w-[170px] md:max-w-[260px]';
-    txtClasses = 'text-sm md:text-lg font-bold';
-    pxClass = 'px-7 md:px-11';
+    imgClasses = 'h-6 md:h-18 max-w-[90px] md:max-w-[260px]';
+    txtClasses = 'text-[10px] md:text-lg font-bold';
+    pxClass = 'px-4 md:px-11';
   }
 
   return (
     <div 
-      className={`flex items-center justify-center ${pxClass} h-24 md:h-[155px] flex-shrink-0 relative overflow-hidden select-none cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95`}
+      className={`flex items-center justify-center ${pxClass} h-12 md:h-[155px] flex-shrink-0 relative overflow-hidden select-none cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95`}
     >
       {hasLogoUrl ? (
         <img 
@@ -1220,7 +1228,7 @@ function DreamTeam() {
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.35, ease: "easeOut" }}
             >
-              <h4 className="font-bebas text-4xl md:text-5xl font-black italic tracking-wider text-orange-500 uppercase leading-none">
+              <h4 className="font-bebas text-4xl md:text-5xl font-black tracking-wider text-orange-500 uppercase leading-none">
                 {teamMembers[activeIndex]?.name}
               </h4>
               <p className="text-xs font-mono font-extrabold tracking-[0.25em] text-zinc-400 uppercase mt-2.5">
@@ -2839,7 +2847,7 @@ function LandingPage() {
                     initial="hidden"
                     whileInView="visible"
                     viewport={{ once: false, amount: 0.12 }}
-                    className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 max-w-[1440px] mx-auto mt-8 px-4 sm:px-8 lg:px-12 pb-8" 
+                    className="grid grid-cols-2 lg:grid-cols-2 gap-2 xs:gap-3 md:gap-16 max-w-[1440px] mx-auto mt-4 md:mt-8 px-2 sm:px-8 lg:px-12 pb-8" 
                     style={{ perspective: 1200 }}
                   >
                     {/* SPORTS BOX Card */}
@@ -2859,7 +2867,7 @@ function LandingPage() {
                           window.open('https://www.sportsbox.in/', '_blank', 'noopener,noreferrer');
                         }
                       }}
-                      className="group relative flex flex-col items-center justify-between p-8 md:p-10 rounded-[2.5rem] bg-zinc-950/40 border border-orange-500/25 backdrop-blur-xl overflow-hidden select-none cursor-pointer text-center h-[540px] md:h-[610px] w-full hover:border-orange-500/50 hover:shadow-[0_0_80px_rgba(249,115,22,0.14)] transition-[background-color,border-color,box-shadow] duration-500"
+                      className="group relative flex flex-col items-center justify-between p-2.5 xs:p-4 sm:p-6 md:p-10 rounded-2xl md:rounded-[2.5rem] bg-zinc-950/40 border border-orange-500/25 backdrop-blur-xl overflow-hidden select-none cursor-pointer text-center h-[260px] xs:h-[300px] sm:h-[380px] md:h-[610px] w-full hover:border-orange-500/50 hover:shadow-[0_0_80px_rgba(249,115,22,0.14)] transition-[background-color,border-color,box-shadow] duration-500"
                     >
                       {/* Moving Digital Scanline Grid backdrop */}
                       <div className="absolute inset-0 opacity-[0.03] group-hover:opacity-[0.06] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] transition-opacity duration-500 pointer-events-none" />
@@ -2868,17 +2876,17 @@ function LandingPage() {
                       {/* Branding Area of equal size to DC Digital, styled with original Sportsbox logo from first image */}
                       <motion.div 
                         variants={cardChildVariants}
-                        className="h-28 flex items-center justify-center mb-2 relative z-10 w-full"
+                        className="h-8 xs:h-12 sm:h-16 md:h-28 flex items-center justify-center mb-1 relative z-10 w-full"
                       >
                         <motion.div 
                           whileHover={{ y: -4, scale: 1.03 }}
-                          className="bg-zinc-950 p-5 rounded-2xl flex items-center justify-center w-64 sm:w-72 shadow-[0_10px_30px_rgba(0,0,0,0.4)] border border-white/10 transition-[border-color,box-shadow] duration-500 group-hover:shadow-[0_15px_45px_rgba(239,61,51,0.15)] group-hover:border-orange-500/30 relative overflow-hidden"
+                          className="bg-zinc-950 p-1.5 xs:p-2.5 sm:p-3 md:p-5 rounded-lg xs:rounded-xl md:rounded-2xl flex items-center justify-center w-full max-w-[124px] xs:max-w-[155px] md:w-72 md:max-w-none shadow-[0_5px_15px_rgba(0,0,0,0.4)] md:shadow-[0_10px_30px_rgba(0,0,0,0.4)] border border-white/10 transition-[border-color,box-shadow] duration-500 group-hover:shadow-[0_15px_45px_rgba(239,61,51,0.15)] group-hover:border-orange-500/30 relative overflow-hidden"
                         >
-                          <div className="flex items-center justify-center gap-3">
-                            <div className="w-[42px] h-[42px] bg-[#ef3d33] rounded-[10px] flex items-center justify-center shadow-[0_4px_12px_rgba(239,61,51,0.3)] flex-shrink-0">
-                              <span className="text-white font-helvetica-cond font-black italic text-2xl tracking-tighter select-none -translate-x-[0.5px]">S</span>
+                          <div className="flex items-center justify-center gap-1 md:gap-3">
+                            <div className="w-4 h-4 xs:w-6 xs:h-6 sm:w-8 sm:h-8 md:w-[42px] md:h-[42px] bg-[#ef3d33] rounded-sm xs:rounded-[6px] md:rounded-[10px] flex items-center justify-center shadow-[0_2px_6px_rgba(239,61,51,0.3)] md:shadow-[0_4px_12px_rgba(239,61,51,0.3)] flex-shrink-0">
+                              <span className="text-white font-helvetica-cond font-black italic text-[9px] xs:text-[12px] sm:text-base md:text-2xl tracking-tighter select-none -translate-x-[0.2px] md:-translate-x-[0.5px]">S</span>
                             </div>
-                            <div className="flex items-center text-xl sm:text-2xl font-helvetica-cond font-black italic tracking-[-0.01em] uppercase select-none leading-none">
+                            <div className="flex items-center text-[8px] xs:text-[10px] sm:text-sm md:text-2xl font-helvetica-cond font-black italic tracking-[-0.01em] uppercase select-none leading-none">
                               <span className="text-white">SPORTS</span>
                               <span className="text-[#ef3d33]">BOX</span>
                             </div>
@@ -2992,15 +3000,15 @@ function LandingPage() {
                             className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center cursor-pointer pointer-events-auto"
                           >
                             <motion.div 
-                              className="w-14 h-14 rounded-full bg-orange-500 flex items-center justify-center text-white shadow-xl"
+                              className="w-7 h-7 xs:w-10 xs:h-10 md:w-14 md:h-14 rounded-full bg-orange-500 flex items-center justify-center text-white shadow-xl"
                               whileHover={{ scale: 1.15 }}
                             >
                               {sportsBox.type === 'image' ? (
-                                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                <svg className="w-3 h-3 xs:w-5 xs:h-5 md:w-6 md:h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                               ) : (
-                                <svg className="w-6 h-6 fill-current ml-0.5" viewBox="0 0 24 24">
+                                <svg className="w-3 h-3 xs:w-5 xs:h-5 md:w-6 md:h-6 fill-current ml-0.5" viewBox="0 0 24 24">
                                   <path d="M8 5v14l11-7z" />
                                 </svg>
                               )}
@@ -3012,12 +3020,12 @@ function LandingPage() {
                       {/* Texts */}
                       <motion.div 
                         variants={cardChildVariants}
-                        className="space-y-2 z-10 w-full mt-4"
+                        className="space-y-0.5 xs:space-y-1 md:space-y-2 z-10 w-full mt-1.5 xs:mt-2 md:mt-4"
                       >
-                        <span className="text-orange-500 text-xs font-black uppercase tracking-[0.3em] block group-hover:text-amber-400 transition-colors duration-300">
+                        <span className="text-orange-500 text-[7px] xs:text-[9px] md:text-xs font-black uppercase tracking-[0.1em] xs:tracking-[0.2em] md:tracking-[0.3em] block group-hover:text-amber-400 transition-colors duration-300">
                           {sportsBox.subtitle}
                         </span>
-                        <p className="text-sm md:text-base font-black text-white uppercase tracking-wider leading-relaxed group-hover:text-white/90 transition-colors">
+                        <p className="text-[8.5px] xs:text-[10.5px] sm:text-xs md:text-base font-black text-white uppercase tracking-wider leading-relaxed group-hover:text-white/90 transition-colors line-clamp-2 md:line-clamp-none">
                           {sportsBox.description}
                         </p>
                       </motion.div>
@@ -3041,7 +3049,7 @@ function LandingPage() {
                           setInlinePlayingId('dc_digital');
                         }
                       }}
-                      className={`group relative flex flex-col items-center justify-between p-8 md:p-10 rounded-[2.5rem] bg-zinc-950/40 border border-orange-500/25 backdrop-blur-xl overflow-hidden select-none ${dcDigital.url ? 'cursor-pointer' : 'cursor-default'} transition-[background-color,border-color,box-shadow] duration-500 hover:border-orange-500/50 hover:shadow-[0_0_80px_rgba(249,115,22,0.14)] text-center h-[540px] md:h-[610px] w-full`}
+                      className={`group relative flex flex-col items-center justify-between p-2.5 xs:p-4 sm:p-6 md:p-10 rounded-2xl md:rounded-[2.5rem] bg-zinc-950/40 border border-orange-500/25 backdrop-blur-xl overflow-hidden select-none ${dcDigital.url ? 'cursor-pointer' : 'cursor-default'} transition-[background-color,border-color,box-shadow] duration-500 hover:border-orange-500/50 hover:shadow-[0_0_80px_rgba(249,115,22,0.14)] text-center h-[260px] xs:h-[300px] sm:h-[380px] md:h-[610px] w-full`}
                     >
                       {/* Grid Backdrop */}
                       <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:30px_30px] pointer-events-none" />
@@ -3050,19 +3058,19 @@ function LandingPage() {
                       {/* Branding Area with highly interactive 3D style floating logo */}
                       <motion.div 
                         variants={cardChildVariants}
-                        className="h-28 flex items-center justify-center mb-2 relative z-10 w-full"
+                        className="h-8 xs:h-12 sm:h-16 md:h-28 flex items-center justify-center mb-1 relative z-10 w-full"
                       >
                         <motion.div 
                           whileHover={{ y: -4, scale: 1.03 }}
-                          className="bg-white p-5 rounded-2xl flex flex-col items-center justify-center w-64 sm:w-72 shadow-[0_10px_30px_rgba(0,0,0,0.4)] border border-white/50 transition-[border-color,box-shadow] duration-500 group-hover:shadow-[0_15px_45px_rgba(255,255,255,0.18)] relative overflow-hidden"
+                          className="bg-white p-1.5 xs:p-2.5 sm:p-3 md:p-5 rounded-lg xs:rounded-xl md:rounded-2xl flex flex-col items-center justify-center w-full max-w-[124px] xs:max-w-[155px] md:w-72 md:max-w-none shadow-[0_5px_15px_rgba(0,0,0,0.4)] md:shadow-[0_10px_30px_rgba(0,0,0,0.4)] border border-white/50 transition-[border-color,box-shadow] duration-500 group-hover:shadow-[0_15px_45px_rgba(255,255,255,0.18)] relative overflow-hidden"
                         >
                           {/* Clean typography layout without graphical logo */}
-                          <div className="flex items-center justify-center gap-1.5 w-full">
-                            <span className="text-orange-600 font-extrabold font-bebas text-lg sm:text-xl tracking-wider leading-none">DC</span>
-                            <span className="w-0.5 h-4 bg-zinc-300"></span>
-                            <span className="text-zinc-900 font-bold font-sans text-xs sm:text-sm tracking-[0.1em] uppercase leading-none">{dcDigital.title.replace('DC DIGITAL STUDIO', 'DIGITAL STUDIO')}</span>
+                          <div className="flex items-center justify-center gap-0.5 xs:gap-1 md:gap-1.5 w-full">
+                            <span className="text-orange-600 font-extrabold font-bebas text-[8.5px] xs:text-[11px] sm:text-sm md:text-xl tracking-wider leading-none">DC</span>
+                            <span className="w-[1px] h-2.5 xs:h-3 md:h-4 bg-zinc-300"></span>
+                            <span className="text-zinc-900 font-bold font-sans text-[6.5px] xs:text-[8px] sm:text-xs md:text-sm tracking-[0.05em] xs:tracking-[0.1em] uppercase leading-none">{dcDigital.title.replace('DC DIGITAL STUDIO', 'DIGITAL STUDIO')}</span>
                           </div>
-                          <div className="text-[7px] text-zinc-400 font-black uppercase tracking-[0.2em] font-sans mt-1.5">A DREAMCATCHERS VERTICAL</div>
+                          <div className="text-[4.5px] xs:text-[5.5px] sm:text-[6.5px] md:text-[7px] text-zinc-400 font-black uppercase tracking-[0.1em] xs:tracking-[0.2em] font-sans mt-0.5 xs:mt-1 md:mt-1.5">A DREAMCATCHERS VERTICAL</div>
                         </motion.div>
                       </motion.div>
 
@@ -3180,15 +3188,15 @@ function LandingPage() {
                             className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center cursor-pointer pointer-events-auto"
                           >
                             <motion.div 
-                              className="w-14 h-14 rounded-full bg-orange-500 flex items-center justify-center text-white shadow-xl"
+                              className="w-7 h-7 xs:w-10 xs:h-10 md:w-14 md:h-14 rounded-full bg-orange-500 flex items-center justify-center text-white shadow-xl"
                               whileHover={{ scale: 1.15 }}
                             >
                               {dcDigital.type === 'image' ? (
-                                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                <svg className="w-3 h-3 xs:w-5 xs:h-5 md:w-6 md:h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                               ) : (
-                                <svg className="w-6 h-6 fill-current ml-0.5" viewBox="0 0 24 24">
+                                <svg className="w-3 h-3 xs:w-5 xs:h-5 md:w-6 md:h-6 fill-current ml-0.5" viewBox="0 0 24 24">
                                   <path d="M8 5v14l11-7z" />
                                 </svg>
                               )}
@@ -3200,12 +3208,12 @@ function LandingPage() {
                       {/* Texts */}
                       <motion.div 
                         variants={cardChildVariants}
-                        className="space-y-2 z-10 w-full mt-4"
+                        className="space-y-0.5 xs:space-y-1 md:space-y-2 z-10 w-full mt-1.5 xs:mt-2 md:mt-4"
                       >
-                        <span className="text-orange-500 text-xs font-black uppercase tracking-[0.3em] block group-hover:text-amber-400 transition-colors duration-300">
+                        <span className="text-orange-500 text-[7px] xs:text-[9px] md:text-xs font-black uppercase tracking-[0.1em] xs:tracking-[0.2em] md:tracking-[0.3em] block group-hover:text-amber-400 transition-colors duration-300">
                           {dcDigital.subtitle}
                         </span>
-                        <p className="text-sm md:text-base font-black text-white uppercase tracking-wider leading-relaxed group-hover:text-white/90 transition-colors">
+                        <p className="text-[8.5px] xs:text-[10.5px] sm:text-xs md:text-base font-black text-white uppercase tracking-wider leading-relaxed group-hover:text-white/90 transition-colors line-clamp-2 md:line-clamp-none">
                           {dcDigital.description}
                         </p>
                       </motion.div>
@@ -3219,42 +3227,42 @@ function LandingPage() {
             </div>
 
             {/* Integrated Contact Section under Verticals */}
-            <div id="contact-section" className="mt-32 md:mt-48 max-w-[1440px] mx-auto w-full px-6 sm:px-8 lg:px-12 relative z-10 pb-8 scroll-mt-24">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 mb-0">
+            <div id="contact-section" className="mt-20 md:mt-48 max-w-[1440px] mx-auto w-full px-2 sm:px-8 lg:px-12 relative z-10 pb-8 scroll-mt-24">
+              <div className="grid grid-cols-2 lg:grid-cols-2 gap-3 xs:gap-6 lg:gap-24 mb-0">
                 {/* Left Side: Contact Details Card Grid */}
-                <div className="space-y-12">
+                <div className="space-y-4 md:space-y-12">
                   <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                     className="text-left"
                   >
-                    <h3 className="font-helvetica-cond text-3xl md:text-5xl lg:text-6xl font-bold tracking-[0.02em] text-orange-500 uppercase mb-2 select-none">
+                    <h3 className="font-helvetica-cond text-xl xs:text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-[0.02em] text-orange-500 uppercase mb-1 md:mb-2 select-none">
                       {contactTitleFirst} {contactTitleOrange}
                     </h3>
-                    <p className="text-white/40 text-xs md:text-sm font-semibold uppercase tracking-[0.3em] font-mono">
+                    <p className="text-white/40 text-[9px] xs:text-[10px] sm:text-xs md:text-sm font-semibold uppercase tracking-[0.1em] xs:tracking-[0.3em] font-mono">
                       {contactSubtitle}
                     </p>
                   </motion.div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-2 xs:gap-4 md:gap-6">
                     <motion.div
                       initial={{ opacity: 0, x: -50, scale: 0.95 }}
                       whileInView={{ opacity: 1, x: 0, scale: 1 }}
                       viewport={{ once: false, amount: 0.15 }}
                       transition={{ type: "spring", stiffness: 90, damping: 15 }}
                       whileHover={{ y: -8, scale: 1.02 }}
-                      className="px-4 py-8 xs:px-5 md:p-8 xl:p-10 bg-zinc-950/60 border border-orange-500/30 rounded-[2rem] hover:bg-orange-500 hover:border-transparent transition-all duration-500 group cursor-pointer flex flex-col justify-between min-h-[170px]"
+                      className="p-3 xs:p-4 sm:p-6 md:p-8 xl:p-10 bg-zinc-950/60 border border-orange-500/30 rounded-xl xs:rounded-2xl md:rounded-[2rem] hover:bg-orange-500 hover:border-transparent transition-all duration-500 group cursor-pointer flex flex-col justify-between min-h-[100px] xs:min-h-[130px] md:min-h-[170px]"
                       onClick={() => window.location.href = `mailto:${contactEmail}`}
                     >
-                      <div className="text-orange-500 group-hover:text-black mb-6 transition-colors font-sans">
-                        <Mail className="w-6 h-6 animate-pulse" />
+                      <div className="text-orange-500 group-hover:text-black mb-1.5 md:mb-6 transition-colors font-sans">
+                        <Mail className="w-5 h-5 xs:w-5 xs:h-5 md:w-6 md:h-6 animate-pulse" />
                       </div>
                       <div>
-                        <p className="text-white/30 group-hover:text-black/60 text-[10px] font-black uppercase tracking-widest mb-1 transition-colors">
+                        <p className="text-white/30 group-hover:text-black/60 text-[8px] xs:text-[10px] font-black uppercase tracking-widest mb-0.5 md:mb-1 transition-colors">
                           Email Us
                         </p>
-                        <p className="text-[11px] xs:text-xs sm:text-sm md:text-base lg:text-lg xl:text-sm 2xl:text-lg font-bold text-white group-hover:text-black tracking-tight whitespace-nowrap transition-colors font-sans">
+                        <p className="text-[9.5px] xs:text-[11px] sm:text-sm md:text-base lg:text-lg xl:text-sm 2xl:text-lg font-bold text-white group-hover:text-black tracking-tight whitespace-nowrap transition-colors font-sans overflow-hidden text-ellipsis">
                           {contactEmail}
                         </p>
                       </div>
@@ -3266,17 +3274,17 @@ function LandingPage() {
                       viewport={{ once: false, amount: 0.15 }}
                       transition={{ type: "spring", stiffness: 90, damping: 15, delay: 0.1 }}
                       whileHover={{ y: -8, scale: 1.02 }}
-                      className="p-8 md:p-10 bg-zinc-950/60 border border-orange-500/30 rounded-[2rem] hover:bg-orange-500 hover:border-transparent transition-all duration-500 group cursor-pointer flex flex-col justify-between min-h-[170px]"
+                      className="p-3 xs:p-4 sm:p-6 md:p-8 xl:p-10 bg-zinc-950/60 border border-orange-500/30 rounded-xl xs:rounded-2xl md:rounded-[2rem] hover:bg-orange-500 hover:border-transparent transition-all duration-500 group cursor-pointer flex flex-col justify-between min-h-[100px] xs:min-h-[130px] md:min-h-[170px]"
                       onClick={() => window.location.href = `tel:${contactPhone}`}
                     >
-                      <div className="text-orange-500 group-hover:text-black mb-6 transition-colors">
-                        <Phone className="w-6 h-6 animate-pulse" />
+                      <div className="text-orange-500 group-hover:text-black mb-1.5 md:mb-6 transition-colors">
+                        <Phone className="w-5 h-5 xs:w-5 xs:h-5 md:w-6 md:h-6 animate-pulse" />
                       </div>
                       <div>
-                        <p className="text-white/30 group-hover:text-black/60 text-[10px] font-black uppercase tracking-widest mb-1 transition-colors">
+                        <p className="text-white/30 group-hover:text-black/60 text-[8px] xs:text-[10px] font-black uppercase tracking-widest mb-0.5 md:mb-1 transition-colors">
                           Call Us
                         </p>
-                        <p className="text-lg md:text-xl font-bold text-white group-hover:text-black tracking-tight transition-colors font-sans">
+                        <p className="text-[9.5px] xs:text-[11px] sm:text-sm md:text-base lg:text-lg xl:text-sm 2xl:text-lg font-bold text-white group-hover:text-black tracking-tight transition-colors font-sans overflow-hidden text-ellipsis">
                           {contactPhone}
                         </p>
                       </div>
@@ -3288,12 +3296,12 @@ function LandingPage() {
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className="pt-4 text-left"
+                    className="pt-2 md:pt-4 text-left"
                   >
-                    <h3 className="font-helvetica-cond text-3xl md:text-5xl lg:text-6xl font-bold tracking-[0.02em] text-orange-500 uppercase mb-2 select-none">
+                    <h3 className="font-helvetica-cond text-lg xs:text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-[0.02em] text-orange-500 uppercase mb-1 md:mb-2 select-none">
                       Offices
                     </h3>
-                    <p className="text-white/40 text-xs md:text-sm font-semibold uppercase tracking-[0.3em] font-mono">
+                    <p className="text-white/40 text-[7px] xs:text-[10px] sm:text-xs md:text-sm font-semibold uppercase tracking-[0.1em] xs:tracking-[0.3em] font-mono">
                       Our Locations
                     </p>
                   </motion.div>
@@ -3305,34 +3313,34 @@ function LandingPage() {
                   whileInView={{ opacity: 1, scale: 1, y: 0 }}
                   viewport={{ once: false, amount: 0.15 }}
                   transition={{ type: "spring", stiffness: 80, damping: 18 }}
-                  className="bg-zinc-950/60 border border-orange-500/30 rounded-[2.5rem] p-8 md:p-12 backdrop-blur-md relative overflow-hidden"
+                  className="bg-zinc-950/60 border border-orange-500/30 rounded-xl xs:rounded-2xl md:rounded-[2.5rem] p-3 xs:p-5 sm:p-8 md:p-12 backdrop-blur-md relative overflow-hidden"
                 >
-                  <form onSubmit={(e) => { e.preventDefault(); alert("Success! Your message was sent beautifully."); }} className="space-y-6 relative z-10">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-4 font-sans">Your Name</label>
-                        <input type="text" className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-sm tracking-wide" placeholder="Enter your name" required />
+                  <form onSubmit={(e) => { e.preventDefault(); alert("Success! Your message was sent beautifully."); }} className="space-y-2 md:space-y-6 relative z-10 w-full">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6">
+                      <div className="space-y-0.5 md:space-y-2">
+                        <label className="text-[8px] xs:text-[9.5px] md:text-[10px] font-black uppercase tracking-widest text-white/30 ml-2 md:ml-4 font-sans">Your Name</label>
+                        <input type="text" className="w-full bg-white/5 border border-white/10 rounded-lg md:rounded-2xl px-2.5 py-1.5 xs:px-4 xs:py-3 md:px-5 md:py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-[9.5px] xs:text-xs md:text-sm tracking-wide" placeholder="Enter your name" required />
                       </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-4 font-sans">Your Email / Contact Number</label>
-                        <input type="text" className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-sm tracking-wide" placeholder="Enter your mail or contact number" required />
+                      <div className="space-y-0.5 md:space-y-2">
+                        <label className="text-[8px] xs:text-[9.5px] md:text-[10px] font-black uppercase tracking-widest text-white/30 ml-2 md:ml-4 font-sans">Your Email / Number</label>
+                        <input type="text" className="w-full bg-white/5 border border-white/10 rounded-lg md:rounded-2xl px-2.5 py-1.5 xs:px-4 xs:py-3 md:px-5 md:py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-[9.5px] xs:text-xs md:text-sm tracking-wide" placeholder="Enter your email" required />
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-4 font-sans">Subject</label>
-                      <input type="text" className="w-full bg-white/5 border border-white/15 rounded-2xl px-5 py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-sm tracking-wide" placeholder="Project Inquiry" required />
+                    <div className="space-y-0.5 md:space-y-2">
+                      <label className="text-[8px] xs:text-[9.5px] md:text-[10px] font-black uppercase tracking-widest text-white/30 ml-2 md:ml-4 font-sans">Subject</label>
+                      <input type="text" className="w-full bg-white/5 border border-white/15 rounded-lg md:rounded-2xl px-2.5 py-1.5 xs:px-4 xs:py-3 md:px-5 md:py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-[9.5px] xs:text-xs md:text-sm tracking-wide" placeholder="Project Inquiry" required />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-4 font-sans">Message</label>
-                      <textarea rows={4} className="w-full bg-white/5 border border-white/15 rounded-2xl px-5 py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-sm tracking-wide" placeholder="Tell us about your dream..." required></textarea>
+                    <div className="space-y-0.5 md:space-y-2">
+                      <label className="text-[8px] xs:text-[9.5px] md:text-[10px] font-black uppercase tracking-widest text-white/30 ml-2 md:ml-4 font-sans">Message</label>
+                      <textarea rows={2} className="w-full bg-white/5 border border-white/15 rounded-lg md:rounded-2xl px-2.5 py-1.5 xs:px-4 xs:py-3 md:px-5 md:py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-[9.5px] xs:text-xs md:text-sm tracking-wide" placeholder="Tell us about your dream..." required></textarea>
                     </div>
                     <motion.button
                       whileHover={{ scale: 1.02, backgroundColor: "#f97316", color: "#000" }}
                       whileTap={{ scale: 0.98 }}
                       type="submit"
-                      className="w-full py-5 rounded-2xl bg-white/10 text-white font-black uppercase tracking-[0.3em] flex items-center justify-center gap-3 transition-all text-sm shadow-xl"
+                      className="w-full py-2 xs:py-3 md:py-5 rounded-lg md:rounded-2xl bg-white/10 text-white font-black uppercase tracking-[0.1em] xs:tracking-[0.3em] flex items-center justify-center gap-1.5 md:gap-3 transition-all text-[9px] xs:text-xs md:text-sm shadow-xl"
                     >
-                      <Send className="w-4 h-4" />
+                      <Send className="w-3.5 h-3.5 md:w-4 md:h-4" />
                       Submit Inquiry
                     </motion.button>
                   </form>
@@ -3341,7 +3349,7 @@ function LandingPage() {
 
               {/* Seamless Locations block in the same contact-section */}
               <div className="mt-12 relative z-10">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                <div className="grid grid-cols-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-1.5 xs:gap-2 sm:gap-6 w-full">
                   {locations.map((loc, idx) => (
                     <motion.div
                        key={loc.id}
@@ -3357,10 +3365,10 @@ function LandingPage() {
                        }}
                       whileHover={{ y: -6, scale: 1.02 }}
                       onClick={() => window.open(loc.mapsUrl, '_blank')}
-                      className="group relative p-4 bg-[#050505] border border-orange-500/20 rounded-[1.8rem] hover:border-orange-500/60 hover:bg-[#070707] transition-[background-color,border-color,box-shadow] duration-500 ease-out cursor-pointer flex flex-col justify-between overflow-hidden min-h-[290px] shadow-lg"
+                      className="group relative p-1.5 xs:p-2 sm:p-4 bg-[#050505] border border-orange-500/20 rounded-[0.8rem] sm:rounded-[1.8rem] hover:border-orange-500/60 hover:bg-[#070707] transition-[background-color,border-color,box-shadow] duration-500 ease-out cursor-pointer flex flex-col justify-between overflow-hidden min-h-[110px] xs:min-h-[140px] sm:min-h-[290px] shadow-lg w-auto"
                     >
                       {/* Top Graphic Map Visual Block */}
-                      <div className="h-[200px] w-full bg-zinc-950/60 border border-orange-500/10 rounded-[1.4rem] flex items-center justify-center relative overflow-hidden transition-all duration-300 group-hover:border-orange-500/30">
+                      <div className="h-[55px] xs:h-[75px] sm:h-[180px] md:h-[200px] w-full bg-zinc-950/60 border border-orange-500/10 rounded-[0.5rem] sm:rounded-[1.4rem] flex items-center justify-center relative overflow-hidden transition-all duration-300 group-hover:border-orange-500/30">
                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.04)_0%,transparent_100%)] pointer-events-none" />
 
                         {loc.mapImage ? (
@@ -3377,7 +3385,7 @@ function LandingPage() {
                               repeatType: "reverse",
                               ease: "easeInOut"
                             }}
-                            className="absolute inset-0 w-full h-full object-contain p-3 group-hover:scale-110 group-hover:rotate-[-2deg] group-hover:drop-shadow-[0_0_25px_rgba(249,115,22,0.9)] transition-all duration-500"
+                            className="absolute inset-0 w-full h-full object-contain p-1 sm:p-3 group-hover:scale-110 group-hover:rotate-[-2deg] group-hover:drop-shadow-[0_0_25px_rgba(249,115,22,0.9)] transition-all duration-500"
                             referrerPolicy="no-referrer"
                           />
                         ) : (
@@ -3393,7 +3401,7 @@ function LandingPage() {
                               repeatType: "reverse",
                               ease: "easeInOut"
                             }}
-                            className="w-[140px] h-[140px] drop-shadow-2xl relative z-10 select-none pointer-events-none group-hover:scale-110 group-hover:rotate-[-3deg] group-hover:drop-shadow-[0_0_25px_rgba(249,115,22,0.85)] transition-all duration-500"
+                            className="w-10 h-10 xs:w-16 xs:h-16 sm:w-[140px] sm:h-[140px] drop-shadow-2xl relative z-10 select-none pointer-events-none group-hover:scale-110 group-hover:rotate-[-3deg] group-hover:drop-shadow-[0_0_25px_rgba(249,115,22,0.85)] transition-all duration-500"
                           >
                             <g transform="translate(0, 0)">
                               {/* Layer 1 (bottom-most background shadow layer - expands deepest on hover) */}
@@ -3445,12 +3453,12 @@ function LandingPage() {
                       </div>
 
                       {/* Info & Redirection Metadata Section */}
-                      <div className="pt-3 pb-1 text-left pointer-events-none">
-                        <div className="flex items-center justify-between">
-                          <span className="text-white text-base font-black tracking-wide uppercase font-sans group-hover:text-orange-500 transition-colors duration-300">
+                      <div className="pt-1.5 xs:pt-2 sm:pt-3 pb-0.5 sm:pb-1 text-left pointer-events-none">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="text-white text-[7.5px] xs:text-[10px] sm:text-base font-black tracking-tighter xs:tracking-tight sm:tracking-wide uppercase font-sans group-hover:text-orange-500 transition-colors duration-300 line-clamp-1">
                             {loc.cityAlt}
                           </span>
-                          <ArrowRight className="w-5 h-5 text-white/50 group-hover:text-orange-400 group-hover:translate-x-1.5 transition-all duration-300 animate-pulse" />
+                          <ArrowRight className="w-2.5 h-2.5 xs:w-3.5 xs:h-3.5 sm:w-5 sm:h-5 text-white/50 group-hover:text-orange-400 group-hover:translate-x-1 transition-all duration-300 animate-pulse flex-shrink-0" />
                         </div>
                       </div>
                     </motion.div>

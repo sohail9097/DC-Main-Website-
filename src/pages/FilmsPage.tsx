@@ -402,7 +402,7 @@ const FilmsPage = () => {
               }
 
               return (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 pt-4 grid-flow-row-dense auto-rows-auto">
+                <div className="grid grid-cols-3 gap-2 xs:gap-3 sm:gap-6 md:gap-8 pt-4 grid-flow-row-dense auto-rows-auto">
                   {categoryFilms.map((film, idx) => {
                     const videoUrl = film.video || 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761';
                     
@@ -420,12 +420,12 @@ const FilmsPage = () => {
                       },
                       {
                         colSpan: "col-span-1",
-                        rowSpan: "md:row-span-2", // 1st vertical frame: right column
+                        rowSpan: "row-span-2", // 1st vertical frame: right column
                         aspect: "aspect-[2/3]"
                       },
                       {
                         colSpan: "col-span-1",
-                        rowSpan: "md:row-span-2", // 2nd vertical frame: left column
+                        rowSpan: "row-span-2", // 2nd vertical frame: left column
                         aspect: "aspect-[2/3]"
                       },
                       {
@@ -445,7 +445,7 @@ const FilmsPage = () => {
                       },
                       {
                         colSpan: "col-span-1",
-                        rowSpan: "md:row-span-2", // 3rd vertical frame: center column
+                        rowSpan: "row-span-2", // 3rd vertical frame: center column
                         aspect: "aspect-[2/3]"
                       },
                       {
@@ -459,7 +459,7 @@ const FilmsPage = () => {
                     if (film.frameType === 'vertical') {
                       cfg = {
                         colSpan: "col-span-1",
-                        rowSpan: "md:row-span-2",
+                        rowSpan: "row-span-2",
                         aspect: "aspect-[2/3]"
                       };
                     } else if (film.frameType === 'landscape') {
@@ -511,20 +511,20 @@ const FilmsPage = () => {
 
                           {/* Category badge heading overlay inside each video card frame */}
                           {film.category && (
-                            <div className="absolute top-5 left-5 z-20">
-                              <span className="px-3.5 py-1 text-[11px] font-medium font-bebas tracking-[0.16em] uppercase rounded-full bg-black/95 text-white backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.5)] border border-orange-500/40">
+                            <div className="absolute top-1.5 left-1.5 xs:top-3 xs:left-3 md:top-5 md:left-5 z-20">
+                              <span className="px-1.5 py-0.5 xs:px-2.5 xs:py-1 md:px-3.5 md:py-1 text-[6px] xs:text-[9px] md:text-[11px] font-medium font-bebas tracking-[0.16em] uppercase rounded-full bg-black/95 text-white backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.5)] border border-orange-500/40">
                                 {normalizeCategoryName(film.category)}
                               </span>
                             </div>
                           )}
 
                           {/* Title bottom overlay */}
-                          <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 z-20 flex items-center gap-3 bg-gradient-to-t from-black/95 via-black/55 to-transparent pt-12 transition-all duration-300">
-                            <div className="w-10 h-10 sm:w-11 sm:h-11 bg-orange-500 group-hover:bg-orange-600 text-white rounded-full flex items-center justify-center transition-all duration-300 shadow-[0_4px_15px_rgba(249,115,22,0.35)] group-hover:scale-110 flex-shrink-0">
-                               <Play className="fill-current w-3.5 h-3.5 translate-x-0.5 text-white" />
+                          <div className="absolute inset-x-0 bottom-0 p-1.5 xs:p-3 sm:p-5 z-20 flex items-center gap-1.5 xs:gap-3 bg-gradient-to-t from-black/95 via-black/55 to-transparent pt-6 xs:pt-8 sm:pt-12 transition-all duration-300">
+                            <div className="w-5 h-5 xs:w-8 xs:h-8 sm:w-11 sm:h-11 bg-orange-500 group-hover:bg-orange-600 text-white rounded-full flex items-center justify-center transition-all duration-300 shadow-[0_4px_15px_rgba(249,115,22,0.35)] group-hover:scale-110 flex-shrink-0">
+                               <Play className="fill-current w-2 h-2 xs:w-3 xs:h-3 sm:w-3.5 sm:h-3.5 translate-x-0.5 text-white" />
                              </div>
                              <div className="flex-1 min-w-0">
-                               <h3 className="text-xs sm:text-sm font-bold tracking-wide text-white uppercase font-sans truncate pr-2 leading-tight">
+                               <h3 className="text-[7.5px] xs:text-[10px] sm:text-xs md:text-sm font-bold tracking-wide text-white uppercase font-sans truncate pr-2 leading-tight">
                                  {film.title}
                                </h3>
                              </div>
