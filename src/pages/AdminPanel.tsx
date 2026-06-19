@@ -385,7 +385,7 @@ const AdminPanel: FC = () => {
   const [contactTitleFirst, setContactTitleFirst] = useState("Let's");
   const [contactTitleOrange, setContactTitleOrange] = useState("Connect.");
   const [contactSubtitle, setContactSubtitle] = useState("Start your cinematic journey today.");
-  const [contactEmail, setContactEmail] = useState("hello@dreamcatchers.com");
+  const [contactEmail, setContactEmail] = useState("hello@dreamcatchers.tv");
   const [contactPhone, setContactPhone] = useState("+91 98765 43210");
   const [contactAddress, setContactAddress] = useState("820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
 
@@ -576,7 +576,7 @@ const AdminPanel: FC = () => {
     setContactTitleFirst(localStorage.getItem('contact_title_first') || "Let's");
     setContactTitleOrange(localStorage.getItem('contact_title_orange') || "Connect.");
     setContactSubtitle(localStorage.getItem('contact_subtitle') || "Start your cinematic journey today.");
-    setContactEmail(localStorage.getItem('contact_email') || "hello@dreamcatchers.com");
+    setContactEmail(localStorage.getItem('contact_email') || "hello@dreamcatchers.tv");
     setContactPhone(localStorage.getItem('contact_phone') || "+91 98765 43210");
     setContactAddress(localStorage.getItem('contact_address') || "820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
 
@@ -1238,7 +1238,7 @@ const AdminPanel: FC = () => {
       setContactTitleFirst("Let's");
       setContactTitleOrange("Connect.");
       setContactSubtitle("Start your cinematic journey today.");
-      setContactEmail("hello@dreamcatchers.com");
+      setContactEmail("hello@dreamcatchers.tv");
       setContactPhone("+91 98765 43210");
       setContactAddress("820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
 
@@ -3166,14 +3166,12 @@ const AdminPanel: FC = () => {
                         >
                           <option value="Branded Content">Branded Content</option>
                           <option value="Documentaries">Documentaries</option>
-                          <option value="Travel">Travel</option>
+                          <option value="Travel & Lifestyle">Travel & Lifestyle</option>
                           <option value="Corporate">Corporate</option>
                           <option value="Sports">Sports</option>
-                          <option value="Lifestyle">Lifestyle</option>
-                          <option value="Reality TV / Live">Reality TV / Live</option>
+                          <option value="Reality">Reality</option>
                           <option value="Commercials">Commercials</option>
                           <option value="Influencer">Influencer</option>
-                          <option value="Anthem">Anthem</option>
                         </select>
                       </div>
                     </div>

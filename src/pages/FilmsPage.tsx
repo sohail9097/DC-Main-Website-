@@ -66,66 +66,74 @@ const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
 };
 
 
+const normalizeCategoryName = (name: string | undefined): string => {
+  if (!name) return '';
+  const n = name.trim().toLowerCase();
+  if (n === 'travel' || n === 'lifestyle' || n === 'travel & lifestyle') {
+    return 'Travel & Lifestyle';
+  }
+  if (n === 'reality tv / live' || n === 'reality' || n === 'reality tv') {
+    return 'Reality';
+  }
+  return name.trim();
+};
+
 const SECTIONS_CONFIG = [
   {
     name: "Branded Content",
     desc: "Premium commercial campaigns & brand stories",
     glow: "rgba(249, 115, 22, 0.4)",
-    badge: "01"
+    badge: "01",
+    img: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=600"
   },
   {
     name: "Documentaries",
     desc: "Real-world narratives & raw human storytelling",
     glow: "rgba(59, 130, 246, 0.4)",
-    badge: "02"
+    badge: "02",
+    img: "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=600"
   },
   {
-    name: "Travel",
-    desc: "Cinematic adventures across global horizons",
+    name: "Travel & Lifestyle",
+    desc: "Cinematic adventures, luxury spaces, global travel & cozy lifestyle stories",
     glow: "rgba(16, 185, 129, 0.4)",
-    badge: "03"
+    badge: "03",
+    img: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&q=80&w=600"
   },
   {
     name: "Corporate",
     desc: "Polished workspace narratives & corporate messaging",
     glow: "rgba(236, 72, 153, 0.4)",
-    badge: "04"
+    badge: "04",
+    img: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=600"
   },
   {
     name: "Sports",
     desc: "Adrenaline-fueled athletic motion & dynamics",
     glow: "rgba(245, 158, 11, 0.4)",
-    badge: "05"
+    badge: "05",
+    img: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&q=80&w=600"
   },
   {
-    name: "Lifestyle",
-    desc: "Cozy spaces, curated travel, luxury & foods",
-    glow: "rgba(139, 92, 246, 0.4)",
-    badge: "06"
-  },
-  {
-    name: "Reality TV / Live",
+    name: "Reality",
     desc: "High-energy television formats, live productions & real-time events",
     glow: "rgba(239, 68, 68, 0.4)",
-    badge: "07"
+    badge: "06",
+    img: "https://images.unsplash.com/photo-1516280440614-37939bbacd6a?auto=format&fit=crop&q=80&w=600"
   },
   {
     name: "Commercials",
     desc: "Dynamic short-form advert films & promotional campaigns",
     glow: "rgba(6, 182, 212, 0.4)",
-    badge: "08"
+    badge: "07",
+    img: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=600"
   },
   {
     name: "Influencer",
     desc: "Premium creator-driven lifestyle content & social-first stories",
     glow: "rgba(236, 72, 153, 0.4)",
-    badge: "09"
-  },
-  {
-    name: "Anthem",
-    desc: "Empowering sonic & visual brand anthems that inspire audiences",
-    glow: "rgba(250, 204, 21, 0.4)",
-    badge: "10"
+    badge: "08",
+    img: "https://images.unsplash.com/photo-1542435503-956c469947f6?auto=format&fit=crop&q=80&w=600"
   }
 ];
 
@@ -308,41 +316,76 @@ const FilmsPage = () => {
         </section>
 
         {/* Sticky Sub-Navbar Categories Quick Jump Menu */}
-        <div className="sticky top-20 z-40 w-full py-4 bg-zinc-950/85 backdrop-blur-md border-y border-white/5 px-4">
-          <div className="max-w-[1600px] mx-auto flex flex-wrap justify-center gap-2 sm:gap-4 md:gap-5">
-            <button
-              onClick={() => selectAndScroll("All")}
-              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 font-mono ${
-                selectedCategory === 'All'
-                  ? 'border-orange-500 text-orange-500 bg-orange-500/10 shadow-[0_0_15px_rgba(249,115,22,0.25)] font-bold'
-                  : 'border-white/5 text-white/60 bg-white/[0.02] hover:border-orange-500/30 hover:text-orange-500 hover:bg-orange-500/5'
-              }`}
-            >
-              <span>ALL</span>
-              <span className={`text-[10px] ${selectedCategory === 'All' ? 'text-orange-400' : 'text-white/30'}`}>
-                ({films.length})
-              </span>
-            </button>
-            {SECTIONS_CONFIG.map((sec) => {
-              const count = films.filter(f => (f.category || '').toLowerCase() === sec.name.toLowerCase()).length;
-              const isSelected = selectedCategory.toLowerCase() === sec.name.toLowerCase();
-              return (
-                <button
-                  key={sec.name}
-                  onClick={() => selectAndScroll(sec.name)}
-                  className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 font-mono ${
-                    isSelected
-                      ? 'border-orange-500 text-orange-500 bg-orange-500/10 shadow-[0_0_15px_rgba(249,115,22,0.25)] font-bold'
-                      : 'border-white/5 text-white/60 bg-white/[0.02] hover:border-orange-500/30 hover:text-orange-500 hover:bg-orange-500/5'
-                  }`}
-                >
-                  <span>{sec.name}</span>
-                  <span className={`text-[10px] ${isSelected ? 'text-orange-400' : 'text-white/30'}`}>
-                    ({count})
+        <div className="sticky top-20 z-40 w-full py-4 bg-zinc-950/90 backdrop-blur-md border-y border-white/5 overflow-hidden">
+          <div className="max-w-[1600px] mx-auto px-4">
+            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-orange-500/20 scrollbar-track-transparent snap-x touch-pan-x justify-start">
+              <button
+                onClick={() => selectAndScroll("All")}
+                className={`relative group h-14 sm:h-16 md:h-20 min-w-[180px] xs:min-w-[220px] sm:min-w-[260px] md:min-w-[280px] rounded-sm overflow-hidden text-left flex-shrink-0 snap-start border transition-all duration-300 ${
+                  selectedCategory === 'All'
+                    ? 'border-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.3)] ring-1 ring-orange-500'
+                    : 'border-white/10 hover:border-orange-500/50'
+                }`}
+              >
+                <img 
+                  src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&q=80&w=600"
+                  alt="All"
+                  className="absolute inset-0 w-full h-full object-cover brightness-[0.7] group-hover:brightness-[0.9] group-hover:scale-105 transition-all duration-500"
+                />
+                <div className={`absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all duration-300 ${selectedCategory === 'All' ? 'bg-orange-950/20' : ''}`} />
+                
+                <div className="absolute inset-0 flex flex-col justify-between p-3 sm:p-4 z-10">
+                  <span className="font-bebas text-lg xs:text-xl sm:text-2xl font-bold tracking-wider text-white uppercase select-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]">
+                    ALL WORKS
                   </span>
-                </button>
-              );
-            })}
+                  <div className="flex justify-between items-end">
+                    <span className="text-[9px] font-mono tracking-widest text-white/50 group-hover:text-white/80 transition-colors uppercase leading-none">
+                      Explore complete craft
+                    </span>
+                    <span className="text-[10px] font-mono text-orange-400 font-bold px-1.5 py-0.5 bg-black/60 rounded-sm">
+                      {films.length}
+                    </span>
+                  </div>
+                </div>
+              </button>
+
+              {SECTIONS_CONFIG.map((sec) => {
+                const count = films.filter(f => normalizeCategoryName(f.category).toLowerCase() === sec.name.toLowerCase()).length;
+                const isSelected = selectedCategory.toLowerCase() === sec.name.toLowerCase();
+                return (
+                  <button
+                    key={sec.name}
+                    onClick={() => selectAndScroll(sec.name)}
+                    className={`relative group h-14 sm:h-16 md:h-20 min-w-[180px] xs:min-w-[220px] sm:min-w-[260px] md:min-w-[280px] rounded-sm overflow-hidden text-left flex-shrink-0 snap-start border transition-all duration-300 ${
+                      isSelected
+                        ? 'border-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.3)] ring-1 ring-orange-500'
+                        : 'border-white/10 hover:border-orange-500/50'
+                    }`}
+                  >
+                    <img 
+                      src={sec.img}
+                      alt={sec.name}
+                      className="absolute inset-0 w-full h-full object-cover brightness-[0.7] group-hover:brightness-[0.9] group-hover:scale-105 transition-all duration-500"
+                    />
+                    <div className={`absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all duration-300 ${isSelected ? 'bg-orange-950/20' : ''}`} />
+                    
+                    <div className="absolute inset-0 flex flex-col justify-between p-3 sm:p-4 z-10">
+                      <span className="font-bebas text-lg xs:text-xl sm:text-2xl font-bold tracking-wider text-white uppercase select-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]">
+                        {sec.name}
+                      </span>
+                      <div className="flex justify-between items-end gap-3">
+                        <span className="text-[9px] font-mono tracking-widest text-white/50 group-hover:text-white/80 transition-colors uppercase leading-none truncate max-w-[120px] sm:max-w-[180px]">
+                          {sec.desc}
+                        </span>
+                        <span className="text-[10px] font-mono text-orange-400 font-bold px-1.5 py-0.5 bg-black/60 rounded-sm">
+                          {count}
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
@@ -352,10 +395,10 @@ const FilmsPage = () => {
             {/* Unified Section Header */}
             <div className="border-b border-white/[0.08] pb-8 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div className="space-y-3">
-                <h2 className="font-bebas text-5xl md:text-7xl font-bold tracking-wide text-orange-500 uppercase leading-none">
+                <h2 className="font-helvetica-cond text-3xl md:text-5xl lg:text-6xl font-bold tracking-[0.02em] text-orange-500 uppercase leading-none select-none">
                   {selectedCategory === 'All' ? 'OUR WORKS' : selectedCategory}
                 </h2>
-                <p className="text-white/50 text-[10px] md:text-xs tracking-[0.25em] md:tracking-[0.35em] uppercase font-mono leading-relaxed max-w-4xl block">
+                <p className="text-white text-[8px] xs:text-[9px] sm:text-xs md:text-sm font-semibold uppercase tracking-[0.1em] xs:tracking-[0.12em] sm:tracking-[0.2em] md:tracking-[0.3em] font-mono leading-relaxed max-w-full block whitespace-nowrap overflow-x-auto scrollbar-none">
                   {selectedCategory === 'All' 
                     ? 'Explore our full collection of cinematic masterpieces across all genres.' 
                     : SECTIONS_CONFIG.find(sec => sec.name === selectedCategory)?.desc || ''}
@@ -377,7 +420,7 @@ const FilmsPage = () => {
             {(() => {
               const categoryFilms = selectedCategory === 'All' 
                 ? films 
-                : films.filter(film => (film.category || '').toLowerCase() === selectedCategory.toLowerCase());
+                : films.filter(film => normalizeCategoryName(film.category).toLowerCase() === selectedCategory.toLowerCase());
 
               if (categoryFilms.length === 0) {
                 return (
@@ -499,9 +542,9 @@ const FilmsPage = () => {
 
                           {/* Category badge heading overlay inside each video card frame */}
                           {film.category && (
-                            <div className="absolute top-4 left-4 z-20">
-                              <span className="px-2.5 py-1 text-[8px] font-bold font-mono tracking-widest uppercase rounded-full bg-black/80 text-orange-400 backdrop-blur-md shadow border border-orange-500/20">
-                                {film.category}
+                            <div className="absolute top-5 left-5 z-20 pointer-events-none select-none">
+                              <span className="text-xl sm:text-[28px] font-bold font-bebas tracking-[0.06em] text-white uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]">
+                                {normalizeCategoryName(film.category)}
                               </span>
                             </div>
                           )}
@@ -512,12 +555,10 @@ const FilmsPage = () => {
                                <Play className="fill-current w-3.5 h-3.5 translate-x-0.5 text-white" />
                              </div>
                              <div className="flex-1 min-w-0">
-                               <h3 className="text-xs sm:text-sm font-bold tracking-wide text-white uppercase font-sans truncate pr-2">
-                              {film.title}
-                            </h3>
-                            <p className="text-[8.5px] sm:text-[9.5px] text-zinc-400 font-mono tracking-widest uppercase mt-1 flex items-center gap-1 leading-none">
-                              Launch Playback <span className="text-orange-500 group-hover:translate-x-1 transition-transform inline-block font-sans font-bold">→</span>
-                            </p></div>
+                               <h3 className="text-xs sm:text-sm font-bold tracking-wide text-white uppercase font-sans truncate pr-2 leading-tight">
+                                 {film.title}
+                               </h3>
+                             </div>
                           </div>
 
                           {/* Central Play Button */}

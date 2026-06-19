@@ -268,7 +268,7 @@ export function Navbar() {
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
       isScrolledOrBrand 
-        ? 'bg-black/60 backdrop-blur-md border-b border-white/5 shadow-xl shadow-black/20' 
+        ? 'bg-transparent backdrop-blur-md' 
         : 'bg-transparent'
     } ${isScrolled ? 'py-4' : 'py-10'}`}>
       <div className="max-w-[1920px] mx-auto px-6 md:px-24 lg:px-40 flex justify-between items-center">
@@ -651,11 +651,11 @@ function Clients() {
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="font-helvetica-cond text-3xl md:text-5xl lg:text-6xl font-black tracking-[0.02em] text-orange-500 uppercase mb-2 select-none"
+            className="font-helvetica-cond text-3xl md:text-5xl lg:text-6xl font-bold tracking-[0.02em] text-orange-500 uppercase mb-2 select-none"
           >
             Collaborators
           </motion.h3>
-          <p className="text-white/40 text-xs md:text-sm font-black uppercase tracking-[0.3em] font-mono">
+          <p className="text-white/40 text-xs md:text-sm font-semibold uppercase tracking-[0.3em] font-mono">
             Trusted by the world's most progressive brands & organizations
           </p>
         </div>
@@ -1275,8 +1275,8 @@ const HOME_CATEGORIES = [
     glow: "rgba(59, 130, 246, 0.4)"
   },
   {
-    name: "Travel",
-    desc: "Cinematic adventures across global horizons",
+    name: "Travel & Lifestyle",
+    desc: "Cinematic adventures, luxury spaces, global travel & cozy lifestyle stories",
     img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=800",
     glow: "rgba(16, 185, 129, 0.4)"
   },
@@ -1293,13 +1293,7 @@ const HOME_CATEGORIES = [
     glow: "rgba(245, 158, 11, 0.4)"
   },
   {
-    name: "Lifestyle",
-    desc: "Cozy spaces, curated travel, luxury & foods",
-    img: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=800",
-    glow: "rgba(139, 92, 246, 0.4)"
-  },
-  {
-    name: "Reality TV / Live",
+    name: "Reality",
     desc: "High-energy television formats, live productions & real-time events",
     img: "https://images.unsplash.com/photo-1516280440614-37939bbacd6a?auto=format&fit=crop&q=80&w=800",
     glow: "rgba(239, 68, 68, 0.4)"
@@ -1315,14 +1309,20 @@ const HOME_CATEGORIES = [
     desc: "Premium creator-driven lifestyle content & social-first stories",
     img: "https://images.unsplash.com/photo-1542435503-956c469947f6?auto=format&fit=crop&q=80&w=800",
     glow: "rgba(236, 72, 153, 0.4)"
-  },
-  {
-    name: "Anthem",
-    desc: "Empowering sonic & visual brand anthems that inspire audiences",
-    img: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800",
-    glow: "rgba(250, 204, 21, 0.4)"
   }
 ];
+
+const normalizeCategoryName = (name: string | undefined): string => {
+  if (!name) return '';
+  const n = name.trim().toLowerCase();
+  if (n === 'travel' || n === 'lifestyle' || n === 'travel & lifestyle') {
+    return 'Travel & Lifestyle';
+  }
+  if (n === 'reality tv / live' || n === 'reality' || n === 'reality tv') {
+    return 'Reality';
+  }
+  return name.trim();
+};
 
 function Portfolio() {
   const navigate = useNavigate();
@@ -1605,13 +1605,13 @@ function Portfolio() {
                 </p>
               </div>
 
-              {films.filter(film => film.category === selectedCategory.name).length === 0 ? (
+              {films.filter(film => normalizeCategoryName(film.category).toLowerCase() === selectedCategory.name.toLowerCase()).length === 0 ? (
                 <div className="py-20 text-center">
                   <p className="text-white/30 text-sm font-black uppercase tracking-widest">No cinematic works added yet under this category</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {films.filter(film => film.category === selectedCategory.name).map((film, idx) => {
+                  {films.filter(film => normalizeCategoryName(film.category).toLowerCase() === selectedCategory.name.toLowerCase()).map((film, idx) => {
                     const videoUrl = film.video || 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761';
                     const isYouTube = isYouTubeUrl(videoUrl);
                     const isEmbed = isEmbedUrl(videoUrl);
@@ -1775,7 +1775,7 @@ export function InteractiveOptions() {
                   hover: { scale: 1.1, color: "#000" }
                 }}
                 transition={{ duration: 0.4 }}
-                className="text-3xl md:text-8xl font-black italic tracking-tighter uppercase leading-none px-4 md:px-8"
+                className="text-3xl md:text-8xl font-bold italic tracking-tight uppercase leading-none px-6 md:px-12 pr-10 md:pr-20"
               >
                 {option.name}
               </motion.h2>
@@ -1787,7 +1787,7 @@ export function InteractiveOptions() {
                 }}
                 className="flex items-center gap-2 mt-4"
               >
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/60">Explore more</span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.4em] text-black/60">Explore more</span>
                 <ChevronRight size={14} className="text-black/60" />
               </motion.div>
             </div>
@@ -1842,8 +1842,8 @@ export function Footer() {
   return (
     <footer className="py-8 md:py-12 bg-zinc-950/20 backdrop-blur-xl border-t border-white/5">
       <div className="max-w-[1800px] mx-auto px-6 md:px-12 lg:px-24 xl:px-36">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 mb-8 md:mb-12">
-          <div className="md:col-span-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 md:gap-12 mb-8 md:mb-12">
+          <div className="sm:col-span-2 xl:col-span-2">
             <div className="flex items-center gap-4 mb-6 md:mb-10 group cursor-default">
               <span className="text-3xl md:text-6xl font-black italic tracking-tighter text-orange-500 leading-none transition-all duration-300 group-hover:text-orange-400 group-hover:drop-shadow-[0_0_20px_rgba(249,115,22,0.8)]">DC</span>
               <span className="text-xl md:text-4xl font-black tracking-tighter text-white uppercase italic transition-all duration-300 group-hover:text-orange-100">Dreamcatchers</span>
@@ -1856,7 +1856,7 @@ export function Footer() {
           <div id="contact">
             <h5 className="text-orange-500 text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] mb-6 md:mb-10">Inquiries</h5>
             <div className="space-y-4 md:space-y-6">
-              <a href="mailto:hello@dreamcatchers.com" className="block text-lg md:text-xl font-bold text-white hover:text-orange-400 transition-all tracking-tight">hello@dreamcatchers.com</a>
+              <a href="mailto:hello@dreamcatchers.tv" className="block text-lg md:text-xl font-bold text-white hover:text-orange-400 transition-all tracking-tight whitespace-nowrap">hello@dreamcatchers.tv</a>
               <p className="text-white/30 text-sm italic">{contactAddress}</p>
               
               <div className="pt-6 border-t border-white/5">
@@ -2613,7 +2613,7 @@ function LandingPage() {
   const [contactTitleFirst, setContactTitleFirst] = useState("Let's");
   const [contactTitleOrange, setContactTitleOrange] = useState("Connect.");
   const [contactSubtitle, setContactSubtitle] = useState("Start your cinematic journey today.");
-  const [contactEmail, setContactEmail] = useState("hello@dreamcatchers.com");
+  const [contactEmail, setContactEmail] = useState("hello@dreamcatchers.tv");
   const [contactPhone, setContactPhone] = useState("+91 98765 43210");
   const [contactAddress, setContactAddress] = useState("820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
 
@@ -2621,7 +2621,7 @@ function LandingPage() {
     setContactTitleFirst(localStorage.getItem('contact_title_first') || "Let's");
     setContactTitleOrange(localStorage.getItem('contact_title_orange') || "Connect.");
     setContactSubtitle(localStorage.getItem('contact_subtitle') || "Start your cinematic journey today.");
-    setContactEmail(localStorage.getItem('contact_email') || "hello@dreamcatchers.com");
+    setContactEmail(localStorage.getItem('contact_email') || "hello@dreamcatchers.tv");
     setContactPhone(localStorage.getItem('contact_phone') || "+91 98765 43210");
     setContactAddress(localStorage.getItem('contact_address') || "820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
   };
@@ -2794,11 +2794,11 @@ function LandingPage() {
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                  className="font-helvetica-cond text-3xl md:text-5xl lg:text-6xl font-black tracking-[0.02em] text-orange-500 uppercase mb-2 select-none"
+                  className="font-helvetica-cond text-3xl md:text-5xl lg:text-6xl font-bold tracking-[0.02em] text-orange-500 uppercase mb-2 select-none"
                 >
                   Our Verticals & Sub-Brands
                 </motion.h3>
-                <p className="text-white/40 text-xs md:text-sm font-black uppercase tracking-[0.3em] font-mono">
+                <p className="text-white/40 text-xs md:text-sm font-semibold uppercase tracking-[0.3em] font-mono">
                   Enterprise Initiatives
                 </p>
               </div>
@@ -3225,10 +3225,10 @@ function LandingPage() {
                     transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                     className="text-left"
                   >
-                    <h3 className="font-helvetica-cond text-3xl md:text-5xl lg:text-6xl font-black tracking-[0.02em] text-orange-500 uppercase mb-2 select-none">
+                    <h3 className="font-helvetica-cond text-3xl md:text-5xl lg:text-6xl font-bold tracking-[0.02em] text-orange-500 uppercase mb-2 select-none">
                       {contactTitleFirst} {contactTitleOrange}
                     </h3>
-                    <p className="text-white/40 text-xs md:text-sm font-black uppercase tracking-[0.3em] font-mono">
+                    <p className="text-white/40 text-xs md:text-sm font-semibold uppercase tracking-[0.3em] font-mono">
                       {contactSubtitle}
                     </p>
                   </motion.div>
@@ -3240,7 +3240,7 @@ function LandingPage() {
                       viewport={{ once: true, amount: 0.15 }}
                       transition={{ type: "spring", stiffness: 90, damping: 15 }}
                       whileHover={{ y: -8, scale: 1.02 }}
-                      className="p-8 md:p-10 bg-zinc-950/60 border border-orange-500/30 rounded-[2rem] hover:bg-orange-500 hover:border-transparent transition-all duration-500 group cursor-pointer flex flex-col justify-between min-h-[170px]"
+                      className="px-4 py-8 xs:px-5 md:p-8 xl:p-10 bg-zinc-950/60 border border-orange-500/30 rounded-[2rem] hover:bg-orange-500 hover:border-transparent transition-all duration-500 group cursor-pointer flex flex-col justify-between min-h-[170px]"
                       onClick={() => window.location.href = `mailto:${contactEmail}`}
                     >
                       <div className="text-orange-500 group-hover:text-black mb-6 transition-colors font-sans">
@@ -3250,7 +3250,7 @@ function LandingPage() {
                         <p className="text-white/30 group-hover:text-black/60 text-[10px] font-black uppercase tracking-widest mb-1 transition-colors">
                           Email Us
                         </p>
-                        <p className="text-lg md:text-xl font-bold text-white group-hover:text-black tracking-tight break-all transition-colors font-sans">
+                        <p className="text-[11px] xs:text-xs sm:text-sm md:text-base lg:text-lg xl:text-sm 2xl:text-lg font-bold text-white group-hover:text-black tracking-tight whitespace-nowrap transition-colors font-sans">
                           {contactEmail}
                         </p>
                       </div>
@@ -3286,10 +3286,10 @@ function LandingPage() {
                     transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                     className="pt-4 text-left"
                   >
-                    <h3 className="font-helvetica-cond text-3xl md:text-5xl lg:text-6xl font-black tracking-[0.02em] text-orange-500 uppercase mb-2 select-none">
+                    <h3 className="font-helvetica-cond text-3xl md:text-5xl lg:text-6xl font-bold tracking-[0.02em] text-orange-500 uppercase mb-2 select-none">
                       Offices
                     </h3>
-                    <p className="text-white/40 text-xs md:text-sm font-black uppercase tracking-[0.3em] font-mono">
+                    <p className="text-white/40 text-xs md:text-sm font-semibold uppercase tracking-[0.3em] font-mono">
                       Our Locations
                     </p>
                   </motion.div>
@@ -3329,7 +3329,7 @@ function LandingPage() {
                       className="w-full py-5 rounded-2xl bg-white/10 text-white font-black uppercase tracking-[0.3em] flex items-center justify-center gap-3 transition-all text-sm shadow-xl"
                     >
                       <Send className="w-4 h-4" />
-                      Submit Request
+                      Submit Inquiry
                     </motion.button>
                   </form>
                 </motion.div>
@@ -4185,7 +4185,7 @@ export function StoryPage() {
       </div>
 
       {/* Back to Home Button & Banner */}
-      <header className="sticky top-0 z-50 w-full bg-black/70 backdrop-blur-xl border-b border-white/5 px-6 py-5 flex items-center justify-between">
+      <header className="sticky top-0 z-50 w-full bg-transparent backdrop-blur-md px-6 py-5 flex items-center justify-between">
         <button
           type="button"
           onClick={() => navigate('/')}

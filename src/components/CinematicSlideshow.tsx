@@ -199,15 +199,13 @@ export const CinematicSlideshow: FC = memo(() => {
         <div className="absolute inset-0 z-10 w-full h-full flex items-center justify-center">
           {slides.map((slide, idx) => {
             const totalSlides = slides.length || 9;
-            const segmentSize = 1 / totalSlides;
-            // Overlap transition fraction - k = 1.0 removes the flat holding phase, creating a perfectly continuous, direct hand-off scroll progress
-            const k = 1.0;
-            const transitionSize = k * segmentSize;
+            const numTransitions = Math.max(1, totalSlides - 1);
+            const transitionRange = 1 / numTransitions;
 
-            const incomingStart = idx * segmentSize - transitionSize;
-            const incomingEnd = idx * segmentSize;
-            const outgoingStart = (idx + 1) * segmentSize - transitionSize;
-            const outgoingEnd = (idx + 1) * segmentSize;
+            const incomingStart = (idx - 1) * transitionRange;
+            const incomingEnd = idx * transitionRange;
+            const outgoingStart = idx * transitionRange;
+            const outgoingEnd = (idx + 1) * transitionRange;
 
             // Slide translation: "image top se gayab na ho, niche slide upar aaye and cover kre"
             // The upper (current) image remains stationary at "0%" as subsequent slides slide on top of them.
@@ -225,6 +223,9 @@ export const CinematicSlideshow: FC = memo(() => {
               if (incomingStart <= 0) {
                 yRange = [0, incomingEnd, 1];
                 yOutput = ['100%', '0%', '0%'];
+              } else if (incomingEnd >= 0.999) {
+                yRange = [0, incomingStart, 1];
+                yOutput = ['100%', '100%', '0%'];
               } else {
                 yRange = [0, incomingStart, incomingEnd, 1];
                 yOutput = ['100%', '100%', '0%', '0%'];
@@ -250,29 +251,47 @@ export const CinematicSlideshow: FC = memo(() => {
               );
             } else if (idx === totalSlides - 1) {
               // Last slide's text starts active relative to its rising container to slide in 1:1
-              const keys = [0, incomingStart, incomingEnd, 1];
+              const keys = [0, 1];
               textY = useTransform(
                 smoothScrollYProgress,
                 keys,
-                ["0vh", "0vh", "0vh", "0vh"]
+                ["0vh", "0vh"]
               );
             } else {
               // Middle slides
-              if (incomingStart === 0) {
+              if (incomingStart <= 0) {
                 // For slide 1, incomingStart is 0, so avoid duplicate 0 in keys
-                const keys = [0, incomingEnd, outgoingEnd, 1];
-                textY = useTransform(
-                  smoothScrollYProgress,
-                  keys,
-                  ["0vh", "0vh", "-100vh", "-100vh"]
-                );
+                if (outgoingEnd >= 0.999) {
+                  const keys = [0, incomingEnd, 1];
+                  textY = useTransform(
+                    smoothScrollYProgress,
+                    keys,
+                    ["0vh", "0vh", "-100vh"]
+                  );
+                } else {
+                  const keys = [0, incomingEnd, outgoingEnd, 1];
+                  textY = useTransform(
+                    smoothScrollYProgress,
+                    keys,
+                    ["0vh", "0vh", "-100vh", "-100vh"]
+                  );
+                }
               } else {
-                const keys = [0, incomingStart, incomingEnd, outgoingEnd, 1];
-                textY = useTransform(
-                  smoothScrollYProgress,
-                  keys,
-                  ["0vh", "0vh", "0vh", "-100vh", "-100vh"]
-                );
+                if (outgoingEnd >= 0.999) {
+                  const keys = [0, incomingStart, incomingEnd, 1];
+                  textY = useTransform(
+                    smoothScrollYProgress,
+                    keys,
+                    ["0vh", "0vh", "0vh", "-100vh"]
+                  );
+                } else {
+                  const keys = [0, incomingStart, incomingEnd, outgoingEnd, 1];
+                  textY = useTransform(
+                    smoothScrollYProgress,
+                    keys,
+                    ["0vh", "0vh", "0vh", "-100vh", "-100vh"]
+                  );
+                }
               }
             }
 
