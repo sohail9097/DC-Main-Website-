@@ -245,7 +245,7 @@ export function Navbar() {
   const navLinks = [
     { name: 'Home', href: '/', path: '/' },
     { name: 'Content', to: '/films', path: '/films' },
-    { name: 'Brand', to: '/brand', path: '/brand' },
+    { name: 'Collaborators', to: '/brand', path: '/brand' },
     { name: 'About Us', to: '/about', path: '/about' },
   ];
 
@@ -671,9 +671,9 @@ function Clients() {
             </div>
           </div>
 
-          {/* Bottom Row - Scrolling Right to Left (CSS Animation scroll-right) */}
+          {/* Bottom Row - Scrolling Left to Right (CSS Animation scroll-left) */}
           <div className="flex overflow-hidden relative w-full mask-gradient py-4 md:py-6">
-            <div className="animate-scroll-right">
+            <div className="animate-scroll-left">
               {itemsRow2.map((client, i) => (
                 <ClientLogo key={`${client.name}-r2-${client.id || i}-${i}`} client={client} />
               ))}
@@ -991,23 +991,9 @@ export const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
 
 function DreamTeam() {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
-
-  const handlePrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + teamMembers.length) % teamMembers.length);
-  };
-
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % teamMembers.length);
-  };
-
-  useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   useEffect(() => {
     const loadTeamMembers = () => {
@@ -1025,44 +1011,70 @@ function DreamTeam() {
 
     loadTeamMembers();
     
-    // Listen for custom simple internal storage-updating triggers
     window.addEventListener('storage_updated_team', loadTeamMembers);
-    window.addEventListener('storage', loadTeamMembers); // Multi-tab or general sync
+    window.addEventListener('storage', loadTeamMembers);
     return () => {
       window.removeEventListener('storage_updated_team', loadTeamMembers);
       window.removeEventListener('storage', loadTeamMembers);
     };
   }, []);
 
-  // Reset to first profile when the Dream Team section is scrolled into view
-  useEffect(() => {
-    if (teamMembers.length === 0) return;
-    
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setCurrentIndex(0);
-        }
-      },
-      { threshold: 0.15 } // Trigger when at least 15% of the section is visible in the viewport
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
+  // Center selected card smoothly
+  const scrollToCard = (index: number) => {
+    if (!scrollContainerRef.current) return;
+    const container = scrollContainerRef.current;
+    const card = container.children[index] as HTMLElement;
+    if (card) {
+      const targetScrollLeft = card.offsetLeft - (container.clientWidth - card.clientWidth) / 2;
+      container.scrollTo({ left: targetScrollLeft, behavior: 'smooth' });
+      setActiveIndex(index);
     }
+  };
 
-    return () => {
-      observer.disconnect();
-    };
-  }, [teamMembers]);
+  const handlePrev = () => {
+    if (teamMembers.length === 0) return;
+    const prevIndex = (activeIndex - 1 + teamMembers.length) % teamMembers.length;
+    scrollToCard(prevIndex);
+  };
 
+  const handleNext = () => {
+    if (teamMembers.length === 0) return;
+    const nextIndex = (activeIndex + 1) % teamMembers.length;
+    scrollToCard(nextIndex);
+  };
+
+  // Determine activeIndex on user manual scroll/drag
+  const handleScroll = () => {
+    if (!scrollContainerRef.current || teamMembers.length === 0) return;
+    const container = scrollContainerRef.current;
+    const containerCenter = container.scrollLeft + container.clientWidth / 2;
+    
+    const children = container.children;
+    let closestIndex = 0;
+    let minDistance = Infinity;
+    
+    for (let i = 0; i < teamMembers.length; i++) {
+      const card = children[i] as HTMLElement;
+      if (!card) continue;
+      const cardCenter = card.offsetLeft + card.clientWidth / 2;
+      const distance = Math.abs(containerCenter - cardCenter);
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestIndex = i;
+      }
+    }
+    setActiveIndex(closestIndex);
+  };
+
+  // Slow automated rotation
   useEffect(() => {
     if (teamMembers.length === 0) return;
     const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % teamMembers.length);
-    }, 1500); // Ultra-fast auto-switch (1.5 seconds)
+      const nextIndex = (activeIndex + 1) % teamMembers.length;
+      scrollToCard(nextIndex);
+    }, 5000);
     return () => clearInterval(timer);
-  }, [teamMembers, currentIndex]);
+  }, [teamMembers, activeIndex]);
 
   if (teamMembers.length === 0) {
     return (
@@ -1075,186 +1087,168 @@ function DreamTeam() {
   }
 
   return (
-    <section id="team" ref={sectionRef} className="pt-8 md:pt-16 pb-24 md:pb-48 relative overflow-hidden bg-black/20">
-      <div className="max-w-[1600px] mx-auto px-6">
-        <div className="text-left mb-12 md:mb-16">
+    <section id="team" ref={sectionRef} className="pt-16 md:pt-28 pb-16 md:pb-24 relative overflow-hidden bg-black border-t border-zinc-950">
+      
+      {/* Background ambient lighting */}
+      <div className="absolute inset-0 bg-radial-gradient from-zinc-900/40 via-transparent to-transparent pointer-events-none select-none z-0" />
+
+      <div className="max-w-[1920px] mx-auto relative z-10">
+        <div className="px-6 md:px-24 mb-12 md:mb-16 text-left">
           <motion.span 
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: -25 }}
             whileInView={{ opacity: 1, x: 0 }}
-            className="text-orange-500 text-xs font-black uppercase tracking-[0.5em] mb-4 block"
+            className="text-orange-500 text-xs font-black uppercase tracking-[0.5em] mb-3 block"
           >
             The Visionaries
           </motion.span>
           <motion.h3 
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: -25 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
             className="font-bebas text-4xl md:text-7xl font-black italic tracking-[0.02em] text-orange-500 uppercase leading-none select-none"
           >
             Dream Team
           </motion.h3>
-        </div>        {/* Sliding Carousel */}
-        <div className="relative h-[550px] md:h-[700px] flex items-center justify-center">
-          {(() => {
-            const isMobile = windowWidth < 768;
-            
-            // Generous design gap offsets (center-to-center)
-            const innerOffset = isMobile ? 210 : 490; 
-            const outerOffset = innerOffset + (isMobile ? 120 : 320);
-            
-            // Position arrows outside of the outermost profile, but adjust dynamically to fit the viewport nicely
-            const maxArrowOffset = (windowWidth / 2) - (isMobile ? 32 : 64);
-            const preferredArrowOffset = outerOffset + (isMobile ? 65 : 125);
-            const arrowOffset = Math.min(preferredArrowOffset, maxArrowOffset);
-
-            return (
-              <>
-                {teamMembers.map((member, i) => {
-                  // Relative position logic for infinite loop
-                  let position = i - currentIndex;
-                  const total = teamMembers.length;
-                  const half = Math.floor(total / 2);
-                  while (position > half) position -= total;
-                  while (position < -half) position += total;
-
-                  const isCenter = position === 0;
-                  const isInnerSide = Math.abs(position) === 1; // Profiles 2 and 4
-                  const isOuterSide = Math.abs(position) === 2; // Profiles 1 and 5
-                  const isVisible = Math.abs(position) <= 2;
-
-                  let xOffset = 0;
-                  if (position === 1) xOffset = innerOffset;
-                  else if (position === -1) xOffset = -innerOffset;
-                  else if (position === 2) xOffset = outerOffset;
-                  else if (position === -2) xOffset = -outerOffset;
-
-                  const carouselTransition = {
-                    type: 'spring',
-                    stiffness: 650,
-                    damping: 34,
-                    mass: 0.25
-                  };
-
-                  return (
-                    <motion.div
-                      key={member.id}
-                      layout
-                      initial={false}
-                      animate={{
-                        opacity: isVisible ? (isCenter ? 1 : isInnerSide ? 0.8 : 0.4) : 0,
-                        x: xOffset,
-                        scale: isCenter ? 1 : isInnerSide ? 0.82 : 0.65,
-                        zIndex: isCenter ? 50 : 20 - Math.abs(position),
-                      }}
-                      transition={carouselTransition}
-                      className="absolute will-change-transform"
-                    >
-                      {/* Member Container - Using layout with optimized transition for smooth rapid morphing */}
-                      <motion.div
-                        layout
-                        transition={carouselTransition}
-                        className={`relative flex flex-col items-center overflow-hidden h-fit ${
-                          isCenter 
-                            ? 'w-[230px] md:w-[360px] bg-white shadow-[0_40px_100px_rgba(0,0,0,0.7)]' 
-                            : isInnerSide
-                              ? 'w-28 h-28 md:w-60 md:h-60 bg-white/5 backdrop-blur-md border-2 border-white/20 shadow-lg'
-                              : 'w-20 h-20 md:w-48 md:h-48 bg-white/5 backdrop-blur-md border-2 border-white/20 shadow-md'
-                        }`}
-                        style={{
-                          borderRadius: isCenter ? '3rem' : '50%'
-                        }}
-                      >
-                        {/* Photo container */}
-                        <motion.div
-                          layout
-                          transition={carouselTransition}
-                          className={`relative overflow-hidden w-full ${
-                            isCenter ? 'aspect-[3/4]' : 'h-full'
-                          }`}
-                        >
-                          {member.mediaType === 'video' || (member.image && (member.image.endsWith('.mp4') || member.image.includes('video') || member.image.includes('.mov'))) ? (
-                            <video 
-                              key={member.id}
-                              src={transformGoogleDriveUrl(member.image, 'video')} 
-                              autoPlay 
-                              loop 
-                              muted 
-                              playsInline 
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <motion.img 
-                              layout
-                              transition={carouselTransition}
-                              src={transformGoogleDriveUrl(member.image, 'image')} 
-                              alt={member.name} 
-                              className="w-full h-full object-cover"
-                              referrerPolicy="no-referrer"
-                            />
-                          )}
-                          
-                          {/* Name Overlay - Only for center */}
-                          <AnimatePresence>
-                            {isCenter && (
-                              <motion.div 
-                                layout
-                                transition={carouselTransition}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0 }}
-                                className="absolute inset-x-0 bottom-0 p-6 md:p-10 bg-gradient-to-t from-black/90 via-black/40 to-transparent"
-                              >
-                                <motion.h4 
-                                   layout
-                                   transition={carouselTransition}
-                                  className="text-xl md:text-4xl font-black italic text-white uppercase tracking-tighter text-left"
-                                >
-                                  {member.name}
-                                </motion.h4>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </motion.div>
-                      </motion.div>
-                    </motion.div>
-                  );
-                })}
-
-                {/* Left Slide Button - precisely positioned to the left of leftmost profile */}
-                <button 
-                  type="button"
-                  onClick={handlePrev}
-                  className="absolute z-[60] w-12 h-12 md:w-16 md:h-16 flex items-center justify-center rounded-full bg-black/60 hover:bg-orange-500 text-white hover:text-black border border-white/10 hover:border-orange-500/50 transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] active:scale-95 cursor-pointer group backdrop-blur-md"
-                  aria-label="Previous Team Member"
-                  id="team-btn-prev"
-                  style={{
-                    left: `calc(50% - ${arrowOffset}px)`,
-                    transform: 'translateY(-50%)',
-                    top: '50%'
-                  }}
-                >
-                  <ChevronLeft className="w-5 h-5 md:w-8 md:h-8 transition-transform group-hover:-translate-x-0.5" />
-                </button>
-
-                {/* Right Slide Button - precisely positioned to the right of rightmost profile */}
-                <button 
-                  type="button"
-                  onClick={handleNext}
-                  className="absolute z-[60] w-12 h-12 md:w-16 md:h-16 flex items-center justify-center rounded-full bg-black/60 hover:bg-orange-500 text-white hover:text-black border border-white/10 hover:border-orange-500/50 transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] active:scale-95 cursor-pointer group backdrop-blur-md"
-                  aria-label="Next Team Member"
-                  id="team-btn-next"
-                  style={{
-                    right: `calc(50% - ${arrowOffset}px)`,
-                    transform: 'translateY(-50%)',
-                    top: '50%'
-                  }}
-                >
-                  <ChevronRight className="w-5 h-5 md:w-8 md:h-8 transition-transform group-hover:translate-x-0.5" />
-                </button>
-              </>
-            );
-          })()}
         </div>
+
+        {/* Real Continuous 35mm Filmstrip Belt */}
+        <div className="relative w-full bg-black py-10 md:py-14 border-y-[20px] border-zinc-950 select-none overflow-hidden">
+          
+          {/* Top Sprocket Perforation Holes */}
+          <div className="absolute top-3 left-0 right-0 h-4 flex justify-between pointer-events-none select-none z-20 px-2 gap-[1vw] overflow-hidden">
+            {Array.from({ length: 60 }).map((_, idx) => (
+              <div 
+                key={`sprocket-top-${idx}`} 
+                className="w-3.5 h-3 bg-white/90 border border-zinc-900 shadow-sm flex-shrink-0" 
+              />
+            ))}
+          </div>
+
+          {/* Film Cells Track */}
+          <div className="relative z-10 w-full flex items-center justify-center">
+            <div 
+              ref={scrollContainerRef}
+              onScroll={handleScroll}
+              className="w-full flex flex-row overflow-x-auto gap-0 py-2 scrollbar-none select-none scroll-smooth snap-x snap-mandatory relative z-10 pl-[30vw] pr-[30vw] md:pl-[38vw] md:pr-[38vw]"
+              style={{
+                scrollSnapType: 'x mandatory'
+              }}
+            >
+              {teamMembers.map((member, i) => {
+                const isActive = i === activeIndex;
+                
+                return (
+                  <div
+                    key={member.id}
+                    onClick={() => scrollToCard(i)}
+                    className="flex-shrink-0 snap-center cursor-pointer transition-all duration-500 w-[240px] md:w-[325px] aspect-[2/3] bg-black relative flex items-center justify-center border-r-[16px] md:border-r-[24px] border-black rounded-none"
+                  >
+                    {/* Portrait Picture Box Frame (Perfect Square / No Rounded corners) */}
+                    <div 
+                      className={`w-full h-full bg-zinc-900 border-2 transition-all duration-500 overflow-hidden rounded-none ${
+                        isActive 
+                          ? 'border-orange-500 shadow-[0_0_40px_rgba(249,115,22,0.25)] brightness-110 scale-100' 
+                          : 'border-zinc-800 scale-95 opacity-50 hover:opacity-100 hover:scale-97'
+                      }`}
+                    >
+                      {member.mediaType === 'video' || (member.image && (member.image.endsWith('.mp4') || member.image.includes('video') || member.image.includes('.mov'))) ? (
+                        <video 
+                          key={member.id}
+                          src={transformGoogleDriveUrl(member.image, 'video')} 
+                          autoPlay 
+                          loop 
+                          muted 
+                          playsInline 
+                          className="w-full h-full object-cover pointer-events-none rounded-none"
+                        />
+                      ) : (
+                        <img 
+                          src={transformGoogleDriveUrl(member.image, 'image')} 
+                          alt={member.name} 
+                          className="w-full h-full object-cover pointer-events-none select-none rounded-none"
+                          referrerPolicy="no-referrer"
+                        />
+                      )}
+                      
+                      {/* Cine reflection overlays */}
+                      <div className="absolute inset-0 bg-gradient-to-tr from-black/40 via-transparent to-white/10 pointer-events-none" />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Left Scroll Trigger Button */}
+            <button 
+              type="button"
+              onClick={handlePrev}
+              className="absolute left-4 md:left-10 z-30 w-11 h-11 md:w-14 md:h-14 flex items-center justify-center rounded-full bg-black/75 hover:bg-orange-500 hover:text-black border border-zinc-800 hover:border-orange-500 transition-all duration-300 shadow-xl active:scale-95 cursor-pointer text-white backdrop-blur-md group"
+              aria-label="Previous Team Member"
+            >
+              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 transition-transform group-hover:-translate-x-0.5" />
+            </button>
+
+            {/* Right Scroll Trigger Button */}
+            <button 
+              type="button"
+              onClick={handleNext}
+              className="absolute right-4 md:right-10 z-30 w-11 h-11 md:w-14 md:h-14 flex items-center justify-center rounded-full bg-black/75 hover:bg-orange-500 hover:text-black border border-zinc-800 hover:border-orange-500 transition-all duration-300 shadow-xl active:scale-95 cursor-pointer text-white backdrop-blur-md group"
+              aria-label="Next Team Member"
+            >
+              <ChevronRight className="w-5 h-5 md:w-6 md:h-6 transition-transform group-hover:translate-x-0.5" />
+            </button>
+          </div>
+
+          {/* Bottom Sprocket Perforation Holes */}
+          <div className="absolute bottom-3 left-0 right-0 h-4 flex justify-between pointer-events-none select-none z-20 px-2 gap-[1vw] overflow-hidden">
+            {Array.from({ length: 60 }).map((_, idx) => (
+              <div 
+                key={`sprocket-bottom-${idx}`} 
+                className="w-3.5 h-3 bg-white/90 border border-zinc-900 shadow-sm flex-shrink-0" 
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Name and description panel displayed cleanly below the film strip */}
+        <div className="mt-10 mb-6 text-center max-w-xl mx-auto px-6 h-28 flex flex-col justify-center">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`metadata-${activeIndex}`}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+            >
+              <h4 className="font-bebas text-4xl md:text-5xl font-black italic tracking-wider text-orange-500 uppercase leading-none">
+                {teamMembers[activeIndex]?.name}
+              </h4>
+              <p className="text-xs font-mono font-extrabold tracking-[0.25em] text-zinc-400 uppercase mt-2.5">
+                {teamMembers[activeIndex]?.role}
+              </p>
+              {teamMembers[activeIndex]?.bio && (
+                <p className="text-xs text-zinc-500 mt-2 line-clamp-2 leading-relaxed max-w-sm mx-auto">
+                  {teamMembers[activeIndex]?.bio}
+                </p>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Bottom continuous cinematic stream labels */}
+        <div className="hidden md:flex flex-row justify-between items-center mt-6 px-24 pointer-events-none select-none">
+          <span className="text-[9px] font-mono tracking-[0.3em] text-zinc-700 uppercase">
+            35MM FILM REEL CONTROL // FRAME-LOCK CALIBRATION COMPLETE
+          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-[9px] font-mono tracking-[0.25em] text-zinc-500 uppercase flex items-center gap-2">
+              <span className="inline-block w-2 h-2 rounded-full bg-orange-500 animate-ping" />
+              CONTINUOUS CINEMATIC STREAM
+            </span>
+            <div className="w-16 h-[2px] bg-orange-500" />
+          </div>
+        </div>
+
       </div>
     </section>
   );
@@ -1737,7 +1731,7 @@ export function InteractiveOptions() {
   const navigate = useNavigate();
   const options = [
     { name: 'CONTENT', to: '/films' },
-    { name: 'BRAND', to: '/brand' },
+    { name: 'COLLABORATORS', to: '/brand' },
     { name: 'ABOUT US', to: '/about' },
     { name: 'CONTACT US', to: '/#contact-section' },
   ];
@@ -2613,7 +2607,12 @@ function LandingPage() {
   const [contactTitleFirst, setContactTitleFirst] = useState("Let's");
   const [contactTitleOrange, setContactTitleOrange] = useState("Connect.");
   const [contactSubtitle, setContactSubtitle] = useState("Start your cinematic journey today.");
-  const [contactEmail, setContactEmail] = useState("hello@dreamcatchers.tv");
+  const [contactEmail, setContactEmail] = useState(() => {
+    const email = localStorage.getItem('contact_email') || "hello@dreamcatchers.tv";
+    return email.toLowerCase().includes('@dreamcatchers.com') 
+      ? email.replace(/@dreamcatchers\.com/gi, '@dreamcatchers.tv') 
+      : email;
+  });
   const [contactPhone, setContactPhone] = useState("+91 98765 43210");
   const [contactAddress, setContactAddress] = useState("820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
 
@@ -2621,7 +2620,12 @@ function LandingPage() {
     setContactTitleFirst(localStorage.getItem('contact_title_first') || "Let's");
     setContactTitleOrange(localStorage.getItem('contact_title_orange') || "Connect.");
     setContactSubtitle(localStorage.getItem('contact_subtitle') || "Start your cinematic journey today.");
-    setContactEmail(localStorage.getItem('contact_email') || "hello@dreamcatchers.tv");
+    let email = localStorage.getItem('contact_email') || "hello@dreamcatchers.tv";
+    if (email.toLowerCase().includes('@dreamcatchers.com')) {
+      email = email.replace(/@dreamcatchers\.com/gi, '@dreamcatchers.tv');
+      localStorage.setItem('contact_email', email);
+    }
+    setContactEmail(email);
     setContactPhone(localStorage.getItem('contact_phone') || "+91 98765 43210");
     setContactAddress(localStorage.getItem('contact_address') || "820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
   };
@@ -2777,7 +2781,7 @@ function LandingPage() {
             <motion.div
               initial={{ opacity: 0, scale: 0.92 }}
               whileInView={{ opacity: 0.75, scale: 1 }}
-              viewport={{ once: true, margin: "-100px" }}
+              viewport={{ once: false, margin: "-100px" }}
               transition={{ 
                 opacity: { duration: 1.2, ease: "easeOut" },
                 scale: { duration: 1.5, ease: [0.16, 1, 0.3, 1] }
@@ -2834,7 +2838,7 @@ function LandingPage() {
                   <motion.div 
                     initial="hidden"
                     whileInView="visible"
-                    viewport={{ once: true, amount: 0.12 }}
+                    viewport={{ once: false, amount: 0.12 }}
                     className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 max-w-[1440px] mx-auto mt-8 px-4 sm:px-8 lg:px-12 pb-8" 
                     style={{ perspective: 1200 }}
                   >
@@ -3235,9 +3239,9 @@ function LandingPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-6">
                     <motion.div
-                      initial={{ opacity: 0, x: -50, rotate: -2, scale: 0.95 }}
-                      whileInView={{ opacity: 1, x: 0, rotate: 0, scale: 1 }}
-                      viewport={{ once: true, amount: 0.15 }}
+                      initial={{ opacity: 0, x: -50, scale: 0.95 }}
+                      whileInView={{ opacity: 1, x: 0, scale: 1 }}
+                      viewport={{ once: false, amount: 0.15 }}
                       transition={{ type: "spring", stiffness: 90, damping: 15 }}
                       whileHover={{ y: -8, scale: 1.02 }}
                       className="px-4 py-8 xs:px-5 md:p-8 xl:p-10 bg-zinc-950/60 border border-orange-500/30 rounded-[2rem] hover:bg-orange-500 hover:border-transparent transition-all duration-500 group cursor-pointer flex flex-col justify-between min-h-[170px]"
@@ -3257,9 +3261,9 @@ function LandingPage() {
                     </motion.div>
 
                     <motion.div
-                      initial={{ opacity: 0, x: -50, rotate: 2, scale: 0.95 }}
-                      whileInView={{ opacity: 1, x: 0, rotate: 0, scale: 1 }}
-                      viewport={{ once: true, amount: 0.15 }}
+                      initial={{ opacity: 0, x: -50, scale: 0.95 }}
+                      whileInView={{ opacity: 1, x: 0, scale: 1 }}
+                      viewport={{ once: false, amount: 0.15 }}
                       transition={{ type: "spring", stiffness: 90, damping: 15, delay: 0.1 }}
                       whileHover={{ y: -8, scale: 1.02 }}
                       className="p-8 md:p-10 bg-zinc-950/60 border border-orange-500/30 rounded-[2rem] hover:bg-orange-500 hover:border-transparent transition-all duration-500 group cursor-pointer flex flex-col justify-between min-h-[170px]"
@@ -3299,7 +3303,7 @@ function LandingPage() {
                 <motion.div
                   initial={{ opacity: 0, scale: 0.94, y: 50 }}
                   whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.15 }}
+                  viewport={{ once: false, amount: 0.15 }}
                   transition={{ type: "spring", stiffness: 80, damping: 18 }}
                   className="bg-zinc-950/60 border border-orange-500/30 rounded-[2.5rem] p-8 md:p-12 backdrop-blur-md relative overflow-hidden"
                 >
@@ -3343,7 +3347,7 @@ function LandingPage() {
                        key={loc.id}
                        initial={{ opacity: 0, y: idx % 2 === 0 ? 55 : -55 }}
                        whileInView={{ opacity: 1, y: 0 }}
-                       viewport={{ once: true, amount: 0.15 }}
+                       viewport={{ once: false, amount: 0.15 }}
                        transition={{ 
                          type: "spring",
                          stiffness: 45,

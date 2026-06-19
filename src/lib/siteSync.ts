@@ -41,8 +41,13 @@ export async function pushLocalConfigsToFirestore() {
   try {
     const settings: Record<string, string> = {};
     CONFIG_KEYS.forEach(key => {
-      const value = localStorage.getItem(key);
+      let value = localStorage.getItem(key);
       if (value !== null) {
+        // Sanitize any instances of dreamcatchers.com to dreamcatchers.tv
+        if (typeof value === 'string' && value.toLowerCase().includes('@dreamcatchers.com')) {
+          value = value.replace(/@dreamcatchers\.com/gi, '@dreamcatchers.tv');
+          localStorage.setItem(key, value);
+        }
         settings[key] = value;
       }
     });
@@ -82,9 +87,13 @@ export function initSiteSync() {
       let changedCount = 0;
       CONFIG_KEYS.forEach(key => {
         if (settings[key] !== undefined) {
+          let value = settings[key];
+          if (typeof value === 'string' && value.toLowerCase().includes('@dreamcatchers.com')) {
+            value = value.replace(/@dreamcatchers\.com/gi, '@dreamcatchers.tv');
+          }
           const currentLocal = localStorage.getItem(key);
-          if (currentLocal !== settings[key]) {
-            localStorage.setItem(key, settings[key]);
+          if (currentLocal !== value) {
+            localStorage.setItem(key, value);
             changedCount++;
           }
         }

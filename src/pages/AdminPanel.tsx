@@ -385,7 +385,12 @@ const AdminPanel: FC = () => {
   const [contactTitleFirst, setContactTitleFirst] = useState("Let's");
   const [contactTitleOrange, setContactTitleOrange] = useState("Connect.");
   const [contactSubtitle, setContactSubtitle] = useState("Start your cinematic journey today.");
-  const [contactEmail, setContactEmail] = useState("hello@dreamcatchers.tv");
+  const [contactEmail, setContactEmail] = useState(() => {
+    const email = localStorage.getItem('contact_email') || "hello@dreamcatchers.tv";
+    return email.toLowerCase().includes('@dreamcatchers.com') 
+      ? email.replace(/@dreamcatchers\.com/gi, '@dreamcatchers.tv') 
+      : email;
+  });
   const [contactPhone, setContactPhone] = useState("+91 98765 43210");
   const [contactAddress, setContactAddress] = useState("820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
 
@@ -576,7 +581,12 @@ const AdminPanel: FC = () => {
     setContactTitleFirst(localStorage.getItem('contact_title_first') || "Let's");
     setContactTitleOrange(localStorage.getItem('contact_title_orange') || "Connect.");
     setContactSubtitle(localStorage.getItem('contact_subtitle') || "Start your cinematic journey today.");
-    setContactEmail(localStorage.getItem('contact_email') || "hello@dreamcatchers.tv");
+    let email = localStorage.getItem('contact_email') || "hello@dreamcatchers.tv";
+    if (email.toLowerCase().includes('@dreamcatchers.com')) {
+      email = email.replace(/@dreamcatchers\.com/gi, '@dreamcatchers.tv');
+      localStorage.setItem('contact_email', email);
+    }
+    setContactEmail(email);
     setContactPhone(localStorage.getItem('contact_phone') || "+91 98765 43210");
     setContactAddress(localStorage.getItem('contact_address') || "820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
 

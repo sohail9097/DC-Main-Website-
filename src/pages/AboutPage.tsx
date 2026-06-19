@@ -1,7 +1,8 @@
-import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'motion/react';
+import { motion, useScroll, useTransform, useSpring, AnimatePresence, useMotionValue, animate } from 'motion/react';
 import { ChevronRight, ChevronLeft, Camera, Users, Target, Rocket, Instagram, Facebook, Youtube, Twitter, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useState, useEffect, useRef, useMemo, FC } from 'react';
+import { useState, useEffect, useRef, useMemo, FC, MouseEvent, TouchEvent } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { 
   Navbar, 
   Footer, 
@@ -79,9 +80,14 @@ const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
 const AboutPage = () => {
   const navigate = useNavigate();
   const { scrollY } = useScroll();
-  const heroImgOpacity = useTransform(scrollY, [0, 800], [1, 0.1]);
-  const starOpacity = useTransform(scrollY, [100, 700], [0.3, 1]);
+  const { isAdmin } = useAuth();
+  const heroImgOpacity = useTransform(scrollY, [0, 800], [1, 0]);
+  const starOpacity = useTransform(scrollY, [100, 700], [0, 1]);
   const textY = useTransform(scrollY, [0, 500], [0, 150]);
+
+  // Admin edit states
+  const [isEditingBg, setIsEditingBg] = useState(false);
+  const [tempBgImg, setTempBgImg] = useState('');
 
   // Dynamic states
   const [word1, setWord1] = useState('Dream');
@@ -128,9 +134,9 @@ const AboutPage = () => {
 
       for (let j = 0; j <= segments; j++) {
         const xNorm = j / segments;
-        const x = xNorm * width;
+        const x = -200 + xNorm * 2000;
 
-        // Taper waves off at left and right boundaries
+        // Taper waves off smoothly at left and right outer boundaries
         const baseAmplitude = Math.sin(xNorm * Math.PI);
         const wave = Math.sin(xNorm * Math.PI * 2.5 - yNorm * 2.2) * 55 * baseAmplitude;
         
@@ -192,26 +198,81 @@ const AboutPage = () => {
     };
   }, []);
 
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: scrollContainerRef });
-  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-65%"]);
-  
+  useEffect(() => {
+    if (isEditingBg) {
+      setTempBgImg(bgImg);
+    }
+  }, [isEditingBg, bgImg]);
+
+  const handleSaveHeroBg = () => {
+    const sanitizedUrl = tempBgImg.trim();
+    if (!sanitizedUrl) return;
+
+    localStorage.setItem('about_hero_bg', sanitizedUrl);
+    setBgImg(sanitizedUrl);
+    window.dispatchEvent(new Event('storage_updated_about'));
+    setIsEditingBg(false);
+  };
+
+
   // Staggered custom spring physics for organic fluid waves (inertia, mass, and drag)
   const springConfig1 = { stiffness: 45, damping: 18, mass: 0.8 };
   const springConfig2 = { stiffness: 30, damping: 12, mass: 1.0 };
   const springConfig3 = { stiffness: 60, damping: 22, mass: 0.6 };
 
-  const scrollWaveX1_A = useSpring(useTransform(scrollYProgress, [0, 1], [0, 180]), springConfig1);
-  const scrollWaveX1_B = useSpring(useTransform(scrollYProgress, [0, 1], [0, 180]), springConfig2);
-  const scrollWaveX1_C = useSpring(useTransform(scrollYProgress, [0, 1], [0, 180]), springConfig3);
+  const waveX1 = useMotionValue(0);
+  const waveX2 = useMotionValue(0);
+  const waveY1 = useMotionValue(0);
+  const waveY2 = useMotionValue(0);
+  const waveY3 = useMotionValue(0);
 
-  const scrollWaveX2_A = useSpring(useTransform(scrollYProgress, [0, 1], [0, -180]), springConfig1);
-  const scrollWaveX2_B = useSpring(useTransform(scrollYProgress, [0, 1], [0, -180]), springConfig2);
-  const scrollWaveX2_C = useSpring(useTransform(scrollYProgress, [0, 1], [0, -180]), springConfig3);
+  useEffect(() => {
+    const controlsX1 = animate(waveX1, [0, 180, 0], {
+      duration: 15,
+      ease: "easeInOut",
+      repeat: Infinity
+    });
+    const controlsX2 = animate(waveX2, [0, -180, 0], {
+      duration: 18,
+      ease: "easeInOut",
+      repeat: Infinity
+    });
+    const controlsY1 = animate(waveY1, [0, 50, 0], {
+      duration: 12,
+      ease: "easeInOut",
+      repeat: Infinity
+    });
+    const controlsY2 = animate(waveY2, [0, -40, 0], {
+      duration: 14,
+      ease: "easeInOut",
+      repeat: Infinity
+    });
+    const controlsY3 = animate(waveY3, [0, 30, 0], {
+      duration: 10,
+      ease: "easeInOut",
+      repeat: Infinity
+    });
 
-  const scrollWaveY_A = useSpring(useTransform(scrollYProgress, [0, 1], [0, 50]), springConfig1);
-  const scrollWaveY_B = useSpring(useTransform(scrollYProgress, [0, 1], [0, 50]), springConfig2);
-  const scrollWaveY_C = useSpring(useTransform(scrollYProgress, [0, 1], [0, 50]), springConfig3);
+    return () => {
+      controlsX1.stop();
+      controlsX2.stop();
+      controlsY1.stop();
+      controlsY2.stop();
+      controlsY3.stop();
+    };
+  }, []);
+
+  const scrollWaveX1_A = useSpring(waveX1, springConfig1);
+  const scrollWaveX1_B = useSpring(waveX2, springConfig2);
+  const scrollWaveX1_C = useSpring(waveY1, springConfig3);
+
+  const scrollWaveX2_A = useSpring(waveY2, springConfig1);
+  const scrollWaveX2_B = useSpring(waveY3, springConfig2);
+  const scrollWaveX2_C = useSpring(waveX1, springConfig3);
+
+  const scrollWaveY_A = useSpring(waveY1, springConfig1);
+  const scrollWaveY_B = useSpring(waveY2, springConfig2);
+  const scrollWaveY_C = useSpring(waveY3, springConfig3);
 
   const [orbitImages, setOrbitImages] = useState<string[]>([]);
   
@@ -266,6 +327,168 @@ const AboutPage = () => {
     };
   }, []);
 
+  const [timecode, setTimecode] = useState("01:24:59:00");
+  useEffect(() => {
+    let frame = 0;
+    let sec = 59;
+    let min = 24;
+    const interval = setInterval(() => {
+      frame++;
+      if (frame >= 24) {
+        frame = 0;
+        sec++;
+        if (sec >= 60) {
+          sec = 0;
+          min++;
+          if (min >= 100) min = 0;
+        }
+      }
+      const pad = (num: number) => String(num).padStart(2, '0');
+      setTimecode(`01:${pad(min)}:${pad(sec)}:${pad(frame)}`);
+    }, 1000 / 24); // cinematic 24 FPS ticker
+    return () => clearInterval(interval);
+  }, []);
+
+  const teamCarouselRef = useRef<HTMLDivElement>(null);
+  const [isDraggingTeam, setIsDraggingTeam] = useState(false);
+  const dragStartX = useRef(0);
+  const dragScrollLeft = useRef(0);
+  const autoScrollPauseUntilRef = useRef(0);
+
+  const scrollTeam = (direction: 'left' | 'right') => {
+    const container = teamCarouselRef.current;
+    if (!container) return;
+
+    // Pause auto scrolling for 2.5 seconds when clicking arrows
+    autoScrollPauseUntilRef.current = Date.now() + 2500;
+
+    const isMobile = window.innerWidth < 768;
+    const cardWidth = isMobile ? 256 : 344;
+    const scrollAmount = direction === 'left' ? -cardWidth : cardWidth;
+
+    container.scrollTo({
+      left: container.scrollLeft + scrollAmount,
+      behavior: 'smooth'
+    });
+  };
+
+  useEffect(() => {
+    const container = teamCarouselRef.current;
+    if (!container) return;
+
+    // Rendered list is 3 copies of team: [...team, ...team, ...team]
+    // Start scroll in the middle copy
+    const setInitialScroll = () => {
+      const totalWidth = container.scrollWidth;
+      container.scrollLeft = totalWidth / 3;
+    };
+
+    // Wait a moment for images/elements to render and measure
+    const timer = setTimeout(setInitialScroll, 150);
+
+    let animationFrameId: number;
+    let lastTime = performance.now();
+
+    const updateScroll = (time: number) => {
+      if (!isDraggingTeam && teamCarouselRef.current && Date.now() >= autoScrollPauseUntilRef.current) {
+        const delta = (time - lastTime) / 1000;
+        // speed of transition: 85px per second
+        teamCarouselRef.current.scrollLeft += 85 * delta;
+
+        // Wrap seamlessly
+        const totalWidth = teamCarouselRef.current.scrollWidth;
+        if (totalWidth > 0) {
+          const oneThird = totalWidth / 3;
+          if (teamCarouselRef.current.scrollLeft >= oneThird * 2) {
+            teamCarouselRef.current.scrollLeft -= oneThird;
+          } else if (teamCarouselRef.current.scrollLeft <= 5) {
+            teamCarouselRef.current.scrollLeft += oneThird;
+          }
+        }
+      }
+      lastTime = time;
+      animationFrameId = requestAnimationFrame(updateScroll);
+    };
+
+    animationFrameId = requestAnimationFrame(updateScroll);
+
+    return () => {
+      clearTimeout(timer);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [isDraggingTeam, team]);
+
+  const handleTeamMouseDown = (e: MouseEvent) => {
+    const container = teamCarouselRef.current;
+    if (!container) return;
+
+    setIsDraggingTeam(true);
+    dragStartX.current = e.pageX - container.offsetLeft;
+    dragScrollLeft.current = container.scrollLeft;
+  };
+
+  const handleTeamMouseMove = (e: MouseEvent) => {
+    const container = teamCarouselRef.current;
+    if (!container) return;
+
+    if (!isDraggingTeam) return;
+    e.preventDefault();
+    const x = e.pageX - container.offsetLeft;
+    const walk = (dragStartX.current - x) * 1.5;
+    container.scrollLeft = dragScrollLeft.current + walk;
+
+    const totalWidth = container.scrollWidth;
+    if (totalWidth > 0) {
+      const oneThird = totalWidth / 3;
+      if (container.scrollLeft >= oneThird * 2) {
+        container.scrollLeft -= oneThird;
+        dragStartX.current = x;
+        dragScrollLeft.current = container.scrollLeft;
+      } else if (container.scrollLeft <= 5) {
+        container.scrollLeft += oneThird;
+        dragStartX.current = x;
+        dragScrollLeft.current = container.scrollLeft;
+      }
+    }
+  };
+
+  const handleTeamMouseUpOrLeave = () => {
+    setIsDraggingTeam(false);
+  };
+
+  const handleTeamTouchStart = (e: TouchEvent) => {
+    const container = teamCarouselRef.current;
+    if (!container) return;
+
+    setIsDraggingTeam(true);
+    dragStartX.current = e.touches[0].pageX - container.offsetLeft;
+    dragScrollLeft.current = container.scrollLeft;
+  };
+
+  const handleTeamTouchMove = (e: TouchEvent) => {
+    const container = teamCarouselRef.current;
+    if (!container) return;
+
+    if (!isDraggingTeam) return;
+    const x = e.touches[0].pageX - container.offsetLeft;
+    const walk = (dragStartX.current - x) * 1.5;
+    container.scrollLeft = dragScrollLeft.current + walk;
+
+    const totalWidth = container.scrollWidth;
+    if (totalWidth > 0) {
+      const oneThird = totalWidth / 3;
+      if (container.scrollLeft >= oneThird * 2) {
+        container.scrollLeft -= oneThird;
+        dragStartX.current = x;
+        dragScrollLeft.current = container.scrollLeft;
+      } else if (container.scrollLeft <= 5) {
+        container.scrollLeft += oneThird;
+        dragStartX.current = x;
+        dragScrollLeft.current = container.scrollLeft;
+      }
+    }
+  };
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -316,58 +539,47 @@ const AboutPage = () => {
 
       {/* Global Transitioned Fixed Background Layer */}
       <div className="fixed inset-0 z-0 bg-black overflow-hidden pointer-events-none">
+        {/* Layer 1: Main Starry Background Image (Always active and visible behind the hero image) */}
+        <div className="absolute inset-0">
+          <img 
+            src="https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?auto=format&fit=crop&q=80&w=2070" 
+            alt="Global Stars" 
+            className="w-full h-full object-cover grayscale opacity-50"
+          />
+          <div className="absolute inset-0 bg-black/70" />
+        </div>
+
+        {/* Layer 2: Global Animated Star Field (Always active and twinkling) */}
+        <div className="absolute inset-0">
+          <StarField count={180} />
+        </div>
+
+        {/* Layer 3: Hero Scenery/Behind the scenes background image (Sits on top and fades out cleanly on scroll) */}
         <motion.div 
           style={{ opacity: heroImgOpacity }} 
           className="absolute inset-0"
           initial={{ scale: 1.1, filter: "blur(40px)" }}
           animate={{ scale: 1, filter: "blur(0px)" }}
-          transition={{ duration: 3, ease: "easeOut", delay: 0.6 }}
+          transition={{ duration: 1.2, ease: "easeOut", delay: 0.1 }}
         >
           <img 
             src={transformGoogleDriveUrl(bgImg, 'image')} 
-            className="w-full h-full object-cover brightness-[0.3] contrast-[1.2]"
+            className="w-full h-full object-cover"
             alt="Behind the scenes"
             referrerPolicy="no-referrer"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black" />
-        </motion.div>
-
-        <motion.div style={{ opacity: starOpacity }} className="absolute inset-0">
-          <StarField count={180} />
         </motion.div>
       </div>
 
       <Navbar />
 
       <main className="relative z-10">
-        {/* Cinematic Header Section */}
+        {/* Cinematic Header Section (Maintains spacing for the clear hero background scroll & fade transition) */}
         <section className="relative h-[90vh] w-full flex items-center justify-center overflow-hidden px-6">
-          <motion.div style={{ y: textY }} className="relative z-20 max-w-6xl text-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 0.8 }}
-            >
-              <h1 className="text-6xl md:text-[12rem] font-black italic tracking-tighter uppercase leading-[0.85] flex flex-col items-center">
-                <span className="text-white">{word1}</span>
-                <span className="text-orange-500 drop-shadow-[0_0_80px_rgba(249,115,22,0.4)]">{word2}</span>
-              </h1>
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: "100%" }}
-                transition={{ duration: 1.5, delay: 1.5 }}
-                className="h-[1px] bg-gradient-to-r from-transparent via-orange-500 to-transparent mt-12 md:mt-20 mx-auto"
-              />
-              <motion.p 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1, delay: 2.2 }}
-                className="text-white/45 max-w-3xl mx-auto mt-12 text-sm md:text-xl font-medium tracking-[0.2em] uppercase leading-relaxed px-4"
-              >
-                {tagline}
-              </motion.p>
-            </motion.div>
-          </motion.div>
+          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 animate-bounce pointer-events-none">
+             <span className="text-[9px] text-white/30 uppercase tracking-[0.5em]">Scroll</span>
+             <div className="w-[1px] h-12 bg-gradient-to-b from-orange-500 to-transparent shadow-[0_0_15px_rgba(249,115,22,0.5)]" />
+          </div>
         </section>
 
         {/* DC Orbit Section */}
@@ -526,7 +738,7 @@ const AboutPage = () => {
                   <span className="w-12 h-[1px] bg-orange-500" />
                   <span className="text-xs font-black text-orange-500 uppercase tracking-[0.5em]">{genesisSub}</span>
                 </div>
-                <h2 className="text-5xl md:text-8xl font-black italic text-white tracking-tighter leading-none uppercase">
+                <h2 className="text-4xl md:text-6xl lg:text-7xl font-black italic text-white tracking-tighter leading-none uppercase">
                   {genesisTitle}
                 </h2>
                 <div className="space-y-8 text-white/60 text-lg md:text-2xl font-medium leading-relaxed tracking-tight border-l-2 border-orange-500/20 pl-8 md:pl-12">
@@ -565,206 +777,481 @@ const AboutPage = () => {
           </div>
         </section>
 
-        {/* Team Section with scroll-controlled horizontal slide */}
-        <section ref={scrollContainerRef} className="relative h-[250vh] bg-black">
-          {/* Sticky view frame */}
-          <div className="sticky top-0 h-screen w-full overflow-hidden bg-black flex flex-col justify-between pt-16 md:pt-24 pb-12">
-            
-             {/* Ambient Background Wavy Lining styled like requested design with interactive scroll waving */}
-             <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden bg-black flex items-center justify-center">
-                <svg 
-                 className="w-full h-full opacity-100" 
-                 viewBox="0 0 1600 900" 
-                 preserveAspectRatio="none"
-               >
-                 {wavyBackgroundPaths.map((d, idx) => {
-                   let selectedX;
-                   let selectedY;
-                   const mod3 = idx % 3;
-                   const mod2 = idx % 2;
+        {/* Team Section with continuous auto sliding horizontal marquee */}
+        <section className="relative py-24 min-h-[92vh] bg-black flex flex-col justify-between overflow-hidden">
+             
+             {/* Flickering Projector Beam of light */}
+             <div 
+               className="absolute top-0 left-0 w-[70%] h-[120%] pointer-events-none z-0 transform -translate-x-[15%] -translate-y-[15%]" 
+               style={{
+                 background: 'conic-gradient(from 135deg at 0% 0%, rgba(249, 115, 22, 0.15) 0deg, rgba(255, 255, 255, 0.08) 25deg, transparent 45deg)',
+                 filter: 'blur(45px)',
+                 animation: 'projector-flicker 5s infinite'
+               }}
+             />
 
-                   if (mod2 === 0) {
-                     if (mod3 === 0) {
-                       selectedX = scrollWaveX1_A;
-                     } else if (mod3 === 1) {
-                       selectedX = scrollWaveX1_B;
-                     } else {
-                       selectedX = scrollWaveX1_C;
-                     }
-                   } else {
-                     if (mod3 === 0) {
-                       selectedX = scrollWaveX2_A;
-                     } else if (mod3 === 1) {
-                       selectedX = scrollWaveX2_B;
-                     } else {
-                       selectedX = scrollWaveX2_C;
-                     }
-                   }
-
-                   if (mod3 === 0) {
-                     selectedY = scrollWaveY_A;
-                   } else if (mod3 === 1) {
-                     selectedY = scrollWaveY_B;
-                   } else {
-                     selectedY = scrollWaveY_C;
-                   }
-
-                   return (
-                     <motion.path
-                       key={idx}
-                       d={d}
-                       fill="none"
-                       stroke="rgba(255, 255, 255, 0.45)"
-                       strokeWidth="1.5"
-                       style={{
-                         x: selectedX,
-                         y: selectedY
-                       }}
-                     />
-                   );
-                 })}
-               </svg>
+             {/* Cinematically Moving Film Scratch system */}
+             <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+               <div 
+                 className="absolute top-0 bottom-0 w-[1px] bg-white/[0.08]"
+                 style={{
+                   animation: 'film-scratches-x 10s steps(1) infinite'
+                 }}
+               />
+               <div 
+                 className="absolute w-1.5 h-1.5 rounded-full bg-white/[0.12]"
+                 style={{
+                   animation: 'film-dust-pulse 7s steps(1) infinite'
+                 }}
+               />
              </div>
 
-            {/* Giant Faint Background Word */}
-            <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden z-0 select-none">
-              <span className="text-[28vw] font-black tracking-tighter text-white/[0.015] uppercase italic select-none">
-                the tribe
-              </span>
-            </div>
 
-            <style>{`
-              @keyframes border-trace-anim {
-                0% {
-                  stroke-dashoffset: 100;
-                }
-                100% {
+ 
+             {/* Giant Faint Background Word */}
+             <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden z-0 select-none">
+               <span className="text-[28vw] font-black tracking-tighter text-white/[0.015] uppercase italic select-none">
+                 the tribe
+               </span>
+             </div>
+
+             {/* Dynamic Scrolling Celluloid Movie Reels (Background) */}
+             <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden flex flex-col justify-around py-16 opacity-30 select-none">
+               
+               {/* Reel 1: Upper Track (Scrolling Left) */}
+               <div className="w-full h-24 overflow-hidden relative border-y border-white/[0.03] bg-zinc-950/20">
+                 <div className="flex w-max gap-0 animate-film-reel-left">
+                   {/* Loop 1 */}
+                   <div className="flex">
+                     {Array.from({ length: 12 }).map((_, idx) => (
+                       <div key={`reel-top-${idx}`} className="w-56 h-24 flex-shrink-0 bg-neutral-950 border-r-2 border-neutral-900 relative flex flex-col justify-between py-1.5">
+                         {/* Top Sprockets */}
+                         <div className="flex justify-between px-1.5 opacity-60">
+                           {Array.from({ length: 9 }).map((_, s) => (
+                             <span key={s} className="w-2 h-2.5 bg-zinc-700/80 border border-white/20 rounded-[1px]" />
+                           ))}
+                         </div>
+                         {/* Frame Space */}
+                         <div className="flex-grow mx-3 my-0.5 bg-black/55 border border-white/[0.05] rounded-[1px] flex items-center justify-between px-3 text-white/10 font-mono text-[8px] tracking-widest select-none">
+                           <span className="text-orange-500/20 font-black">KODAK 500T</span>
+                           <span>01:{String(idx + 1).padStart(2, '0')}</span>
+                           <span className="text-white/5 font-extrabold">▲ {12 + idx}</span>
+                         </div>
+                         {/* Bottom Sprockets */}
+                         <div className="flex justify-between px-1.5 opacity-60">
+                           {Array.from({ length: 9 }).map((_, s) => (
+                             <span key={s} className="w-2 h-2.5 bg-zinc-700/80 border border-white/20 rounded-[1px]" />
+                           ))}
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                   {/* Loop 2 (Duplicate for seamless infinite wrap) */}
+                   <div className="flex">
+                     {Array.from({ length: 12 }).map((_, idx) => (
+                       <div key={`reel-top-dup-${idx}`} className="w-56 h-24 flex-shrink-0 bg-neutral-950 border-r-2 border-neutral-900 relative flex flex-col justify-between py-1.5">
+                         {/* Top Sprockets */}
+                         <div className="flex justify-between px-1.5 opacity-60">
+                           {Array.from({ length: 9 }).map((_, s) => (
+                             <span key={s} className="w-2 h-2.5 bg-zinc-700/80 border border-white/20 rounded-[1px]" />
+                           ))}
+                         </div>
+                         {/* Frame Space */}
+                         <div className="flex-grow mx-3 my-0.5 bg-black/55 border border-white/[0.05] rounded-[1px] flex items-center justify-between px-3 text-white/10 font-mono text-[8px] tracking-widest select-none">
+                           <span className="text-orange-500/20 font-black">KODAK 500T</span>
+                           <span>01:{String(idx + 1).padStart(2, '0')}</span>
+                           <span className="text-white/5 font-extrabold">▲ {12 + idx}</span>
+                         </div>
+                         {/* Bottom Sprockets */}
+                         <div className="flex justify-between px-1.5 opacity-60">
+                           {Array.from({ length: 9 }).map((_, s) => (
+                             <span key={s} className="w-2 h-2.5 bg-zinc-700/80 border border-white/20 rounded-[1px]" />
+                           ))}
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 </div>
+               </div>
+
+               {/* Reel 2: Lower Track (Scrolling Left) */}
+               <div className="w-full h-24 overflow-hidden relative border-y border-white/[0.03] bg-zinc-950/20">
+                 <div className="flex w-max gap-0 animate-film-reel-left">
+                   {/* Loop 1 */}
+                   <div className="flex">
+                     {Array.from({ length: 12 }).map((_, idx) => (
+                       <div key={`reel-bottom-${idx}`} className="w-56 h-24 flex-shrink-0 bg-neutral-950 border-r-2 border-neutral-900 relative flex flex-col justify-between py-1.5">
+                         {/* Top Sprockets */}
+                         <div className="flex justify-between px-1.5 opacity-60">
+                           {Array.from({ length: 9 }).map((_, s) => (
+                             <span key={s} className="w-2 h-2.5 bg-zinc-700/80 border border-white/20 rounded-[1px]" />
+                           ))}
+                         </div>
+                         {/* Frame Space */}
+                         <div className="flex-grow mx-3 my-0.5 bg-black/55 border border-white/[0.05] rounded-[1px] flex items-center justify-between px-3 text-white/10 font-mono text-[8px] tracking-widest select-none">
+                           <span className="text-orange-500/20 font-black">FUJI REALA</span>
+                           <span>02:{String(idx + 1).padStart(2, '0')}</span>
+                           <span className="text-white/5 font-extrabold">▲ {38 + idx}</span>
+                         </div>
+                         {/* Bottom Sprockets */}
+                         <div className="flex justify-between px-1.5 opacity-60">
+                           {Array.from({ length: 9 }).map((_, s) => (
+                             <span key={s} className="w-2 h-2.5 bg-zinc-700/80 border border-white/20 rounded-[1px]" />
+                           ))}
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                   {/* Loop 2 (Duplicate for seamless infinite wrap) */}
+                   <div className="flex">
+                     {Array.from({ length: 12 }).map((_, idx) => (
+                       <div key={`reel-bottom-dup-${idx}`} className="w-56 h-24 flex-shrink-0 bg-neutral-950 border-r-2 border-neutral-900 relative flex flex-col justify-between py-1.5">
+                         {/* Top Sprockets */}
+                         <div className="flex justify-between px-1.5 opacity-60">
+                           {Array.from({ length: 9 }).map((_, s) => (
+                             <span key={s} className="w-2 h-2.5 bg-zinc-700/80 border border-white/20 rounded-[1px]" />
+                           ))}
+                         </div>
+                         {/* Frame Space */}
+                         <div className="flex-grow mx-3 my-0.5 bg-black/55 border border-white/[0.05] rounded-[1px] flex items-center justify-between px-3 text-white/10 font-mono text-[8px] tracking-widest select-none">
+                           <span className="text-orange-500/20 font-black">FUJI REALA</span>
+                           <span>02:{String(idx + 1).padStart(2, '0')}</span>
+                           <span className="text-white/5 font-extrabold">▲ {38 + idx}</span>
+                         </div>
+                         {/* Bottom Sprockets */}
+                         <div className="flex justify-between px-1.5 opacity-60">
+                           {Array.from({ length: 9 }).map((_, s) => (
+                             <span key={s} className="w-2 h-2.5 bg-zinc-700/80 border border-white/20 rounded-[1px]" />
+                           ))}
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 </div>
+               </div>
+
+             </div>
+
+             {/* Film Strip Outer Frame Sprocket slots */}
+             <div className="absolute top-0 left-0 right-0 h-6 bg-zinc-950/90 z-10 flex items-center border-b border-white/5 overflow-hidden">
+               <div className="w-full h-2 film-strip" />
+             </div>
+             <div className="absolute bottom-0 left-0 right-0 h-6 bg-zinc-950/90 z-10 flex items-center border-t border-white/5 overflow-hidden">
+               <div className="w-full h-2 film-strip" />
+             </div>
+
+             {/* Dynamic Viewfinder Cameras Hub Overlays */}
+             <div className="absolute top-10 left-8 md:left-24 z-10 pointer-events-none text-[10px] font-mono tracking-wider text-white/30 flex items-center gap-12 select-none">
+               <div className="flex items-center gap-2">
+                 <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse inline-block" />
+                 <span className="font-extrabold text-red-500 uppercase">REC [RAW_4K]</span>
+               </div>
+               <div>24 FPS</div>
+               <div className="hidden sm:block">ISO 800</div>
+               <div className="hidden sm:block">SHUTTER 180°</div>
+               <div className="hidden sm:block">5600K</div>
+             </div>
+
+             <div className="absolute top-10 right-8 md:right-24 z-10 pointer-events-none text-[10px] font-mono tracking-wider text-white/30 flex items-center gap-8 select-none">
+               <div className="flex items-center gap-2">
+                 <span>AUDIO dB</span>
+                 <div className="flex items-end gap-[1.5px] h-3 w-10 bg-zinc-900/40 p-[2px] rounded border border-white/5">
+                   <div className="w-[3px] bg-green-500/80 animate-pulse h-1" style={{ animationDelay: '0.1s' }} />
+                   <div className="w-[3px] bg-green-500/80 animate-pulse h-2" style={{ animationDelay: '0.4s' }} />
+                   <div className="w-[3px] bg-green-500/80 animate-pulse h-1.5" style={{ animationDelay: '0.2s' }} />
+                   <div className="w-[3px] bg-orange-500/80 animate-pulse h-2.5" style={{ animationDelay: '0s' }} />
+                 </div>
+               </div>
+               <div className="font-bold text-orange-500">{timecode}</div>
+             </div>
+
+             <style>{`
+               @keyframes border-trace-anim {
+                 0% {
+                   stroke-dashoffset: 100;
+                 }
+                 100% {
                    stroke-dashoffset: 0;
-                }
-              }
-            `}</style>
+                 }
+               }
+               @keyframes film-strip-flow {
+                 0% { background-position-x: 0px; }
+                 100% { background-position-x: 48px; }
+               }
+               @keyframes projector-flicker {
+                 0%, 100% { opacity: 0.12; }
+                 15% { opacity: 0.08; }
+                 30% { opacity: 0.15; }
+                 45% { opacity: 0.06; }
+                 60% { opacity: 0.14; }
+                 75% { opacity: 0.09; }
+                 90% { opacity: 0.18; }
+               }
+               @keyframes film-scratches-x {
+                 0%, 100% { transform: translateX(12%) scaleX(1); opacity: 0; }
+                 5% { transform: translateX(28%) scaleX(1.5); opacity: 0.12; }
+                 6% { transform: translateX(38%) scaleX(0.8); opacity: 0; }
+                 35% { transform: translateX(65%) scaleX(1.2); opacity: 0.1; }
+                 37% { transform: translateX(18%) scaleX(2); opacity: 0.15; }
+                 39% { transform: translateX(68%) scaleX(0.5); opacity: 0; }
+                 70% { transform: translateX(82%) scaleX(1); opacity: 0.12; }
+                 72% { transform: translateX(32%) scaleX(1.5); opacity: 0; }
+               }
+               @keyframes film-dust-pulse {
+                 0%, 100% { opacity: 0; transform: translate(15%, 25%) scale(0.6); }
+                 10% { opacity: 0.25; transform: translate(32%, 48%) scale(1.3); }
+                 20% { opacity: 0; transform: translate(48%, 15%) scale(0.4); }
+                 40% { opacity: 0.2; transform: translate(72%, 78%) scale(1.6); }
+                 50% { opacity: 0; transform: translate(22%, 60%) scale(0.7); }
+                 70% { opacity: 0.3; transform: translate(82%, 32%) scale(1.2); }
+                 80% { opacity: 0; transform: translate(18%, 85%) scale(0.5); }
+               }
+               @keyframes film-reel-left {
+                 0% { transform: translateX(0); }
+                 100% { transform: translateX(-50%); }
+               }
+               @keyframes film-reel-right {
+                 0% { transform: translateX(-50%); }
+                 100% { transform: translateX(0); }
+               }
+               .animate-film-reel-left {
+                 animation: film-reel-left 45s linear infinite;
+               }
+               .animate-film-reel-right {
+                 animation: film-reel-right 38s linear infinite;
+               }
+               .film-strip {
+                 background: repeating-linear-gradient(90deg, transparent, transparent 16px, rgba(255,255,255,0.06) 16px, rgba(255,255,255,0.06) 24px);
+                 background-size: 48px 100%;
+                 animation: film-strip-flow 1.8s linear infinite;
+               }
+             `}</style>
+ 
+             {/* Header Area (Lower Z-index to prevent covering the cards) */}
+             <div className="relative z-10 max-w-xl pl-8 md:pl-24">
+               <h2 className="text-3xl md:text-5xl font-black text-white tracking-tighter leading-none uppercase mb-4">
+                 Dream Team
+               </h2>
+               <p className="text-white/30 text-xs md:text-sm font-semibold uppercase tracking-widest leading-relaxed">
+                 A collective of obsessed creators, technical wizards, and poetic dreamers.
+               </p>
+             </div>
+ 
+             {/* Sliding Container Track Wrapper with Navigation Arrows */}
+             <div className="relative w-full flex-grow flex items-center">
+               {/* Left Navigation Arrow */}
+               <button
+                 onClick={() => scrollTeam('left')}
+                 className="absolute left-4 md:left-10 z-30 w-11 h-11 md:w-14 md:h-14 rounded-full bg-white text-black shadow-xl flex items-center justify-center hover:bg-orange-500 hover:text-white transition-all duration-300 pointer-events-auto active:scale-95 border border-zinc-200"
+                 aria-label="Previous team frame"
+               >
+                 <ChevronLeft size={22} className="md:w-7 md:h-7 text-current" />
+               </button>
 
-            {/* Header Area (Lower Z-index to prevent covering the cards) */}
-            <div className="relative z-10 max-w-xl pl-8 md:pl-24">
-              <div className="flex items-center gap-3 text-orange-500 font-mono tracking-widest text-xs uppercase mb-3">
-                <span className="px-2 py-0.5 rounded border border-orange-500/30 text-[10px] font-black">04</span>
-                <span>Our Tribe</span>
-              </div>
-              <h2 className="text-3xl md:text-5xl font-black text-white tracking-tighter leading-none uppercase mb-4">
-                Dream Team
-              </h2>
-              <p className="text-white/30 text-xs md:text-sm font-semibold uppercase tracking-widest leading-relaxed">
-                A collective of obsessed creators, technical wizards, and poetic dreamers.
-              </p>
-            </div>
+               {/* Sliding Container Track (Supports mouse dragging, touch, and auto-scrolling infinite loop) */}
+               <div 
+                 ref={teamCarouselRef}
+               onMouseDown={handleTeamMouseDown}
+               onMouseMove={handleTeamMouseMove}
+               onMouseUp={handleTeamMouseUpOrLeave}
+               onMouseLeave={handleTeamMouseUpOrLeave}
+               onTouchStart={handleTeamTouchStart}
+               onTouchMove={handleTeamTouchMove}
+               onTouchEnd={handleTeamMouseUpOrLeave}
+               className={`w-full flex-grow relative z-20 flex items-center min-h-0 overflow-x-hidden py-10 select-none ${isDraggingTeam ? 'cursor-grabbing' : 'cursor-grab'}`}
+               style={{ scrollBehavior: 'auto' }}
+             >
+               <div className="flex gap-0 w-max px-[10vw]">
+                 {([...team, ...team, ...team]).map((member, idx) => {
+                    return (
+                      <div 
+                        key={`${member.name}-${idx}`}
+                        className="bg-transparent w-[240px] md:w-[320px] flex-shrink-0 relative group/card select-none flex flex-col items-center border-r-[16px] md:border-r-[24px] border-black pt-8 pb-7"
+                      >
+                        {/* Top Perforation Sprocket Holes */}
+                        <div className="absolute top-2.5 left-0 right-0 h-2.5 flex justify-between px-1 pointer-events-none select-none z-20 gap-1.5 overflow-hidden">
+                          {Array.from({ length: 8 }).map((_, s) => (
+                            <div key={`sprocket-top-${s}`} className="w-4 h-2.5 bg-white/95 shadow-sm flex-shrink-0" />
+                          ))}
+                        </div>
 
-            {/* Sliding Container Track (Higher Z-index so it slides over background elements nicely) */}
-            <div className="w-full flex-1 relative z-20 flex items-center min-h-0">
-              <motion.div 
-                style={{ x }} 
-                className="flex gap-12 md:gap-16 items-center px-[30vw]"
-              >
-                {team.map((member, idx) => {
-                  // Predefined organic staggered classes - reduced off-center offsets slightly to prevent overlapping text at any viewport size
-                  const staggerClasses = [
-                    "translate-y-[60px]",
-                    "-translate-y-[55px]",
-                    "translate-y-0",
-                    "translate-y-[85px]",
-                    "-translate-y-[70px]",
-                    "translate-y-[30px]",
-                    "-translate-y-[35px]",
-                    "translate-y-[75px]",
-                    "-translate-y-[50px]"
-                  ];
-                  const yClass = staggerClasses[idx % staggerClasses.length];
+                        {/* Image Frame - Perfect Square, Zero Rounded Corners */}
+                        <div className="w-full aspect-[3/4] overflow-hidden relative mb-3 z-10 border border-zinc-800 group-hover/card:border-orange-500 transition-colors duration-300 rounded-none bg-zinc-900/40">
+                          <img 
+                            src={transformGoogleDriveUrl(member.img, 'image')} 
+                            alt={member.name} 
+                            referrerPolicy="no-referrer"
+                            className="w-full h-full object-cover pointer-events-none transition-transform duration-[1200ms] ease-out group-hover/card:scale-110 rounded-none"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-tr from-black/45 via-transparent to-white/10 pointer-events-none" />
+                        </div>
 
-                  return (
-                    <div 
-                      key={`${member.name}-${idx}`}
-                      className={`bg-transparent w-[230px] md:w-[280px] flex-shrink-0 relative group/card transition-all duration-500 select-none pb-4 ${yClass}`}
-                    >
-                      {/* Image Frame */}
-                      <div className="w-full aspect-[4/5] rounded-[2rem] overflow-hidden relative mb-6">
-                        <img 
-                          src={transformGoogleDriveUrl(member.img, 'image')} 
-                          alt={member.name} 
-                          referrerPolicy="no-referrer"
-                          className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover/card:scale-120"
-                        />
+                        {/* Name and Role */}
+                        <div className="text-center relative z-10 px-2 pointer-events-none select-none">
+                          <h4 className="text-base md:text-lg font-black tracking-widest text-zinc-300 uppercase italic group-hover/card:text-orange-500 transition-colors duration-300">
+                            {member.name}
+                          </h4>
+                          <p className="text-[9px] md:text-[10px] font-mono tracking-widest text-zinc-500 uppercase mt-1">
+                            {member.role}
+                          </p>
+                        </div>
 
-                        {/* Circular looping orange tracer border on hover directly orbiting around the image borders */}
-                        <div className="absolute inset-0 pointer-events-none z-20 rounded-[2rem] opacity-0 group-hover/card:opacity-100 transition-opacity duration-300">
-                          <svg className="absolute inset-0 w-full h-full rounded-[2rem]" viewBox="0 0 100 100" preserveAspectRatio="none">
-                            <rect
-                              x="0"
-                              y="0"
-                              width="100"
-                              height="100"
-                              rx="6"
-                              ry="4.5"
-                              fill="none"
-                              stroke="#f97316"
-                              strokeWidth="1.5"
-                              pathLength="100"
-                              style={{
-                                strokeDasharray: '25 75',
-                                animation: 'border-trace-anim 3.2s linear infinite'
-                              }}
-                            />
-                          </svg>
+                        {/* Bottom Perforation Sprocket Holes */}
+                        <div className="absolute bottom-2.5 left-0 right-0 h-2.5 flex justify-between px-1 pointer-events-none select-none z-20 gap-1.5 overflow-hidden">
+                          {Array.from({ length: 8 }).map((_, s) => (
+                            <div key={`sprocket-bottom-${s}`} className="w-4 h-2.5 bg-white/95 shadow-sm flex-shrink-0" />
+                          ))}
                         </div>
                       </div>
+                    );
+                  })}
+               </div>
+             </div>
 
-                      {/* Name Only */}
-                      <div className="text-center relative z-10 px-2">
-                        <h4 className="text-lg md:text-xl font-black tracking-widest text-white uppercase italic group-hover/card:text-orange-500 transition-colors duration-300">
-                          {member.name}
-                        </h4>
-                      </div>
-                    </div>
-                  );
-                })}
-              </motion.div>
-            </div>
-
-            {/* Horizontal Scroll Progress bar / Tip */}
-            <div className="absolute bottom-16 right-8 md:right-24 z-20 flex items-center gap-4 text-white/20 text-[10px] font-black uppercase tracking-widest">
-              <span>Scroll down to slide</span>
-              <div className="w-12 h-[1px] bg-white/20 relative overflow-hidden">
-                <motion.div 
-                  style={{ scaleX: scrollYProgress }} 
-                  className="absolute inset-0 bg-orange-500 origin-left"
-                />
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        {/* Global Footer Call to Action */}
-        <section className="py-24 border-t border-white/5">
-           <div className="max-w-[1400px] mx-auto px-6 text-center">
-              <motion.h2 
-                whileInView={{ scale: [0.9, 1], opacity: [0, 1] }}
-                className="text-4xl md:text-9xl font-black italic tracking-tighter text-white uppercase leading-[0.8] mb-16"
-              >
-                Let&apos;s Catch Some <br /> 
-                <span className="text-orange-500">Dreams Together.</span>
-              </motion.h2>
-              <motion.button 
-                onClick={() => navigate('/#contact-section')}
-                whileHover={{ scale: 1.05, backgroundColor: "#fff", color: "#000" }}
-                transition={{ duration: 0.4 }}
-                className="px-16 py-8 rounded-full border-2 border-white/10 text-white font-black uppercase tracking-[0.3em] text-xs md:text-sm hover:border-transparent transition-all"
-              >
-                Contact Our Studio
-              </motion.button>
+             {/* Right Navigation Arrow */}
+             <button
+               onClick={() => scrollTeam('right')}
+               className="absolute right-4 md:right-10 z-30 w-11 h-11 md:w-14 md:h-14 rounded-full bg-white text-black shadow-xl flex items-center justify-center hover:bg-orange-500 hover:text-white transition-all duration-300 pointer-events-auto active:scale-95 border border-zinc-200"
+               aria-label="Next team frame"
+             >
+               <ChevronRight size={22} className="md:w-7 md:h-7 text-current" />
+             </button>
            </div>
-        </section>
+ 
+             {/* Horizontal Continuous Stream Indicator */}
+             <div className="absolute bottom-8 right-8 md:right-24 z-20 flex items-center gap-4 text-white/20 text-[10px] font-black uppercase tracking-widest">
+               <span>Continuous Cinematic Stream</span>
+               <div className="w-12 h-[2px] bg-white/10 relative overflow-hidden rounded-full">
+                 <div 
+                   className="absolute inset-0 bg-orange-500 origin-left animate-pulse"
+                 />
+               </div>
+             </div>
+ 
+         </section>
+
+
        </main>
       <InteractiveOptions />
       <Footer />
+
+      {/* Hero Image Management Mini Admin Modal */}
+      <AnimatePresence>
+        {isEditingBg && (
+          <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsEditingBg(false)}
+              className="absolute inset-0 bg-black/95 backdrop-blur-md"
+            />
+
+            {/* Modal Container */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-lg bg-zinc-950 border border-white/10 rounded-[2rem] p-6 md:p-8 overflow-hidden shadow-2xl z-10"
+            >
+              {/* Top glow */}
+              <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-48 h-48 bg-orange-500/10 blur-[60px] rounded-full pointer-events-none" />
+
+              {/* Title */}
+              <div className="flex items-center justify-between mb-6 relative z-10">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full border border-orange-500/20 bg-orange-500/5 flex items-center justify-center text-orange-500">
+                    <Camera size={14} />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-black tracking-tight uppercase text-xs md:text-sm">Hero Image Management</h3>
+                    <p className="text-white/40 text-[9px] font-mono tracking-wider uppercase">Dreamcatchers Customization Grid</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsEditingBg(false)}
+                  className="w-7 h-7 rounded-full border border-white/5 hover:border-white/10 hover:bg-white/5 flex items-center justify-center text-white/50 hover:text-white transition-all cursor-pointer"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+
+              {/* Form content */}
+              <div className="space-y-6 relative z-10">
+                <div>
+                  <label className="block text-[9px] font-mono uppercase tracking-widest text-zinc-500 mb-2">
+                    Hero Background Image URL or Google Drive Link
+                  </label>
+                  <input
+                    type="text"
+                    value={tempBgImg}
+                    onChange={(e) => setTempBgImg(e.target.value)}
+                    placeholder="https://images.unsplash.com/... or google-drive-url"
+                    className="w-full px-4 py-3 bg-zinc-900 border border-white/5 focus:border-orange-500/30 rounded-xl text-white text-xs font-medium focus:outline-none transition-all placeholder:text-zinc-600"
+                  />
+                  <p className="text-[9px] text-zinc-500 font-mono mt-1 px-1">
+                    Enter any Unsplash address or Google Drive share link. It supports instant image transformation automatically.
+                  </p>
+                </div>
+
+                {/* Preview Frame */}
+                {tempBgImg && (
+                  <div>
+                    <span className="block text-[9px] font-mono uppercase tracking-widest text-zinc-500 mb-2">Live Canvas Preview</span>
+                    <div className="w-full h-36 rounded-xl overflow-hidden relative border border-white/5 bg-zinc-900/50">
+                      <img
+                        src={transformGoogleDriveUrl(tempBgImg, 'image')}
+                        className="w-full h-full object-cover"
+                        alt="Hero Preview"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&q=80&w=2072';
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 to-transparent" />
+                      <div className="absolute bottom-3 left-4">
+                        <span className="text-[10px] font-black tracking-widest text-white uppercase italic">PREVIEW ACTIVE</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Direct Action Buttons */}
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingBg(false)}
+                    className="flex-1 py-3 px-4 border border-white/10 hover:border-white/20 text-white/80 hover:text-white rounded-xl text-[10px] font-mono tracking-widest uppercase transition-all duration-300 cursor-pointer text-center bg-transparent"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSaveHeroBg}
+                    className="flex-1 py-3 px-4 bg-orange-500 hover:bg-orange-600 text-black font-black uppercase tracking-[0.1em] text-[10px] rounded-xl transition-all duration-300 cursor-pointer shadow-lg shadow-orange-500/10 text-center"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+
+                <div className="pt-2 border-t border-white/5 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsEditingBg(false);
+                      navigate('/admin');
+                    }}
+                    className="text-[9px] font-bold text-orange-400 hover:text-orange-300 font-mono tracking-widest uppercase flex items-center gap-1.5 cursor-pointer bg-transparent border-none"
+                  >
+                    🚀 Enter Full Studio Editorial Panel
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Vertical Lightbox Video Modal overlay */}
       <AnimatePresence>

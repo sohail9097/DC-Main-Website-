@@ -142,13 +142,8 @@ const SECTIONS_CONFIG = [
 const FilmsPage = () => {
   const location = useLocation();
   const { scrollY } = useScroll();
-  const heroImgOpacity = useTransform(scrollY, [0, 800], [1, 0.1]);
+  const heroImgOpacity = useTransform(scrollY, [0, 800], [1, 0]);
   const starOpacity = useTransform(scrollY, [100, 700], [0.3, 1]);
-  
-  // New parallax transforms for text
-  const textY = useTransform(scrollY, [0, 500], [0, 150]);
-  const titleXRight = useTransform(scrollY, [0, 500], [0, 100]);
-  const titleXLeft = useTransform(scrollY, [0, 500], [0, -100]);
 
   const [films, setFilms] = useState<{ id: string; title: string; category?: string; img: string; video?: string; frameType?: string }[]>([]);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
@@ -230,25 +225,40 @@ const FilmsPage = () => {
       {/* Global Transitioned Fixed Background Layer (Like Home Page) */}
       <div className="fixed inset-0 z-0 bg-black overflow-hidden pointer-events-none">
         
-        {/* Layer 1: Cinematic Base Image */}
+        {/* Layer 1: Main Starry Background Image (Always active and visible behind the hero image) */}
+        <div className="absolute inset-0">
+          <img 
+            src="https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?auto=format&fit=crop&q=80&w=2070" 
+            alt="Global Stars" 
+            className="w-full h-full object-cover grayscale opacity-50"
+          />
+          <div className="absolute inset-0 bg-black/70" />
+        </div>
+
+        {/* Layer 2: Global Animated Star Field (Always active and twinkling) */}
+        <div className="absolute inset-0">
+          <StarField count={180} />
+        </div>
+
+        {/* Layer 3: Cinematic Base Image */}
         <motion.div 
           style={{ opacity: heroImgOpacity }} 
           className="absolute inset-0"
           initial={{ scale: 1.05, filter: "blur(20px)" }}
           animate={{ scale: 1, filter: "blur(0px)" }}
-          transition={{ duration: 2.5, ease: "easeOut", delay: 0.6 }}
+          transition={{ duration: 1.2, ease: "easeOut", delay: 0.1 }}
         >
           <img 
             src="https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=2070" 
-            className="w-full h-full object-cover brightness-[0.5] contrast-[1.2]"
+            className="w-full h-full object-cover brightness-[0.8] contrast-[1.1]"
             alt="Cinematic Movie Background"
             loading="eager"
             decoding="async"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black" />
         </motion.div>
 
-        {/* Layer 2: Subtle Film Grain/Texture */}
+        {/* Layer 4: Subtle Film Grain/Texture */}
         <motion.div style={{ opacity: heroImgOpacity }} className="absolute inset-0 opacity-30 mix-blend-overlay">
           <img 
             src="https://images.unsplash.com/photo-1598897135853-90d56621252e?auto=format&fit=crop&q=80&w=2070" 
@@ -258,11 +268,6 @@ const FilmsPage = () => {
             decoding="async"
           />
         </motion.div>
-
-        {/* Star Field & Ambient Atmosphere */}
-        <motion.div style={{ opacity: starOpacity }} className="absolute inset-0">
-          <StarField count={150} />
-        </motion.div>
         
         <div className="absolute top-[-20%] left-[-10%] w-[80%] h-[80%] bg-blue-900/5 blur-[180px] rounded-full mix-blend-screen" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[70%] h-[70%] bg-orange-900/5 blur-[150px] rounded-full mix-blend-screen" />
@@ -271,52 +276,16 @@ const FilmsPage = () => {
       <Navbar />
 
       <main className="relative z-10">
-        {/* Full Screen Cinematic Hero */}
+        {/* Full Screen Cinematic Hero (Maintains spacing for the background scroll & fade transition) */}
         <section className="relative h-screen w-full flex items-center justify-center overflow-hidden px-6">
-          {/* Main Title Background Reveal */}
-          <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none opacity-10">
-            <h1 className="font-bebas text-[20rem] font-black italic uppercase tracking-[0.02em] select-none">
-              FILMS
-            </h1>
-          </div>
-
-          <motion.div style={{ y: textY }} className="relative z-20 max-w-5xl">
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 0.8 }}
-              className="text-center"
-            >
-              <h1 className="font-bebas text-7xl md:text-[10rem] font-black italic tracking-[0.02em] uppercase leading-none flex flex-col items-center">
-                <motion.span style={{ x: titleXLeft }} className="text-orange-500 drop-shadow-[0_0_50px_rgba(249,115,22,0.3)]">Gallery of</motion.span>
-                <motion.span style={{ x: titleXRight }} className="text-white -mt-4 md:-mt-10">Motion</motion.span>
-              </h1>
-              
-              <motion.p 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1, delay: 1.5 }}
-                className="text-white/60 max-w-2xl mx-auto mt-8 text-sm md:text-lg font-medium tracking-tight leading-relaxed px-4"
-              >
-                Explore our diverse portfolio of cinematic work. From high-octane commercials to soulful documentaries, we bring stories to life with artistic precision and technical mastery.
-              </motion.p>
-            </motion.div>
-          </motion.div>
-
-          {/* Home Style Scroll Indicator */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 2.5, duration: 1 }}
-            className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 animate-bounce"
-          >
+          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 animate-bounce pointer-events-none">
              <span className="text-[9px] text-white/30 uppercase tracking-[0.5em]">Scroll</span>
              <div className="w-[1px] h-12 bg-gradient-to-b from-orange-500 to-transparent shadow-[0_0_15px_rgba(249,115,22,0.5)]" />
-          </motion.div>
+          </div>
         </section>
 
-        {/* Sticky Sub-Navbar Categories Quick Jump Menu */}
-        <div className="sticky top-20 z-40 w-full py-4 bg-zinc-950/90 backdrop-blur-md border-y border-white/5 overflow-hidden">
+        {/* Sub-Navbar Categories Quick Jump Menu */}
+        <div className="relative z-20 w-full py-4 bg-zinc-950/90 backdrop-blur-md border-y border-white/5 overflow-hidden">
           <div className="max-w-[1600px] mx-auto px-4">
             <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-orange-500/20 scrollbar-track-transparent snap-x touch-pan-x justify-start">
               <button
@@ -395,7 +364,7 @@ const FilmsPage = () => {
             {/* Unified Section Header */}
             <div className="border-b border-white/[0.08] pb-8 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div className="space-y-3">
-                <h2 className="font-helvetica-cond text-3xl md:text-5xl lg:text-6xl font-bold tracking-[0.02em] text-orange-500 uppercase leading-none select-none">
+                <h2 className="font-helvetica-cond text-3xl md:text-5xl lg:text-6xl font-bold tracking-[0.02em] text-white uppercase leading-none select-none">
                   {selectedCategory === 'All' ? 'OUR WORKS' : selectedCategory}
                 </h2>
                 <p className="text-white text-[8px] xs:text-[9px] sm:text-xs md:text-sm font-semibold uppercase tracking-[0.1em] xs:tracking-[0.12em] sm:tracking-[0.2em] md:tracking-[0.3em] font-mono leading-relaxed max-w-full block whitespace-nowrap overflow-x-auto scrollbar-none">
@@ -542,8 +511,8 @@ const FilmsPage = () => {
 
                           {/* Category badge heading overlay inside each video card frame */}
                           {film.category && (
-                            <div className="absolute top-5 left-5 z-20 pointer-events-none select-none">
-                              <span className="text-xl sm:text-[28px] font-bold font-bebas tracking-[0.06em] text-white uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]">
+                            <div className="absolute top-5 left-5 z-20">
+                              <span className="px-3.5 py-1 text-[11px] font-medium font-bebas tracking-[0.16em] uppercase rounded-full bg-black/95 text-white backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.5)] border border-orange-500/40">
                                 {normalizeCategoryName(film.category)}
                               </span>
                             </div>

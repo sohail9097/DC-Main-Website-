@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform } from 'motion/react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import { Shield, Sparkles, Building2, Landmark, Clapperboard, ExternalLink, ArrowRight, Plus } from 'lucide-react';
 import React, { useState, useEffect, FC, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -977,9 +977,9 @@ export default function BrandPage() {
         {/* Dynamic Category Selector Menu Layout */}
         <div 
           ref={selectorRef}
-          className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between sticky top-[95px] z-40 bg-black/80 backdrop-blur-xl py-6 border-b border-white/5 px-4 -mx-4 rounded-b-2xl scroll-mt-32"
+          className="flex justify-center sticky top-[95px] z-40 bg-black/80 backdrop-blur-xl py-6 border-b border-white/5 px-4 -mx-4 rounded-b-2xl scroll-mt-32"
         >
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-nowrap items-center justify-start md:justify-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] w-full max-w-5xl px-2">
             {CATEGORIES.map(category => {
               const IconComp = category.icon;
               const isActive = activeCategory === category.id;
@@ -991,7 +991,7 @@ export default function BrandPage() {
                     setActiveCategory(category.id);
                     selectorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   }}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 ${
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 shrink-0 ${
                     isActive 
                       ? 'bg-orange-500 text-black shadow-lg shadow-orange-500/20' 
                       : 'bg-[#121214] hover:bg-zinc-800 border border-white/5 text-white/60 hover:text-white'
@@ -1003,17 +1003,6 @@ export default function BrandPage() {
               );
             })}
           </div>
-
-          {/* Search bar input filter */}
-          <div className="relative max-w-sm w-full shrink-0">
-            <input
-              type="text"
-              placeholder="SEARCH BRAND..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="w-full bg-[#121214] border border-white/5 px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest text-white placeholder-white/20 focus:outline-none focus:border-orange-500/50 transition-colors"
-            />
-          </div>
         </div>
 
         {/* Grid representing active Partner items */}
@@ -1021,44 +1010,46 @@ export default function BrandPage() {
           layout
           className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mt-12"
         >
-          {filteredBrands.map((brand) => (
-            <motion.div
-              layout
-              key={brand.id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.35 }}
-              className="group relative h-36 bg-zinc-950 border border-white/5 rounded-2xl flex flex-col justify-center items-center overflow-hidden hover:border-orange-500/30 transition-all duration-500 p-4"
-            >
-              {/* Highlight background glowing ring */}
-              <div className="absolute inset-0 bg-gradient-to-t from-orange-500/0 to-orange-500/2 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              
-              {/* Actual styled vector logo */}
-              <div className={`transform transition-all duration-500 z-10 w-full h-full flex items-center justify-center ${
-                brand.logoSize === 'small' ? 'scale-[0.7]' :
-                brand.logoSize === 'large' ? 'scale-[1.05]' :
-                brand.logoSize === 'xlarge' ? 'scale-[1.2]' :
-                'scale-[0.88] md:scale-100'
-              } group-hover:scale-[1.06]`}>
-                {brand.logoUrl ? (
-                  <img src={transformGoogleDriveUrl(brand.logoUrl)} alt={brand.name} className="max-w-[90%] max-h-[90%] object-contain p-1" referrerPolicy="no-referrer" />
-                ) : (
-                  brand.renderLogo ? brand.renderLogo() : (
-                    <span className="text-sm font-black text-white/90 uppercase tracking-widest leading-none">{brand.name}</span>
-                  )
-                )}
-              </div>
+          <AnimatePresence mode="popLayout">
+            {filteredBrands.map((brand) => (
+              <motion.div
+                layout
+                key={`${activeCategory}-${brand.id}`}
+                initial={{ opacity: 0, y: -25, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 25, scale: 0.95 }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+                className="group relative h-36 bg-zinc-950 border border-white/5 rounded-2xl flex flex-col justify-center items-center overflow-hidden hover:border-orange-500/30 transition-all duration-500 p-4"
+              >
+                {/* Highlight background glowing ring */}
+                <div className="absolute inset-0 bg-gradient-to-t from-orange-500/0 to-orange-500/2 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                {/* Actual styled vector logo */}
+                <div className={`transform transition-all duration-500 z-10 w-full h-full flex items-center justify-center ${
+                  brand.logoSize === 'small' ? 'scale-[0.7]' :
+                  brand.logoSize === 'large' ? 'scale-[1.05]' :
+                  brand.logoSize === 'xlarge' ? 'scale-[1.2]' :
+                  'scale-[0.88] md:scale-100'
+                } group-hover:scale-[1.06]`}>
+                  {brand.logoUrl ? (
+                    <img src={transformGoogleDriveUrl(brand.logoUrl)} alt={brand.name} className="max-w-[90%] max-h-[90%] object-contain p-1" referrerPolicy="no-referrer" />
+                  ) : (
+                    brand.renderLogo ? brand.renderLogo() : (
+                      <span className="text-sm font-black text-white/90 uppercase tracking-widest leading-none">{brand.name}</span>
+                    )
+                  )}
+                </div>
 
-              {/* hover descriptive tag identifier */}
-              <div className="absolute inset-x-0 bottom-0 p-2.5 bg-black/90 border-t border-white/10 flex flex-col items-center justify-center text-center translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-20">
-                <span className="text-[9px] font-black text-white tracking-widest uppercase">{brand.name}</span>
-                {brand.description && (
-                  <span className="text-[7.5px] text-white/40 tracking-wider uppercase mt-0.5 line-clamp-1">{brand.description}</span>
-                )}
-              </div>
-            </motion.div>
-          ))}
+                {/* hover descriptive tag identifier */}
+                <div className="absolute inset-x-0 bottom-0 p-2.5 bg-black/90 border-t border-white/10 flex flex-col items-center justify-center text-center translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-20">
+                  <span className="text-[9px] font-black text-white tracking-widest uppercase">{brand.name}</span>
+                  {brand.description && (
+                    <span className="text-[7.5px] text-white/40 tracking-wider uppercase mt-0.5 line-clamp-1">{brand.description}</span>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </motion.div>
 
         {/* No results placeholder */}

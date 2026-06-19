@@ -203,7 +203,7 @@ export default function GlobalPresenceMap() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
+            viewport={{ once: false }}
             className="inline-flex items-center gap-2 px-4 py-1.5 bg-zinc-900 border border-white/5 rounded-full text-[10px] text-orange-500 font-bold uppercase tracking-[0.3em] mb-5 shadow-2xl"
           >
             <Globe className="w-3.5 h-3.5 animate-spin duration-10000 text-orange-500" /> 
