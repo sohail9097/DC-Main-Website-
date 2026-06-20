@@ -98,6 +98,9 @@ const AboutPage = () => {
   const [genesisTitle, setGenesisTitle] = useState('Where Magic Finds Its Form.');
   const [genesisP1, setGenesisP1] = useState('Dreamcatchers started with a simple belief: that every story, no matter how small, deserves to be told with the weight of an epic.');
   const [genesisP2, setGenesisP2] = useState("From our humble beginnings producing daily chat shows, we've evolved into a powerhouse creative studio that brands trust to bring their most ambitious visions to life.");
+  const [genesisSub3, setGenesisSub3] = useState('Our Evolution');
+  const [genesisTitle3, setGenesisTitle3] = useState('From Curiosity to Creation');
+  const [genesisP3, setGenesisP3] = useState("Having cut their teeth at some of India's leading television networks, they set out to create the kind of content they wanted to watch—fresh, engaging, and driven by curiosity. What started as a small passion project soon turned into a creative studio. Today, DC creates campaigns, films, series, branded content, for brands across the world.");
 
   const [stat1Val, setStat1Val] = useState('14+');
   const [stat1Lbl, setStat1Lbl] = useState('YEARS ON SET');
@@ -156,6 +159,9 @@ const AboutPage = () => {
     setGenesisTitle(localStorage.getItem('about_genesis_title') || 'Where Magic Finds Its Form.');
     setGenesisP1(localStorage.getItem('about_genesis_p1') || 'Dreamcatchers started with a simple belief: that every story, no matter how small, deserves to be told with the weight of an epic.');
     setGenesisP2(localStorage.getItem('about_genesis_p2') || "From our humble beginnings producing daily chat shows, we've evolved into a powerhouse creative studio that brands trust to bring their most ambitious visions to life.");
+    setGenesisSub3(localStorage.getItem('about_genesis_sub3') || 'Our Evolution');
+    setGenesisTitle3(localStorage.getItem('about_genesis_title3') || 'From Curiosity to Creation');
+    setGenesisP3(localStorage.getItem('about_genesis_p3') || "Having cut their teeth at some of India's leading television networks, they set out to create the kind of content they wanted to watch—fresh, engaging, and driven by curiosity. What started as a small passion project soon turned into a creative studio. Today, DC creates campaigns, films, series, branded content, for brands across the world.");
 
     setStat1Val(localStorage.getItem('about_stat1_val') || '14+');
     setStat1Lbl(localStorage.getItem('about_stat1_lbl') || 'YEARS ON SET');
@@ -652,7 +658,7 @@ const AboutPage = () => {
               >
                  <motion.div variants={itemVariants} className="flex items-center gap-6 group/dc w-full justify-start">
                     <motion.span 
-                      whileHover={{ scale: 1.2, rotate: -5 }}
+                      whileHover={{ scale: 1.2 }}
                       className="text-2xl font-black italic tracking-tighter text-orange-500 leading-none cursor-default drop-shadow-[0_0_15px_rgba(249,115,22,0.3)] hover:drop-shadow-[0_0_25px_rgba(249,115,22,1)] hover:text-orange-400 transition-all duration-300"
                     >
                       DC
@@ -683,7 +689,7 @@ const AboutPage = () => {
                              transition: { duration: 1.8, ease: [0.16, 1, 0.3, 1] }
                            }
                          }}
-                         whileHover={{ scale: 1.1, color: "#fff", rotate: i % 2 === 0 ? 4 : -4 }}
+                         whileHover={{ scale: 1.1, color: "#fff" }}
                          className="inline-block mr-[0.25em] origin-top cursor-default transition-colors duration-200"
                        >
                          {word}
@@ -732,22 +738,40 @@ const AboutPage = () => {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                className="space-y-10"
+                className="space-y-16"
               >
-                <div className="flex items-center gap-4">
-                  <span className="w-12 h-[1px] bg-orange-500" />
-                  <span className="text-xs font-black text-orange-500 uppercase tracking-[0.5em]">{genesisSub}</span>
+                <div className="space-y-10">
+                  <div className="flex items-center gap-4">
+                    <span className="w-12 h-[1px] bg-orange-500" />
+                    <span className="text-xs font-black text-orange-500 uppercase tracking-[0.5em]">{genesisSub}</span>
+                  </div>
+                  <h2 className="text-4xl md:text-6xl lg:text-7xl font-black text-orange-500 tracking-tighter leading-none uppercase">
+                    {genesisTitle}
+                  </h2>
+                  <div className="space-y-8 text-white/60 text-lg md:text-2xl font-medium leading-relaxed tracking-tight border-l-2 border-orange-500/20 pl-8 md:pl-12">
+                    <p>
+                      {genesisP1}
+                    </p>
+                    <p>
+                      {genesisP2}
+                    </p>
+                  </div>
                 </div>
-                <h2 className="text-4xl md:text-6xl lg:text-7xl font-black italic text-white tracking-tighter leading-none uppercase">
-                  {genesisTitle}
-                </h2>
-                <div className="space-y-8 text-white/60 text-lg md:text-2xl font-medium leading-relaxed tracking-tight border-l-2 border-orange-500/20 pl-8 md:pl-12">
-                  <p>
-                    {genesisP1}
-                  </p>
-                  <p>
-                    {genesisP2}
-                  </p>
+
+                {/* Additional custom user-desired story block */}
+                <div className="space-y-10 pt-10 border-t border-white/5">
+                  <div className="flex items-center gap-4">
+                    <span className="w-12 h-[1px] bg-orange-500" />
+                    <span className="text-xs font-black text-orange-500 uppercase tracking-[0.5em]">{genesisSub3}</span>
+                  </div>
+                  <h3 className="text-3xl md:text-5xl lg:text-6xl font-black text-orange-500 tracking-tighter leading-none uppercase">
+                    {genesisTitle3}
+                  </h3>
+                  <div className="space-y-8 text-white/60 text-lg md:text-2xl font-medium leading-relaxed tracking-tight border-l-2 border-orange-500/20 pl-8 md:pl-12">
+                    <p>
+                      {genesisP3}
+                    </p>
+                  </div>
                 </div>
               </motion.div>
 

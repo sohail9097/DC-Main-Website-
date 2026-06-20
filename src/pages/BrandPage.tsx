@@ -941,14 +941,14 @@ export default function BrandPage() {
         </div>
 
         {/* Dynamic Typography Title Headers */}
-        <h1 className="text-4xl md:text-[5.5rem] font-black tracking-tighter uppercase leading-[0.9] text-white">
+        <h1 className="text-3xl md:text-[4.2rem] font-black tracking-tighter uppercase leading-[0.9] text-white">
           TRUSTED BY <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-orange-400 to-orange-500">
             THE WORLD'S ELITE
           </span>
         </h1>
         
-        <p className="text-white/40 max-w-2xl text-sm md:text-base font-medium mt-6 leading-relaxed">
+        <p className="text-white/40 max-w-2xl text-xs md:text-sm font-medium mt-6 leading-relaxed">
           Creating stunning high-impact media campaigns, digital films, branded contents, 
           and creative adaptations. We partner with local governments, public sectors, 
           leading consumer brands, global corporate conglomerates, and premium networks.

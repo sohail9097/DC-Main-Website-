@@ -364,6 +364,9 @@ const AdminPanel: FC = () => {
   const [aboutGenesisTitle, setAboutGenesisTitle] = useState('Where Magic Finds Its Form.');
   const [aboutGenesisP1, setAboutGenesisP1] = useState('Dreamcatchers started with a simple belief: that every story, no matter how small, deserves to be told with the weight of an epic.');
   const [aboutGenesisP2, setAboutGenesisP2] = useState("From our humble beginnings producing daily chat shows, we've evolved into a powerhouse creative studio that brands trust to bring their most ambitious visions to life.");
+  const [aboutGenesisSub3, setAboutGenesisSub3] = useState('Our Evolution');
+  const [aboutGenesisTitle3, setAboutGenesisTitle3] = useState('From Curiosity to Creation');
+  const [aboutGenesisP3, setAboutGenesisP3] = useState("Having cut their teeth at some of India's leading television networks, they set out to create the kind of content they wanted to watch—fresh, engaging, and driven by curiosity. What started as a small passion project soon turned into a creative studio. Today, DC creates campaigns, films, series, branded content, for brands across the world.");
 
   const [aboutStat1Val, setAboutStat1Val] = useState('14+');
   const [aboutStat1Lbl, setAboutStat1Lbl] = useState('YEARS ON SET');
@@ -546,6 +549,9 @@ const AdminPanel: FC = () => {
     setAboutGenesisTitle(localStorage.getItem('about_genesis_title') || 'Where Magic Finds Its Form.');
     setAboutGenesisP1(localStorage.getItem('about_genesis_p1') || 'Dreamcatchers started with a simple belief: that every story, no matter how small, deserves to be told with the weight of an epic.');
     setAboutGenesisP2(localStorage.getItem('about_genesis_p2') || "From our humble beginnings producing daily chat shows, we've evolved into a powerhouse creative studio that brands trust to bring their most ambitious visions to life.");
+    setAboutGenesisSub3(localStorage.getItem('about_genesis_sub3') || 'Our Evolution');
+    setAboutGenesisTitle3(localStorage.getItem('about_genesis_title3') || 'From Curiosity to Creation');
+    setAboutGenesisP3(localStorage.getItem('about_genesis_p3') || "Having cut their teeth at some of India's leading television networks, they set out to create the kind of content they wanted to watch—fresh, engaging, and driven by curiosity. What started as a small passion project soon turned into a creative studio. Today, DC creates campaigns, films, series, branded content, for brands across the world.");
 
     setAboutStat1Val(localStorage.getItem('about_stat1_val') || '14+');
     setAboutStat1Lbl(localStorage.getItem('about_stat1_lbl') || 'YEARS ON SET');
@@ -1084,6 +1090,9 @@ const AdminPanel: FC = () => {
     localStorage.setItem('about_genesis_title', aboutGenesisTitle);
     localStorage.setItem('about_genesis_p1', aboutGenesisP1);
     localStorage.setItem('about_genesis_p2', aboutGenesisP2);
+    localStorage.setItem('about_genesis_sub3', aboutGenesisSub3);
+    localStorage.setItem('about_genesis_title3', aboutGenesisTitle3);
+    localStorage.setItem('about_genesis_p3', aboutGenesisP3);
 
     localStorage.setItem('about_stat1_val', aboutStat1Val);
     localStorage.setItem('about_stat1_lbl', aboutStat1Lbl);
@@ -1179,6 +1188,9 @@ const AdminPanel: FC = () => {
       setAboutGenesisTitle('Where Magic Finds Its Form.');
       setAboutGenesisP1('Dreamcatchers started with a simple belief: that every story, no matter how small, deserves to be told with the weight of an epic.');
       setAboutGenesisP2("From our humble beginnings producing daily chat shows, we've evolved into a powerhouse creative studio that brands trust to bring their most ambitious visions to life.");
+      setAboutGenesisSub3('Our Evolution');
+      setAboutGenesisTitle3('From Curiosity to Creation');
+      setAboutGenesisP3("Having cut their teeth at some of India's leading television networks, they set out to create the kind of content they wanted to watch—fresh, engaging, and driven by curiosity. What started as a small passion project soon turned into a creative studio. Today, DC creates campaigns, films, series, branded content, for brands across the world.");
 
       setAboutStat1Val('14+');
       setAboutStat1Lbl('YEARS ON SET');
@@ -1197,6 +1209,9 @@ const AdminPanel: FC = () => {
       localStorage.removeItem('about_genesis_title');
       localStorage.removeItem('about_genesis_p1');
       localStorage.removeItem('about_genesis_p2');
+      localStorage.removeItem('about_genesis_sub3');
+      localStorage.removeItem('about_genesis_title3');
+      localStorage.removeItem('about_genesis_p3');
       localStorage.removeItem('about_stat1_val');
       localStorage.removeItem('about_stat1_lbl');
       localStorage.removeItem('about_stat2_val');
@@ -4078,6 +4093,48 @@ const AdminPanel: FC = () => {
                       placeholder="..."
                       className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white resize-none"
                     />
+                  </div>
+
+                  {/* 2b. THE EVOLUTION BIOGRAPHY STORIES */}
+                  <div className="pt-6 border-t border-white/5 space-y-4">
+                    <h4 className="text-sm font-black text-orange-500 uppercase tracking-wider">
+                      🚀 Evolution Section
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs uppercase tracking-widest text-zinc-400 font-bold mb-2">Evolution Tag Name</label>
+                        <input
+                          type="text"
+                          required
+                          value={aboutGenesisSub3}
+                          onChange={(e) => setAboutGenesisSub3(e.target.value)}
+                          placeholder="e.g. Our Evolution"
+                          className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs uppercase tracking-widest text-zinc-400 font-bold mb-2">Evolution Heading</label>
+                        <input
+                          type="text"
+                          required
+                          value={aboutGenesisTitle3}
+                          onChange={(e) => setAboutGenesisTitle3(e.target.value)}
+                          placeholder="From Curiosity to Creation"
+                          className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs uppercase tracking-widest text-zinc-400 font-bold mb-2">Evolution Description Paragraph</label>
+                      <textarea
+                        required
+                        value={aboutGenesisP3}
+                        onChange={(e) => setAboutGenesisP3(e.target.value)}
+                        rows={4}
+                        placeholder="..."
+                        className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white resize-none"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

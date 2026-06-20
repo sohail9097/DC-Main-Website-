@@ -355,14 +355,14 @@ export function Navbar() {
             )}
             <button onClick={() => setIsMenuOpen(false)}><X /></button>
           </div>
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-5">
             {navLinks.map((link) => (
               link.to ? (
                 <Link 
                   key={link.name} 
                   to={link.to} 
                   onClick={() => setIsMenuOpen(false)}
-                  className="text-lg font-bold uppercase tracking-widest text-white/60 hover:text-orange-500 transition-colors"
+                  className={`text-xs xs:text-sm font-bold uppercase tracking-[0.2em] transition-all duration-300 ${isActive(link.path) ? 'text-orange-500 font-extrabold' : 'text-white/60 hover:text-orange-400'}`}
                 >
                   {link.name}
                 </Link>
@@ -371,7 +371,7 @@ export function Navbar() {
                   key={link.name} 
                   href={link.href} 
                   onClick={() => setIsMenuOpen(false)}
-                  className="text-lg font-bold uppercase tracking-widest text-white/60 hover:text-orange-500 transition-colors"
+                  className={`text-xs xs:text-sm font-bold uppercase tracking-[0.2em] transition-all duration-300 ${isActive(link.path) ? 'text-orange-500 font-extrabold' : 'text-white/60 hover:text-orange-400'}`}
                 >
                   {link.name}
                 </a>
@@ -1859,7 +1859,6 @@ export function Footer() {
             <h5 className="text-orange-500 text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] mb-6 md:mb-10">Inquiries</h5>
             <div className="space-y-4 md:space-y-6">
               <a href="mailto:hello@dreamcatchers.tv" className="block text-lg md:text-xl font-bold text-white hover:text-orange-400 transition-all tracking-tight whitespace-nowrap">hello@dreamcatchers.tv</a>
-              <p className="text-white/30 text-sm italic">{contactAddress}</p>
               
               <div className="pt-6 border-t border-white/5">
                 {user ? (
@@ -4363,15 +4362,102 @@ export function StoryPage() {
 }
 
 export default function App() {
+  const [appLoading, setAppLoading] = useState(true);
+  const [logoType, setLogoType] = useState<'text' | 'image'>('text');
+  const [logoImageUrl, setLogoImageUrl] = useState('');
+  const [logoTextFull, setLogoTextFull] = useState('DREAMCATCHERS');
+
   useEffect(() => {
     const unsub = initSiteSync();
+    
+    // Load current logo configurations so loading matches branding exactly
+    const navLogoType = localStorage.getItem('nav_logo_type') as 'text' | 'image' | null;
+    const navLogoImg = localStorage.getItem('nav_logo_image_url');
+    const navLogoText = localStorage.getItem('nav_logo_text_full');
+    
+    if (navLogoType) setLogoType(navLogoType);
+    if (navLogoImg) setLogoImageUrl(navLogoImg);
+    if (navLogoText) setLogoTextFull(navLogoText);
+
+    // Hide loader after a premium cinematic delay
+    const timer = setTimeout(() => {
+      setAppLoading(false);
+    }, 1800);
+
     return () => {
       if (unsub) unsub();
+      clearTimeout(timer);
     };
   }, []);
 
   return (
     <>
+      <AnimatePresence mode="wait">
+        {appLoading && (
+          <motion.div
+            key="preloader"
+            initial={{ opacity: 1 }}
+            exit={{ 
+              opacity: 0,
+              transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } 
+            }}
+            className="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center overflow-hidden"
+          >
+            {/* Soft, premium ambient radial backglow */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.06)_0%,transparent_70%)] pointer-events-none" />
+
+            {/* Display Dreamcatchers Logo in Center */}
+            <div className="relative z-10 flex flex-col items-center">
+              {logoType === 'image' && logoImageUrl ? (
+                <motion.img 
+                  src={transformGoogleDriveUrl(logoImageUrl)}
+                  alt={logoTextFull}
+                  initial={{ scale: 0.85, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+                  className="h-28 sm:h-36 md:h-48 max-w-[280px] sm:max-w-[360px] md:max-w-[500px] object-contain drop-shadow-[0_0_50px_rgba(249,115,22,0.5)]"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <motion.div 
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                  className="flex items-center gap-1 flex-row text-4xl sm:text-5xl md:text-7xl font-black tracking-[0.3em] select-none text-center"
+                >
+                  <span className="text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
+                    DREAMCATCHERS
+                  </span>
+                  <span className="text-orange-500 drop-shadow-[0_0_40px_rgba(249,115,22,0.7)]">
+                    .TV
+                  </span>
+                </motion.div>
+              )}
+
+              {/* Cinematic Loading Progress Line */}
+              <div className="w-56 h-[2px] bg-white/10 rounded-full mt-10 overflow-hidden relative">
+                <motion.div 
+                  className="h-full bg-gradient-to-r from-orange-600 via-orange-400 to-orange-500"
+                  initial={{ width: "0%" }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 1.5, ease: "easeInOut" }}
+                />
+              </div>
+
+              {/* Subtext */}
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0.35, 0.8, 0.35] }}
+                transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
+                className="text-[9px] uppercase tracking-[0.45em] text-white/40 mt-4 font-mono font-bold"
+              >
+                LOADING EXPERIENCE
+              </motion.p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<LandingPage />} />
