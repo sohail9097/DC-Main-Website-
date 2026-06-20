@@ -368,7 +368,7 @@ const AdminPanel: FC = () => {
   const [aboutGenesisTitle3, setAboutGenesisTitle3] = useState('From Curiosity to Creation');
   const [aboutGenesisP3, setAboutGenesisP3] = useState("Having cut their teeth at some of India's leading television networks, they set out to create the kind of content they wanted to watch—fresh, engaging, and driven by curiosity. What started as a small passion project soon turned into a creative studio. Today, DC creates campaigns, films, series, branded content, for brands across the world.");
 
-  const [aboutStat1Val, setAboutStat1Val] = useState('14+');
+  const [aboutStat1Val, setAboutStat1Val] = useState('20+');
   const [aboutStat1Lbl, setAboutStat1Lbl] = useState('YEARS ON SET');
   const [aboutStat2Val, setAboutStat2Val] = useState('500+');
   const [aboutStat2Lbl, setAboutStat2Lbl] = useState('FILMS BORN');
@@ -553,7 +553,7 @@ const AdminPanel: FC = () => {
     setAboutGenesisTitle3(localStorage.getItem('about_genesis_title3') || 'From Curiosity to Creation');
     setAboutGenesisP3(localStorage.getItem('about_genesis_p3') || "Having cut their teeth at some of India's leading television networks, they set out to create the kind of content they wanted to watch—fresh, engaging, and driven by curiosity. What started as a small passion project soon turned into a creative studio. Today, DC creates campaigns, films, series, branded content, for brands across the world.");
 
-    setAboutStat1Val(localStorage.getItem('about_stat1_val') || '14+');
+    setAboutStat1Val(localStorage.getItem('about_stat1_val') || '20+');
     setAboutStat1Lbl(localStorage.getItem('about_stat1_lbl') || 'YEARS ON SET');
     setAboutStat2Val(localStorage.getItem('about_stat2_val') || '500+');
     setAboutStat2Lbl(localStorage.getItem('about_stat2_lbl') || 'FILMS BORN');
@@ -1192,7 +1192,7 @@ const AdminPanel: FC = () => {
       setAboutGenesisTitle3('From Curiosity to Creation');
       setAboutGenesisP3("Having cut their teeth at some of India's leading television networks, they set out to create the kind of content they wanted to watch—fresh, engaging, and driven by curiosity. What started as a small passion project soon turned into a creative studio. Today, DC creates campaigns, films, series, branded content, for brands across the world.");
 
-      setAboutStat1Val('14+');
+      setAboutStat1Val('20+');
       setAboutStat1Lbl('YEARS ON SET');
       setAboutStat2Val('500+');
       setAboutStat2Lbl('FILMS BORN');

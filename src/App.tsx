@@ -282,7 +282,7 @@ export function Navbar() {
               <img 
                 src={transformGoogleDriveUrl(logoImageUrl)} 
                 alt={logoTextFull} 
-                className="h-10 sm:h-12 md:h-14 object-contain max-w-[200px] transition-all duration-300 group-hover:brightness-110 group-hover:drop-shadow-[0_0_15px_rgba(249,115,22,0.6)]" 
+                className="h-12 sm:h-14 md:h-16 object-contain max-w-[240px] transition-all duration-300 group-hover:brightness-110 group-hover:drop-shadow-[0_0_15px_rgba(249,115,22,0.6)]" 
                 referrerPolicy="no-referrer"
                 onError={() => {
                   setLogoType('text');
@@ -290,10 +290,10 @@ export function Navbar() {
               />
             ) : (
               <div className="flex items-center gap-0.5 select-none group">
-                <span className="text-lg sm:text-xl md:text-2xl font-black tracking-wider text-white uppercase transition-colors duration-300 group-hover:text-orange-400">
+                <span className="text-xl sm:text-2xl md:text-3xl font-black tracking-wider text-white uppercase transition-colors duration-300 group-hover:text-orange-400">
                   DREAMCATCHERS
                 </span>
-                <span className="text-lg sm:text-xl md:text-2xl font-black tracking-wider text-orange-500 uppercase">
+                <span className="text-xl sm:text-2xl md:text-3xl font-black tracking-wider text-orange-500 uppercase">
                   .TV
                 </span>
               </div>
@@ -340,15 +340,15 @@ export function Navbar() {
               <img 
                 src={transformGoogleDriveUrl(logoImageUrl)} 
                 alt={logoTextFull} 
-                className="h-8 max-w-[150px] object-contain" 
+                className="h-10 max-w-[180px] object-contain" 
                 referrerPolicy="no-referrer"
               />
             ) : (
               <div className="flex items-center gap-0.5 select-none">
-                <span className="text-lg font-black tracking-wider text-white uppercase">
+                <span className="text-xl font-black tracking-wider text-white uppercase">
                   DREAMCATCHERS
                 </span>
-                <span className="text-lg font-black tracking-wider text-orange-500 uppercase">
+                <span className="text-xl font-black tracking-wider text-orange-500 uppercase">
                   .TV
                 </span>
               </div>
@@ -1899,10 +1899,9 @@ export function Footer() {
             <h5 className="text-white text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] mb-6 md:mb-10">Social</h5>
             <div className="flex flex-wrap gap-6 md:gap-8">
               {[
-                { name: 'Instagram', icon: <Instagram size={18} />, color: 'hover:text-[#E4405F]', url: instagram },
-                { name: 'Facebook', icon: <Facebook size={18} />, color: 'hover:text-[#1877F2]', url: facebook },
-                { name: 'Youtube', icon: <Youtube size={18} />, color: 'hover:text-[#FF0000]', url: youtube },
-                { name: 'Twitter', icon: <Twitter size={18} />, color: 'hover:text-[#1DA1F2]', url: twitter }
+                { name: 'Youtube', icon: <Youtube size={26} />, color: 'hover:text-[#FF0000]', url: youtube },
+                { name: 'Instagram', icon: <Instagram size={26} />, color: 'hover:text-[#E4405F]', url: instagram },
+                { name: 'Facebook', icon: <Facebook size={26} />, color: 'hover:text-[#1877F2]', url: facebook }
               ].map(social => (
                 <a 
                   key={social.name} 

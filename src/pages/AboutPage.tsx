@@ -102,7 +102,7 @@ const AboutPage = () => {
   const [genesisTitle3, setGenesisTitle3] = useState('From Curiosity to Creation');
   const [genesisP3, setGenesisP3] = useState("Having cut their teeth at some of India's leading television networks, they set out to create the kind of content they wanted to watch—fresh, engaging, and driven by curiosity. What started as a small passion project soon turned into a creative studio. Today, DC creates campaigns, films, series, branded content, for brands across the world.");
 
-  const [stat1Val, setStat1Val] = useState('14+');
+  const [stat1Val, setStat1Val] = useState('20+');
   const [stat1Lbl, setStat1Lbl] = useState('YEARS ON SET');
   const [stat2Val, setStat2Val] = useState('500+');
   const [stat2Lbl, setStat2Lbl] = useState('FILMS BORN');
@@ -163,7 +163,7 @@ const AboutPage = () => {
     setGenesisTitle3(localStorage.getItem('about_genesis_title3') || 'From Curiosity to Creation');
     setGenesisP3(localStorage.getItem('about_genesis_p3') || "Having cut their teeth at some of India's leading television networks, they set out to create the kind of content they wanted to watch—fresh, engaging, and driven by curiosity. What started as a small passion project soon turned into a creative studio. Today, DC creates campaigns, films, series, branded content, for brands across the world.");
 
-    setStat1Val(localStorage.getItem('about_stat1_val') || '14+');
+    setStat1Val(localStorage.getItem('about_stat1_val') || '20+');
     setStat1Lbl(localStorage.getItem('about_stat1_lbl') || 'YEARS ON SET');
     setStat2Val(localStorage.getItem('about_stat2_val') || '500+');
     setStat2Lbl(localStorage.getItem('about_stat2_lbl') || 'FILMS BORN');
