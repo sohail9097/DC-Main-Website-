@@ -84,6 +84,16 @@ export const isSimilarName = (n1: string, n2: string): boolean => {
   return false;
 };
 
+export const isGoogleDriveLink = (url?: string): boolean => {
+  if (!url) return false;
+  const trimmed = url.trim();
+  // Match standard google drive share urls, embed urls, and direct image API endpoints
+  return trimmed.includes('drive.google.com') || 
+         trimmed.includes('docs.google.com') || 
+         trimmed.includes('googleusercontent.com') || 
+         /(?:\/file\/d\/|id=)([^/?#]+)/.test(trimmed);
+};
+
 export const normalizeAndSyncData = () => {
   // 1. Fetch current localStorage data
   let clients: ClientItem[] = [];
@@ -95,9 +105,6 @@ export const normalizeAndSyncData = () => {
       console.error('Error parsing dc_clients in syncHelper:', e);
     }
   }
-  if (!clients || clients.length === 0) {
-    clients = [...DEFAULT_CLIENTS_LIST] as any[];
-  }
 
   let brands: BrandItem[] = [];
   const storedBrands = localStorage.getItem('dc_brand_partners');
@@ -108,28 +115,20 @@ export const normalizeAndSyncData = () => {
       console.error('Error parsing dc_brand_partners in syncHelper:', e);
     }
   }
-  if (!brands || brands.length === 0) {
-    brands = [...DEFAULT_BRAND_ITEMS];
-  }
 
-  let hasChanges = false;
+  // Strictly filter out any items that DO NOT have a valid Google Drive logo link
+  const originalClientsLen = clients.length;
+  const originalBrandsLen = brands.length;
+
+  clients = clients.filter(c => isGoogleDriveLink(c.logoUrl));
+  brands = brands.filter(b => isGoogleDriveLink(b.logoUrl));
+
+  let hasChanges = (clients.length !== originalClientsLen) || (brands.length !== originalBrandsLen);
 
   // --- Normalizing Clients ---
   const cleanedClientsMap = new Map<string, ClientItem>();
-  
-  // Identify user client IDs and normalized names that exist currently
-  const userClientIds = new Set(clients.map(c => c.id).filter(Boolean));
-  const userClientNames = new Set(clients.map(c => c.name.toLowerCase().trim().replace(/\s+/g, '')).filter(Boolean));
 
-  // Seed with DEFAULT_CLIENTS_LIST to ensure they exist (only if they don't clash with user's saved list)
-  for (const item of DEFAULT_CLIENTS_LIST) {
-    const key = item.name.toLowerCase().trim().replace(/\s+/g, '');
-    if (!userClientIds.has(item.id) && !userClientNames.has(key)) {
-      cleanedClientsMap.set(key, { ...item } as any);
-    }
-  }
-
-  // Standardize and merge actual clients list
+  // Standardize and merge actual clients list (Only keeping those with verified Google Drive links)
   for (const client of clients) {
     if (!client || !client.name) continue;
     
@@ -145,10 +144,7 @@ export const normalizeAndSyncData = () => {
     }
 
     if (!currentLayer) {
-      const defaultClient = DEFAULT_CLIENTS_LIST.find(
-        (c) => c.name.toLowerCase().trim() === currentName.toLowerCase().trim()
-      );
-      currentLayer = defaultClient?.layer || 1;
+      currentLayer = 1;
     }
 
     const key = currentName.toLowerCase().trim().replace(/\s+/g, '');
@@ -178,25 +174,13 @@ export const normalizeAndSyncData = () => {
         name: currentName,
         layer: currentLayer || 1
       });
-      hasChanges = true;
     }
   }
 
   // --- Normalizing Brands ---
   const cleanedBrandsMap = new Map<string, BrandItem>();
 
-  const userBrandIds = new Set(brands.map(b => b.id).filter(Boolean));
-  const userBrandNames = new Set(brands.map(b => b.name.toLowerCase().trim().replace(/\s+/g, '')).filter(Boolean));
-
-  // First seed with DEFAULT_BRAND_ITEMS (only if they don't clash with user's saved modifications)
-  for (const item of DEFAULT_BRAND_ITEMS) {
-    const key = item.name.toLowerCase().trim().replace(/\s+/g, '');
-    if (!userBrandIds.has(item.id) && !userBrandNames.has(key)) {
-      cleanedBrandsMap.set(key, { ...item });
-    }
-  }
-
-  // Standardize and merge actual brands list
+  // Standardize and merge actual brands list (Only keeping those with verified Google Drive links)
   for (const brand of brands) {
     if (!brand || !brand.name) continue;
 
@@ -212,10 +196,7 @@ export const normalizeAndSyncData = () => {
     }
 
     if (!currentCategory) {
-      const defaultBrand = DEFAULT_BRAND_ITEMS.find(
-        (b) => b.name.toLowerCase().trim() === currentName.toLowerCase().trim()
-      );
-      currentCategory = defaultBrand?.category || 'brands';
+      currentCategory = 'brands';
     }
 
     const key = currentName.toLowerCase().trim().replace(/\s+/g, '');
@@ -244,7 +225,6 @@ export const normalizeAndSyncData = () => {
         name: currentName,
         category: currentCategory || 'brands'
       });
-      hasChanges = true;
     }
   }
 
