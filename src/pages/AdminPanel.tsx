@@ -154,6 +154,67 @@ const AdminPanel: FC = () => {
     setClients(updatedClients);
     localStorage.setItem('dc_clients', JSON.stringify(updatedClients));
     window.dispatchEvent(new Event('storage_updated_clients'));
+
+    // Synchronize to Brand Page Partners as well so they appear immediately
+    const updatedBrandList = [...brandPartners];
+    let brandListChanged = false;
+
+    for (const client of updatedClients) {
+      if (!client.name) continue;
+      const normalizedClientName = client.name.toLowerCase().trim().replace(/\s+/g, '');
+      const brandIndex = updatedBrandList.findIndex(b => {
+        const normalizedBrandName = b.name.toLowerCase().trim().replace(/\s+/g, '');
+        return normalizedBrandName === normalizedClientName;
+      });
+
+      let assignedCategory: 'brands' | 'govt' | 'corporates' | 'platforms' = 'brands';
+      if (client.layer === 2) {
+        assignedCategory = 'govt';
+      } else if (client.layer === 3) {
+        assignedCategory = 'corporates';
+      }
+
+      const expectedSize: 'small' | 'medium' | 'large' | 'xlarge' = 
+        client.size === 'extralarge' ? 'xlarge' : (client.size as any || 'medium');
+
+      if (brandIndex === -1) {
+        updatedBrandList.push({
+          id: client.id || `client-sync-${Date.now()}-${Math.random()}`,
+          name: client.name,
+          category: assignedCategory,
+          logoUrl: client.logoUrl || '',
+          logoSize: expectedSize,
+          description: ''
+        });
+        brandListChanged = true;
+      } else {
+        const existingBrand = updatedBrandList[brandIndex];
+        let itemChanged = false;
+        if (existingBrand.logoUrl !== client.logoUrl) {
+          existingBrand.logoUrl = client.logoUrl;
+          itemChanged = true;
+        }
+        if (existingBrand.category !== assignedCategory) {
+          existingBrand.category = assignedCategory;
+          itemChanged = true;
+        }
+        if (existingBrand.logoSize !== expectedSize) {
+          existingBrand.logoSize = expectedSize;
+          itemChanged = true;
+        }
+
+        if (itemChanged) {
+          updatedBrandList[brandIndex] = existingBrand;
+          brandListChanged = true;
+        }
+      }
+    }
+
+    if (brandListChanged) {
+      setBrandPartners(updatedBrandList);
+      localStorage.setItem('dc_brand_partners', JSON.stringify(updatedBrandList));
+      window.dispatchEvent(new Event('storage_updated_brand_partners'));
+    }
   };
 
   const handleAddFieldClient = (e: React.FormEvent) => {
@@ -622,12 +683,71 @@ const AdminPanel: FC = () => {
       }
     }
 
+    // Bidirectional sync: sync clients back to brand partners
+    const autoMergedBrandPartners = [...initialBrandPartners];
+    let autoSyncedBrandsCount = 0;
+    for (const client of autoMergedClients) {
+      const normalizedClientName = client.name.toLowerCase().trim().replace(/\s+/g, '');
+      const brandIndex = autoMergedBrandPartners.findIndex(brand => {
+        const normalizedBrandName = brand.name.toLowerCase().trim().replace(/\s+/g, '');
+        return normalizedBrandName === normalizedClientName;
+      });
+
+      let assignedCategory: 'brands' | 'govt' | 'corporates' | 'platforms' = 'brands';
+      if (client.layer === 2) {
+        assignedCategory = 'govt';
+      } else if (client.layer === 3) {
+        assignedCategory = 'corporates';
+      }
+
+      const expectedSize: 'small' | 'medium' | 'large' | 'xlarge' = 
+        client.size === 'extralarge' ? 'xlarge' : (client.size as any || 'medium');
+
+      if (brandIndex === -1) {
+        autoMergedBrandPartners.push({
+          id: client.id || `client-sync-${Date.now()}-${Math.random()}`,
+          name: client.name,
+          category: assignedCategory,
+          logoUrl: client.logoUrl || '',
+          logoSize: expectedSize,
+          description: ''
+        });
+        autoSyncedBrandsCount++;
+      } else {
+        const existingBrand = autoMergedBrandPartners[brandIndex];
+        let itemChanged = false;
+        if (existingBrand.logoUrl !== client.logoUrl) {
+          existingBrand.logoUrl = client.logoUrl;
+          itemChanged = true;
+        }
+        if (existingBrand.category !== assignedCategory) {
+          existingBrand.category = assignedCategory;
+          itemChanged = true;
+        }
+        if (existingBrand.logoSize !== expectedSize) {
+          existingBrand.logoSize = expectedSize;
+          itemChanged = true;
+        }
+
+        if (itemChanged) {
+          autoMergedBrandPartners[brandIndex] = existingBrand;
+          autoSyncedBrandsCount++;
+        }
+      }
+    }
+
     if (autoSyncedCount > 0) {
       setClients(autoMergedClients);
       localStorage.setItem('dc_clients', JSON.stringify(autoMergedClients));
       window.dispatchEvent(new Event('storage_updated_clients'));
     } else {
       setClients(initialClients);
+    }
+
+    if (autoSyncedBrandsCount > 0) {
+      setBrandPartners(autoMergedBrandPartners);
+      localStorage.setItem('dc_brand_partners', JSON.stringify(autoMergedBrandPartners));
+      window.dispatchEvent(new Event('storage_updated_brand_partners'));
     }
 
     // Load About configs

@@ -877,10 +877,6 @@ const BrandCardLogo: FC<{ brand: BrandItem }> = ({ brand }) => {
 
   const hasLogoUrl = brand.logoUrl && brand.logoUrl.trim().length > 0 && !imgError;
 
-  if (brand.renderLogo) {
-    return brand.renderLogo();
-  }
-
   if (hasLogoUrl) {
     return (
       <img
@@ -891,6 +887,10 @@ const BrandCardLogo: FC<{ brand: BrandItem }> = ({ brand }) => {
         onError={() => setImgError(true)}
       />
     );
+  }
+
+  if (brand.renderLogo) {
+    return brand.renderLogo();
   }
 
   return (
@@ -909,40 +909,121 @@ export default function BrandPage() {
 
   useEffect(() => {
     const loadBrands = () => {
+      let brandList: BrandItem[] = DEFAULT_BRAND_ITEMS;
       const stored = localStorage.getItem('dc_brand_partners');
       if (stored) {
         try {
-          const parsed = JSON.parse(stored) as BrandItem[];
-          const mapped = parsed.map(item => {
-            const defaultItem = DEFAULT_BRAND_ITEMS.find(d => 
-              d.id.toLowerCase() === item.id.toLowerCase() || 
-              d.name.toLowerCase() === item.name.toLowerCase()
-            );
-            if (defaultItem && defaultItem.renderLogo) {
-              return {
-                ...item,
-                renderLogo: defaultItem.renderLogo
-              };
-            }
-            return item;
-          });
-          setBrands(mapped);
+          brandList = JSON.parse(stored) as BrandItem[];
         } catch (e) {
           console.error('Error loading dc_brand_partners:', e);
-          setBrands(DEFAULT_BRAND_ITEMS);
+          brandList = DEFAULT_BRAND_ITEMS;
         }
       } else {
-        setBrands(DEFAULT_BRAND_ITEMS);
+        brandList = DEFAULT_BRAND_ITEMS;
       }
+
+      // Load collaborators (clients) for synchronization
+      let clientList: any[] = [];
+      const storedClients = localStorage.getItem('dc_clients');
+      if (storedClients) {
+        try {
+          clientList = JSON.parse(storedClients);
+        } catch (e) {
+          console.error('Error loading dc_clients directly:', e);
+        }
+      }
+
+      let hasSyncChanges = false;
+      const mergedBrands = [...brandList];
+
+      if (clientList && clientList.length > 0) {
+        for (const client of clientList) {
+          if (!client.name) continue;
+          const normalizedClientName = client.name.toLowerCase().trim().replace(/\s+/g, '');
+          const brandIndex = mergedBrands.findIndex(brand => {
+            const normalizedBrandName = brand.name.toLowerCase().trim().replace(/\s+/g, '');
+            return normalizedBrandName === normalizedClientName;
+          });
+
+          let assignedCategory: 'brands' | 'govt' | 'corporates' | 'platforms' = 'brands';
+          if (client.layer === 2) {
+            assignedCategory = 'govt';
+          } else if (client.layer === 3) {
+            assignedCategory = 'corporates';
+          }
+
+          const expectedSize: 'small' | 'medium' | 'large' | 'xlarge' = 
+            client.size === 'extralarge' ? 'xlarge' : (client.size || 'medium');
+
+          if (brandIndex === -1) {
+            // Add if doesn't exist
+            mergedBrands.push({
+              id: client.id || `client-sync-${Date.now()}-${Math.random()}`,
+              name: client.name,
+              category: assignedCategory,
+              logoUrl: client.logoUrl || '',
+              logoSize: expectedSize,
+              description: client.description || ''
+            });
+            hasSyncChanges = true;
+          } else {
+            // Synchronize updates (logoUrl, size, category)
+            const existingBrand = mergedBrands[brandIndex];
+            let itemChanged = false;
+
+            if (existingBrand.logoUrl !== client.logoUrl) {
+              existingBrand.logoUrl = client.logoUrl;
+              itemChanged = true;
+            }
+            if (existingBrand.category !== assignedCategory) {
+              existingBrand.category = assignedCategory;
+              itemChanged = true;
+            }
+            if (existingBrand.logoSize !== expectedSize) {
+              existingBrand.logoSize = expectedSize;
+              itemChanged = true;
+            }
+
+            if (itemChanged) {
+              mergedBrands[brandIndex] = existingBrand;
+              hasSyncChanges = true;
+            }
+          }
+        }
+      }
+
+      if (hasSyncChanges) {
+        localStorage.setItem('dc_brand_partners', JSON.stringify(mergedBrands));
+        window.dispatchEvent(new Event('storage_updated_brand_partners'));
+        brandList = mergedBrands;
+      }
+
+      const mapped = brandList.map(item => {
+        const defaultItem = DEFAULT_BRAND_ITEMS.find(d => 
+          d.id.toLowerCase() === item.id.toLowerCase() || 
+          d.name.toLowerCase() === item.name.toLowerCase()
+        );
+        if (defaultItem && defaultItem.renderLogo) {
+          return {
+            ...item,
+            renderLogo: defaultItem.renderLogo
+          };
+        }
+        return item;
+      });
+
+      setBrands(mapped);
     };
 
     loadBrands();
     window.addEventListener('storage', loadBrands);
     window.addEventListener('storage_updated_brand_partners', loadBrands);
+    window.addEventListener('storage_updated_clients', loadBrands);
 
     return () => {
       window.removeEventListener('storage', loadBrands);
       window.removeEventListener('storage_updated_brand_partners', loadBrands);
+      window.removeEventListener('storage_updated_clients', loadBrands);
     };
   }, []);
   
