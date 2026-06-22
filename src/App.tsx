@@ -7,6 +7,7 @@ import AdminPanel from './pages/AdminPanel';
 import FilmsPage from './pages/FilmsPage';
 import AboutPage from './pages/AboutPage';
 import BrandPage, { DEFAULT_BRAND_ITEMS, BrandItem } from './pages/BrandPage';
+import { normalizeAndSyncData, isSimilarName } from './utils/syncHelper';
 import { initSiteSync } from './lib/siteSync';
 import { CinematicSlideshow } from './components/CinematicSlideshow';
 
@@ -542,62 +543,62 @@ export interface ClientItem {
 }
 
 export const DEFAULT_CLIENTS_LIST: ClientItem[] = [
-  { id: '1', name: 'NETFLIX', color: '#E50914', size: 'large', logoUrl: '' },
-  { id: '2', name: "D'DECOR", color: '#FFFFFF', size: 'medium', logoUrl: '' },
-  { id: '3', name: 'amazon prime', color: '#FFFFFF', size: 'large', logoUrl: '' },
-  { id: '4', name: 'Disney+ hotstar', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '5', name: 'asics', color: '#FFFFFF', size: 'medium', logoUrl: '' },
-  { id: '6', name: "L'ORÉAL", color: '#FFFFFF', size: 'medium', logoUrl: '' },
-  { id: '7', name: 'Pernod Ricard', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '8', name: 'YouTube', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '9', name: 'JAMESON', color: '#FFFFFF', size: 'medium', logoUrl: '' },
-  { id: '10', name: 'ASUS', color: '#FFFFFF', size: 'medium', logoUrl: '' },
-  { id: '11', name: 'LIONSGATE PLAY', color: '#FFFFFF', size: 'medium', logoUrl: '' },
-  { id: '12', name: 'MARVEL STUDIOS', color: '#ED1D24', size: 'medium', logoUrl: '' },
-  { id: '13', name: 'ABSOLUT.', color: '#FFFFFF', size: 'medium', logoUrl: '' },
-  { id: '14', name: 'Coke STUDIO', color: '#FE001A', size: 'medium', logoUrl: '' },
-  { id: '15', name: 'SKECHERS', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '16', name: 'Bumble', color: '#FFC629', size: 'small', logoUrl: '' },
-  { id: '17', name: 'Mi', color: '#FF6700', size: 'small', logoUrl: '' },
-  { id: '18', name: 'Signature', color: '#FFFFFF', size: 'medium', logoUrl: '' },
-  { id: '19', name: 'IndiGo', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '20', name: 'Top Ramen', color: '#FF0000', size: 'small', logoUrl: '' },
-  { id: '21', name: 'Boost', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '22', name: 'Myntra', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '23', name: 'boat', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '24', name: 'TOSHIBA', color: '#FFFFFF', size: 'medium', logoUrl: '' },
-  { id: '25', name: 'LAKMÉ', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '26', name: 'BRITANNIA', color: '#ED1D24', size: 'small', logoUrl: '' },
-  { id: '27', name: 'Vedanta', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '28', name: 'Tecno', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '29', name: 'Star Sports', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '30', name: 'Sony', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '31', name: 'NPCL', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '32', name: 'NDTV', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '33', name: 'KPMG', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '34', name: 'FIFA', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '35', name: 'Adani', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '36', name: 'Zee', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '37', name: 'Vivo', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '38', name: 'Swachh Bharat', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '39', name: 'Pearl Academy', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '40', name: 'Larsen & Toubro', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '41', name: 'Indian Air Force', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '42', name: 'Indian Army', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '43', name: 'Jakson', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '44', name: 'Seven', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '45', name: 'Gujarat Tourism', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '46', name: 'Food Food', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '47', name: 'Experion', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '48', name: 'Discovery', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '49', name: 'Cairn', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '50', name: 'DLF', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '51', name: 'Denso', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '52', name: 'Balaji Wafers', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '53', name: 'GMR', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '54', name: 'Land Ports Authority', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '55', name: 'FIH', color: '#FFFFFF', size: 'small', logoUrl: '' },
-  { id: '56', name: 'The Leela', color: '#FFFFFF', size: 'small', logoUrl: '' },
+  { id: '1', name: 'NETFLIX', color: '#E50914', size: 'large', logoUrl: '', layer: 1 },
+  { id: '2', name: "D'DECOR", color: '#FFFFFF', size: 'medium', logoUrl: '', layer: 1 },
+  { id: '3', name: 'amazon prime', color: '#FFFFFF', size: 'large', logoUrl: '', layer: 1 },
+  { id: '4', name: 'Disney+ hotstar', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
+  { id: '5', name: 'asics', color: '#FFFFFF', size: 'medium', logoUrl: '', layer: 1 },
+  { id: '6', name: "L'ORÉAL", color: '#FFFFFF', size: 'medium', logoUrl: '', layer: 1 },
+  { id: '7', name: 'Pernod Ricard', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
+  { id: '8', name: 'YouTube', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
+  { id: '9', name: 'JAMESON', color: '#FFFFFF', size: 'medium', logoUrl: '', layer: 1 },
+  { id: '10', name: 'ASUS', color: '#FFFFFF', size: 'medium', logoUrl: '', layer: 1 },
+  { id: '11', name: 'LIONSGATE PLAY', color: '#FFFFFF', size: 'medium', logoUrl: '', layer: 1 },
+  { id: '12', name: 'MARVEL STUDIOS', color: '#ED1D24', size: 'medium', logoUrl: '', layer: 1 },
+  { id: '13', name: 'ABSOLUT.', color: '#FFFFFF', size: 'medium', logoUrl: '', layer: 1 },
+  { id: '14', name: 'Coke STUDIO', color: '#FE001A', size: 'medium', logoUrl: '', layer: 1 },
+  { id: '15', name: 'SKECHERS', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
+  { id: '16', name: 'Bumble', color: '#FFC629', size: 'small', logoUrl: '', layer: 1 },
+  { id: '17', name: 'Mi', color: '#FF6700', size: 'small', logoUrl: '', layer: 1 },
+  { id: '18', name: 'Signature', color: '#FFFFFF', size: 'medium', logoUrl: '', layer: 1 },
+  { id: '19', name: 'IndiGo', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
+  { id: '20', name: 'Top Ramen', color: '#FF0000', size: 'small', logoUrl: '', layer: 1 },
+  { id: '21', name: 'Boost', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
+  { id: '22', name: 'Myntra', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
+  { id: '23', name: 'boat', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
+  { id: '24', name: 'TOSHIBA', color: '#FFFFFF', size: 'medium', logoUrl: '', layer: 1 },
+  { id: '25', name: 'LAKMÉ', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
+  { id: '26', name: 'BRITANNIA', color: '#ED1D24', size: 'small', logoUrl: '', layer: 1 },
+  { id: '27', name: 'Vedanta', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
+  { id: '28', name: 'Tecno', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
+  { id: '29', name: 'Star Sports', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
+  { id: '30', name: 'Sony', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
+  { id: '31', name: 'NPCL', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
+  { id: '32', name: 'NDTV', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
+  { id: '33', name: 'KPMG', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
+  { id: '34', name: 'FIFA', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
+  { id: '35', name: 'Adani', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
+  { id: '36', name: 'Zee', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
+  { id: '37', name: 'Vivo', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
+  { id: '38', name: 'Swachh Bharat', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 2 },
+  { id: '39', name: 'Pearl Academy', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
+  { id: '40', name: 'Larsen & Toubro', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
+  { id: '41', name: 'Indian Air Force', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 2 },
+  { id: '42', name: 'Indian Army', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 2 },
+  { id: '43', name: 'Jakson', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
+  { id: '44', name: 'Seven', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
+  { id: '45', name: 'Gujarat Tourism', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 2 },
+  { id: '46', name: 'Food Food', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
+  { id: '47', name: 'Experion', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
+  { id: '48', name: 'Discovery', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
+  { id: '49', name: 'Cairn', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
+  { id: '50', name: 'DLF', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
+  { id: '51', name: 'Denso', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
+  { id: '52', name: 'Balaji Wafers', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
+  { id: '53', name: 'GMR', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
+  { id: '54', name: 'Land Ports Authority', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 2 },
+  { id: '55', name: 'FIH', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
+  { id: '56', name: 'The Leela', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
 ];
 
 function Clients() {
@@ -606,68 +607,9 @@ function Clients() {
 
   useEffect(() => {
     const fetchClients = () => {
-      let brandList: BrandItem[] = DEFAULT_BRAND_ITEMS;
-      const storedBrands = localStorage.getItem('dc_brand_partners');
-      if (storedBrands) {
-        try {
-          brandList = JSON.parse(storedBrands) as BrandItem[];
-        } catch (e) {
-          console.error('Error parsing brand partners for home marquee:', e);
-        }
-      }
+      const { clients: syncedClients } = normalizeAndSyncData();
 
-      const stored = localStorage.getItem('dc_clients');
-      let clientList: ClientItem[] = [];
-      if (stored) {
-        try {
-          clientList = JSON.parse(stored) as ClientItem[];
-        } catch (e) {
-          console.error('Error parsing clients for home marquee:', e);
-          clientList = DEFAULT_CLIENTS_LIST;
-        }
-      } else {
-        clientList = DEFAULT_CLIENTS_LIST;
-      }
-
-      // Automatically sync and add any missing brand page partners to collaborator list
-      let needsSave = false;
-      const mergedClients = [...clientList];
-      for (const brand of brandList) {
-        const normalizedBrandName = brand.name.toLowerCase().trim().replace(/\s+/g, '');
-        const exists = clientList.some(client => {
-          const normalizedClientName = client.name.toLowerCase().trim().replace(/\s+/g, '');
-          return normalizedClientName === normalizedBrandName || 
-                 (client.logoUrl && brand.logoUrl && client.logoUrl.trim() === brand.logoUrl.trim());
-        });
-
-        if (!exists) {
-          let assignedLayer: 1 | 2 | 3 = 1;
-          if (brand.category === 'brands') {
-            assignedLayer = 1;
-          } else if (brand.category === 'govt') {
-            assignedLayer = 2;
-          } else if (brand.category === 'corporates' || brand.category === 'platforms') {
-            assignedLayer = 3;
-          }
-
-          mergedClients.push({
-            id: brand.id || `brand-sync-${Date.now()}-${Math.random()}`,
-            name: brand.name,
-            color: '#FFFFFF',
-            size: brand.logoSize || 'medium',
-            logoUrl: brand.logoUrl || '',
-            layer: assignedLayer
-          });
-          needsSave = true;
-        }
-      }
-
-      if (needsSave) {
-        clientList = mergedClients;
-        localStorage.setItem('dc_clients', JSON.stringify(mergedClients));
-      }
-
-      const mappedClients: ClientItem[] = clientList.map((item, idx) => {
+      const mappedClients: ClientItem[] = syncedClients.map((item, idx) => {
         const defaultItem = DEFAULT_BRAND_ITEMS.find(d => 
           d.id.toLowerCase() === item.id.toLowerCase() || 
           d.name.toLowerCase() === item.name.toLowerCase() ||
@@ -681,10 +623,12 @@ function Clients() {
           assignedLayer = (((idx % 3) + 1) as 1 | 2 | 3);
         }
 
+        const matchesName = defaultItem ? isSimilarName(defaultItem.name, item.name) : false;
+
         return {
           ...item,
           layer: assignedLayer,
-          renderLogo: defaultItem?.renderLogo || item.renderLogo
+          renderLogo: (defaultItem && matchesName) ? defaultItem.renderLogo : item.renderLogo
         };
       });
 

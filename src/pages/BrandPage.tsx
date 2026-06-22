@@ -3,6 +3,7 @@ import { Shield, Sparkles, Building2, Landmark, Clapperboard, ExternalLink, Arro
 import React, { useState, useEffect, FC, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navbar, transformGoogleDriveUrl, Footer, InteractiveOptions } from '../App';
+import { normalizeAndSyncData, isSimilarName } from '../utils/syncHelper';
 
 const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
   const [stars, setStars] = useState<{ id: number; left: string; top: string; size: number; duration: number; delay: number; driftX: number; driftY: number }[]>([]);
@@ -531,6 +532,52 @@ export const DEFAULT_BRAND_ITEMS: BrandItem[] = [
       </div>
     )
   },
+  {
+    id: 'indianairforce',
+    name: 'Indian Air Force',
+    category: 'govt',
+    description: 'Indian Air Force - Touch the Sky with Glory.',
+    renderLogo: () => (
+      <div className="flex items-center gap-2.5">
+        <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center bg-[#072F5F]/40 shrink-0 relative p-1">
+          <div className="w-full h-full rounded-full bg-[#1e3a8a] flex items-center justify-center p-0.5 relative">
+            <div className="w-full h-full rounded-full border-[1.5px] border-orange-500 flex items-center justify-center">
+              <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center">
+                <div className="w-2.5 h-2.5 rounded-full bg-green-600 flex items-center justify-center">
+                  <div className="w-1 h-1 rounded-full bg-white" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col text-left">
+          <span className="text-xs font-black tracking-wide text-white">INDIAN AIR FORCE</span>
+          <span className="text-[6px] tracking-[0.05em] text-[#38bdf8] font-black uppercase">TOUCH THE SKY WITH GLORY</span>
+        </div>
+      </div>
+    )
+  },
+  {
+    id: 'indianarmy',
+    name: 'Indian Army',
+    category: 'govt',
+    description: 'Indian Army - Service Before Self.',
+    renderLogo: () => (
+      <div className="flex items-center gap-2.5">
+        <div className="w-8 h-8 rounded-full border border-yellow-500/30 flex items-center justify-center bg-red-950/20 shrink-0 p-1">
+          <div className="w-full h-full rounded-full bg-red-600/10 border border-red-500/20 flex items-center justify-center text-red-500">
+            <svg className="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
+            </svg>
+          </div>
+        </div>
+        <div className="flex flex-col text-left">
+          <span className="text-xs font-black tracking-wide text-white font-sans">INDIAN ARMY</span>
+          <span className="text-[6px] tracking-[0.05em] text-red-500 font-bold uppercase">SERVICE BEFORE SELF</span>
+        </div>
+      </div>
+    )
+  },
 
   // ================= CORPORATES =================
   {
@@ -909,101 +956,17 @@ export default function BrandPage() {
 
   useEffect(() => {
     const loadBrands = () => {
-      let brandList: BrandItem[] = DEFAULT_BRAND_ITEMS;
-      const stored = localStorage.getItem('dc_brand_partners');
-      if (stored) {
-        try {
-          brandList = JSON.parse(stored) as BrandItem[];
-        } catch (e) {
-          console.error('Error loading dc_brand_partners:', e);
-          brandList = DEFAULT_BRAND_ITEMS;
-        }
-      } else {
-        brandList = DEFAULT_BRAND_ITEMS;
-      }
+      const { brands: syncedBrands } = normalizeAndSyncData();
 
-      // Load collaborators (clients) for synchronization
-      let clientList: any[] = [];
-      const storedClients = localStorage.getItem('dc_clients');
-      if (storedClients) {
-        try {
-          clientList = JSON.parse(storedClients);
-        } catch (e) {
-          console.error('Error loading dc_clients directly:', e);
-        }
-      }
-
-      let hasSyncChanges = false;
-      const mergedBrands = [...brandList];
-
-      if (clientList && clientList.length > 0) {
-        for (const client of clientList) {
-          if (!client.name) continue;
-          const normalizedClientName = client.name.toLowerCase().trim().replace(/\s+/g, '');
-          const brandIndex = mergedBrands.findIndex(brand => {
-            const normalizedBrandName = brand.name.toLowerCase().trim().replace(/\s+/g, '');
-            return normalizedBrandName === normalizedClientName;
-          });
-
-          let assignedCategory: 'brands' | 'govt' | 'corporates' | 'platforms' = 'brands';
-          if (client.layer === 2) {
-            assignedCategory = 'govt';
-          } else if (client.layer === 3) {
-            assignedCategory = 'corporates';
-          }
-
-          const expectedSize: 'small' | 'medium' | 'large' | 'xlarge' = 
-            client.size === 'extralarge' ? 'xlarge' : (client.size || 'medium');
-
-          if (brandIndex === -1) {
-            // Add if doesn't exist
-            mergedBrands.push({
-              id: client.id || `client-sync-${Date.now()}-${Math.random()}`,
-              name: client.name,
-              category: assignedCategory,
-              logoUrl: client.logoUrl || '',
-              logoSize: expectedSize,
-              description: client.description || ''
-            });
-            hasSyncChanges = true;
-          } else {
-            // Synchronize updates (logoUrl, size, category)
-            const existingBrand = mergedBrands[brandIndex];
-            let itemChanged = false;
-
-            if (existingBrand.logoUrl !== client.logoUrl) {
-              existingBrand.logoUrl = client.logoUrl;
-              itemChanged = true;
-            }
-            if (existingBrand.category !== assignedCategory) {
-              existingBrand.category = assignedCategory;
-              itemChanged = true;
-            }
-            if (existingBrand.logoSize !== expectedSize) {
-              existingBrand.logoSize = expectedSize;
-              itemChanged = true;
-            }
-
-            if (itemChanged) {
-              mergedBrands[brandIndex] = existingBrand;
-              hasSyncChanges = true;
-            }
-          }
-        }
-      }
-
-      if (hasSyncChanges) {
-        localStorage.setItem('dc_brand_partners', JSON.stringify(mergedBrands));
-        window.dispatchEvent(new Event('storage_updated_brand_partners'));
-        brandList = mergedBrands;
-      }
-
-      const mapped = brandList.map(item => {
+      const mapped = syncedBrands.map(item => {
         const defaultItem = DEFAULT_BRAND_ITEMS.find(d => 
           d.id.toLowerCase() === item.id.toLowerCase() || 
           d.name.toLowerCase() === item.name.toLowerCase()
         );
-        if (defaultItem && defaultItem.renderLogo) {
+        // Ensure that we only inherit the default vector logo if the names are similar.
+        // This prevents a card renamed to "INDIAN AIRFORCE" from getting the "National Geographic" logo.
+        const matchesName = defaultItem ? isSimilarName(defaultItem.name, item.name) : false;
+        if (defaultItem && matchesName && defaultItem.renderLogo) {
           return {
             ...item,
             renderLogo: defaultItem.renderLogo
