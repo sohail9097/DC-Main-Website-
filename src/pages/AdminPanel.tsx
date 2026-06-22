@@ -7,7 +7,7 @@ import { Users, Layout, Settings, LogOut, Home, Plus, Trash2, Edit2, ArrowUp, Ar
 import { DEFAULT_TEAM_MEMBERS, TeamMember, DEFAULT_ORBIT_IMAGES, DEFAULT_FILMS_LIST, DEFAULT_CLIENTS_LIST, ClientItem, ParagraphFrameItem, DEFAULT_PARAGRAPH_FRAMES, DEFAULT_VERTICALS, VerticalItem, DEFAULT_LOCATIONS, OperationalLocation } from '../App';
 import { DEFAULT_BRAND_ITEMS, BrandItem } from './BrandPage';
 import { DEFAULT_SLIDES, CinematicSlide } from '../components/CinematicSlideshow';
-import { normalizeAndSyncData } from '../utils/syncHelper';
+import { normalizeAndSyncData, isSimilarName } from '../utils/syncHelper';
 
 export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = 'image'): string {
   if (!url) return '';
@@ -74,7 +74,7 @@ const AdminPanel: FC = () => {
 
   // Brand Page form fields
   const [brandName, setBrandName] = useState('');
-  const [brandCategory, setBrandCategory] = useState<'brands' | 'govt' | 'corporates' | 'platforms'>('brands');
+  const [brandCategory, setBrandCategory] = useState<'platforms' | 'govt' | 'corporates'>('platforms');
   const [brandLogoUrl, setBrandLogoUrl] = useState('');
   const [brandDescription, setBrandDescription] = useState('');
   const [logoInputType, setLogoInputType] = useState<'upload' | 'url'>('upload');
@@ -223,8 +223,7 @@ const AdminPanel: FC = () => {
     const targetName = clients[index]?.name;
     if (targetName && window.confirm(`Are you sure you want to remove ${targetName}?`)) {
       const updatedClients = clients.filter((_, i) => i !== index);
-      const keyToDelete = targetName.toLowerCase().trim().replace(/\s+/g, '');
-      const updatedBrands = brandPartners.filter(b => b.name.toLowerCase().trim().replace(/\s+/g, '') !== keyToDelete);
+      const updatedBrands = brandPartners.filter(b => !isSimilarName(b.name, targetName));
 
       localStorage.setItem('dc_clients', JSON.stringify(updatedClients));
       localStorage.setItem('dc_brand_partners', JSON.stringify(updatedBrands));
@@ -267,11 +266,11 @@ const AdminPanel: FC = () => {
 
       if (!exists) {
         let assignedLayer: 1 | 2 | 3 = 1;
-        if (brand.category === 'brands') {
+        if (brand.category === 'platforms') {
           assignedLayer = 1;
         } else if (brand.category === 'govt') {
           assignedLayer = 2;
-        } else if (brand.category === 'corporates' || brand.category === 'platforms') {
+        } else if (brand.category === 'corporates') {
           assignedLayer = 3;
         }
 
@@ -341,7 +340,7 @@ const AdminPanel: FC = () => {
 
     // Reset Form
     setBrandName('');
-    setBrandCategory('brands');
+    setBrandCategory('platforms');
     setBrandLogoUrl('');
     setBrandDescription('');
     setBrandLogoSize('medium');
@@ -366,7 +365,7 @@ const AdminPanel: FC = () => {
 
     // Reset Form
     setBrandName('');
-    setBrandCategory('brands');
+    setBrandCategory('platforms');
     setBrandLogoUrl('');
     setBrandDescription('');
     setBrandLogoSize('medium');
@@ -394,8 +393,7 @@ const AdminPanel: FC = () => {
     const targetName = brandPartners[index]?.name;
     if (targetName && window.confirm(`Are you sure you want to remove ${targetName} from the Brand Page?`)) {
       const updatedBrands = brandPartners.filter((_, i) => i !== index);
-      const keyToDelete = targetName.toLowerCase().trim().replace(/\s+/g, '');
-      const updatedClients = clients.filter(c => c.name.toLowerCase().trim().replace(/\s+/g, '') !== keyToDelete);
+      const updatedClients = clients.filter(c => !isSimilarName(c.name, targetName));
 
       localStorage.setItem('dc_brand_partners', JSON.stringify(updatedBrands));
       localStorage.setItem('dc_clients', JSON.stringify(updatedClients));
@@ -4884,7 +4882,7 @@ const AdminPanel: FC = () => {
                   onClick={() => {
                     setEditingBrandIndex(null);
                     setBrandName('');
-                    setBrandCategory('brands');
+                    setBrandCategory('platforms');
                     setBrandLogoUrl('');
                     setBrandDescription('');
                     setLogoInputType('upload');
@@ -4928,10 +4926,9 @@ const AdminPanel: FC = () => {
                       onChange={(e) => setBrandCategory(e.target.value as any)}
                       className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white"
                     >
-                      <option value="brands">Brands & Retail (brands)</option>
-                      <option value="govt">Government (govt)</option>
-                      <option value="corporates">Corporates & Industrial (corporates)</option>
-                      <option value="platforms">Broadcast & Platforms (platforms)</option>
+                      <option value="platforms">PLATFORMS (platforms)</option>
+                      <option value="govt">GOVT (govt)</option>
+                      <option value="corporates">CORPORATES (corporates)</option>
                     </select>
                   </div>
 

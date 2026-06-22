@@ -69,7 +69,7 @@ const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
 export interface BrandItem {
   id: string;
   name: string;
-  category: 'brands' | 'govt' | 'corporates' | 'platforms';
+  category: 'platforms' | 'govt' | 'corporates';
   logoUrl?: string;
   renderLogo?: () => React.ReactNode;
   description?: string;
@@ -77,243 +77,6 @@ export interface BrandItem {
 }
 
 export const DEFAULT_BRAND_ITEMS: BrandItem[] = [
-  // ================= BRANDS =================
-  {
-    id: 'bvlgari',
-    name: 'Bvlgari',
-    category: 'brands',
-    description: 'Luxury Italian fashion, jewellery & luxury goods.',
-    renderLogo: () => (
-      <div className="flex flex-col items-center justify-center p-2 text-center">
-        <span className="font-serif text-[1.1rem] tracking-[0.35em] text-white/90 font-medium leading-none">BVLGARI</span>
-        <span className="text-[7px] tracking-[0.2em] text-white/40 mt-1 uppercase font-sans">ROMA</span>
-      </div>
-    )
-  },
-  {
-    id: 'indigo',
-    name: 'IndiGo',
-    category: 'brands',
-    description: 'Indias leading low-cost passenger airline.',
-    renderLogo: () => (
-      <div className="flex items-center justify-center gap-2">
-        <span className="text-xl font-bold tracking-tight text-white font-sans">
-          <span className="text-[#002F6C]">Indi</span><span className="text-orange-500">Go</span>
-        </span>
-        <svg className="w-5 h-5 text-orange-500 animate-pulse" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
-        </svg>
-      </div>
-    )
-  },
-  {
-    id: 'dlf',
-    name: 'DLF',
-    category: 'brands',
-    description: 'Premium luxury commercial & residential real estate.',
-    renderLogo: () => (
-      <div className="flex flex-col items-center">
-        <div className="flex items-center gap-1.5">
-          <span className="text-2xl font-black tracking-[0.1em] text-white font-sans">DLF</span>
-          <div className="w-4 h-4 text-orange-500 flex items-center">
-            {/* Pyramid motif */}
-            <svg viewBox="0 0 100 100" className="w-full h-full fill-current">
-              <path d="M50 0 L100 100 L0 100 Z" />
-            </svg>
-          </div>
-        </div>
-        <span className="text-[7px] md:text-[8px] tracking-[0.25em] text-white/50 font-bold mt-1">BUILDING INDIA</span>
-      </div>
-    )
-  },
-  {
-    id: 'cocacola',
-    name: 'Coca-Cola',
-    category: 'brands',
-    description: 'Iconic global beverage brand.',
-    renderLogo: () => (
-      <div className="flex flex-col items-center">
-        <span className="font-serif italic text-2xl font-bold text-red-500 tracking-wide">Coca-Cola</span>
-      </div>
-    )
-  },
-  {
-    id: 'birlaopus',
-    name: 'Birla Opus',
-    category: 'brands',
-    description: 'Premium paint and home design surfaces.',
-    renderLogo: () => (
-      <div className="flex flex-col items-center">
-        <span className="text-[7px] tracking-[0.3em] text-white/40 uppercase font-sans font-semibold">BIRLA</span>
-        <span className="text-lg font-extrabold tracking-widest text-white mt-0.5 uppercase relative">
-          OPUS
-          <span className="absolute -right-5 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-            <span className="w-1.5 h-1.5 rounded-full bg-magenta-500 bg-pink-500" />
-            <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-          </span>
-        </span>
-      </div>
-    )
-  },
-  {
-    id: 'amazon',
-    name: 'Amazon.in',
-    category: 'brands',
-    description: 'Global e-commerce leader.',
-    renderLogo: () => (
-      <div className="flex flex-col items-center relative">
-        <span className="text-lg font-bold tracking-tight text-white">amazon.in</span>
-        <svg className="w-14 h-3 text-orange-500 -mt-1.5" viewBox="0 0 100 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M5 5C25 15 75 15 95 5" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-          <path d="M91 3L96 6L94 12" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </div>
-    )
-  },
-  {
-    id: 'vim',
-    name: 'Vim',
-    category: 'brands',
-    description: 'Leading home and cleaning brand.',
-    renderLogo: () => (
-      <div className="relative px-4 py-1.5 bg-gradient-to-r from-lime-600/20 to-green-600/30 border border-lime-500/20 rounded-xl">
-        <span className="text-xl font-black italic tracking-tight text-lime-400 uppercase drop-shadow-[0_2px_10px_rgba(132,204,22,0.3)]">Vim</span>
-        <span className="absolute -right-1 -top-1 w-2 h-2 rounded-full bg-[#EAB308] animate-bounce" />
-      </div>
-    )
-  },
-  {
-    id: 'hero',
-    name: 'Hero',
-    category: 'brands',
-    description: 'One of the worlds largest two-wheeler manufacturers.',
-    renderLogo: () => (
-      <div className="flex items-center gap-3">
-        <div className="flex flex-col gap-0.5 justify-center">
-          <div className="w-4 h-1 bg-red-500 rounded-full" />
-          <div className="w-6 h-1 bg-red-500 rounded-full" />
-        </div>
-        <span className="text-2xl font-black italic tracking-tight text-red-500">Hero</span>
-      </div>
-    )
-  },
-  {
-    id: 'hyundai',
-    name: 'Hyundai',
-    category: 'brands',
-    description: 'Global luxury and passenger automotive giant.',
-    renderLogo: () => (
-      <div className="flex flex-col items-center justify-center">
-        <div className="relative w-12 h-8 border-2 border-slate-400/30 rounded-full flex items-center justify-center overflow-hidden">
-          <span className="text-lg font-extrabold italic text-slate-300 font-sans tracking-wide -skew-x-[15deg]">H</span>
-        </div>
-        <span className="text-[8px] font-bold tracking-[0.3em] text-slate-400 mt-1 uppercase">HYUNDAI</span>
-      </div>
-    )
-  },
-  {
-    id: 'vivo',
-    name: 'Vivo',
-    category: 'brands',
-    description: 'Innovative consumer electronics & mobile brand.',
-    renderLogo: () => (
-      <div className="flex items-center justify-center">
-        <span className="text-2xl font-black tracking-tighter text-blue-400 font-sans lowercase">vivo</span>
-      </div>
-    )
-  },
-  {
-    id: 'theleela',
-    name: 'The Leela',
-    category: 'brands',
-    description: 'Super elite luxury palaces, hotels & resort group.',
-    renderLogo: () => (
-      <div className="flex flex-col items-center">
-        <span className="font-serif text-3xl font-light text-white/90 leading-none">L</span>
-        <span className="text-[10px] font-bold tracking-[0.25em] text-white/70 uppercase mt-1 font-serif">THE LEELA</span>
-        <span className="text-[5px] tracking-[0.1em] text-white/40 mt-0.5">PALACES HOTELS RESORTS</span>
-      </div>
-    )
-  },
-  {
-    id: 'pearlacademy',
-    name: 'Pearl Academy',
-    category: 'brands',
-    description: 'Premier design, fashion, creative business institutes.',
-    renderLogo: () => (
-      <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center border border-white/10 shadow-lg shadow-red-600/20 shrink-0">
-          <span className="text-white text-xs font-black italic tracking-wide">P</span>
-        </div>
-        <div className="flex flex-col">
-          <span className="text-sm font-black tracking-tight text-white uppercase leading-none">Pearl</span>
-          <span className="text-[8px] font-bold tracking-[0.15em] text-orange-500 uppercase mt-0.5">Academy</span>
-        </div>
-      </div>
-    )
-  },
-  {
-    id: 'unacademy',
-    name: 'Unacademy',
-    category: 'brands',
-    description: 'Largest live-learning education platform in India.',
-    renderLogo: () => (
-      <div className="flex items-center gap-2">
-        <div className="w-7 h-7 rounded-lg bg-teal-500/20 border border-teal-500/30 flex items-center justify-center">
-          <svg className="w-4 h-4 text-teal-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v18M3 12h18" />
-          </svg>
-        </div>
-        <span className="text-sm font-black tracking-wide text-white uppercase">unacademy</span>
-      </div>
-    )
-  },
-  {
-    id: 'balajiwafers',
-    name: 'Balaji Wafers',
-    category: 'brands',
-    description: 'Renowned Indian snack and potato wafers manufacturer.',
-    renderLogo: () => (
-      <div className="flex flex-col items-center">
-        <div className="px-3 py-1 bg-yellow-500/10 border border-yellow-500/20 rounded-full flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded-full bg-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.6)]" />
-          <span className="text-xs font-black uppercase text-yellow-500 tracking-wider">BALAJI</span>
-        </div>
-        <span className="text-[8px] tracking-[0.2em] text-white/50 uppercase mt-1">WAFERS</span>
-      </div>
-    )
-  },
-  {
-    id: 'pokerbaazi',
-    name: 'PokerBaazi',
-    category: 'brands',
-    description: 'Indias premium online strategy sporting poker app.',
-    renderLogo: () => (
-      <div className="flex items-center gap-1.5">
-        <div className="w-6 h-6 rounded bg-blue-600 flex items-center justify-center border border-white/10 shrink-0">
-          <span className="text-white text-xs font-black uppercase">PB</span>
-        </div>
-        <span className="text-sm font-black text-white tracking-tight uppercase">PokerBaazi</span>
-      </div>
-    )
-  },
-  {
-    id: 'filmfare',
-    name: 'Filmfare',
-    category: 'brands',
-    description: 'Prestigious cinematic award franchise and publication.',
-    renderLogo: () => (
-      <div className="flex items-center gap-2 px-3 py-1 bg-zinc-900 border border-white/10 rounded-lg">
-        <span className="text-xs font-black uppercase tracking-wider text-white">FILMFARE</span>
-        <svg className="w-5 h-6 text-slate-400 fill-current shrink-0" viewBox="0 0 24 24">
-          {/* Stylized Filmfare Lady Trophy silhouette */}
-          <path d="M12 2A3 3 0 0 0 9 5c0 1.5.5 2.5 1.5 3h1v11l-3.5 2h9l-3.5-2V8h1c1 0 1.5-1.5 1.5-3a3 3 0 0 0-3-3zM12 4c.5 0 1 .5 1 1s-.5 1-1 1s-1-.5-1-1s.5-1 1-1z" />
-        </svg>
-      </div>
-    )
-  },
-
   // ================= GOVT =================
   {
     id: 'bsf',
@@ -909,10 +672,9 @@ export const DEFAULT_BRAND_ITEMS: BrandItem[] = [
 
 const CATEGORIES = [
   { id: 'all', name: 'ALL PARTNERS', icon: Sparkles },
-  { id: 'brands', name: 'BRANDS & RETAIL', icon: Building2 },
-  { id: 'govt', name: 'GOVERNMENT', icon: Landmark },
-  { id: 'corporates', name: 'CORPORATES & INDUSTRIAL', icon: Shield },
-  { id: 'platforms', name: 'BROADCAST & PLATFORMS', icon: Clapperboard },
+  { id: 'platforms', name: 'PLATFORMS', icon: Clapperboard },
+  { id: 'govt', name: 'GOVT', icon: Landmark },
+  { id: 'corporates', name: 'CORPORATES', icon: Shield },
 ];
 
 const BrandCardLogo: FC<{ brand: BrandItem }> = ({ brand }) => {
@@ -1029,27 +791,23 @@ export default function BrandPage() {
         
         <p className="text-white/40 max-w-2xl text-xs md:text-sm font-medium mt-6 leading-relaxed">
           Creating stunning high-impact media campaigns, digital films, branded contents, 
-          and creative adaptations. We partner with local governments, public sectors, 
-          leading consumer brands, global corporate conglomerates, and premium networks.
+          We partner with local governments, public sectors, global corporate conglomerates, 
+          and premier broadcast networks & platforms.
         </p>
 
         {/* Interactive Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12 mb-16 max-w-4xl border-t border-b border-white/5 py-8">
-          <div className="flex flex-col">
-            <span className="text-3xl md:text-4xl font-black text-orange-500">50+</span>
-            <span className="text-[9px] tracking-widest text-white/50 uppercase font-mono mt-1">EMPANELLED BRANDS</span>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 mb-16 max-w-3xl border-t border-b border-white/5 py-8 mx-auto w-full">
+          <div className="flex flex-col items-center text-center">
+            <span className="text-3xl md:text-4xl font-black text-orange-500">8+</span>
+            <span className="text-[9px] tracking-widest text-white/50 uppercase font-mono mt-1">BROADCAST PLATFORMS</span>
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col items-center text-center">
             <span className="text-3xl md:text-4xl font-black text-white">12+</span>
             <span className="text-[9px] tracking-widest text-white/50 uppercase font-mono mt-1">GOVT DEPARTMENTS</span>
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col items-center text-center">
             <span className="text-3xl md:text-4xl font-black text-white">18+</span>
             <span className="text-[9px] tracking-widest text-white/50 uppercase font-mono mt-1">CORPORATE PARTNERS</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-3xl md:text-4xl font-black text-white">8+</span>
-            <span className="text-[9px] tracking-widest text-white/50 uppercase font-mono mt-1">BROADCAST PLATFORMS</span>
           </div>
         </div>
 

@@ -246,7 +246,7 @@ export function Navbar() {
   const navLinks = [
     { name: 'Home', href: '/', path: '/' },
     { name: 'Content', to: '/films', path: '/films' },
-    { name: 'Collaborators', to: '/brand', path: '/brand' },
+    { name: 'Platforms', to: '/brand', path: '/brand' },
     { name: 'About Us', to: '/about', path: '/about' },
   ];
 
@@ -543,62 +543,14 @@ export interface ClientItem {
 }
 
 export const DEFAULT_CLIENTS_LIST: ClientItem[] = [
-  { id: '1', name: 'NETFLIX', color: '#E50914', size: 'large', logoUrl: '', layer: 1 },
-  { id: '2', name: "D'DECOR", color: '#FFFFFF', size: 'medium', logoUrl: '', layer: 1 },
-  { id: '3', name: 'amazon prime', color: '#FFFFFF', size: 'large', logoUrl: '', layer: 1 },
-  { id: '4', name: 'Disney+ hotstar', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
-  { id: '5', name: 'asics', color: '#FFFFFF', size: 'medium', logoUrl: '', layer: 1 },
-  { id: '6', name: "L'ORÉAL", color: '#FFFFFF', size: 'medium', logoUrl: '', layer: 1 },
-  { id: '7', name: 'Pernod Ricard', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
-  { id: '8', name: 'YouTube', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
-  { id: '9', name: 'JAMESON', color: '#FFFFFF', size: 'medium', logoUrl: '', layer: 1 },
-  { id: '10', name: 'ASUS', color: '#FFFFFF', size: 'medium', logoUrl: '', layer: 1 },
-  { id: '11', name: 'LIONSGATE PLAY', color: '#FFFFFF', size: 'medium', logoUrl: '', layer: 1 },
-  { id: '12', name: 'MARVEL STUDIOS', color: '#ED1D24', size: 'medium', logoUrl: '', layer: 1 },
-  { id: '13', name: 'ABSOLUT.', color: '#FFFFFF', size: 'medium', logoUrl: '', layer: 1 },
-  { id: '14', name: 'Coke STUDIO', color: '#FE001A', size: 'medium', logoUrl: '', layer: 1 },
-  { id: '15', name: 'SKECHERS', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
-  { id: '16', name: 'Bumble', color: '#FFC629', size: 'small', logoUrl: '', layer: 1 },
-  { id: '17', name: 'Mi', color: '#FF6700', size: 'small', logoUrl: '', layer: 1 },
-  { id: '18', name: 'Signature', color: '#FFFFFF', size: 'medium', logoUrl: '', layer: 1 },
-  { id: '19', name: 'IndiGo', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
-  { id: '20', name: 'Top Ramen', color: '#FF0000', size: 'small', logoUrl: '', layer: 1 },
-  { id: '21', name: 'Boost', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
-  { id: '22', name: 'Myntra', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
-  { id: '23', name: 'boat', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
-  { id: '24', name: 'TOSHIBA', color: '#FFFFFF', size: 'medium', logoUrl: '', layer: 1 },
-  { id: '25', name: 'LAKMÉ', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
-  { id: '26', name: 'BRITANNIA', color: '#ED1D24', size: 'small', logoUrl: '', layer: 1 },
-  { id: '27', name: 'Vedanta', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
-  { id: '28', name: 'Tecno', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
-  { id: '29', name: 'Star Sports', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
-  { id: '30', name: 'Sony', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
-  { id: '31', name: 'NPCL', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
-  { id: '32', name: 'NDTV', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
-  { id: '33', name: 'KPMG', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
-  { id: '34', name: 'FIFA', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
-  { id: '35', name: 'Adani', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
-  { id: '36', name: 'Zee', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
-  { id: '37', name: 'Vivo', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
-  { id: '38', name: 'Swachh Bharat', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 2 },
-  { id: '39', name: 'Pearl Academy', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
-  { id: '40', name: 'Larsen & Toubro', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
-  { id: '41', name: 'Indian Air Force', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 2 },
-  { id: '42', name: 'Indian Army', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 2 },
-  { id: '43', name: 'Jakson', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
-  { id: '44', name: 'Seven', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
-  { id: '45', name: 'Gujarat Tourism', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 2 },
-  { id: '46', name: 'Food Food', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
-  { id: '47', name: 'Experion', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
-  { id: '48', name: 'Discovery', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
-  { id: '49', name: 'Cairn', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
-  { id: '50', name: 'DLF', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
-  { id: '51', name: 'Denso', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
-  { id: '52', name: 'Balaji Wafers', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
-  { id: '53', name: 'GMR', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
-  { id: '54', name: 'Land Ports Authority', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 2 },
-  { id: '55', name: 'FIH', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 3 },
-  { id: '56', name: 'The Leela', color: '#FFFFFF', size: 'small', logoUrl: '', layer: 1 },
+  { id: 'jiostar', name: 'Jio Star', color: '#001D3D', size: 'large', logoUrl: '', layer: 1 },
+  { id: 'discovery', name: 'Warner Bros. Discovery', color: '#1E3A8A', size: 'large', logoUrl: '', layer: 1 },
+  { id: 'natgeo', name: 'National Geographic', color: '#000000', size: 'large', logoUrl: '', layer: 1 },
+  { id: 'zeetv', name: 'Zee TV', color: '#B45309', size: 'large', logoUrl: '', layer: 2 },
+  { id: 'sony', name: 'Sony Entertainment Television', color: '#7F1D1D', size: 'large', logoUrl: '', layer: 2 },
+  { id: 'dd', name: 'DD (Doordarshan)', color: '#1E293B', size: 'large', logoUrl: '', layer: 2 },
+  { id: 'starsports', name: 'Star Sports', color: '#0F172A', size: 'large', logoUrl: '', layer: 3 },
+  { id: 'tlc', name: 'TLC', color: '#881337', size: 'large', logoUrl: '', layer: 3 },
 ];
 
 function Clients() {
@@ -681,10 +633,10 @@ function Clients() {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="font-helvetica-cond text-3xl md:text-5xl lg:text-6xl font-bold tracking-[0.02em] text-orange-500 uppercase mb-2 select-none"
           >
-            Collaborators
+            Platforms
           </motion.h3>
           <p className="text-white/40 text-xs md:text-sm font-semibold uppercase tracking-[0.3em] font-mono">
-            Trusted by the world's most progressive brands & organizations
+            Broadcasters, Networks & Streaming Platforms
           </p>
         </div>
 

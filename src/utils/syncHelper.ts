@@ -5,8 +5,8 @@ export interface ClientItem {
   id: string;
   name: string;
   color: string;
-  size: 'small' | 'medium' | 'large' | 'xlarge' | string;
-  logoUrl: string;
+  size?: 'small' | 'medium' | 'large' | 'xlarge' | string;
+  logoUrl?: string;
   layer?: 1 | 2 | 3 | string;
   description?: string;
   renderLogo?: () => any;
@@ -95,13 +95,29 @@ export const isGoogleDriveLink = (url?: string): boolean => {
          /(?:\/file\/d\/|id=)([^/?#]+)/.test(trimmed);
 };
 
+export const hasLogoContent = (name: string, logoUrl?: string): boolean => {
+  if (isGoogleDriveLink(logoUrl)) return true;
+  // Check if it is a built-in logo
+  const normName = name.toLowerCase().trim().replace(/\s+/g, '');
+  const isBuiltIn = DEFAULT_BRAND_ITEMS.some(d => 
+    (d.name.toLowerCase().trim().replace(/\s+/g, '') === normName || isSimilarName(d.name, name))
+  );
+  return isBuiltIn;
+};
+
 export const normalizeAndSyncData = () => {
   // 1. Fetch current localStorage data
   let clients: ClientItem[] = [];
   const storedClients = localStorage.getItem('dc_clients');
+  let hasOldBrandsList = false;
+
   if (storedClients) {
     try {
       clients = JSON.parse(storedClients);
+      // Check if this is the traditional long consumer brands list
+      if (clients.some(c => c.name === 'NETFLIX' || c.name === "D'DECOR" || c.name === 'IndiGo')) {
+        hasOldBrandsList = true;
+      }
     } catch (e) {
       console.error('Error parsing dc_clients in syncHelper:', e);
     }
@@ -109,7 +125,7 @@ export const normalizeAndSyncData = () => {
 
   let brands: BrandItem[] = [];
   const storedBrands = localStorage.getItem('dc_brand_partners');
-  if (storedBrands) {
+  if (storedBrands && !hasOldBrandsList) {
     try {
       brands = JSON.parse(storedBrands);
     } catch (e) {
@@ -117,12 +133,20 @@ export const normalizeAndSyncData = () => {
     }
   }
 
-  // Strictly filter out any items that DO NOT have a valid Google Drive logo link
+  // If we have old brands, or if localStorage is completely fresh, we force reset to the beautiful platforms setup
+  if (hasOldBrandsList || !storedClients || clients.length === 0) {
+    clients = [...DEFAULT_CLIENTS_LIST];
+    brands = [...DEFAULT_BRAND_ITEMS];
+    localStorage.setItem('dc_clients', JSON.stringify(clients));
+    localStorage.setItem('dc_brand_partners', JSON.stringify(brands));
+  }
+
+  // Strictly filter out any items that DO NOT have a valid Google Drive logo link or built-in logo content
   const originalClientsLen = clients.length;
   const originalBrandsLen = brands.length;
 
-  clients = clients.filter(c => isGoogleDriveLink(c.logoUrl));
-  brands = brands.filter(b => isGoogleDriveLink(b.logoUrl));
+  clients = clients.filter(c => hasLogoContent(c.name, c.logoUrl));
+  brands = brands.filter(b => hasLogoContent(b.name, b.logoUrl));
 
   let hasChanges = (clients.length !== originalClientsLen) || (brands.length !== originalBrandsLen);
 
@@ -197,7 +221,7 @@ export const normalizeAndSyncData = () => {
     }
 
     if (!currentCategory) {
-      currentCategory = 'brands';
+      currentCategory = 'platforms';
     }
 
     const key = currentName.toLowerCase().trim().replace(/\s+/g, '');
@@ -224,7 +248,7 @@ export const normalizeAndSyncData = () => {
         ...brand,
         id: currentId,
         name: currentName,
-        category: currentCategory || 'brands'
+        category: currentCategory || 'platforms'
       });
     }
   }
@@ -256,7 +280,7 @@ export const normalizeAndSyncData = () => {
   for (const client of cleanedClientsMap.values()) {
     const key = client.name.toLowerCase().trim().replace(/\s+/g, '');
     if (!cleanedBrandsMap.has(key)) {
-      let assignedCategory: 'brands' | 'govt' | 'corporates' | 'platforms' = 'brands';
+      let assignedCategory: 'platforms' | 'govt' | 'corporates' = 'platforms';
       if (client.layer === 2) assignedCategory = 'govt';
       else if (client.layer === 3) assignedCategory = 'corporates';
 
