@@ -87,6 +87,7 @@ export const isSimilarName = (n1: string, n2: string): boolean => {
 export const isGoogleDriveLink = (url?: string): boolean => {
   if (!url) return false;
   const trimmed = url.trim();
+  if (trimmed.startsWith('data:image/')) return true;
   // Match standard google drive share urls, embed urls, and direct image API endpoints
   return trimmed.includes('drive.google.com') || 
          trimmed.includes('docs.google.com') || 

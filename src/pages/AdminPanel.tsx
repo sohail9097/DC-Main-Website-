@@ -220,9 +220,18 @@ const AdminPanel: FC = () => {
   };
 
   const handleDeleteClient = (index: number) => {
-    if (window.confirm(`Are you sure you want to remove ${clients[index].name}?`)) {
-      const updated = clients.filter((_, i) => i !== index);
-      saveClientsToStorage(updated);
+    const targetName = clients[index]?.name;
+    if (targetName && window.confirm(`Are you sure you want to remove ${targetName}?`)) {
+      const updatedClients = clients.filter((_, i) => i !== index);
+      const keyToDelete = targetName.toLowerCase().trim().replace(/\s+/g, '');
+      const updatedBrands = brandPartners.filter(b => b.name.toLowerCase().trim().replace(/\s+/g, '') !== keyToDelete);
+
+      localStorage.setItem('dc_clients', JSON.stringify(updatedClients));
+      localStorage.setItem('dc_brand_partners', JSON.stringify(updatedBrands));
+
+      const { clients: syncedClients, brands: syncedBrands } = normalizeAndSyncData();
+      setClients(syncedClients);
+      setBrandPartners(syncedBrands);
     }
   };
 
@@ -382,9 +391,18 @@ const AdminPanel: FC = () => {
   };
 
   const handleDeleteBrandPartner = (index: number) => {
-    if (window.confirm(`Are you sure you want to remove ${brandPartners[index].name} from the Brand Page?`)) {
-      const updated = brandPartners.filter((_, i) => i !== index);
-      saveBrandPartners(updated);
+    const targetName = brandPartners[index]?.name;
+    if (targetName && window.confirm(`Are you sure you want to remove ${targetName} from the Brand Page?`)) {
+      const updatedBrands = brandPartners.filter((_, i) => i !== index);
+      const keyToDelete = targetName.toLowerCase().trim().replace(/\s+/g, '');
+      const updatedClients = clients.filter(c => c.name.toLowerCase().trim().replace(/\s+/g, '') !== keyToDelete);
+
+      localStorage.setItem('dc_brand_partners', JSON.stringify(updatedBrands));
+      localStorage.setItem('dc_clients', JSON.stringify(updatedClients));
+
+      const { clients: syncedClients, brands: syncedBrands } = normalizeAndSyncData();
+      setClients(syncedClients);
+      setBrandPartners(syncedBrands);
     }
   };
 
