@@ -1,5 +1,5 @@
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
-import { Shield, Sparkles, Building2, Landmark, Clapperboard, ExternalLink, ArrowRight, Plus } from 'lucide-react';
+import { Shield, Sparkles, Building2, Landmark, Clapperboard, ExternalLink, ArrowRight, Plus, Award } from 'lucide-react';
 import React, { useState, useEffect, FC, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navbar, transformGoogleDriveUrl, Footer, InteractiveOptions } from '../App';
@@ -69,7 +69,7 @@ const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
 export interface BrandItem {
   id: string;
   name: string;
-  category: 'platforms' | 'govt' | 'corporates';
+  category: 'brands' | 'platforms' | 'govt' | 'corporates';
   logoUrl?: string;
   renderLogo?: () => React.ReactNode;
   description?: string;
@@ -672,9 +672,10 @@ export const DEFAULT_BRAND_ITEMS: BrandItem[] = [
 
 const CATEGORIES = [
   { id: 'all', name: 'ALL PARTNERS', icon: Sparkles },
-  { id: 'platforms', name: 'COLLABORATORS', icon: Clapperboard },
+  { id: 'brands', name: 'BRANDS', icon: Award },
   { id: 'govt', name: 'GOVT', icon: Landmark },
   { id: 'corporates', name: 'CORPORATES', icon: Shield },
+  { id: 'platforms', name: 'PLATFORMS', icon: Clapperboard },
 ];
 
 const BrandCardLogo: FC<{ brand: BrandItem }> = ({ brand }) => {
@@ -796,10 +797,10 @@ export default function BrandPage() {
         </p>
 
         {/* Interactive Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 mb-16 max-w-3xl border-t border-b border-white/5 py-8 mx-auto w-full">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12 mb-16 max-w-4xl border-t border-b border-white/5 py-8 mx-auto w-full">
           <div className="flex flex-col items-center text-center">
-            <span className="text-3xl md:text-4xl font-black text-orange-500">8+</span>
-            <span className="text-[9px] tracking-widest text-white/50 uppercase font-mono mt-1">COLLABORATORS</span>
+            <span className="text-3xl md:text-4xl font-black text-orange-500">10+</span>
+            <span className="text-[9px] tracking-widest text-white/50 uppercase font-mono mt-1">BRANDS</span>
           </div>
           <div className="flex flex-col items-center text-center">
             <span className="text-3xl md:text-4xl font-black text-white">12+</span>
@@ -808,6 +809,10 @@ export default function BrandPage() {
           <div className="flex flex-col items-center text-center">
             <span className="text-3xl md:text-4xl font-black text-white">18+</span>
             <span className="text-[9px] tracking-widest text-white/50 uppercase font-mono mt-1">CORPORATE PARTNERS</span>
+          </div>
+          <div className="flex flex-col items-center text-center">
+            <span className="text-3xl md:text-4xl font-black text-white">8+</span>
+            <span className="text-[9px] tracking-widest text-white/50 uppercase font-mono mt-1">PLATFORMS</span>
           </div>
         </div>
 

@@ -96,7 +96,7 @@ export const isGoogleDriveLink = (url?: string): boolean => {
 };
 
 export const hasLogoContent = (name: string, logoUrl?: string): boolean => {
-  if (isGoogleDriveLink(logoUrl)) return true;
+  if (logoUrl && logoUrl.trim().length > 0) return true;
   // Check if it is a built-in logo
   const normName = name.toLowerCase().trim().replace(/\s+/g, '');
   const isBuiltIn = DEFAULT_BRAND_ITEMS.some(d => 
@@ -138,23 +138,15 @@ export const normalizeAndSyncData = () => {
 
   if (hasPureOldDefaults || !storedClients || clients.length === 0) {
     // Collect any user custom additions/logos first to keep them safe
-    const customClients = clients.filter(c => 
-      c.name !== 'NETFLIX' && 
-      c.name !== "D'DECOR" && 
-      c.name !== 'IndiGo' && 
-      c.name !== 'Amazon' && 
-      c.name !== 'Fifa' &&
-      isGoogleDriveLink(c.logoUrl)
-    );
+    const customClients = clients.filter(c => {
+      const def = DEFAULT_CLIENTS_LIST.find(d => isSimilarName(d.name, c.name));
+      return (c.logoUrl && c.logoUrl.trim().length > 0) || !def;
+    });
 
-    const customBrands = brands.filter(b => 
-      b.name !== 'NETFLIX' && 
-      b.name !== "D'DECOR" && 
-      b.name !== 'IndiGo' && 
-      b.name !== 'Amazon' && 
-      b.name !== 'Fifa' &&
-      isGoogleDriveLink(b.logoUrl)
-    );
+    const customBrands = brands.filter(b => {
+      const def = DEFAULT_BRAND_ITEMS.find(d => isSimilarName(d.name, b.name));
+      return (b.logoUrl && b.logoUrl.trim().length > 0) || !def;
+    });
 
     // Load fresh defaults
     clients = [...DEFAULT_CLIENTS_LIST];
@@ -303,7 +295,7 @@ export const normalizeAndSyncData = () => {
     if (!existsAsClient) {
       let assignedLayer: 1 | 2 | 3 = 1;
       if (brand.category === 'govt') assignedLayer = 2;
-      else if (brand.category === 'corporates' || brand.category === 'platforms') assignedLayer = 3;
+      else if (brand.category === 'corporates') assignedLayer = 3;
 
       cleanedClients.push({
         id: brand.id || `brand-sync-${Date.now()}-${Math.random()}`,
@@ -322,7 +314,7 @@ export const normalizeAndSyncData = () => {
   for (const client of cleanedClients) {
     const existsAsBrand = cleanedBrands.some(b => isSimilarName(b.name, client.name));
     if (!existsAsBrand) {
-      let assignedCategory: 'platforms' | 'govt' | 'corporates' = 'platforms';
+      let assignedCategory: 'brands' | 'platforms' | 'govt' | 'corporates' = 'brands';
       if (client.layer === 2) assignedCategory = 'govt';
       else if (client.layer === 3) assignedCategory = 'corporates';
 

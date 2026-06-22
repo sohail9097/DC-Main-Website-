@@ -74,7 +74,7 @@ const AdminPanel: FC = () => {
 
   // Brand Page form fields
   const [brandName, setBrandName] = useState('');
-  const [brandCategory, setBrandCategory] = useState<'platforms' | 'govt' | 'corporates'>('platforms');
+  const [brandCategory, setBrandCategory] = useState<'brands' | 'platforms' | 'govt' | 'corporates'>('brands');
   const [brandLogoUrl, setBrandLogoUrl] = useState('');
   const [brandDescription, setBrandDescription] = useState('');
   const [logoInputType, setLogoInputType] = useState<'upload' | 'url'>('upload');
@@ -271,7 +271,7 @@ const AdminPanel: FC = () => {
 
       if (!exists) {
         let assignedLayer: 1 | 2 | 3 = 1;
-        if (brand.category === 'platforms') {
+        if (brand.category === 'platforms' || brand.category === 'brands') {
           assignedLayer = 1;
         } else if (brand.category === 'govt') {
           assignedLayer = 2;
@@ -347,7 +347,7 @@ const AdminPanel: FC = () => {
 
     // Reset Form
     setBrandName('');
-    setBrandCategory('platforms');
+    setBrandCategory('brands');
     setBrandLogoUrl('');
     setBrandDescription('');
     setBrandLogoSize('medium');
@@ -372,7 +372,7 @@ const AdminPanel: FC = () => {
 
     // Reset Form
     setBrandName('');
-    setBrandCategory('platforms');
+    setBrandCategory('brands');
     setBrandLogoUrl('');
     setBrandDescription('');
     setBrandLogoSize('medium');
@@ -4892,7 +4892,7 @@ const AdminPanel: FC = () => {
                   onClick={() => {
                     setEditingBrandIndex(null);
                     setBrandName('');
-                    setBrandCategory('platforms');
+                    setBrandCategory('brands');
                     setBrandLogoUrl('');
                     setBrandDescription('');
                     setLogoInputType('upload');
@@ -4936,9 +4936,10 @@ const AdminPanel: FC = () => {
                       onChange={(e) => setBrandCategory(e.target.value as any)}
                       className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white"
                     >
-                      <option value="platforms">COLLABORATORS (platforms)</option>
+                      <option value="brands">BRANDS (brands)</option>
                       <option value="govt">GOVT (govt)</option>
                       <option value="corporates">CORPORATES (corporates)</option>
+                      <option value="platforms">PLATFORMS (platforms)</option>
                     </select>
                   </div>
 
