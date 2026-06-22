@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import { Navigate, Link } from 'react-router-dom';
 import { pushLocalConfigsToFirestore } from '../lib/siteSync';
-import { Users, Layout, Settings, LogOut, Home, Plus, Trash2, Edit2, ArrowUp, ArrowDown, RefreshCw, FileVideo, Image as ImageIcon, Film, Play, ChevronRight, ChevronLeft, MapPin, BookOpen, Share2, Sparkles, Upload, Check, Save } from 'lucide-react';
+import { Users, Layout, Settings, LogOut, Home, Plus, Trash2, Edit2, ArrowUp, ArrowDown, RefreshCw, FileVideo, Image as ImageIcon, ImageOff, Film, Play, ChevronRight, ChevronLeft, MapPin, BookOpen, Share2, Sparkles, Upload, Check, Save } from 'lucide-react';
 import { DEFAULT_TEAM_MEMBERS, TeamMember, DEFAULT_ORBIT_IMAGES, DEFAULT_FILMS_LIST, DEFAULT_CLIENTS_LIST, ClientItem, ParagraphFrameItem, DEFAULT_PARAGRAPH_FRAMES, DEFAULT_VERTICALS, VerticalItem, DEFAULT_LOCATIONS, OperationalLocation } from '../App';
 import { DEFAULT_BRAND_ITEMS, BrandItem } from './BrandPage';
 import { DEFAULT_SLIDES, CinematicSlide } from '../components/CinematicSlideshow';
@@ -5038,7 +5038,6 @@ const AdminPanel: FC = () => {
                       <div className="space-y-3">
                         <input
                           type="text"
-                          required
                           value={brandLogoUrl}
                           onChange={(e) => setBrandLogoUrl(e.target.value)}
                           placeholder="e.g. https://domain.com/logo.png"
@@ -5060,6 +5059,24 @@ const AdminPanel: FC = () => {
                             </div>
                           </div>
                         )}
+                      </div>
+                    )}
+
+                    {/* Clear/Delete active logo button if exists */}
+                    {brandLogoUrl && (
+                      <div className="mt-4 flex items-center justify-between p-3 bg-red-500/5 rounded-xl border border-red-500/10 text-xs text-red-400">
+                        <span className="font-semibold uppercase tracking-wider text-[9px]">Active logo loaded: {brandLogoUrl.startsWith('data:image/') ? 'Uploaded Image' : 'Web Link'}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm("Are you sure you want to delete this brand logo? It will fall back to its beautiful built-in SVG logo or clean text layout.")) {
+                              setBrandLogoUrl('');
+                            }
+                          }}
+                          className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500 hover:text-white rounded-lg font-black uppercase text-[10px] tracking-wider transition-all border border-red-500/10"
+                        >
+                          Delete Logo
+                        </button>
                       </div>
                     )}
                   </div>
@@ -5155,6 +5172,22 @@ const AdminPanel: FC = () => {
                         >
                           <ArrowDown size={14} />
                         </button>
+                        {item.logoUrl && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (window.confirm(`Are you sure you want to delete the logo image of "${item.name}"? It will revert to its default vector logo or clean text layout.`)) {
+                                const updated = [...brandPartners];
+                                updated[index] = { ...updated[index], logoUrl: '' };
+                                saveBrandPartners(updated);
+                              }
+                            }}
+                            title="Delete Logo Image"
+                            className="p-1.5 rounded bg-orange-500/10 text-orange-400 hover:bg-orange-500 hover:text-black transition-all border border-orange-500/10"
+                          >
+                            <ImageOff size={14} />
+                          </button>
+                        )}
                         <button
                           type="button"
                           onClick={() => handleEditBrandClick(index)}
