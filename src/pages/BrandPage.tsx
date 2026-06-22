@@ -868,6 +868,38 @@ const CATEGORIES = [
   { id: 'platforms', name: 'BROADCAST & PLATFORMS', icon: Clapperboard },
 ];
 
+const BrandCardLogo: FC<{ brand: BrandItem }> = ({ brand }) => {
+  const [imgError, setImgError] = useState(false);
+
+  useEffect(() => {
+    setImgError(false);
+  }, [brand.logoUrl]);
+
+  const hasLogoUrl = brand.logoUrl && brand.logoUrl.trim().length > 0 && !imgError;
+
+  if (brand.renderLogo) {
+    return brand.renderLogo();
+  }
+
+  if (hasLogoUrl) {
+    return (
+      <img
+        src={transformGoogleDriveUrl(brand.logoUrl)}
+        alt={brand.name}
+        className="max-w-[95%] max-h-[95%] object-contain"
+        referrerPolicy="no-referrer"
+        onError={() => setImgError(true)}
+      />
+    );
+  }
+
+  return (
+    <span className="text-[7px] xs:text-[9px] sm:text-xs md:text-sm font-black text-white/90 uppercase tracking-widest leading-none text-center px-1">
+      {brand.name}
+    </span>
+  );
+};
+
 export default function BrandPage() {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState<string>('all');
@@ -882,7 +914,10 @@ export default function BrandPage() {
         try {
           const parsed = JSON.parse(stored) as BrandItem[];
           const mapped = parsed.map(item => {
-            const defaultItem = DEFAULT_BRAND_ITEMS.find(d => d.id === item.id);
+            const defaultItem = DEFAULT_BRAND_ITEMS.find(d => 
+              d.id.toLowerCase() === item.id.toLowerCase() || 
+              d.name.toLowerCase() === item.name.toLowerCase()
+            );
             if (defaultItem && defaultItem.renderLogo) {
               return {
                 ...item,
@@ -1031,13 +1066,7 @@ export default function BrandPage() {
                   brand.logoSize === 'xlarge' ? 'scale-[0.85] md:scale-[1.2]' :
                   'scale-[0.55] md:scale-100'
                 } group-hover:scale-[1.06]`}>
-                  {brand.logoUrl ? (
-                    <img src={transformGoogleDriveUrl(brand.logoUrl)} alt={brand.name} className="max-w-[95%] max-h-[95%] object-contain" referrerPolicy="no-referrer" />
-                  ) : (
-                    brand.renderLogo ? brand.renderLogo() : (
-                      <span className="text-[7px] xs:text-[9px] sm:text-xs md:text-sm font-black text-white/90 uppercase tracking-widest leading-none text-center px-1">{brand.name}</span>
-                    )
-                  )}
+                  <BrandCardLogo brand={brand} />
                 </div>
 
                 {/* hover descriptive tag identifier */}

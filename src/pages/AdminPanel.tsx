@@ -148,6 +148,7 @@ const AdminPanel: FC = () => {
   const [clientColor, setClientColor] = useState('#FFFFFF');
   const [clientSize, setClientSize] = useState<'small' | 'medium' | 'large' | 'xlarge' | 'extralarge'>('medium');
   const [clientLogoUrl, setClientLogoUrl] = useState('');
+  const [clientLayer, setClientLayer] = useState<1 | 2 | 3>(1);
 
   const saveClientsToStorage = (updatedClients: ClientItem[]) => {
     setClients(updatedClients);
@@ -164,7 +165,8 @@ const AdminPanel: FC = () => {
       name: clientName.trim(),
       color: clientColor.trim() || '#FFFFFF',
       size: clientSize,
-      logoUrl: clientLogoUrl.trim()
+      logoUrl: clientLogoUrl.trim(),
+      layer: clientLayer
     };
 
     const updated = [newClient, ...clients];
@@ -175,6 +177,7 @@ const AdminPanel: FC = () => {
     setClientColor('#FFFFFF');
     setClientSize('medium');
     setClientLogoUrl('');
+    setClientLayer(1);
     setShowAddClientForm(false);
   };
 
@@ -188,7 +191,8 @@ const AdminPanel: FC = () => {
       name: clientName.trim(),
       color: clientColor.trim() || '#FFFFFF',
       size: clientSize,
-      logoUrl: clientLogoUrl.trim()
+      logoUrl: clientLogoUrl.trim(),
+      layer: clientLayer
     };
 
     saveClientsToStorage(updated);
@@ -198,6 +202,7 @@ const AdminPanel: FC = () => {
     setClientColor('#FFFFFF');
     setClientSize('medium');
     setClientLogoUrl('');
+    setClientLayer(1);
     setEditingClientIndex(null);
   };
 
@@ -207,6 +212,7 @@ const AdminPanel: FC = () => {
     setClientColor(client.color || '#FFFFFF');
     setClientSize((client.size as any) || 'medium');
     setClientLogoUrl(client.logoUrl || '');
+    setClientLayer(client.layer ? (Number(client.layer) as 1 | 2 | 3) : 1);
     setEditingClientIndex(index);
     setShowAddClientForm(false);
   };
@@ -233,6 +239,48 @@ const AdminPanel: FC = () => {
   const handleResetClients = () => {
     if (window.confirm("Are you sure you want to reset all clients to default values? This will erase custom brands.")) {
       saveClientsToStorage(DEFAULT_CLIENTS_LIST);
+    }
+  };
+
+  const handleSyncBrandPartners = () => {
+    const merged = [...clients];
+    let addedCount = 0;
+
+    for (const brand of brandPartners) {
+      const normalizedBrandName = brand.name.toLowerCase().trim().replace(/\s+/g, '');
+      const exists = clients.some(client => {
+        const normalizedClientName = client.name.toLowerCase().trim().replace(/\s+/g, '');
+        return normalizedClientName === normalizedBrandName || 
+               (client.logoUrl && brand.logoUrl && client.logoUrl.trim() === brand.logoUrl.trim());
+      });
+
+      if (!exists) {
+        let assignedLayer: 1 | 2 | 3 = 1;
+        if (brand.category === 'brands') {
+          assignedLayer = 1;
+        } else if (brand.category === 'govt') {
+          assignedLayer = 2;
+        } else if (brand.category === 'corporates' || brand.category === 'platforms') {
+          assignedLayer = 3;
+        }
+
+        merged.push({
+          id: brand.id || `brand-sync-${Date.now()}-${Math.random()}`,
+          name: brand.name,
+          color: '#FFFFFF',
+          size: brand.logoSize || 'medium',
+          logoUrl: brand.logoUrl || '',
+          layer: assignedLayer
+        });
+        addedCount++;
+      }
+    }
+
+    if (addedCount > 0) {
+      saveClientsToStorage(merged);
+      alert(`Synchronized successfully! Added ${addedCount} new brands from Brand Partners to Collaborators while retaining existing ones.`);
+    } else {
+      alert("All Brand Partners are already present in the Collaborators list!");
     }
   };
 
@@ -514,30 +562,72 @@ const AdminPanel: FC = () => {
       setFilms(DEFAULT_FILMS_LIST);
     }
 
-    // Load clients catalogue
-    const storedClients = localStorage.getItem('dc_clients');
-    if (storedClients) {
-      try {
-        setClients(JSON.parse(storedClients));
-      } catch (e) {
-        console.error('Error loading clients:', e);
-        setClients(DEFAULT_CLIENTS_LIST);
-      }
-    } else {
-      setClients(DEFAULT_CLIENTS_LIST);
-    }
-
     // Load brand partners catalogue
+    let initialBrandPartners: BrandItem[] = DEFAULT_BRAND_ITEMS;
     const storedBrandPartners = localStorage.getItem('dc_brand_partners');
     if (storedBrandPartners) {
       try {
-        setBrandPartners(JSON.parse(storedBrandPartners));
+        initialBrandPartners = JSON.parse(storedBrandPartners);
+        setBrandPartners(initialBrandPartners);
       } catch (e) {
         console.error('Error loading brand partners:', e);
         setBrandPartners(DEFAULT_BRAND_ITEMS);
       }
     } else {
       setBrandPartners(DEFAULT_BRAND_ITEMS);
+    }
+
+    // Load clients catalogue
+    let initialClients: ClientItem[] = DEFAULT_CLIENTS_LIST;
+    const storedClients = localStorage.getItem('dc_clients');
+    if (storedClients) {
+      try {
+        initialClients = JSON.parse(storedClients);
+      } catch (e) {
+        console.error('Error loading clients:', e);
+        initialClients = DEFAULT_CLIENTS_LIST;
+      }
+    }
+
+    // Automatically sync brands to clients list
+    const autoMergedClients = [...initialClients];
+    let autoSyncedCount = 0;
+    for (const brand of initialBrandPartners) {
+      const normalizedBrandName = brand.name.toLowerCase().trim().replace(/\s+/g, '');
+      const exists = initialClients.some(client => {
+        const normalizedClientName = client.name.toLowerCase().trim().replace(/\s+/g, '');
+        return normalizedClientName === normalizedBrandName || 
+               (client.logoUrl && brand.logoUrl && client.logoUrl.trim() === brand.logoUrl.trim());
+      });
+
+      if (!exists) {
+        let assignedLayer: 1 | 2 | 3 = 1;
+        if (brand.category === 'brands') {
+          assignedLayer = 1;
+        } else if (brand.category === 'govt') {
+          assignedLayer = 2;
+        } else if (brand.category === 'corporates' || brand.category === 'platforms') {
+          assignedLayer = 3;
+        }
+
+        autoMergedClients.push({
+          id: brand.id || `brand-sync-${Date.now()}-${Math.random()}`,
+          name: brand.name,
+          color: '#FFFFFF',
+          size: brand.logoSize || 'medium',
+          logoUrl: brand.logoUrl || '',
+          layer: assignedLayer
+        });
+        autoSyncedCount++;
+      }
+    }
+
+    if (autoSyncedCount > 0) {
+      setClients(autoMergedClients);
+      localStorage.setItem('dc_clients', JSON.stringify(autoMergedClients));
+      window.dispatchEvent(new Event('storage_updated_clients'));
+    } else {
+      setClients(initialClients);
     }
 
     // Load About configs
@@ -2146,7 +2236,7 @@ const AdminPanel: FC = () => {
                       Manage partner brands, colors, names, and logos displayed in the scrolling home-page tickers.
                     </p>
                   </div>
-                  <div className="flex gap-2 font-sans">
+                  <div className="flex flex-wrap gap-2 font-sans">
                     <button
                       type="button"
                       onClick={() => {
@@ -2156,16 +2246,25 @@ const AdminPanel: FC = () => {
                         setClientColor('#FFFFFF');
                         setClientSize('small');
                         setClientLogoUrl('');
+                        setClientLayer(1);
                       }}
-                      className="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 font-extrabold uppercase tracking-wider text-[10px] text-black rounded-xl transition-all flex items-center gap-1.5"
+                      className="px-4 py-2.5 bg-orange-500 hover:bg-orange-600 font-extrabold uppercase tracking-wider text-[10px] text-black rounded-xl transition-all flex items-center gap-1.5"
                     >
                       <Plus size={14} />
                       <span>Add Brand</span>
                     </button>
                     <button
                       type="button"
+                      onClick={handleSyncBrandPartners}
+                      className="px-4 py-2.5 bg-zinc-800 hover:bg-zinc-750 border border-orange-500/20 hover:border-orange-500/40 text-orange-400 hover:text-orange-350 font-extrabold uppercase tracking-wider text-[10px] rounded-xl transition-all flex items-center gap-1.5"
+                    >
+                      <RefreshCw size={14} className="animate-pulse" />
+                      <span>Sync Brand Partners ({brandPartners.length})</span>
+                    </button>
+                    <button
+                      type="button"
                       onClick={handleResetClients}
-                      className="px-5 py-2.5 bg-zinc-850 hover:bg-zinc-700 border border-white/5 font-extrabold uppercase tracking-wider text-[10px] text-white/80 rounded-xl transition-all"
+                      className="px-4 py-2.5 bg-zinc-850 hover:bg-zinc-700 border border-white/5 font-extrabold uppercase tracking-wider text-[10px] text-white/80 rounded-xl transition-all"
                     >
                       Reset Defaults
                     </button>
@@ -2289,6 +2388,22 @@ const AdminPanel: FC = () => {
                             <option value="extralarge">Double Extra Large (Maximum visibility)</option>
                           </select>
                         </div>
+
+                        {/* Layer row assignment */}
+                        <div>
+                          <label className="block text-xs uppercase tracking-widest text-orange-400 font-black mb-2">
+                            Marquee Ticker Layer (Row 1, 2, or 3)
+                          </label>
+                          <select
+                            value={clientLayer}
+                            onChange={(e) => setClientLayer(Number(e.target.value) as 1 | 2 | 3)}
+                            className="w-full bg-black border border-white/10 focus:border-orange-500 outline-none rounded-xl px-4 py-3 text-sm text-white"
+                          >
+                            <option value={1}>Layer 1 (Row 1 - Scrolls Left)</option>
+                            <option value={2}>Layer 2 (Row 2 - Scrolls Right)</option>
+                            <option value={3}>Layer 3 (Row 3 - Scrolls Left)</option>
+                          </select>
+                        </div>
                       </div>
 
                       {/* Visual Preview box */}
@@ -2402,6 +2517,13 @@ const AdminPanel: FC = () => {
                                   'bg-amber-400/10 text-amber-305 border border-amber-400/10'
                                 }`}>
                                   {client.size || 'medium'}
+                                </span>
+                                <span className={`text-[8px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${
+                                  (client.layer ? Number(client.layer) : (idx % 3 + 1)) === 1 ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/10' :
+                                  (client.layer ? Number(client.layer) : (idx % 3 + 1)) === 2 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/10' :
+                                  'bg-purple-500/10 text-purple-400 border border-purple-500/10'
+                                }`}>
+                                  L{(client.layer ? Number(client.layer) : (idx % 3 + 1))}
                                 </span>
                               </div>
                             </div>

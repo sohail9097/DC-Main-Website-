@@ -1,12 +1,12 @@
 import { motion, AnimatePresence, useScroll, useTransform, useTime } from 'motion/react';
 import { Camera, Play, ChevronLeft, ChevronRight, Menu, X, Rocket, Moon, ShieldCheck, Instagram, Facebook, Youtube, Twitter, ArrowLeft, ArrowRight, Sparkles, Globe, Tv, Heart, Compass, Mail, Phone, MapPin, Send } from 'lucide-react';
-import { useState, useEffect, useRef, FC, memo } from 'react';
+import React, { useState, useEffect, useRef, FC, memo } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import AdminPanel from './pages/AdminPanel';
 import FilmsPage from './pages/FilmsPage';
 import AboutPage from './pages/AboutPage';
-import BrandPage from './pages/BrandPage';
+import BrandPage, { DEFAULT_BRAND_ITEMS, BrandItem } from './pages/BrandPage';
 import { initSiteSync } from './lib/siteSync';
 import { CinematicSlideshow } from './components/CinematicSlideshow';
 
@@ -537,6 +537,8 @@ export interface ClientItem {
   color: string;
   size?: 'small' | 'medium' | 'large' | 'xlarge' | 'extralarge' | string;
   logoUrl?: string;
+  layer?: 1 | 2 | 3 | string;
+  renderLogo?: () => React.ReactNode;
 }
 
 export const DEFAULT_CLIENTS_LIST: ClientItem[] = [
@@ -604,17 +606,89 @@ function Clients() {
 
   useEffect(() => {
     const fetchClients = () => {
+      let brandList: BrandItem[] = DEFAULT_BRAND_ITEMS;
+      const storedBrands = localStorage.getItem('dc_brand_partners');
+      if (storedBrands) {
+        try {
+          brandList = JSON.parse(storedBrands) as BrandItem[];
+        } catch (e) {
+          console.error('Error parsing brand partners for home marquee:', e);
+        }
+      }
+
       const stored = localStorage.getItem('dc_clients');
+      let clientList: ClientItem[] = [];
       if (stored) {
         try {
-          setClients(JSON.parse(stored));
+          clientList = JSON.parse(stored) as ClientItem[];
         } catch (e) {
-          console.error('Error parsing clients:', e);
-          setClients(DEFAULT_CLIENTS_LIST);
+          console.error('Error parsing clients for home marquee:', e);
+          clientList = DEFAULT_CLIENTS_LIST;
         }
       } else {
-        setClients(DEFAULT_CLIENTS_LIST);
+        clientList = DEFAULT_CLIENTS_LIST;
       }
+
+      // Automatically sync and add any missing brand page partners to collaborator list
+      let needsSave = false;
+      const mergedClients = [...clientList];
+      for (const brand of brandList) {
+        const normalizedBrandName = brand.name.toLowerCase().trim().replace(/\s+/g, '');
+        const exists = clientList.some(client => {
+          const normalizedClientName = client.name.toLowerCase().trim().replace(/\s+/g, '');
+          return normalizedClientName === normalizedBrandName || 
+                 (client.logoUrl && brand.logoUrl && client.logoUrl.trim() === brand.logoUrl.trim());
+        });
+
+        if (!exists) {
+          let assignedLayer: 1 | 2 | 3 = 1;
+          if (brand.category === 'brands') {
+            assignedLayer = 1;
+          } else if (brand.category === 'govt') {
+            assignedLayer = 2;
+          } else if (brand.category === 'corporates' || brand.category === 'platforms') {
+            assignedLayer = 3;
+          }
+
+          mergedClients.push({
+            id: brand.id || `brand-sync-${Date.now()}-${Math.random()}`,
+            name: brand.name,
+            color: '#FFFFFF',
+            size: brand.logoSize || 'medium',
+            logoUrl: brand.logoUrl || '',
+            layer: assignedLayer
+          });
+          needsSave = true;
+        }
+      }
+
+      if (needsSave) {
+        clientList = mergedClients;
+        localStorage.setItem('dc_clients', JSON.stringify(mergedClients));
+      }
+
+      const mappedClients: ClientItem[] = clientList.map((item, idx) => {
+        const defaultItem = DEFAULT_BRAND_ITEMS.find(d => 
+          d.id.toLowerCase() === item.id.toLowerCase() || 
+          d.name.toLowerCase() === item.name.toLowerCase() ||
+          d.name.toLowerCase().includes(item.name.toLowerCase()) ||
+          item.name.toLowerCase().includes(d.name.toLowerCase())
+        );
+
+        // Fallback layer assignment if layer is not defined or invalid
+        let assignedLayer: 1 | 2 | 3 | string = item.layer || '';
+        if (!assignedLayer) {
+          assignedLayer = (((idx % 3) + 1) as 1 | 2 | 3);
+        }
+
+        return {
+          ...item,
+          layer: assignedLayer,
+          renderLogo: defaultItem?.renderLogo || item.renderLogo
+        };
+      });
+
+      setClients(mappedClients);
     };
 
     fetchClients();
@@ -629,15 +703,25 @@ function Clients() {
   }, []);
 
   if (clients.length === 0) return null;
-  
-  // Ensure we have enough items to span across very wide monitors dynamically
-  let baseList = [...clients];
-  while (baseList.length < 15) {
-    baseList = [...baseList, ...clients];
-  }
 
-  const itemsRow1 = [...baseList, ...baseList];
-  const itemsRow2 = [...baseList.slice().reverse(), ...baseList.slice().reverse()];
+  // Filter clients into Row 1, Row 2, Row 3 based on 'layer' setting (fallback to index % 3 if unset)
+  const row1Clients = clients.filter((c, idx) => c.layer ? (Number(c.layer) === 1) : (idx % 3 === 0));
+  const row2Clients = clients.filter((c, idx) => c.layer ? (Number(c.layer) === 2) : (idx % 3 === 1));
+  const row3Clients = clients.filter((c, idx) => c.layer ? (Number(c.layer) === 3) : (idx % 3 === 2));
+
+  // Helper helper to ensure a row has enough duplicate elements to scroll infinitely on extra-wide screens without gap
+  const getPaddedRowItems = (rowList: ClientItem[]) => {
+    if (rowList.length === 0) return [];
+    let list = [...rowList];
+    while (list.length < 15) {
+      list = [...list, ...rowList];
+    }
+    return [...list, ...list];
+  };
+
+  const itemsRow1 = getPaddedRowItems(row1Clients);
+  const itemsRow2 = getPaddedRowItems(row2Clients);
+  const itemsRow3 = getPaddedRowItems(row3Clients);
 
   return (
     <section 
@@ -661,24 +745,39 @@ function Clients() {
         </div>
 
         {/* Scrolling Marquees */}
-        <div className="w-full space-y-6 md:space-y-8 overflow-hidden pointer-events-auto">
-          {/* Top Row - Scrolling Left to Right (CSS Animation scroll-left) */}
-          <div className="flex overflow-hidden relative w-full mask-gradient py-4 md:py-6">
-            <div className="animate-scroll-left">
-              {itemsRow1.map((client, i) => (
-                <ClientLogo key={`${client.name}-r1-${client.id || i}-${i}`} client={client} />
-              ))}
+        <div className="w-full space-y-4 md:space-y-6 overflow-hidden pointer-events-auto">
+          {/* Top Row - Scrolling Left */}
+          {itemsRow1.length > 0 && (
+            <div className="flex overflow-hidden relative w-full mask-gradient py-3 md:py-4">
+              <div className="animate-scroll-left">
+                {itemsRow1.map((client, i) => (
+                  <ClientLogo key={`${client.name}-r1-${client.id || i}-${i}`} client={client} />
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Bottom Row - Scrolling Left to Right (CSS Animation scroll-left) */}
-          <div className="flex overflow-hidden relative w-full mask-gradient py-4 md:py-6">
-            <div className="animate-scroll-left">
-              {itemsRow2.map((client, i) => (
-                <ClientLogo key={`${client.name}-r2-${client.id || i}-${i}`} client={client} />
-              ))}
+          {/* Middle Row - Scrolling Right */}
+          {itemsRow2.length > 0 && (
+            <div className="flex overflow-hidden relative w-full mask-gradient py-3 md:py-4">
+              <div className="animate-scroll-right">
+                {itemsRow2.map((client, i) => (
+                  <ClientLogo key={`${client.name}-r2-${client.id || i}-${i}`} client={client} />
+                ))}
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Bottom Row - Scrolling Left */}
+          {itemsRow3.length > 0 && (
+            <div className="flex overflow-hidden relative w-full mask-gradient py-3 md:py-4">
+              <div className="animate-scroll-left">
+                {itemsRow3.map((client, i) => (
+                  <ClientLogo key={`${client.name}-r3-${client.id || i}-${i}`} client={client} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -796,6 +895,8 @@ const ClientLogo: FC<ClientLogoProps> = memo(({ client }) => {
           referrerPolicy="no-referrer"
           onError={() => setImgError(true)}
         />
+      ) : client.renderLogo ? (
+        client.renderLogo()
       ) : (
         <div className="flex items-center justify-center text-center">
           <span 
