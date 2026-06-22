@@ -156,6 +156,8 @@ const AdminPanel: FC = () => {
     const { clients: syncedClients, brands: syncedBrands } = normalizeAndSyncData();
     setClients(syncedClients);
     setBrandPartners(syncedBrands);
+    window.dispatchEvent(new Event('storage_updated_clients'));
+    window.dispatchEvent(new Event('storage_updated_brand_partners'));
   };
 
   const handleAddFieldClient = (e: React.FormEvent) => {
@@ -231,6 +233,9 @@ const AdminPanel: FC = () => {
       const { clients: syncedClients, brands: syncedBrands } = normalizeAndSyncData();
       setClients(syncedClients);
       setBrandPartners(syncedBrands);
+
+      window.dispatchEvent(new Event('storage_updated_clients'));
+      window.dispatchEvent(new Event('storage_updated_brand_partners'));
     }
   };
 
@@ -300,6 +305,8 @@ const AdminPanel: FC = () => {
     const { clients: syncedClients, brands: syncedBrands } = normalizeAndSyncData();
     setClients(syncedClients);
     setBrandPartners(syncedBrands);
+    window.dispatchEvent(new Event('storage_updated_clients'));
+    window.dispatchEvent(new Event('storage_updated_brand_partners'));
   };
 
   const handleBrandLogoFileChange = (file: File) => {
@@ -401,6 +408,9 @@ const AdminPanel: FC = () => {
       const { clients: syncedClients, brands: syncedBrands } = normalizeAndSyncData();
       setClients(syncedClients);
       setBrandPartners(syncedBrands);
+
+      window.dispatchEvent(new Event('storage_updated_clients'));
+      window.dispatchEvent(new Event('storage_updated_brand_partners'));
     }
   };
 
@@ -4926,7 +4936,7 @@ const AdminPanel: FC = () => {
                       onChange={(e) => setBrandCategory(e.target.value as any)}
                       className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white"
                     >
-                      <option value="platforms">PLATFORMS (platforms)</option>
+                      <option value="platforms">COLLABORATORS (platforms)</option>
                       <option value="govt">GOVT (govt)</option>
                       <option value="corporates">CORPORATES (corporates)</option>
                     </select>
@@ -5155,7 +5165,7 @@ const AdminPanel: FC = () => {
                           <h4 className="text-sm font-black uppercase tracking-tight text-white truncate">{item.name}</h4>
                           <div className="flex flex-wrap items-center gap-2 mt-0.5">
                             <span className="text-[9px] font-bold text-orange-500 uppercase tracking-widest bg-orange-500/10 px-1.5 py-0.5 rounded border border-orange-500/15">
-                              {item.category}
+                              {item.category === 'platforms' ? 'collaborators' : item.category}
                             </span>
                             <span className="text-[9px] font-bold text-teal-400 uppercase tracking-widest bg-teal-400/10 px-1.5 py-0.5 rounded border border-teal-400/15">
                               Size: {item.logoSize || 'medium'}

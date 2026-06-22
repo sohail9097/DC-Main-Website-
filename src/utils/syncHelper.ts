@@ -109,15 +109,10 @@ export const normalizeAndSyncData = () => {
   // 1. Fetch current localStorage data
   let clients: ClientItem[] = [];
   const storedClients = localStorage.getItem('dc_clients');
-  let hasOldBrandsList = false;
 
   if (storedClients) {
     try {
       clients = JSON.parse(storedClients);
-      // Check if this is the traditional long consumer brands list
-      if (clients.some(c => c.name === 'NETFLIX' || c.name === "D'DECOR" || c.name === 'IndiGo')) {
-        hasOldBrandsList = true;
-      }
     } catch (e) {
       console.error('Error parsing dc_clients in syncHelper:', e);
     }
@@ -125,7 +120,7 @@ export const normalizeAndSyncData = () => {
 
   let brands: BrandItem[] = [];
   const storedBrands = localStorage.getItem('dc_brand_partners');
-  if (storedBrands && !hasOldBrandsList) {
+  if (storedBrands) {
     try {
       brands = JSON.parse(storedBrands);
     } catch (e) {
@@ -133,27 +128,76 @@ export const normalizeAndSyncData = () => {
     }
   }
 
-  // If we have old brands, or if localStorage is completely fresh, we force reset to the beautiful platforms setup
-  if (hasOldBrandsList || !storedClients || clients.length === 0) {
+  let hasChanges = false;
+
+  // 2. Determine if we are dealing with old defaults that need updating
+  const hasPureOldDefaults = clients.some(c => 
+    (c.name === 'NETFLIX' || c.name === "D'DECOR" || c.name === 'IndiGo') && 
+    (!c.logoUrl || !isGoogleDriveLink(c.logoUrl))
+  );
+
+  if (hasPureOldDefaults || !storedClients || clients.length === 0) {
+    // Collect any user custom additions/logos first to keep them safe
+    const customClients = clients.filter(c => 
+      c.name !== 'NETFLIX' && 
+      c.name !== "D'DECOR" && 
+      c.name !== 'IndiGo' && 
+      c.name !== 'Amazon' && 
+      c.name !== 'Fifa' &&
+      isGoogleDriveLink(c.logoUrl)
+    );
+
+    const customBrands = brands.filter(b => 
+      b.name !== 'NETFLIX' && 
+      b.name !== "D'DECOR" && 
+      b.name !== 'IndiGo' && 
+      b.name !== 'Amazon' && 
+      b.name !== 'Fifa' &&
+      isGoogleDriveLink(b.logoUrl)
+    );
+
+    // Load fresh defaults
     clients = [...DEFAULT_CLIENTS_LIST];
     brands = [...DEFAULT_BRAND_ITEMS];
+
+    // Restore user custom uploaded logos over defaults or append if new
+    customClients.forEach(custom => {
+      const idx = clients.findIndex(c => isSimilarName(c.name, custom.name));
+      if (idx >= 0) {
+        clients[idx] = { ...clients[idx], ...custom };
+      } else {
+        clients.push(custom);
+      }
+    });
+
+    customBrands.forEach(custom => {
+      const idx = brands.findIndex(b => isSimilarName(b.name, custom.name));
+      if (idx >= 0) {
+        brands[idx] = { ...brands[idx], ...custom };
+      } else {
+        brands.push(custom);
+      }
+    });
+
     localStorage.setItem('dc_clients', JSON.stringify(clients));
     localStorage.setItem('dc_brand_partners', JSON.stringify(brands));
+    hasChanges = true;
   }
 
-  // Strictly filter out any items that DO NOT have a valid Google Drive logo link or built-in logo content
+  // Strictly filter out empty or invalid custom items
   const originalClientsLen = clients.length;
   const originalBrandsLen = brands.length;
 
   clients = clients.filter(c => hasLogoContent(c.name, c.logoUrl));
   brands = brands.filter(b => hasLogoContent(b.name, b.logoUrl));
 
-  let hasChanges = (clients.length !== originalClientsLen) || (brands.length !== originalBrandsLen);
+  if (clients.length !== originalClientsLen || brands.length !== originalBrandsLen) {
+    hasChanges = true;
+  }
 
-  // --- Normalizing Clients ---
-  const cleanedClientsMap = new Map<string, ClientItem>();
+  // --- Normalizing Clients with similarity-aware agrupation ---
+  const cleanedClients: ClientItem[] = [];
 
-  // Standardize and merge actual clients list (Only keeping those with verified Google Drive links)
   for (const client of clients) {
     if (!client || !client.name) continue;
     
@@ -172,11 +216,10 @@ export const normalizeAndSyncData = () => {
       currentLayer = 1;
     }
 
-    const key = currentName.toLowerCase().trim().replace(/\s+/g, '');
-    const existing = cleanedClientsMap.get(key);
+    const existingIndex = cleanedClients.findIndex(c => isSimilarName(c.name, currentName));
 
-    if (existing) {
-      // Merge properties, prioritizing non-empty logoUrl, and user edits
+    if (existingIndex >= 0) {
+      const existing = cleanedClients[existingIndex];
       const merged: ClientItem = {
         ...existing,
         logoUrl: client.logoUrl || existing.logoUrl,
@@ -191,9 +234,9 @@ export const normalizeAndSyncData = () => {
       ) {
         hasChanges = true;
       }
-      cleanedClientsMap.set(key, merged);
+      cleanedClients[existingIndex] = merged;
     } else {
-      cleanedClientsMap.set(key, {
+      cleanedClients.push({
         ...client,
         id: currentId,
         name: currentName,
@@ -202,10 +245,9 @@ export const normalizeAndSyncData = () => {
     }
   }
 
-  // --- Normalizing Brands ---
-  const cleanedBrandsMap = new Map<string, BrandItem>();
+  // --- Normalizing Brands with similarity-aware agrupation ---
+  const cleanedBrands: BrandItem[] = [];
 
-  // Standardize and merge actual brands list (Only keeping those with verified Google Drive links)
   for (const brand of brands) {
     if (!brand || !brand.name) continue;
 
@@ -224,10 +266,10 @@ export const normalizeAndSyncData = () => {
       currentCategory = 'platforms';
     }
 
-    const key = currentName.toLowerCase().trim().replace(/\s+/g, '');
-    const existing = cleanedBrandsMap.get(key);
+    const existingIndex = cleanedBrands.findIndex(b => isSimilarName(b.name, currentName));
 
-    if (existing) {
+    if (existingIndex >= 0) {
+      const existing = cleanedBrands[existingIndex];
       const merged: BrandItem = {
         ...existing,
         logoUrl: brand.logoUrl || existing.logoUrl,
@@ -242,9 +284,9 @@ export const normalizeAndSyncData = () => {
       ) {
         hasChanges = true;
       }
-      cleanedBrandsMap.set(key, merged);
+      cleanedBrands[existingIndex] = merged;
     } else {
-      cleanedBrandsMap.set(key, {
+      cleanedBrands.push({
         ...brand,
         id: currentId,
         name: currentName,
@@ -256,14 +298,14 @@ export const normalizeAndSyncData = () => {
   // --- Bidirectional Sync Cross-Validation ---
   // Ensure every Brand Partner exists as a Client on the appropriate layer
   let crossSyncNeeded = false;
-  for (const brand of cleanedBrandsMap.values()) {
-    const key = brand.name.toLowerCase().trim().replace(/\s+/g, '');
-    if (!cleanedClientsMap.has(key)) {
+  for (const brand of cleanedBrands) {
+    const existsAsClient = cleanedClients.some(c => isSimilarName(c.name, brand.name));
+    if (!existsAsClient) {
       let assignedLayer: 1 | 2 | 3 = 1;
       if (brand.category === 'govt') assignedLayer = 2;
       else if (brand.category === 'corporates' || brand.category === 'platforms') assignedLayer = 3;
 
-      cleanedClientsMap.set(key, {
+      cleanedClients.push({
         id: brand.id || `brand-sync-${Date.now()}-${Math.random()}`,
         name: brand.name,
         color: '#FFFFFF',
@@ -277,14 +319,14 @@ export const normalizeAndSyncData = () => {
   }
 
   // Ensure every Client exists as a Brand Partner on the appropriate category
-  for (const client of cleanedClientsMap.values()) {
-    const key = client.name.toLowerCase().trim().replace(/\s+/g, '');
-    if (!cleanedBrandsMap.has(key)) {
+  for (const client of cleanedClients) {
+    const existsAsBrand = cleanedBrands.some(b => isSimilarName(b.name, client.name));
+    if (!existsAsBrand) {
       let assignedCategory: 'platforms' | 'govt' | 'corporates' = 'platforms';
       if (client.layer === 2) assignedCategory = 'govt';
       else if (client.layer === 3) assignedCategory = 'corporates';
 
-      cleanedBrandsMap.set(key, {
+      cleanedBrands.push({
         id: client.id || `client-sync-${Date.now()}-${Math.random()}`,
         name: client.name,
         category: assignedCategory,
@@ -296,12 +338,8 @@ export const normalizeAndSyncData = () => {
     }
   }
 
-  // --- Strict Unique ID Enforcement Step ---
-  const finalClientsList = Array.from(cleanedClientsMap.values());
-  const finalBrandsList = Array.from(cleanedBrandsMap.values());
-
   const seenBrandIds = new Set<string>();
-  const finalBrandsListSynced = finalBrandsList.map(brand => {
+  const finalBrandsListSynced = cleanedBrands.map(brand => {
     if (!brand.id || seenBrandIds.has(brand.id)) {
       const cleanId = (brand.id || 'brand').replace(/-dup-.*$/, '');
       const uniqueId = `${cleanId}-dup-${Math.random().toString(36).substr(2, 5)}`;
@@ -314,7 +352,7 @@ export const normalizeAndSyncData = () => {
   });
 
   const seenClientIds = new Set<string>();
-  const finalClientsListSynced = finalClientsList.map(client => {
+  const finalClientsListSynced = cleanedClients.map(client => {
     if (!client.id || seenClientIds.has(client.id)) {
       const cleanId = (client.id || 'client').replace(/-dup-.*$/, '');
       const uniqueId = `${cleanId}-dup-${Math.random().toString(36).substr(2, 5)}`;

@@ -246,7 +246,7 @@ export function Navbar() {
   const navLinks = [
     { name: 'Home', href: '/', path: '/' },
     { name: 'Content', to: '/films', path: '/films' },
-    { name: 'Platforms', to: '/brand', path: '/brand' },
+    { name: 'Collaborators', to: '/brand', path: '/brand' },
     { name: 'About Us', to: '/about', path: '/about' },
   ];
 
@@ -633,10 +633,10 @@ function Clients() {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="font-helvetica-cond text-3xl md:text-5xl lg:text-6xl font-bold tracking-[0.02em] text-orange-500 uppercase mb-2 select-none"
           >
-            Platforms
+            Collaborators
           </motion.h3>
           <p className="text-white/40 text-xs md:text-sm font-semibold uppercase tracking-[0.3em] font-mono">
-            Broadcasters, Networks & Streaming Platforms
+            Trusted by the world's most progressive brands & organizations
           </p>
         </div>
 

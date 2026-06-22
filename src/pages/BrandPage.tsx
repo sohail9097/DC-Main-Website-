@@ -672,7 +672,7 @@ export const DEFAULT_BRAND_ITEMS: BrandItem[] = [
 
 const CATEGORIES = [
   { id: 'all', name: 'ALL PARTNERS', icon: Sparkles },
-  { id: 'platforms', name: 'PLATFORMS', icon: Clapperboard },
+  { id: 'platforms', name: 'COLLABORATORS', icon: Clapperboard },
   { id: 'govt', name: 'GOVT', icon: Landmark },
   { id: 'corporates', name: 'CORPORATES', icon: Shield },
 ];
@@ -799,7 +799,7 @@ export default function BrandPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 mb-16 max-w-3xl border-t border-b border-white/5 py-8 mx-auto w-full">
           <div className="flex flex-col items-center text-center">
             <span className="text-3xl md:text-4xl font-black text-orange-500">8+</span>
-            <span className="text-[9px] tracking-widest text-white/50 uppercase font-mono mt-1">BROADCAST PLATFORMS</span>
+            <span className="text-[9px] tracking-widest text-white/50 uppercase font-mono mt-1">COLLABORATORS</span>
           </div>
           <div className="flex flex-col items-center text-center">
             <span className="text-3xl md:text-4xl font-black text-white">12+</span>
