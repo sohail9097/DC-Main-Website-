@@ -1,16 +1,4 @@
-import { DEFAULT_CLIENTS_LIST } from '../App';
-import { DEFAULT_BRAND_ITEMS, BrandItem } from '../pages/BrandPage';
-
-export interface ClientItem {
-  id: string;
-  name: string;
-  color: string;
-  size?: 'small' | 'medium' | 'large' | 'xlarge' | string;
-  logoUrl?: string;
-  layer?: 1 | 2 | 3 | string;
-  description?: string;
-  renderLogo?: () => any;
-}
+import { BrandItem, ClientItem } from './brandData';
 
 export const getCanonicalInfo = (name: string) => {
   const norm = name.toLowerCase().trim().replace(/[^a-z]/g, '');
@@ -95,17 +83,17 @@ export const isGoogleDriveLink = (url?: string): boolean => {
          /(?:\/file\/d\/|id=)([^/?#]+)/.test(trimmed);
 };
 
-export const hasLogoContent = (name: string, logoUrl?: string): boolean => {
+export const hasLogoContent = (name: string, logoUrl?: string, defaultBrands: BrandItem[] = []): boolean => {
   if (logoUrl && logoUrl.trim().length > 0) return true;
   // Check if it is a built-in logo
   const normName = name.toLowerCase().trim().replace(/\s+/g, '');
-  const isBuiltIn = DEFAULT_BRAND_ITEMS.some(d => 
+  const isBuiltIn = defaultBrands.some((d: any) => 
     (d.name.toLowerCase().trim().replace(/\s+/g, '') === normName || isSimilarName(d.name, name))
   );
   return isBuiltIn;
 };
 
-export const normalizeAndSyncData = () => {
+export const normalizeAndSyncData = (defaultClients: ClientItem[] = [], defaultBrands: BrandItem[] = []) => {
   // 1. Fetch current localStorage data
   let clients: ClientItem[] = [];
   const storedClients = localStorage.getItem('dc_clients');
@@ -139,18 +127,18 @@ export const normalizeAndSyncData = () => {
   if (hasPureOldDefaults || !storedClients || clients.length === 0) {
     // Collect any user custom additions/logos first to keep them safe
     const customClients = clients.filter(c => {
-      const def = DEFAULT_CLIENTS_LIST.find(d => isSimilarName(d.name, c.name));
+      const def = defaultClients.find((d: any) => isSimilarName(d.name, c.name));
       return (c.logoUrl && c.logoUrl.trim().length > 0) || !def;
     });
 
     const customBrands = brands.filter(b => {
-      const def = DEFAULT_BRAND_ITEMS.find(d => isSimilarName(d.name, b.name));
+      const def = defaultBrands.find((d: any) => isSimilarName(d.name, b.name));
       return (b.logoUrl && b.logoUrl.trim().length > 0) || !def;
     });
 
     // Load fresh defaults
-    clients = [...DEFAULT_CLIENTS_LIST];
-    brands = [...DEFAULT_BRAND_ITEMS];
+    clients = [...defaultClients];
+    brands = [...defaultBrands];
 
     // Restore user custom uploaded logos over defaults or append if new
     customClients.forEach(custom => {
@@ -180,8 +168,8 @@ export const normalizeAndSyncData = () => {
   const originalClientsLen = clients.length;
   const originalBrandsLen = brands.length;
 
-  clients = clients.filter(c => hasLogoContent(c.name, c.logoUrl));
-  brands = brands.filter(b => hasLogoContent(b.name, b.logoUrl));
+  clients = clients.filter(c => hasLogoContent(c.name, c.logoUrl, defaultBrands));
+  brands = brands.filter(b => hasLogoContent(b.name, b.logoUrl, defaultBrands));
 
   if (clients.length !== originalClientsLen || brands.length !== originalBrandsLen) {
     hasChanges = true;

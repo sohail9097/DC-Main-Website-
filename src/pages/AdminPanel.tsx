@@ -4,8 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { Navigate, Link } from 'react-router-dom';
 import { pushLocalConfigsToFirestore } from '../lib/siteSync';
 import { Users, Layout, Settings, LogOut, Home, Plus, Trash2, Edit2, ArrowUp, ArrowDown, RefreshCw, FileVideo, Image as ImageIcon, ImageOff, Film, Play, ChevronRight, ChevronLeft, MapPin, BookOpen, Share2, Sparkles, Upload, Check, Save } from 'lucide-react';
-import { DEFAULT_TEAM_MEMBERS, TeamMember, DEFAULT_ORBIT_IMAGES, DEFAULT_FILMS_LIST, DEFAULT_CLIENTS_LIST, ClientItem, ParagraphFrameItem, DEFAULT_PARAGRAPH_FRAMES, DEFAULT_VERTICALS, VerticalItem, DEFAULT_LOCATIONS, OperationalLocation } from '../App';
-import { DEFAULT_BRAND_ITEMS, BrandItem } from './BrandPage';
+import { DEFAULT_TEAM_MEMBERS, TeamMember, DEFAULT_ORBIT_IMAGES, DEFAULT_FILMS_LIST, ParagraphFrameItem, DEFAULT_PARAGRAPH_FRAMES, DEFAULT_VERTICALS, VerticalItem, DEFAULT_LOCATIONS, OperationalLocation } from '../App';
+import { BrandItem, ClientItem, DEFAULT_BRAND_ITEMS, DEFAULT_CLIENTS_LIST } from '../utils/brandData';
 import { DEFAULT_SLIDES, CinematicSlide } from '../components/CinematicSlideshow';
 import { normalizeAndSyncData, isSimilarName } from '../utils/syncHelper';
 
@@ -153,7 +153,7 @@ const AdminPanel: FC = () => {
 
   const saveClientsToStorage = (updatedClients: ClientItem[]) => {
     localStorage.setItem('dc_clients', JSON.stringify(updatedClients));
-    const { clients: syncedClients, brands: syncedBrands } = normalizeAndSyncData();
+    const { clients: syncedClients, brands: syncedBrands } = normalizeAndSyncData(DEFAULT_CLIENTS_LIST, DEFAULT_BRAND_ITEMS);
     setClients(syncedClients);
     setBrandPartners(syncedBrands);
     window.dispatchEvent(new Event('storage_updated_clients'));
@@ -230,7 +230,7 @@ const AdminPanel: FC = () => {
       localStorage.setItem('dc_clients', JSON.stringify(updatedClients));
       localStorage.setItem('dc_brand_partners', JSON.stringify(updatedBrands));
 
-      const { clients: syncedClients, brands: syncedBrands } = normalizeAndSyncData();
+      const { clients: syncedClients, brands: syncedBrands } = normalizeAndSyncData(DEFAULT_CLIENTS_LIST, DEFAULT_BRAND_ITEMS);
       setClients(syncedClients);
       setBrandPartners(syncedBrands);
 
@@ -302,7 +302,7 @@ const AdminPanel: FC = () => {
   // Brand Page partner state mutators
   const saveBrandPartners = (updated: BrandItem[]) => {
     localStorage.setItem('dc_brand_partners', JSON.stringify(updated));
-    const { clients: syncedClients, brands: syncedBrands } = normalizeAndSyncData();
+    const { clients: syncedClients, brands: syncedBrands } = normalizeAndSyncData(DEFAULT_CLIENTS_LIST, DEFAULT_BRAND_ITEMS);
     setClients(syncedClients);
     setBrandPartners(syncedBrands);
     window.dispatchEvent(new Event('storage_updated_clients'));
@@ -405,7 +405,7 @@ const AdminPanel: FC = () => {
       localStorage.setItem('dc_brand_partners', JSON.stringify(updatedBrands));
       localStorage.setItem('dc_clients', JSON.stringify(updatedClients));
 
-      const { clients: syncedClients, brands: syncedBrands } = normalizeAndSyncData();
+      const { clients: syncedClients, brands: syncedBrands } = normalizeAndSyncData(DEFAULT_CLIENTS_LIST, DEFAULT_BRAND_ITEMS);
       setClients(syncedClients);
       setBrandPartners(syncedBrands);
 
@@ -592,7 +592,7 @@ const AdminPanel: FC = () => {
     }
 
     // Load and sync clients and brand partners with deduplication and standardization
-    const { clients: syncedClients, brands: syncedBrands } = normalizeAndSyncData();
+    const { clients: syncedClients, brands: syncedBrands } = normalizeAndSyncData(DEFAULT_CLIENTS_LIST, DEFAULT_BRAND_ITEMS);
     setClients(syncedClients);
     setBrandPartners(syncedBrands);
 
@@ -1024,9 +1024,26 @@ const AdminPanel: FC = () => {
   // --- Slideshow handlers ---
   const handleSaveSlideshow = (e: React.FormEvent) => {
     e.preventDefault();
+    const isVideoUrl = (url: string) => {
+      if (!url) return false;
+      const cleanUrl = url.split('?')[0].toLowerCase();
+      return (
+        cleanUrl.endsWith('.mp4') ||
+        cleanUrl.endsWith('.webm') ||
+        cleanUrl.endsWith('.mov') ||
+        cleanUrl.endsWith('.ogg') ||
+        url.toLowerCase().includes('.mp4') ||
+        url.toLowerCase().includes('.mov') ||
+        url.toLowerCase().includes('.webm') ||
+        url.toLowerCase().includes('video/mp4') ||
+        url.toLowerCase().includes('/video/') ||
+        url.startsWith('data:video/')
+      );
+    };
+
     const transformedList = slidesList.map(s => ({
       ...s,
-      imageUrl: transformGoogleDriveUrl(s.imageUrl, 'image')
+      imageUrl: transformGoogleDriveUrl(s.imageUrl, isVideoUrl(s.imageUrl) ? 'video' : 'image')
     }));
     
     setSlidesList(transformedList);
@@ -3081,7 +3098,24 @@ const AdminPanel: FC = () => {
                 <form onSubmit={handleSaveSlideshow} className="space-y-8 font-sans">
                   <div className="space-y-6">
                     {slidesList.map((slide, index) => {
-                      const transformedUrl = transformGoogleDriveUrl(slide.imageUrl, 'image');
+                      const isVideoUrl = (url: string) => {
+                        if (!url) return false;
+                        const cleanUrl = url.split('?')[0].toLowerCase();
+                        return (
+                          cleanUrl.endsWith('.mp4') ||
+                          cleanUrl.endsWith('.webm') ||
+                          cleanUrl.endsWith('.mov') ||
+                          cleanUrl.endsWith('.ogg') ||
+                          url.toLowerCase().includes('.mp4') ||
+                          url.toLowerCase().includes('.mov') ||
+                          url.toLowerCase().includes('.webm') ||
+                          url.toLowerCase().includes('video/mp4') ||
+                          url.toLowerCase().includes('/video/') ||
+                          url.startsWith('data:video/')
+                        );
+                      };
+                      const isSlideVideo = isVideoUrl(slide.imageUrl);
+                      const transformedUrl = transformGoogleDriveUrl(slide.imageUrl, isSlideVideo ? 'video' : 'image');
                       return (
                         <div 
                           key={slide.id} 
@@ -3108,13 +3142,13 @@ const AdminPanel: FC = () => {
                                 />
                               </div>
                               <div className="space-y-1">
-                                <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Slide Image URL (Compatible with Google Drive share-link, Unsplash, etc.)</label>
+                                <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Slide Image or MP4 Video URL (Compatible with Google Drive share-link, Unsplash, external link, etc.)</label>
                                 <input
-                                  type="url"
+                                  type="text"
                                   required
                                   value={slide.imageUrl}
                                   onChange={(e) => handleUpdateSlideField(slide.id, 'imageUrl', e.target.value)}
-                                  placeholder="Enter complete HTTPS image source URL..."
+                                  placeholder="Enter complete HTTPS image or MP4 video source URL..."
                                   className="w-full bg-black border border-white/10 rounded-lg px-4 py-2 text-xs text-white focus:outline-none focus:border-orange-500 transition-colors"
                                 />
                               </div>
@@ -3132,18 +3166,18 @@ const AdminPanel: FC = () => {
                               />
                             </div>
 
-                            {/* Local Image File upload drop zone specifically for this slide */}
+                            {/* Local Image/Video File upload drop zone specifically for this slide */}
                             <div className="space-y-1">
-                              <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Or Upload Local Slide Image</label>
+                              <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Or Upload Local Slide Image / MP4 Video</label>
                               <div className="relative border border-dashed border-white/15 hover:border-orange-500/50 rounded-xl px-4 py-3 bg-black/40 flex items-center justify-center gap-3 transition-all cursor-pointer group">
                                 <input
                                   type="file"
-                                  accept="image/*"
+                                  accept="image/*,video/mp4,video/webm"
                                   onChange={(e) => {
                                     const file = e.target.files?.[0];
                                     if (file) {
-                                      if (file.size > 2 * 1024 * 1024) {
-                                        alert("Note: To prevent issues with database backup sizes, we recommend images under 2MB. Please select a smaller or optimized image.");
+                                      if (file.size > 3 * 1024 * 1024) {
+                                        alert("Note: To prevent issues with storage limits, we recommend file uploads under 3MB. For larger videos, entering an external URL (such as Dropbox, Vimeo, or Google Drive) is highly recommended.");
                                         return;
                                       }
                                       const reader = new FileReader();
@@ -3161,8 +3195,8 @@ const AdminPanel: FC = () => {
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                                 </svg>
                                 <div className="text-left font-sans">
-                                  <p className="text-[10px] text-white/85 font-black uppercase tracking-wider group-hover:text-white transition-colors">Select Local Image for Slide 0{index + 1}</p>
-                                  <p className="text-[8px] text-white/40 uppercase">JPEG, PNG, WebP (Max 2MB)</p>
+                                  <p className="text-[10px] text-white/85 font-black uppercase tracking-wider group-hover:text-white transition-colors">Select Local Image or Video for Slide 0{index + 1}</p>
+                                  <p className="text-[8px] text-white/40 uppercase">JPEG, PNG, WebP, MP4 (Max 3MB)</p>
                                 </div>
                               </div>
                             </div>
@@ -3171,15 +3205,26 @@ const AdminPanel: FC = () => {
                           {/* Preview container */}
                           <div className="w-full lg:w-48 h-32 shrink-0 bg-zinc-950 rounded-xl border border-white/5 relative overflow-hidden flex items-center justify-center">
                             {slide.imageUrl ? (
-                              <img
-                                src={transformedUrl}
-                                alt={`Slide ${index + 1} Preview`}
-                                className="w-full h-full object-cover"
-                                referrerPolicy="no-referrer"
-                                onError={(e) => {
-                                  (e.currentTarget as HTMLImageElement).src = 'https://placehold.co/150x150/111111/ff4500/ffffff?text=Image+Error';
-                                }}
-                              />
+                              isSlideVideo ? (
+                                <video
+                                  src={transformedUrl}
+                                  className="w-full h-full object-cover"
+                                  autoPlay
+                                  loop
+                                  muted
+                                  playsInline
+                                />
+                              ) : (
+                                <img
+                                  src={transformedUrl}
+                                  alt={`Slide ${index + 1} Preview`}
+                                  className="w-full h-full object-cover"
+                                  referrerPolicy="no-referrer"
+                                  onError={(e) => {
+                                    (e.currentTarget as HTMLImageElement).src = 'https://placehold.co/150x150/111111/ff4500/ffffff?text=Image+Error';
+                                  }}
+                                />
+                              )
                             ) : (
                               <span className="text-[8px] text-white/20 uppercase font-black font-sans">No URL Entered</span>
                             )}

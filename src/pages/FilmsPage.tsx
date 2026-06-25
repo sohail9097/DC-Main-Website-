@@ -365,11 +365,11 @@ const FilmsPage = () => {
             <div className="border-b border-white/[0.08] pb-8 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div className="space-y-3">
                 <h2 className="font-helvetica-cond text-3xl md:text-5xl lg:text-6xl font-bold tracking-[0.02em] text-white uppercase leading-none select-none">
-                  {selectedCategory === 'All' ? 'OUR WORKS' : selectedCategory}
+                  {selectedCategory === 'All' ? 'PORTFOLIO' : selectedCategory}
                 </h2>
                 <p className="text-white text-[8px] xs:text-[9px] sm:text-xs md:text-sm font-semibold uppercase tracking-[0.1em] xs:tracking-[0.12em] sm:tracking-[0.2em] md:tracking-[0.3em] font-mono leading-relaxed max-w-full block whitespace-nowrap overflow-x-auto scrollbar-none">
                   {selectedCategory === 'All' 
-                    ? 'Explore our full collection of cinematic masterpieces across all genres.' 
+                    ? 'Explore our portfolio across formats.' 
                     : SECTIONS_CONFIG.find(sec => sec.name === selectedCategory)?.desc || ''}
                 </p>
               </div>
@@ -380,7 +380,7 @@ const FilmsPage = () => {
                   onClick={() => setSelectedCategory('All')}
                   className="text-orange-500 hover:text-orange-400 text-xs font-semibold tracking-wider uppercase font-mono py-1.5 px-3 border border-orange-500/20 hover:border-orange-500/50 rounded-md bg-orange-500/5 cursor-pointer transition-all self-start md:self-auto"
                 >
-                  Show Our Works
+                  Show Portfolio
                 </button>
               )}
             </div>

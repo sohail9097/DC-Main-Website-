@@ -2,5 +2,5 @@
   "name": "Dreamcatchers",
   "description": "High-end film production studio and premium cinematography products.",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

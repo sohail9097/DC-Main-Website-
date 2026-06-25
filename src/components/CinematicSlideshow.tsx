@@ -174,13 +174,34 @@ export const CinematicSlideshow: FC = memo(() => {
     };
   }, []);
 
+  const isVideoUrl = (url: string) => {
+    if (!url) return false;
+    const cleanUrl = url.split('?')[0].toLowerCase();
+    return (
+      cleanUrl.endsWith('.mp4') ||
+      cleanUrl.endsWith('.webm') ||
+      cleanUrl.endsWith('.mov') ||
+      cleanUrl.endsWith('.ogg') ||
+      url.toLowerCase().includes('.mp4') ||
+      url.toLowerCase().includes('.mov') ||
+      url.toLowerCase().includes('.webm') ||
+      url.toLowerCase().includes('video/mp4') ||
+      url.toLowerCase().includes('/video/') ||
+      url.startsWith('data:video/')
+    );
+  };
+
   // Soft fallback helper for resolving Google Drive URLs or image strings
   const transformUrl = (url: string) => {
     if (!url) return '';
     if (url.includes('drive.google.com')) {
       const matches = url.match(/(?:\/file\/d\/|id=)([^/?]+)/);
       if (matches && matches[1]) {
-        return `https://docs.google.com/uc?export=download&id=${matches[1]}`;
+        const fileId = matches[1];
+        if (isVideoUrl(url)) {
+          return `https://drive.google.com/uc?export=download&id=${fileId}`;
+        }
+        return `https://lh3.googleusercontent.com/d/${fileId}`;
       }
     }
     return url;
@@ -302,15 +323,24 @@ export const CinematicSlideshow: FC = memo(() => {
                 className="absolute inset-0 w-full h-full flex items-center justify-center overflow-hidden bg-black"
               >
                 {/* Background Image without visual scaling gaps */}
-                <div className="absolute inset-0 w-full h-full pb-[1px]">
-                  <img
-                    src={transformUrl(slide.imageUrl)}
-                    alt={slide.title}
-                    className="w-full h-full object-cover select-none pointer-events-none"
-                    referrerPolicy="no-referrer"
-                  />
-                  {/* Premium, soft overlay at the bottom to ensure stunning text readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent z-12" />
+                <div className="absolute inset-0 w-full h-full pb-0">
+                  {isVideoUrl(slide.imageUrl) ? (
+                    <video
+                      src={transformUrl(slide.imageUrl)}
+                      className="w-full h-full object-cover select-none"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                    />
+                  ) : (
+                    <img
+                      src={transformUrl(slide.imageUrl)}
+                      alt={slide.title}
+                      className="w-full h-full object-cover select-none pointer-events-none"
+                      referrerPolicy="no-referrer"
+                    />
+                  )}
                 </div>
 
                 {/* Premium floating text block - High-fidelity pure slide translation with absolutely NO fade */}
@@ -321,7 +351,8 @@ export const CinematicSlideshow: FC = memo(() => {
                   <div className="w-full md:max-w-none">
                     <h2 
                       style={{ 
-                        fontFamily: '"Barlow Condensed", sans-serif'
+                        fontFamily: '"Barlow Condensed", sans-serif',
+                        textShadow: '0 4px 16px rgba(0,0,0,0.95), 0 2px 4px rgba(0,0,0,0.9)'
                       }}
                       className="font-condensed text-4xl md:text-[5.5rem] font-bold text-white tracking-[-0.015em] leading-[1.05] mb-3"
                     >
@@ -330,7 +361,8 @@ export const CinematicSlideshow: FC = memo(() => {
                     
                     <p 
                       style={{ 
-                        fontFamily: '"Barlow Condensed", sans-serif'
+                        fontFamily: '"Barlow Condensed", sans-serif',
+                        textShadow: '0 2px 8px rgba(0,0,0,0.95), 0 1px 3px rgba(0,0,0,0.9)'
                       }}
                       className="font-condensed text-sm md:text-[1.85rem] font-normal text-white/90 tracking-[0.015em] leading-[1.35] w-full"
                     >

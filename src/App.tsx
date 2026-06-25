@@ -6,8 +6,9 @@ import { useAuth } from './context/AuthContext';
 import AdminPanel from './pages/AdminPanel';
 import FilmsPage from './pages/FilmsPage';
 import AboutPage from './pages/AboutPage';
-import BrandPage, { DEFAULT_BRAND_ITEMS, BrandItem } from './pages/BrandPage';
+import BrandPage from './pages/BrandPage';
 import { normalizeAndSyncData, isSimilarName } from './utils/syncHelper';
+import { BrandItem, ClientItem, DEFAULT_BRAND_ITEMS, DEFAULT_CLIENTS_LIST } from './utils/brandData';
 import { initSiteSync } from './lib/siteSync';
 import { CinematicSlideshow } from './components/CinematicSlideshow';
 
@@ -245,7 +246,7 @@ export function Navbar() {
 
   const navLinks = [
     { name: 'Home', href: '/', path: '/' },
-    { name: 'Content', to: '/films', path: '/films' },
+    { name: 'Portfolio', to: '/films', path: '/films' },
     { name: 'Collaborators', to: '/brand', path: '/brand' },
     { name: 'About Us', to: '/about', path: '/about' },
   ];
@@ -532,34 +533,13 @@ export const DEFAULT_FILMS_LIST = [
 
 export const FILMS = DEFAULT_FILMS_LIST;
 
-export interface ClientItem {
-  id: string;
-  name: string;
-  color: string;
-  size?: 'small' | 'medium' | 'large' | 'xlarge' | 'extralarge' | string;
-  logoUrl?: string;
-  layer?: 1 | 2 | 3 | string;
-  renderLogo?: () => React.ReactNode;
-}
-
-export const DEFAULT_CLIENTS_LIST: ClientItem[] = [
-  { id: 'jiostar', name: 'Jio Star', color: '#001D3D', size: 'large', logoUrl: '', layer: 1 },
-  { id: 'discovery', name: 'Warner Bros. Discovery', color: '#1E3A8A', size: 'large', logoUrl: '', layer: 1 },
-  { id: 'natgeo', name: 'National Geographic', color: '#000000', size: 'large', logoUrl: '', layer: 1 },
-  { id: 'zeetv', name: 'Zee TV', color: '#B45309', size: 'large', logoUrl: '', layer: 2 },
-  { id: 'sony', name: 'Sony Entertainment Television', color: '#7F1D1D', size: 'large', logoUrl: '', layer: 2 },
-  { id: 'dd', name: 'DD (Doordarshan)', color: '#1E293B', size: 'large', logoUrl: '', layer: 2 },
-  { id: 'starsports', name: 'Star Sports', color: '#0F172A', size: 'large', logoUrl: '', layer: 3 },
-  { id: 'tlc', name: 'TLC', color: '#881337', size: 'large', logoUrl: '', layer: 3 },
-];
-
 function Clients() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [clients, setClients] = useState<ClientItem[]>([]);
 
   useEffect(() => {
     const fetchClients = () => {
-      const { clients: syncedClients } = normalizeAndSyncData();
+      const { clients: syncedClients } = normalizeAndSyncData(DEFAULT_CLIENTS_LIST, DEFAULT_BRAND_ITEMS);
 
       const mappedClients: ClientItem[] = syncedClients.map((item, idx) => {
         const defaultItem = DEFAULT_BRAND_ITEMS.find(d => 
@@ -1735,7 +1715,7 @@ function Portfolio() {
 export function InteractiveOptions() {
   const navigate = useNavigate();
   const options = [
-    { name: 'CONTENT', to: '/films' },
+    { name: 'PORTFOLIO', to: '/films' },
     { name: 'COLLABORATORS', to: '/brand' },
     { name: 'ABOUT US', to: '/about' },
     { name: 'CONTACT US', to: '/#contact-section' },
@@ -1848,7 +1828,7 @@ export function Footer() {
               <span className="text-xl md:text-4xl font-black tracking-tighter text-white uppercase italic transition-all duration-300 group-hover:text-orange-100">Dreamcatchers</span>
             </div>
             <p className="text-white/40 leading-relaxed max-w-md text-xs md:text-sm font-medium tracking-tight">
-              A high-end creative studio for brands, agencies & OTT platforms to increase visibility through advertising, films, and creative adaptations.
+              Dreamcatchers Films Pvt. Ltd. is an award-winning creative agency that produces content across formats for leading brands and channel partners.
             </p>
           </div>
           
