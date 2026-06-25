@@ -168,11 +168,7 @@ export default function BrandPage() {
       {/* Main Core Showcase Section */}
       <div className="relative z-10 pt-40 px-6 md:px-24 lg:px-40 max-w-[1920px] mx-auto">
         
-        {/* Subtle Visual Breadcrumb line */}
-        <div className="flex items-center gap-4 mb-8">
-          <div className="h-[1px] w-12 bg-orange-500" />
-          <span className="text-[10px] uppercase tracking-[0.4em] text-orange-500 font-bold font-mono">DREAMCATCHERS PORTFOLIO</span>
-        </div>
+
 
         {/* Dynamic Typography Title Headers */}
         <h1 className="text-3xl md:text-[4.2rem] font-black tracking-tighter uppercase leading-[0.9] text-white">
@@ -205,7 +201,7 @@ export default function BrandPage() {
             <span className="text-[9px] tracking-widest text-white/50 uppercase font-mono mt-1">CORPORATE PARTNERS</span>
           </div>
           <div className="flex flex-col items-center text-center col-span-2 sm:col-span-1">
-            <span className="text-3xl md:text-4xl font-black text-white">9</span>
+            <span className="text-3xl md:text-4xl font-black text-white">8</span>
             <span className="text-[9px] tracking-widest text-white/50 uppercase font-mono mt-1">PLATFORMS</span>
           </div>
         </div>

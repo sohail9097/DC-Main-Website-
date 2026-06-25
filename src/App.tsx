@@ -536,6 +536,18 @@ export const FILMS = DEFAULT_FILMS_LIST;
 function Clients() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [clients, setClients] = useState<ClientItem[]>([]);
+  
+  // Dynamic speed calculations so all rows move at the same speed
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchClients = () => {
@@ -599,6 +611,11 @@ function Clients() {
   const itemsRow2 = getPaddedRowItems(row2Clients);
   const itemsRow3 = getPaddedRowItems(row3Clients);
 
+  const secondsPerItem = isMobile ? 1.0 : 1.8;
+  const duration1 = itemsRow1.length * secondsPerItem;
+  const duration2 = itemsRow2.length * secondsPerItem;
+  const duration3 = itemsRow3.length * secondsPerItem;
+
   return (
     <section 
       id="clients" 
@@ -622,7 +639,7 @@ function Clients() {
           {/* Top Row - Scrolling Left */}
           {itemsRow1.length > 0 && (
             <div className="flex overflow-hidden relative w-full mask-gradient py-3 md:py-4">
-              <div className="animate-scroll-left">
+              <div className="animate-scroll-left" style={{ animationDuration: `${duration1}s` }}>
                 {itemsRow1.map((client, i) => (
                   <ClientLogo key={`${client.name}-r1-${client.id || i}-${i}`} client={client} />
                 ))}
@@ -633,7 +650,7 @@ function Clients() {
           {/* Middle Row - Scrolling Right */}
           {itemsRow2.length > 0 && (
             <div className="flex overflow-hidden relative w-full mask-gradient py-3 md:py-4">
-              <div className="animate-scroll-right">
+              <div className="animate-scroll-right" style={{ animationDuration: `${duration2}s` }}>
                 {itemsRow2.map((client, i) => (
                   <ClientLogo key={`${client.name}-r2-${client.id || i}-${i}`} client={client} />
                 ))}
@@ -644,7 +661,7 @@ function Clients() {
           {/* Bottom Row - Scrolling Left */}
           {itemsRow3.length > 0 && (
             <div className="flex overflow-hidden relative w-full mask-gradient py-3 md:py-4">
-              <div className="animate-scroll-left">
+              <div className="animate-scroll-left" style={{ animationDuration: `${duration3}s` }}>
                 {itemsRow3.map((client, i) => (
                   <ClientLogo key={`${client.name}-r3-${client.id || i}-${i}`} client={client} />
                 ))}
@@ -1820,7 +1837,7 @@ export function Footer() {
       <div className="max-w-[1800px] mx-auto px-6 md:px-12 lg:px-24 xl:px-36">
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 md:gap-12 mb-8 md:mb-12">
           <div className="sm:col-span-2 xl:col-span-2">
-            <div className="flex items-center gap-4 mb-6 md:mb-10 group cursor-default">
+            <div className="flex items-center gap-4 mb-1 md:mb-1.5 group cursor-default">
               <span className="text-3xl md:text-6xl font-black italic tracking-tighter text-orange-500 leading-none transition-all duration-300 group-hover:text-orange-400 group-hover:drop-shadow-[0_0_20px_rgba(249,115,22,0.8)]">DC</span>
               <span className="text-xl md:text-4xl font-black tracking-tighter text-white uppercase italic transition-all duration-300 group-hover:text-orange-100">Dreamcatchers</span>
             </div>
@@ -2403,13 +2420,28 @@ export const isEmbedUrl = (url: string) => {
     lowercase.includes('vimeo.com') ||
     lowercase.includes('youtube.com') ||
     lowercase.includes('youtu.be') ||
-    lowercase.includes('drive.google.com')
+    lowercase.includes('drive.google.com') ||
+    lowercase.includes('instagram.com')
   );
 };
 
 export const getEmbedUrl = (url: string, asBackground = true) => {
   if (!url) return '';
   try {
+    if (url.includes('instagram.com')) {
+      // Instagram URL can be like: https://www.instagram.com/p/C-h9D7Iy9Xm/ or https://www.instagram.com/reel/C-h9D7Iy9Xm/
+      // The embed format is https://www.instagram.com/p/C-h9D7Iy9Xm/embed/ or https://www.instagram.com/reel/C-h9D7Iy9Xm/embed/
+      let embedUrl = url;
+      // Strip query parameters to get the clean path
+      const cleanUrl = url.split('?')[0];
+      // Check if it ends with /embed or /embed/
+      if (!cleanUrl.endsWith('/embed') && !cleanUrl.endsWith('/embed/')) {
+        // Ensure trailing slash then add embed/
+        embedUrl = cleanUrl.endsWith('/') ? `${cleanUrl}embed/` : `${cleanUrl}/embed/`;
+      }
+      return embedUrl;
+    }
+
     if (url.includes('drive.google.com')) {
       // Extract Google Drive File ID
       let fileId = '';
@@ -3299,7 +3331,7 @@ function LandingPage() {
                     </div>
                     <div className="space-y-0.5 md:space-y-2">
                       <label className="text-[8px] xs:text-[9.5px] md:text-[10px] font-black uppercase tracking-widest text-white/30 ml-2 md:ml-4 font-sans">Message</label>
-                      <textarea rows={2} className="w-full bg-white/5 border border-white/15 rounded-lg md:rounded-2xl px-2.5 py-1.5 xs:px-4 xs:py-3 md:px-5 md:py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-[9.5px] xs:text-xs md:text-sm tracking-wide" placeholder="Tell us about your dream..." required></textarea>
+                      <textarea rows={2} className="w-full bg-white/5 border border-white/15 rounded-lg md:rounded-2xl px-2.5 py-1.5 xs:px-4 xs:py-3 md:px-5 md:py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-[9.5px] xs:text-xs md:text-sm tracking-wide" placeholder="Tell us about your project..." required></textarea>
                     </div>
                     <motion.button
                       whileHover={{ scale: 1.02, backgroundColor: "#f97316", color: "#000" }}

@@ -565,7 +565,7 @@ const FilmsPage = () => {
             >
               {isEmbedUrl(selectedVideo) ? (
                 <iframe 
-                  src={getEmbedUrl(selectedVideo, false) + (selectedVideo.includes('?') ? '&autoplay=1' : '?autoplay=1')} 
+                  src={getEmbedUrl(selectedVideo, false)} 
                   title="Video Player" 
                   className="w-full h-full border-none" 
                   allowFullScreen

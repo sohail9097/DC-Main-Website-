@@ -607,10 +607,7 @@ const AboutPage = () => {
                 className="space-y-16"
               >
                 <div className="space-y-10">
-                  <div className="flex items-center gap-4">
-                    <span className="w-12 h-[1px] bg-orange-500" />
-                    <span className="text-xs font-black text-orange-500 uppercase tracking-[0.5em]">{genesisSub}</span>
-                  </div>
+
                   <h2 className="text-4xl md:text-6xl lg:text-7xl font-black text-orange-500 tracking-tighter leading-none uppercase">
                     {genesisTitle}
                   </h2>
