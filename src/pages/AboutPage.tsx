@@ -163,7 +163,12 @@ const AboutPage = () => {
     setGenesisTitle3(localStorage.getItem('about_genesis_title3') || 'From Curiosity to Creation');
     setGenesisP3(localStorage.getItem('about_genesis_p3') || "Having cut their teeth at some of India's leading television networks, they set out to create the kind of content they wanted to watch—fresh, engaging, and driven by curiosity. What started as a small passion project soon turned into a creative studio. Today, DC creates campaigns, films, series, branded content, for brands across the world.");
 
-    setStat1Val(localStorage.getItem('about_stat1_val') || '20+');
+    let storedStat1 = localStorage.getItem('about_stat1_val');
+    if (!storedStat1 || storedStat1 === '14+') {
+      storedStat1 = '20+';
+      localStorage.setItem('about_stat1_val', '20+');
+    }
+    setStat1Val(storedStat1);
     setStat1Lbl(localStorage.getItem('about_stat1_lbl') || 'YEARS ON SET');
     setStat2Val(localStorage.getItem('about_stat2_val') || '500+');
     setStat2Lbl(localStorage.getItem('about_stat2_lbl') || 'FILMS BORN');
@@ -619,21 +624,7 @@ const AboutPage = () => {
                   </div>
                 </div>
 
-                {/* Additional custom user-desired story block */}
-                <div className="space-y-10 pt-10 border-t border-white/5">
-                  <div className="flex items-center gap-4">
-                    <span className="w-12 h-[1px] bg-orange-500" />
-                    <span className="text-xs font-black text-orange-500 uppercase tracking-[0.5em]">{genesisSub3}</span>
-                  </div>
-                  <h3 className="text-3xl md:text-5xl lg:text-6xl font-black text-orange-500 tracking-tighter leading-none uppercase">
-                    {genesisTitle3}
-                  </h3>
-                  <div className="space-y-8 text-white/60 text-lg md:text-2xl font-medium leading-relaxed tracking-tight border-l-2 border-orange-500/20 pl-8 md:pl-12">
-                    <p>
-                      {genesisP3}
-                    </p>
-                  </div>
-                </div>
+
               </motion.div>
 
               <div className="grid grid-cols-2 gap-4 md:gap-8 pt-12 lg:pt-32">

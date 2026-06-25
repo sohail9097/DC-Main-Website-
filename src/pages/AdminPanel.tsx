@@ -609,7 +609,12 @@ const AdminPanel: FC = () => {
     setAboutGenesisTitle3(localStorage.getItem('about_genesis_title3') || 'From Curiosity to Creation');
     setAboutGenesisP3(localStorage.getItem('about_genesis_p3') || "Having cut their teeth at some of India's leading television networks, they set out to create the kind of content they wanted to watch—fresh, engaging, and driven by curiosity. What started as a small passion project soon turned into a creative studio. Today, DC creates campaigns, films, series, branded content, for brands across the world.");
 
-    setAboutStat1Val(localStorage.getItem('about_stat1_val') || '20+');
+    let storedStat1 = localStorage.getItem('about_stat1_val');
+    if (!storedStat1 || storedStat1 === '14+') {
+      storedStat1 = '20+';
+      localStorage.setItem('about_stat1_val', '20+');
+    }
+    setAboutStat1Val(storedStat1);
     setAboutStat1Lbl(localStorage.getItem('about_stat1_lbl') || 'YEARS ON SET');
     setAboutStat2Val(localStorage.getItem('about_stat2_val') || '500+');
     setAboutStat2Lbl(localStorage.getItem('about_stat2_lbl') || 'FILMS BORN');

@@ -602,11 +602,11 @@ function Clients() {
   return (
     <section 
       id="clients" 
-      className="pt-12 md:pt-28 pb-10 md:pb-16 bg-transparent overflow-hidden relative snap-start snap-always" 
+      className="pt-12 md:pt-16 lg:pt-20 xl:pt-24 pb-8 md:pb-12 bg-transparent overflow-hidden relative snap-start snap-always" 
       ref={containerRef}
     >
       <div className="max-w-[1600px] mx-auto px-6 md:px-16 flex flex-col items-start relative z-20">
-        <div className="text-left mb-8 md:mb-14">
+        <div className="text-left mb-6 md:mb-8 lg:mb-10">
           <motion.h3 
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -615,13 +615,10 @@ function Clients() {
           >
             Collaborators
           </motion.h3>
-          <p className="text-white/40 text-xs md:text-sm font-semibold uppercase tracking-[0.3em] font-mono">
-            Trusted by the world's most progressive brands & organizations
-          </p>
         </div>
 
         {/* Scrolling Marquees */}
-        <div className="w-full space-y-4 md:space-y-6 overflow-hidden pointer-events-auto">
+        <div className="w-full space-y-2 md:space-y-3 lg:space-y-4 overflow-hidden pointer-events-auto">
           {/* Top Row - Scrolling Left */}
           {itemsRow1.length > 0 && (
             <div className="flex overflow-hidden relative w-full mask-gradient py-3 md:py-4">
@@ -725,43 +722,43 @@ const ClientLogo: FC<ClientLogoProps> = memo(({ client }) => {
   const size = client.size || 'medium';
   let imgClasses = '';
   let txtClasses = '';
-  let pxClass = 'px-4 md:px-10';
+  let pxClass = 'px-4 md:px-8';
 
   if (size === 'small') {
-    imgClasses = 'h-5 md:h-12 max-w-[70px] md:max-w-[180px]';
-    txtClasses = 'text-[9px] md:text-sm font-semibold';
-    pxClass = 'px-3 md:px-8';
+    imgClasses = 'h-5 md:h-8 lg:h-10 max-w-[70px] md:max-w-[140px] lg:max-w-[180px]';
+    txtClasses = 'text-[9px] md:text-xs font-semibold';
+    pxClass = 'px-3 md:px-[16px] lg:px-[22px] xl:px-[28px]';
   } else if (size === 'medium') {
-    imgClasses = 'h-6 md:h-18 max-w-[90px] md:max-w-[260px]';
-    txtClasses = 'text-[10px] md:text-lg font-bold';
-    pxClass = 'px-4 md:px-11';
+    imgClasses = 'h-6 md:h-12 lg:h-15 xl:h-18 max-w-[90px] md:max-w-[180px] lg:max-w-[220px] xl:max-w-[260px]';
+    txtClasses = 'text-[10px] md:text-sm lg:text-base font-bold';
+    pxClass = 'px-4 md:px-[18px] lg:px-[26px] xl:px-[36px]';
   } else if (size === 'large') {
-    imgClasses = 'h-8 md:h-24 max-w-[110px] md:max-w-[340px]';
-    txtClasses = 'text-xs md:text-2xl font-extrabold';
-    pxClass = 'px-5 md:px-15';
+    imgClasses = 'h-8 md:h-16 lg:h-20 xl:h-24 max-w-[110px] md:max-w-[240px] lg:max-w-[300px] xl:max-w-[340px]';
+    txtClasses = 'text-xs md:text-lg lg:text-xl font-extrabold';
+    pxClass = 'px-5 md:px-[22px] lg:px-[32px] xl:px-[48px]';
   } else if (size === 'xlarge') {
-    imgClasses = 'h-10 md:h-28 max-w-[130px] md:max-w-[420px]';
-    txtClasses = 'text-xs md:text-3xl font-black';
-    pxClass = 'px-5 md:px-18';
+    imgClasses = 'h-10 md:h-20 lg:h-24 xl:h-28 max-w-[130px] md:max-w-[300px] lg:max-w-[380px] xl:max-w-[420px]';
+    txtClasses = 'text-xs md:text-xl lg:text-2xl font-black';
+    pxClass = 'px-5 md:px-[24px] lg:px-[38px] xl:px-[54px]';
   } else if (
     size === 'extralarge' || 
     size === 'extra-large' || 
     size === 'xl' || 
     size === 'extra large'
   ) {
-    imgClasses = 'h-12 md:h-[135px] max-w-[150px] md:max-w-[500px]';
-    txtClasses = 'text-sm md:text-4xl font-black tracking-wider';
-    pxClass = 'px-6 md:px-24';
+    imgClasses = 'h-12 md:h-24 lg:h-28 xl:h-[135px] max-w-[150px] md:max-w-[350px] lg:max-w-[450px] xl:max-w-[500px]';
+    txtClasses = 'text-sm md:text-2xl lg:text-3xl font-black tracking-wider';
+    pxClass = 'px-6 md:px-[30px] lg:px-[50px] xl:px-[72px]';
   } else {
     // Default fallback (medium-ish)
-    imgClasses = 'h-6 md:h-18 max-w-[90px] md:max-w-[260px]';
-    txtClasses = 'text-[10px] md:text-lg font-bold';
-    pxClass = 'px-4 md:px-11';
+    imgClasses = 'h-6 md:h-12 lg:h-15 xl:h-18 max-w-[90px] md:max-w-[180px] lg:max-w-[220px] xl:max-w-[260px]';
+    txtClasses = 'text-[10px] md:text-sm lg:text-base font-bold';
+    pxClass = 'px-4 md:px-[18px] lg:px-[26px] xl:px-[36px]';
   }
 
   return (
     <div 
-      className={`flex items-center justify-center ${pxClass} h-12 md:h-[155px] flex-shrink-0 relative overflow-hidden select-none cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95`}
+      className={`flex items-center justify-center ${pxClass} h-12 md:h-[90px] lg:h-[115px] xl:h-[145px] flex-shrink-0 relative overflow-hidden select-none cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95`}
     >
       {hasLogoUrl ? (
         <img 
@@ -2785,9 +2782,7 @@ function LandingPage() {
                 >
                   Our Verticals & Sub-Brands
                 </motion.h3>
-                <p className="text-white/40 text-xs md:text-sm font-semibold uppercase tracking-[0.3em] font-mono">
-                  Enterprise Initiatives
-                </p>
+
               </div>
 
               {(() => {
@@ -3215,9 +3210,6 @@ function LandingPage() {
                     <h3 className="font-helvetica-cond text-xl xs:text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-[0.02em] text-orange-500 uppercase mb-1 md:mb-2 select-none">
                       {contactTitleFirst} {contactTitleOrange}
                     </h3>
-                    <p className="text-white/40 text-[9px] xs:text-[10px] sm:text-xs md:text-sm font-semibold uppercase tracking-[0.1em] xs:tracking-[0.3em] font-mono">
-                      {contactSubtitle}
-                    </p>
                   </motion.div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-2 xs:gap-4 md:gap-6">
