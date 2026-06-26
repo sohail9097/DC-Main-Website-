@@ -1700,7 +1700,7 @@ function Portfolio() {
               initial={{ scale: 0.9, y: 50 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 50 }}
-              className="relative w-full max-w-5xl aspect-video bg-zinc-950 rounded-3xl border border-white/5 overflow-hidden shadow-2xl"
+              className={`relative w-full bg-zinc-950 rounded-3xl border border-white/5 overflow-hidden shadow-2xl ${selectedVideo?.includes('instagram.com') ? 'max-w-[420px] aspect-[9/16] h-[80vh] max-h-[750px]' : 'max-w-5xl aspect-video'}`}
               onClick={e => e.stopPropagation()}
             >
               {isEmbedUrl(selectedVideo) ? (
@@ -1785,16 +1785,7 @@ export function InteractiveOptions() {
               </motion.div>
             </div>
 
-            {/* Decorative Icon */}
-            <motion.div
-              variants={{
-                initial: { opacity: 0, scale: 0, rotate: -45 },
-                hover: { opacity: 0.1, scale: 1, rotate: 0 }
-              }}
-              className="absolute right-20 top-1/2 -translate-y-1/2"
-            >
-               <Rocket size={120} className="text-black" />
-            </motion.div>
+
           </motion.div>
         ))}
       </div>
@@ -3493,7 +3484,7 @@ function LandingPage() {
               initial={{ scale: 0.9, y: 50 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 50 }}
-              className="relative w-full max-w-5xl aspect-video bg-zinc-950 rounded-3xl border border-white/5 overflow-hidden shadow-2xl"
+              className={`relative w-full bg-zinc-950 rounded-3xl border border-white/5 overflow-hidden shadow-2xl ${selectedVideo?.includes('instagram.com') ? 'max-w-[420px] aspect-[9/16] h-[80vh] max-h-[750px]' : 'max-w-5xl aspect-video'}`}
               onClick={e => e.stopPropagation()}
             >
               {(() => {

@@ -77,6 +77,65 @@ const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
   );
 };
 
+const parseStatValue = (valStr: string) => {
+  const numberPart = valStr.replace(/[^0-9]/g, '');
+  const suffixPart = valStr.replace(/[0-9]/g, '');
+  const target = parseInt(numberPart, 10);
+  return {
+    target: isNaN(target) ? 0 : target,
+    suffix: suffixPart
+  };
+};
+
+const AnimatedCounter: FC<{ value: string }> = ({ value }) => {
+  const { target, suffix } = parseStatValue(value);
+  const countMotion = useMotionValue(0);
+  const rounded = useTransform(countMotion, Math.round);
+  const elementRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    let observer: IntersectionObserver | null = null;
+    let controls: any = null;
+
+    const startCounting = () => {
+      // Smooth out duration based on the value to ensure it feels rhythmic and satisfying
+      const animDuration = Math.max(1.2, Math.min(2.2, target * 0.003 + 1.2));
+      
+      controls = animate(countMotion, target, {
+        duration: animDuration,
+        ease: [0.16, 1, 0.3, 1], // easeOutExpo
+      });
+    };
+
+    if (elementRef.current && 'IntersectionObserver' in window) {
+      observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            startCounting();
+            if (observer) observer.disconnect();
+          }
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(elementRef.current);
+    } else {
+      startCounting();
+    }
+
+    return () => {
+      if (controls) controls.stop();
+      if (observer) observer.disconnect();
+    };
+  }, [target, countMotion]);
+
+  return (
+    <span ref={elementRef} className="tabular-nums inline-flex items-center">
+      <motion.span>{rounded}</motion.span>
+      {suffix}
+    </span>
+  );
+};
+
 const AboutPage = () => {
   const navigate = useNavigate();
   const { scrollY } = useScroll();
@@ -638,7 +697,7 @@ const AboutPage = () => {
                       {stat.icon}
                     </div>
                     <h3 className="text-4xl md:text-6xl font-black text-white group-hover:text-black transition-colors tracking-tighter mb-2">
-                      {stat.value}
+                      <AnimatedCounter value={stat.value} />
                     </h3>
                     <p className="text-white/30 group-hover:text-black/60 transition-colors text-[10px] md:text-xs font-black uppercase tracking-widest leading-none">
                       {stat.label}

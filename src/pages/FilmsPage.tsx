@@ -560,7 +560,7 @@ const FilmsPage = () => {
               <X size={24} />
             </button>
             <div 
-              className="w-full max-w-5xl aspect-video bg-black rounded-3xl overflow-hidden border border-white/10 shadow-2xl relative cursor-default animate-in fade-in zoom-in duration-300"
+              className={`w-full bg-black rounded-3xl overflow-hidden border border-white/10 shadow-2xl relative cursor-default animate-in fade-in zoom-in duration-300 ${selectedVideo?.includes('instagram.com') ? 'max-w-[420px] aspect-[9/16] h-[80vh] max-h-[750px]' : 'max-w-5xl aspect-video'}`}
               onClick={(e) => e.stopPropagation()}
             >
               {isEmbedUrl(selectedVideo) ? (

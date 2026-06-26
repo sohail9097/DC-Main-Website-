@@ -1,4 +1,4 @@
-import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
+import { motion, AnimatePresence, useScroll, useTransform, useMotionValue, animate } from 'motion/react';
 import { Shield, Sparkles, Building2, Landmark, Clapperboard, ExternalLink, ArrowRight, Plus, Award } from 'lucide-react';
 import React, { useState, useEffect, FC, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -60,6 +60,54 @@ const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
         />
       ))}
     </div>
+  );
+};
+
+const AnimatedCounter: FC<{ target: number; suffix?: string; duration?: number }> = ({ target, suffix = '', duration }) => {
+  const countMotion = useMotionValue(0);
+  const rounded = useTransform(countMotion, Math.round);
+  const elementRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    let observer: IntersectionObserver | null = null;
+    let controls: any = null;
+
+    const startCounting = () => {
+      // Proportional duration: smaller numbers finish faster so they don't stutter, larger numbers have more time.
+      const animDuration = duration || Math.max(1.2, Math.min(2.2, target * 0.04 + 0.8));
+      
+      controls = animate(countMotion, target, {
+        duration: animDuration,
+        ease: [0.16, 1, 0.3, 1], // easeOutExpo
+      });
+    };
+
+    if (elementRef.current && 'IntersectionObserver' in window) {
+      observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            startCounting();
+            if (observer) observer.disconnect();
+          }
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(elementRef.current);
+    } else {
+      startCounting();
+    }
+
+    return () => {
+      if (controls) controls.stop();
+      if (observer) observer.disconnect();
+    };
+  }, [target, duration, countMotion]);
+
+  return (
+    <span ref={elementRef} className="tabular-nums inline-flex items-center">
+      <motion.span>{rounded}</motion.span>
+      {suffix}
+    </span>
   );
 };
 
@@ -185,23 +233,33 @@ export default function BrandPage() {
         {/* Interactive Stats Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 mt-12 mb-16 max-w-5xl border-t border-b border-white/5 py-8 mx-auto w-full justify-center">
           <div className="flex flex-col items-center text-center">
-            <span className="text-3xl md:text-4xl font-black text-orange-500">50+</span>
+            <span className="text-3xl md:text-4xl font-black text-orange-500">
+              <AnimatedCounter target={50} suffix="+" />
+            </span>
             <span className="text-[9px] tracking-widest text-white/50 uppercase font-mono mt-1">COLLABORATORS</span>
           </div>
           <div className="flex flex-col items-center text-center">
-            <span className="text-3xl md:text-4xl font-black text-white">15+</span>
+            <span className="text-3xl md:text-4xl font-black text-white">
+              <AnimatedCounter target={15} suffix="+" />
+            </span>
             <span className="text-[9px] tracking-widest text-white/50 uppercase font-mono mt-1">BRANDS</span>
           </div>
           <div className="flex flex-col items-center text-center">
-            <span className="text-3xl md:text-4xl font-black text-white">15+</span>
+            <span className="text-3xl md:text-4xl font-black text-white">
+              <AnimatedCounter target={15} suffix="+" />
+            </span>
             <span className="text-[9px] tracking-widest text-white/50 uppercase font-mono mt-1">GOVT DEPARTMENTS</span>
           </div>
           <div className="flex flex-col items-center text-center">
-            <span className="text-3xl md:text-4xl font-black text-white">15+</span>
+            <span className="text-3xl md:text-4xl font-black text-white">
+              <AnimatedCounter target={17} suffix="+" />
+            </span>
             <span className="text-[9px] tracking-widest text-white/50 uppercase font-mono mt-1">CORPORATE PARTNERS</span>
           </div>
           <div className="flex flex-col items-center text-center col-span-2 sm:col-span-1">
-            <span className="text-3xl md:text-4xl font-black text-white">8</span>
+            <span className="text-3xl md:text-4xl font-black text-white">
+              <AnimatedCounter target={8} />
+            </span>
             <span className="text-[9px] tracking-widest text-white/50 uppercase font-mono mt-1">PLATFORMS</span>
           </div>
         </div>
@@ -285,27 +343,7 @@ export default function BrandPage() {
           </div>
         )}
 
-        {/* Bottom Call to Action block */}
-        <div className="mt-32 border border-white/5 rounded-[2.5rem] bg-gradient-to-bl from-orange-600/5 via-transparent to-zinc-950 p-8 md:p-16 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-16">
-          <div className="flex flex-col max-w-2xl">
-            <div className="w-10 h-10 rounded-full bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mb-6">
-              <Sparkles className="w-5 h-5 text-orange-500" />
-            </div>
-            <h3 className="text-2xl md:text-3.5xl font-black uppercase tracking-tight text-white leading-none">
-              HAVE AN AMBITIOUS DIGITAL INITIATIVE?
-            </h3>
-            <p className="text-white/40 text-xs md:text-sm mt-3 font-medium leading-relaxed uppercase tracking-widest">
-              LET'S CO-CREATE VISUAL ADAPTATIONS THAT CAPTURE ATTENTION AND COMPELL ACTION.
-            </p>
-          </div>
-          <button 
-            onClick={() => navigate('/#contact-section')}
-            className="group flex items-center gap-6 px-8 md:px-12 py-4 md:py-6 bg-white text-black font-black uppercase tracking-[0.2em] text-[10px] md:text-xs rounded-full transition-all shadow-xl hover:bg-orange-500 hover:shadow-orange-500/20 shrink-0 self-start md:self-auto"
-          >
-            COLLABORATE WITH US
-            <ArrowRight className="w-4 h-4 text-black group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
+
 
       </div>
       <InteractiveOptions />
