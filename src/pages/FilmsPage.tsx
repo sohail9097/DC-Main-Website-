@@ -364,10 +364,10 @@ const FilmsPage = () => {
             {/* Unified Section Header */}
             <div className="border-b border-white/[0.08] pb-8 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div className="space-y-3">
-                <h2 className="font-helvetica-cond text-3xl md:text-5xl lg:text-6xl font-bold tracking-[0.02em] text-white uppercase leading-none select-none">
+                <h2 className="font-redhat text-3xl md:text-5xl lg:text-6xl font-black tracking-[0.02em] text-orange-500 uppercase leading-none select-none">
                   {selectedCategory === 'All' ? 'PORTFOLIO' : selectedCategory}
                 </h2>
-                <p className="text-white text-[8px] xs:text-[9px] sm:text-xs md:text-sm font-semibold uppercase tracking-[0.1em] xs:tracking-[0.12em] sm:tracking-[0.2em] md:tracking-[0.3em] font-mono leading-relaxed max-w-full block whitespace-nowrap overflow-x-auto scrollbar-none">
+                <p className="text-white text-[8px] xs:text-[9px] sm:text-xs md:text-sm font-semibold uppercase tracking-[0.1em] xs:tracking-[0.12em] sm:tracking-[0.2em] md:tracking-[0.3em] font-redhat leading-relaxed max-w-full block whitespace-nowrap overflow-x-auto scrollbar-none">
                   {selectedCategory === 'All' 
                     ? 'Explore our portfolio across formats.' 
                     : SECTIONS_CONFIG.find(sec => sec.name === selectedCategory)?.desc || ''}

@@ -154,12 +154,12 @@ const AboutPage = () => {
   const [tagline, setTagline] = useState('Engineers of visual euphoria. Architects of cinematic truth.');
   const [bgImg, setBgImg] = useState('https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&q=80&w=2072');
   const [genesisSub, setGenesisSub] = useState('The Genesis');
-  const [genesisTitle, setGenesisTitle] = useState('Where Magic Finds Its Form.');
-  const [genesisP1, setGenesisP1] = useState('Dreamcatchers started with a simple belief: that every story, no matter how small, deserves to be told with the weight of an epic.');
-  const [genesisP2, setGenesisP2] = useState("From our humble beginnings producing daily chat shows, we've evolved into a powerhouse creative studio that brands trust to bring their most ambitious visions to life.");
+  const [genesisTitle, setGenesisTitle] = useState('The Genesis');
+  const [genesisP1, setGenesisP1] = useState('Dreamcatchers began with two storytellers creating lifestyle programming for television. After years of crafting content at some of India\'s leading broadcast networks, Puneet and Amitabh Gautam set out to build a production company.');
+  const [genesisP2, setGenesisP2] = useState('More than two decades later, today, Dreamcatchers is a full-service creative studio that operates from three offices across India and two international locations. The company has expanded into specialised verticals, including DC Digital, dedicated to digital-first storytelling, and Sports Box, a sports production company operating across Africa and Europe.');
   const [genesisSub3, setGenesisSub3] = useState('Our Evolution');
   const [genesisTitle3, setGenesisTitle3] = useState('From Curiosity to Creation');
-  const [genesisP3, setGenesisP3] = useState("Having cut their teeth at some of India's leading television networks, they set out to create the kind of content they wanted to watch—fresh, engaging, and driven by curiosity. What started as a small passion project soon turned into a creative studio. Today, DC creates campaigns, films, series, branded content, for brands across the world.");
+  const [genesisP3, setGenesisP3] = useState('From television beginnings to global productions, our journey has remained rooted in one constant: creating stories that move people.');
 
   const [stat1Val, setStat1Val] = useState('20+');
   const [stat1Lbl, setStat1Lbl] = useState('YEARS ON SET');
@@ -215,12 +215,33 @@ const AboutPage = () => {
     setTagline(localStorage.getItem('about_bgt_tagline') || 'Engineers of visual euphoria. Architects of cinematic truth.');
     setBgImg(localStorage.getItem('about_hero_bg') || 'https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&q=80&w=2072');
     setGenesisSub(localStorage.getItem('about_genesis_sub') || 'The Genesis');
-    setGenesisTitle(localStorage.getItem('about_genesis_title') || 'Where Magic Finds Its Form.');
-    setGenesisP1(localStorage.getItem('about_genesis_p1') || 'Dreamcatchers started with a simple belief: that every story, no matter how small, deserves to be told with the weight of an epic.');
-    setGenesisP2(localStorage.getItem('about_genesis_p2') || "From our humble beginnings producing daily chat shows, we've evolved into a powerhouse creative studio that brands trust to bring their most ambitious visions to life.");
+
+    let storedTitle = localStorage.getItem('about_genesis_title');
+    if (!storedTitle || storedTitle === 'Where Magic Finds Its Form.') {
+      storedTitle = 'The Genesis';
+    }
+    setGenesisTitle(storedTitle);
+
+    let storedP1 = localStorage.getItem('about_genesis_p1');
+    if (!storedP1 || storedP1 === 'Dreamcatchers started with a simple belief: that every story, no matter how small, deserves to be told with the weight of an epic.') {
+      storedP1 = 'Dreamcatchers began with two storytellers creating lifestyle programming for television. After years of crafting content at some of India\'s leading broadcast networks, Puneet and Amitabh Gautam set out to build a production company.';
+    }
+    setGenesisP1(storedP1);
+
+    let storedP2 = localStorage.getItem('about_genesis_p2');
+    if (!storedP2 || storedP2 === "From our humble beginnings producing daily chat shows, we've evolved into a powerhouse creative studio that brands trust to bring their most ambitious visions to life.") {
+      storedP2 = 'More than two decades later, today, Dreamcatchers is a full-service creative studio that operates from three offices across India and two international locations. The company has expanded into specialised verticals, including DC Digital, dedicated to digital-first storytelling, and Sports Box, a sports production company operating across Africa and Europe.';
+    }
+    setGenesisP2(storedP2);
+
     setGenesisSub3(localStorage.getItem('about_genesis_sub3') || 'Our Evolution');
     setGenesisTitle3(localStorage.getItem('about_genesis_title3') || 'From Curiosity to Creation');
-    setGenesisP3(localStorage.getItem('about_genesis_p3') || "Having cut their teeth at some of India's leading television networks, they set out to create the kind of content they wanted to watch—fresh, engaging, and driven by curiosity. What started as a small passion project soon turned into a creative studio. Today, DC creates campaigns, films, series, branded content, for brands across the world.");
+
+    let storedP3 = localStorage.getItem('about_genesis_p3');
+    if (!storedP3 || storedP3 === "Having cut their teeth at some of India's leading television networks, they set out to create the kind of content they wanted to watch—fresh, engaging, and driven by curiosity. What started as a small passion project soon turned into a creative studio. Today, DC creates campaigns, films, series, branded content, for brands across the world.") {
+      storedP3 = 'From television beginnings to global productions, our journey has remained rooted in one constant: creating stories that move people.';
+    }
+    setGenesisP3(storedP3);
 
     let storedStat1 = localStorage.getItem('about_stat1_val');
     if (!storedStat1 || storedStat1 === '14+') {
@@ -667,16 +688,21 @@ const AboutPage = () => {
               >
                 <div className="space-y-10">
 
-                  <h2 className="text-4xl md:text-6xl lg:text-7xl font-black text-orange-500 tracking-tighter leading-none uppercase">
+                  <h2 className="text-4xl md:text-6xl lg:text-7xl font-black font-redhat text-orange-500 tracking-tighter leading-none uppercase text-left">
                     {genesisTitle}
                   </h2>
-                  <div className="space-y-8 text-white/60 text-lg md:text-2xl font-medium leading-relaxed tracking-tight border-l-2 border-orange-500/20 pl-8 md:pl-12">
+                  <div className="space-y-8 font-redhat text-white/60 text-lg md:text-2xl font-medium leading-relaxed tracking-tight text-left">
                     <p>
                       {genesisP1}
                     </p>
-                    <p>
+                    <p className="pt-8 md:pt-12" style={{ textIndent: '5rem' }}>
                       {genesisP2}
                     </p>
+                    {genesisP3 && (
+                      <p className="pt-8 md:pt-12">
+                        {genesisP3}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -961,10 +987,10 @@ const AboutPage = () => {
  
              {/* Header Area (Lower Z-index to prevent covering the cards) */}
              <div className="relative z-10 max-w-xl pl-8 md:pl-24">
-               <h2 className="text-3xl md:text-5xl font-black text-white tracking-tighter leading-none uppercase mb-4">
+               <h2 className="text-3xl md:text-5xl font-black font-redhat text-white tracking-tighter leading-none uppercase mb-4">
                  Dream Team
                </h2>
-               <p className="text-white/30 text-xs md:text-sm font-semibold uppercase tracking-widest leading-relaxed">
+               <p className="font-redhat text-white/30 text-xs md:text-sm font-semibold uppercase tracking-widest leading-relaxed">
                  A collective of obsessed creators, technical wizards, and poetic dreamers.
                </p>
              </div>

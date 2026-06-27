@@ -346,25 +346,23 @@ export const CinematicSlideshow: FC = memo(() => {
                 {/* Premium floating text block - High-fidelity pure slide translation with absolutely NO fade */}
                 <motion.div 
                   style={{ y: textY }}
-                  className="absolute bottom-20 md:bottom-[100px] left-6 md:left-[80px] right-6 md:right-[80px] z-20 text-left pointer-events-none select-none"
+                  className="absolute bottom-20 md:bottom-[100px] left-4 md:left-12 right-4 md:right-12 z-20 text-left pointer-events-none select-none"
                 >
                   <div className="w-full md:max-w-none">
                     <h2 
                       style={{ 
-                        fontFamily: '"Barlow Condensed", sans-serif',
-                        textShadow: '0 4px 16px rgba(0,0,0,0.95), 0 2px 4px rgba(0,0,0,0.9)'
+                        fontFamily: '"Red Hat Display", sans-serif'
                       }}
-                      className="font-condensed text-4xl md:text-[5.5rem] font-bold text-white tracking-[-0.015em] leading-[1.05] mb-3"
+                      className="font-redhat text-4xl md:text-6xl lg:text-7xl font-bold text-white tracking-[-0.015em] leading-[1.05] mb-3"
                     >
                       {slide.title}
                     </h2>
                     
                     <p 
                       style={{ 
-                        fontFamily: '"Barlow Condensed", sans-serif',
-                        textShadow: '0 2px 8px rgba(0,0,0,0.95), 0 1px 3px rgba(0,0,0,0.9)'
+                        fontFamily: '"Red Hat Display", sans-serif'
                       }}
-                      className="font-condensed text-sm md:text-[1.85rem] font-normal text-white/90 tracking-[0.015em] leading-[1.35] w-full"
+                      className="font-redhat text-base md:text-xl lg:text-2xl font-normal text-white/90 tracking-[0.015em] leading-[1.35] w-full"
                     >
                       {slide.description}
                     </p>

@@ -268,31 +268,38 @@ export function Navbar() {
   const isScrolledOrBrand = isScrolled || isBrandPage;
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-      isScrolledOrBrand 
-        ? 'bg-transparent backdrop-blur-md' 
-        : 'bg-transparent'
-    } ${isScrolled ? 'py-4' : 'py-10'}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 bg-transparent ${isScrolled ? 'py-4' : 'py-10'}`}>
+      {/* Progressive faded blur backdrop layer (high blur at top fading to zero blur at bottom) */}
+      <div 
+        className="absolute inset-0 -z-10 pointer-events-none transition-all duration-500"
+        style={{
+          backdropFilter: isScrolledOrBrand ? 'blur(24px)' : 'blur(0px)',
+          WebkitBackdropFilter: isScrolledOrBrand ? 'blur(24px)' : 'blur(0px)',
+          maskImage: 'linear-gradient(to bottom, black 0%, rgba(0,0,0,0.95) 20%, rgba(0,0,0,0.8) 45%, rgba(0,0,0,0) 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, black 0%, rgba(0,0,0,0.95) 20%, rgba(0,0,0,0.8) 45%, rgba(0,0,0,0) 100%)',
+          background: isScrolledOrBrand ? 'linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0) 100%)' : 'transparent',
+        }}
+      />
       <div className="max-w-[1920px] mx-auto px-6 md:px-24 lg:px-40 flex justify-between items-center">
-        <Link to="/">
+        {location.pathname === '/' ? (
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-3 md:gap-4 group"
+            className="flex items-center gap-3 md:gap-4 select-none cursor-default"
           >
             {logoType === 'image' && logoImageUrl ? (
               <img 
                 src={transformGoogleDriveUrl(logoImageUrl)} 
                 alt={logoTextFull} 
-                className="h-12 sm:h-14 md:h-16 object-contain max-w-[240px] transition-all duration-300 group-hover:brightness-110 group-hover:drop-shadow-[0_0_15px_rgba(249,115,22,0.6)]" 
+                className="h-12 sm:h-14 md:h-16 object-contain max-w-[240px]" 
                 referrerPolicy="no-referrer"
                 onError={() => {
                   setLogoType('text');
                 }}
               />
             ) : (
-              <div className="flex items-center gap-0.5 select-none group">
-                <span className="text-xl sm:text-2xl md:text-3xl font-black tracking-wider text-white uppercase transition-colors duration-300 group-hover:text-orange-400">
+              <div className="flex items-center gap-0.5 select-none font-inter">
+                <span className="text-xl sm:text-2xl md:text-3xl font-black tracking-wider text-white uppercase">
                   DREAMCATCHERS
                 </span>
                 <span className="text-xl sm:text-2xl md:text-3xl font-black tracking-wider text-orange-500 uppercase">
@@ -301,7 +308,36 @@ export function Navbar() {
               </div>
             )}
           </motion.div>
-        </Link>
+        ) : (
+          <Link to="/">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-3 md:gap-4 group"
+            >
+              {logoType === 'image' && logoImageUrl ? (
+                <img 
+                  src={transformGoogleDriveUrl(logoImageUrl)} 
+                  alt={logoTextFull} 
+                  className="h-12 sm:h-14 md:h-16 object-contain max-w-[240px] transition-all duration-300 group-hover:brightness-110 group-hover:drop-shadow-[0_0_15px_rgba(249,115,22,0.6)]" 
+                  referrerPolicy="no-referrer"
+                  onError={() => {
+                    setLogoType('text');
+                  }}
+                />
+              ) : (
+                <div className="flex items-center gap-0.5 select-none group font-inter">
+                  <span className="text-xl sm:text-2xl md:text-3xl font-black tracking-wider text-white uppercase transition-colors duration-300 group-hover:text-orange-400">
+                    DREAMCATCHERS
+                  </span>
+                  <span className="text-xl sm:text-2xl md:text-3xl font-black tracking-wider text-orange-500 uppercase">
+                    .TV
+                  </span>
+                </div>
+              )}
+            </motion.div>
+          </Link>
+        )}
 
         <div className="hidden lg:flex items-center gap-14">
           {navLinks.map((link) => (
@@ -309,7 +345,7 @@ export function Navbar() {
               <Link 
                 key={link.name} 
                 to={link.to} 
-                className={`text-sm font-bold uppercase tracking-[0.2em] transition-all duration-300 ${isActive(link.path) ? 'text-orange-500' : 'text-white/70 hover:text-orange-400'}`}
+                className={`text-sm font-bold uppercase tracking-[0.2em] font-inter transition-all duration-300 ${isActive(link.path) ? 'text-orange-500' : 'text-white/70 hover:text-orange-400'}`}
               >
                 {link.name}
               </Link>
@@ -317,7 +353,7 @@ export function Navbar() {
               <a 
                 key={link.name} 
                 href={link.href} 
-                className={`text-sm font-bold uppercase tracking-[0.2em] transition-all duration-300 text-white/70 hover:text-orange-400`}
+                className={`text-sm font-bold uppercase tracking-[0.2em] font-inter transition-all duration-300 text-white/70 hover:text-orange-400`}
               >
                 {link.name}
               </a>
@@ -346,7 +382,7 @@ export function Navbar() {
                 referrerPolicy="no-referrer"
               />
             ) : (
-              <div className="flex items-center gap-0.5 select-none">
+              <div className="flex items-center gap-0.5 select-none font-inter">
                 <span className="text-xl font-black tracking-wider text-white uppercase">
                   DREAMCATCHERS
                 </span>
@@ -364,7 +400,7 @@ export function Navbar() {
                   key={link.name} 
                   to={link.to} 
                   onClick={() => setIsMenuOpen(false)}
-                  className={`text-xs xs:text-sm font-bold uppercase tracking-[0.2em] transition-all duration-300 ${isActive(link.path) ? 'text-orange-500 font-extrabold' : 'text-white/60 hover:text-orange-400'}`}
+                  className={`text-xs xs:text-sm font-bold uppercase tracking-[0.2em] font-inter transition-all duration-300 ${isActive(link.path) ? 'text-orange-500 font-extrabold' : 'text-white/60 hover:text-orange-400'}`}
                 >
                   {link.name}
                 </Link>
@@ -373,7 +409,7 @@ export function Navbar() {
                   key={link.name} 
                   href={link.href} 
                   onClick={() => setIsMenuOpen(false)}
-                  className={`text-xs xs:text-sm font-bold uppercase tracking-[0.2em] transition-all duration-300 ${isActive(link.path) ? 'text-orange-500 font-extrabold' : 'text-white/60 hover:text-orange-400'}`}
+                  className={`text-xs xs:text-sm font-bold uppercase tracking-[0.2em] font-inter transition-all duration-300 ${isActive(link.path) ? 'text-orange-500 font-extrabold' : 'text-white/60 hover:text-orange-400'}`}
                 >
                   {link.name}
                 </a>
@@ -628,7 +664,7 @@ function Clients() {
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="font-helvetica-cond text-3xl md:text-5xl lg:text-6xl font-bold tracking-[0.02em] text-orange-500 uppercase mb-2 select-none"
+            className="font-redhat text-[29px] md:text-[41px] lg:text-[53px] font-black tracking-[0.02em] text-orange-500 uppercase mb-2 select-none"
           >
             Collaborators
           </motion.h3>
@@ -1768,7 +1804,7 @@ export function InteractiveOptions() {
                   hover: { scale: 1.1, color: "#000" }
                 }}
                 transition={{ duration: 0.4 }}
-                className="text-3xl md:text-8xl font-bold italic tracking-tight uppercase leading-none px-6 md:px-12 pr-10 md:pr-20"
+                className="text-2xl md:text-6xl lg:text-7xl font-bold italic font-redhat tracking-tight uppercase leading-none px-6 md:px-12 pr-10 md:pr-20"
               >
                 {option.name}
               </motion.h2>
@@ -2535,6 +2571,49 @@ function LandingPage() {
   const [inlinePlayingId, setInlinePlayingId] = useState<string | null>(null);
   const [locations, setLocations] = useState<OperationalLocation[]>(DEFAULT_LOCATIONS);
 
+  const [inquiryName, setInquiryName] = useState('');
+  const [inquiryEmail, setInquiryEmail] = useState('');
+  const [inquirySubject, setInquirySubject] = useState('');
+  const [inquiryMessage, setInquiryMessage] = useState('');
+
+  const handleInquirySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inquiryName.trim() || !inquiryEmail.trim() || !inquirySubject.trim() || !inquiryMessage.trim()) {
+      alert("All fields are required. Please fill in any empty boxes.");
+      return;
+    }
+
+    const newInquiry = {
+      id: 'inq_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+      name: inquiryName.trim(),
+      emailOrPhone: inquiryEmail.trim(),
+      subject: inquirySubject.trim(),
+      message: inquiryMessage.trim(),
+      createdAt: new Date().toISOString()
+    };
+
+    const existingInquiriesStr = localStorage.getItem('dc_inquiries') || '[]';
+    let inquiries = [];
+    try {
+      inquiries = JSON.parse(existingInquiriesStr);
+      if (!Array.isArray(inquiries)) inquiries = [];
+    } catch (error) {
+      inquiries = [];
+    }
+
+    inquiries.unshift(newInquiry);
+    localStorage.setItem('dc_inquiries', JSON.stringify(inquiries));
+    
+    window.dispatchEvent(new Event('storage_updated_inquiries'));
+    
+    alert("Success! Your message has been sent. We will review your enquiry in the Admin Panel.");
+    
+    setInquiryName('');
+    setInquiryEmail('');
+    setInquirySubject('');
+    setInquiryMessage('');
+  };
+
   useEffect(() => {
     const loadLocations = () => {
       const stored = localStorage.getItem('dc_locations');
@@ -2801,7 +2880,7 @@ function LandingPage() {
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                  className="font-helvetica-cond text-3xl md:text-5xl lg:text-6xl font-bold tracking-[0.02em] text-orange-500 uppercase mb-2 select-none"
+                  className="font-redhat text-[29px] md:text-[41px] lg:text-[53px] font-black tracking-[0.02em] text-orange-500 uppercase mb-2 select-none"
                 >
                   Our Verticals & Sub-Brands
                 </motion.h3>
@@ -3230,7 +3309,7 @@ function LandingPage() {
                     transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                     className="text-left"
                   >
-                    <h3 className="font-helvetica-cond text-xl xs:text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-[0.02em] text-orange-500 uppercase mb-1 md:mb-2 select-none">
+                    <h3 className="font-redhat text-[23px] xs:text-[25px] sm:text-[29px] md:text-[41px] lg:text-[53px] font-black tracking-[0.02em] text-orange-500 uppercase mb-1 md:mb-2 select-none">
                       {contactTitleFirst} {contactTitleOrange}
                     </h3>
                   </motion.div>
@@ -3288,7 +3367,7 @@ function LandingPage() {
                     transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                     className="pt-2 md:pt-4 text-left"
                   >
-                    <h3 className="font-helvetica-cond text-lg xs:text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-[0.02em] text-orange-500 uppercase mb-1 md:mb-2 select-none">
+                    <h3 className="font-redhat text-[21px] xs:text-[25px] sm:text-[29px] md:text-[41px] lg:text-[53px] font-black tracking-[0.02em] text-orange-500 uppercase mb-1 md:mb-2 select-none">
                       Offices
                     </h3>
                     <p className="text-white/40 text-[7px] xs:text-[10px] sm:text-xs md:text-sm font-semibold uppercase tracking-[0.1em] xs:tracking-[0.3em] font-mono">
@@ -3305,24 +3384,52 @@ function LandingPage() {
                   transition={{ type: "spring", stiffness: 80, damping: 18 }}
                   className="bg-zinc-950/60 border border-orange-500/30 rounded-xl xs:rounded-2xl md:rounded-[2.5rem] p-3 xs:p-5 sm:p-8 md:p-12 backdrop-blur-md relative overflow-hidden"
                 >
-                  <form onSubmit={(e) => { e.preventDefault(); alert("Success! Your message was sent beautifully."); }} className="space-y-2 md:space-y-6 relative z-10 w-full">
+                  <form onSubmit={handleInquirySubmit} className="space-y-2 md:space-y-6 relative z-10 w-full">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6">
                       <div className="space-y-0.5 md:space-y-2">
                         <label className="text-[8px] xs:text-[9.5px] md:text-[10px] font-black uppercase tracking-widest text-white/30 ml-2 md:ml-4 font-sans">Your Name</label>
-                        <input type="text" className="w-full bg-white/5 border border-white/10 rounded-lg md:rounded-2xl px-2.5 py-1.5 xs:px-4 xs:py-3 md:px-5 md:py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-[9.5px] xs:text-xs md:text-sm tracking-wide" placeholder="Enter your name" required />
+                        <input 
+                          type="text" 
+                          value={inquiryName}
+                          onChange={(e) => setInquiryName(e.target.value)}
+                          className="w-full bg-white/5 border border-white/10 rounded-lg md:rounded-2xl px-2.5 py-1.5 xs:px-4 xs:py-3 md:px-5 md:py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-[9.5px] xs:text-xs md:text-sm tracking-wide" 
+                          placeholder="Enter your name" 
+                          required 
+                        />
                       </div>
                       <div className="space-y-0.5 md:space-y-2">
                         <label className="text-[8px] xs:text-[9.5px] md:text-[10px] font-black uppercase tracking-widest text-white/30 ml-2 md:ml-4 font-sans">Your Email / Number</label>
-                        <input type="text" className="w-full bg-white/5 border border-white/10 rounded-lg md:rounded-2xl px-2.5 py-1.5 xs:px-4 xs:py-3 md:px-5 md:py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-[9.5px] xs:text-xs md:text-sm tracking-wide" placeholder="Enter your email" required />
+                        <input 
+                          type="text" 
+                          value={inquiryEmail}
+                          onChange={(e) => setInquiryEmail(e.target.value)}
+                          className="w-full bg-white/5 border border-white/10 rounded-lg md:rounded-2xl px-2.5 py-1.5 xs:px-4 xs:py-3 md:px-5 md:py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-[9.5px] xs:text-xs md:text-sm tracking-wide" 
+                          placeholder="Enter your email" 
+                          required 
+                        />
                       </div>
                     </div>
                     <div className="space-y-0.5 md:space-y-2">
                       <label className="text-[8px] xs:text-[9.5px] md:text-[10px] font-black uppercase tracking-widest text-white/30 ml-2 md:ml-4 font-sans">Subject</label>
-                      <input type="text" className="w-full bg-white/5 border border-white/15 rounded-lg md:rounded-2xl px-2.5 py-1.5 xs:px-4 xs:py-3 md:px-5 md:py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-[9.5px] xs:text-xs md:text-sm tracking-wide" placeholder="Project Inquiry" required />
+                      <input 
+                        type="text" 
+                        value={inquirySubject}
+                        onChange={(e) => setInquirySubject(e.target.value)}
+                        className="w-full bg-white/5 border border-white/15 rounded-lg md:rounded-2xl px-2.5 py-1.5 xs:px-4 xs:py-3 md:px-5 md:py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-[9.5px] xs:text-xs md:text-sm tracking-wide" 
+                        placeholder="Project Inquiry" 
+                        required 
+                      />
                     </div>
                     <div className="space-y-0.5 md:space-y-2">
                       <label className="text-[8px] xs:text-[9.5px] md:text-[10px] font-black uppercase tracking-widest text-white/30 ml-2 md:ml-4 font-sans">Message</label>
-                      <textarea rows={2} className="w-full bg-white/5 border border-white/15 rounded-lg md:rounded-2xl px-2.5 py-1.5 xs:px-4 xs:py-3 md:px-5 md:py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-[9.5px] xs:text-xs md:text-sm tracking-wide" placeholder="Tell us about your project..." required></textarea>
+                      <textarea 
+                        rows={2} 
+                        value={inquiryMessage}
+                        onChange={(e) => setInquiryMessage(e.target.value)}
+                        className="w-full bg-white/5 border border-white/15 rounded-lg md:rounded-2xl px-2.5 py-1.5 xs:px-4 xs:py-3 md:px-5 md:py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-[9.5px] xs:text-xs md:text-sm tracking-wide" 
+                        placeholder="Tell us about your project..." 
+                        required
+                      ></textarea>
                     </div>
                     <motion.button
                       whileHover={{ scale: 1.02, backgroundColor: "#f97316", color: "#000" }}

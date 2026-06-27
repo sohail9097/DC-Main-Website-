@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import { Navigate, Link } from 'react-router-dom';
 import { pushLocalConfigsToFirestore } from '../lib/siteSync';
-import { Users, Layout, Settings, LogOut, Home, Plus, Trash2, Edit2, ArrowUp, ArrowDown, RefreshCw, FileVideo, Image as ImageIcon, ImageOff, Film, Play, ChevronRight, ChevronLeft, MapPin, BookOpen, Share2, Sparkles, Upload, Check, Save } from 'lucide-react';
+import { Users, Layout, Settings, LogOut, Home, Plus, Trash2, Edit2, ArrowUp, ArrowDown, RefreshCw, FileVideo, Image as ImageIcon, ImageOff, Film, Play, ChevronRight, ChevronLeft, MapPin, BookOpen, Share2, Sparkles, Upload, Check, Save, Mail, MessageSquare } from 'lucide-react';
 import { DEFAULT_TEAM_MEMBERS, TeamMember, DEFAULT_ORBIT_IMAGES, DEFAULT_FILMS_LIST, ParagraphFrameItem, DEFAULT_PARAGRAPH_FRAMES, DEFAULT_VERTICALS, VerticalItem, DEFAULT_LOCATIONS, OperationalLocation } from '../App';
 import { BrandItem, ClientItem, DEFAULT_BRAND_ITEMS, DEFAULT_CLIENTS_LIST } from '../utils/brandData';
 import { DEFAULT_SLIDES, CinematicSlide } from '../components/CinematicSlideshow';
@@ -438,12 +438,12 @@ const AdminPanel: FC = () => {
   const [aboutTagline, setAboutTagline] = useState('Engineers of visual euphoria. Architects of cinematic truth.');
   const [aboutHeroBg, setAboutHeroBg] = useState('https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&q=80&w=2072');
   const [aboutGenesisSub, setAboutGenesisSub] = useState('The Genesis');
-  const [aboutGenesisTitle, setAboutGenesisTitle] = useState('Where Magic Finds Its Form.');
-  const [aboutGenesisP1, setAboutGenesisP1] = useState('Dreamcatchers started with a simple belief: that every story, no matter how small, deserves to be told with the weight of an epic.');
-  const [aboutGenesisP2, setAboutGenesisP2] = useState("From our humble beginnings producing daily chat shows, we've evolved into a powerhouse creative studio that brands trust to bring their most ambitious visions to life.");
+  const [aboutGenesisTitle, setAboutGenesisTitle] = useState('The Genesis');
+  const [aboutGenesisP1, setAboutGenesisP1] = useState('Dreamcatchers began with two storytellers creating lifestyle programming for television. After years of crafting content at some of India\'s leading broadcast networks, Puneet and Amitabh Gautam set out to build a production company.');
+  const [aboutGenesisP2, setAboutGenesisP2] = useState('More than two decades later, today, Dreamcatchers is a full-service creative studio that operates from three offices across India and two international locations. The company has expanded into specialised verticals, including DC Digital, dedicated to digital-first storytelling, and Sports Box, a sports production company operating across Africa and Europe.');
   const [aboutGenesisSub3, setAboutGenesisSub3] = useState('Our Evolution');
   const [aboutGenesisTitle3, setAboutGenesisTitle3] = useState('From Curiosity to Creation');
-  const [aboutGenesisP3, setAboutGenesisP3] = useState("Having cut their teeth at some of India's leading television networks, they set out to create the kind of content they wanted to watch—fresh, engaging, and driven by curiosity. What started as a small passion project soon turned into a creative studio. Today, DC creates campaigns, films, series, branded content, for brands across the world.");
+  const [aboutGenesisP3, setAboutGenesisP3] = useState('From television beginnings to global productions, our journey has remained rooted in one constant: creating stories that move people.');
 
   const [aboutStat1Val, setAboutStat1Val] = useState('20+');
   const [aboutStat1Lbl, setAboutStat1Lbl] = useState('YEARS ON SET');
@@ -460,6 +460,9 @@ const AdminPanel: FC = () => {
   const [aboutTeamName, setAboutTeamName] = useState('');
   const [aboutTeamRole, setAboutTeamRole] = useState('');
   const [aboutTeamImg, setAboutTeamImg] = useState('');
+
+  // Inquiries state variables
+  const [inquiries, setInquiries] = useState<any[]>([]);
 
   // Contact Page state variables
   const [contactTitleFirst, setContactTitleFirst] = useState("Let's");
@@ -602,12 +605,33 @@ const AdminPanel: FC = () => {
     setAboutTagline(localStorage.getItem('about_bgt_tagline') || 'Engineers of visual euphoria. Architects of cinematic truth.');
     setAboutHeroBg(localStorage.getItem('about_hero_bg') || 'https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&q=80&w=2072');
     setAboutGenesisSub(localStorage.getItem('about_genesis_sub') || 'The Genesis');
-    setAboutGenesisTitle(localStorage.getItem('about_genesis_title') || 'Where Magic Finds Its Form.');
-    setAboutGenesisP1(localStorage.getItem('about_genesis_p1') || 'Dreamcatchers started with a simple belief: that every story, no matter how small, deserves to be told with the weight of an epic.');
-    setAboutGenesisP2(localStorage.getItem('about_genesis_p2') || "From our humble beginnings producing daily chat shows, we've evolved into a powerhouse creative studio that brands trust to bring their most ambitious visions to life.");
+
+    let storedTitle = localStorage.getItem('about_genesis_title');
+    if (!storedTitle || storedTitle === 'Where Magic Finds Its Form.') {
+      storedTitle = 'The Genesis';
+    }
+    setAboutGenesisTitle(storedTitle);
+
+    let storedP1 = localStorage.getItem('about_genesis_p1');
+    if (!storedP1 || storedP1 === 'Dreamcatchers started with a simple belief: that every story, no matter how small, deserves to be told with the weight of an epic.') {
+      storedP1 = 'Dreamcatchers began with two storytellers creating lifestyle programming for television. After years of crafting content at some of India\'s leading broadcast networks, Puneet and Amitabh Gautam set out to build a production company.';
+    }
+    setAboutGenesisP1(storedP1);
+
+    let storedP2 = localStorage.getItem('about_genesis_p2');
+    if (!storedP2 || storedP2 === "From our humble beginnings producing daily chat shows, we've evolved into a powerhouse creative studio that brands trust to bring their most ambitious visions to life.") {
+      storedP2 = 'More than two decades later, today, Dreamcatchers is a full-service creative studio that operates from three offices across India and two international locations. The company has expanded into specialised verticals, including DC Digital, dedicated to digital-first storytelling, and Sports Box, a sports production company operating across Africa and Europe.';
+    }
+    setAboutGenesisP2(storedP2);
+
     setAboutGenesisSub3(localStorage.getItem('about_genesis_sub3') || 'Our Evolution');
     setAboutGenesisTitle3(localStorage.getItem('about_genesis_title3') || 'From Curiosity to Creation');
-    setAboutGenesisP3(localStorage.getItem('about_genesis_p3') || "Having cut their teeth at some of India's leading television networks, they set out to create the kind of content they wanted to watch—fresh, engaging, and driven by curiosity. What started as a small passion project soon turned into a creative studio. Today, DC creates campaigns, films, series, branded content, for brands across the world.");
+
+    let storedP3 = localStorage.getItem('about_genesis_p3');
+    if (!storedP3 || storedP3 === "Having cut their teeth at some of India's leading television networks, they set out to create the kind of content they wanted to watch—fresh, engaging, and driven by curiosity. What started as a small passion project soon turned into a creative studio. Today, DC creates campaigns, films, series, branded content, for brands across the world.") {
+      storedP3 = 'From television beginnings to global productions, our journey has remained rooted in one constant: creating stories that move people.';
+    }
+    setAboutGenesisP3(storedP3);
 
     let storedStat1 = localStorage.getItem('about_stat1_val');
     if (!storedStat1 || storedStat1 === '14+') {
@@ -691,6 +715,33 @@ const AdminPanel: FC = () => {
     } else {
       setLocations(DEFAULT_LOCATIONS);
     }
+
+    // Load Inquiries
+    const loadInquiries = () => {
+      const storedInq = localStorage.getItem('dc_inquiries');
+      if (storedInq) {
+        try {
+          const parsed = JSON.parse(storedInq);
+          if (Array.isArray(parsed)) {
+            setInquiries(parsed);
+            return;
+          }
+        } catch (e) {
+          console.error("Error parsing dc_inquiries:", e);
+        }
+      }
+      setInquiries([]);
+    };
+
+    loadInquiries();
+
+    window.addEventListener('storage_updated_inquiries', loadInquiries);
+    window.addEventListener('storage', loadInquiries);
+
+    return () => {
+      window.removeEventListener('storage_updated_inquiries', loadInquiries);
+      window.removeEventListener('storage', loadInquiries);
+    };
   }, []);
 
   // Save to localStorage
@@ -1263,12 +1314,12 @@ const AdminPanel: FC = () => {
       setAboutTagline('Engineers of visual euphoria. Architects of cinematic truth.');
       setAboutHeroBg('https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&q=80&w=2072');
       setAboutGenesisSub('The Genesis');
-      setAboutGenesisTitle('Where Magic Finds Its Form.');
-      setAboutGenesisP1('Dreamcatchers started with a simple belief: that every story, no matter how small, deserves to be told with the weight of an epic.');
-      setAboutGenesisP2("From our humble beginnings producing daily chat shows, we've evolved into a powerhouse creative studio that brands trust to bring their most ambitious visions to life.");
+      setAboutGenesisTitle('The Genesis');
+      setAboutGenesisP1('Dreamcatchers began with two storytellers creating lifestyle programming for television. After years of crafting content at some of India\'s leading broadcast networks, Puneet and Amitabh Gautam set out to build a production company.');
+      setAboutGenesisP2('More than two decades later, today, Dreamcatchers is a full-service creative studio that operates from three offices across India and two international locations. The company has expanded into specialised verticals, including DC Digital, dedicated to digital-first storytelling, and Sports Box, a sports production company operating across Africa and Europe.');
       setAboutGenesisSub3('Our Evolution');
       setAboutGenesisTitle3('From Curiosity to Creation');
-      setAboutGenesisP3("Having cut their teeth at some of India's leading television networks, they set out to create the kind of content they wanted to watch—fresh, engaging, and driven by curiosity. What started as a small passion project soon turned into a creative studio. Today, DC creates campaigns, films, series, branded content, for brands across the world.");
+      setAboutGenesisP3('From television beginnings to global productions, our journey has remained rooted in one constant: creating stories that move people.');
 
       setAboutStat1Val('20+');
       setAboutStat1Lbl('YEARS ON SET');
@@ -1517,6 +1568,14 @@ const AdminPanel: FC = () => {
             <Sparkles size={20} className="text-orange-500" />
             <span>Brand Page Partners</span>
           </button>
+          <button 
+            type="button"
+            onClick={() => { setActiveTab('inquiries_manage'); handleCancel(); }}
+            className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all font-bold font-sans ${activeTab === 'inquiries_manage' ? 'bg-orange-500/10 text-orange-500' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+          >
+            <Mail size={20} className="text-orange-500" />
+            <span>📬 Inquiries & Leads</span>
+          </button>
         </nav>
 
         <button 
@@ -1547,6 +1606,8 @@ const AdminPanel: FC = () => {
                 <span>📖 ABOUT US CONTENT</span>
               ) : activeTab === 'contact_manage' ? (
                 <span>📬 CONTACT & SOCIAL MEDIA</span>
+              ) : activeTab === 'inquiries_manage' ? (
+                <span>📬 CLIENT INQUIRIES & LEADS</span>
               ) : (
                 <span>✨ BRAND PAGE PARTNER LOGOS</span>
               )}
@@ -1566,7 +1627,9 @@ const AdminPanel: FC = () => {
                           ? 'Manage about details: hero text, background, genesis paragraphs, counters, and team profiles.'
                           : activeTab === 'contact_manage'
                             ? 'Manage contact details (address, email, phone) and your social media profile URLs.'
-                            : 'Manage the Brand Page partners list: add, order, edit descriptions and live vector/image logos.'}
+                            : activeTab === 'inquiries_manage'
+                              ? 'Review, read, and manage cinematic project inquiries and contact form submissions.'
+                              : 'Manage the Brand Page partners list: add, order, edit descriptions and live vector/image logos.'}
             </p>
           </div>
           
@@ -4263,7 +4326,7 @@ const AdminPanel: FC = () => {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs uppercase tracking-widest text-zinc-400 font-bold mb-2">Evolution Description Paragraph</label>
+                      <label className="block text-xs uppercase tracking-widest text-zinc-400 font-bold mb-2">Intro Biography Paragraph 3 / Evolution Description</label>
                       <textarea
                         required
                         value={aboutGenesisP3}
@@ -5286,6 +5349,132 @@ const AdminPanel: FC = () => {
                 })}
               </div>
             </div>
+          </div>
+        )}
+
+        {activeTab === 'inquiries_manage' && (
+          <div className="space-y-8 animate-fadeIn">
+            {/* Header / Info bar */}
+            <div className="bg-zinc-950 border border-white/5 p-6 md:p-8 rounded-[2.5rem] flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+              <div>
+                <h2 className="text-2xl font-black uppercase italic tracking-tight text-white mb-2 flex items-center gap-2">
+                  <Mail className="text-orange-500" />
+                  Lead Management Console
+                </h2>
+                <p className="text-white/40 text-sm max-w-2xl font-sans leading-relaxed">
+                  Every user inquiry submitted via your portfolio contact form is recorded here in real-time. Review contact info, inquiry subjects, custom messages, and timestamps.
+                </p>
+              </div>
+
+              {inquiries.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.confirm("Are you sure you want to delete ALL inquiries? This action cannot be undone.")) {
+                      localStorage.setItem('dc_inquiries', '[]');
+                      setInquiries([]);
+                      window.dispatchEvent(new Event('storage_updated_inquiries'));
+                    }
+                  }}
+                  className="px-5 py-2.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white font-black uppercase text-xs tracking-wider rounded-xl transition-all border border-red-500/20 active:scale-95 flex items-center gap-2 shrink-0 self-start md:self-auto"
+                >
+                  <Trash2 size={14} />
+                  Clear All Inquiries
+                </button>
+              )}
+            </div>
+
+            {/* Inquiries List */}
+            {inquiries.length === 0 ? (
+              <div className="bg-zinc-950 border border-white/5 rounded-[2.5rem] p-12 text-center space-y-4">
+                <div className="w-16 h-16 rounded-full bg-zinc-900 border border-white/5 flex items-center justify-center mx-auto text-white/30">
+                  <MessageSquare size={28} />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-lg font-black uppercase text-white tracking-wide">No Inquiries Found</h3>
+                  <p className="text-sm text-white/40 font-sans max-w-sm mx-auto leading-relaxed">
+                    Once visitors submit project inquiries on your live site, they will instantly appear here.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {inquiries.map((inq: any, index: number) => {
+                  const formattedDate = inq.createdAt 
+                    ? new Date(inq.createdAt).toLocaleString(undefined, {
+                        dateStyle: 'medium',
+                        timeStyle: 'short'
+                      })
+                    : 'Unknown Date';
+
+                  return (
+                    <motion.div
+                      key={inq.id || index}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-zinc-950 border border-white/5 hover:border-orange-500/20 p-6 rounded-[1.8rem] flex flex-col md:flex-row md:items-start justify-between gap-6 transition-all"
+                    >
+                      <div className="space-y-4 min-w-0 flex-1">
+                        {/* Header metadata */}
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                          <span className="text-xs font-black uppercase tracking-widest text-orange-500 bg-orange-500/10 px-2.5 py-1 rounded-lg border border-orange-500/20">
+                            Lead #{inquiries.length - index}
+                          </span>
+                          <span className="text-xs text-white/40 font-mono">
+                            {formattedDate}
+                          </span>
+                        </div>
+
+                        {/* Subject & User details */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b border-white/5 pb-4">
+                          <div>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-0.5 font-sans">Sender Name</p>
+                            <p className="text-sm font-bold text-white uppercase tracking-tight">{inq.name}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-0.5 font-sans">Email / Phone</p>
+                            <a href={inq.emailOrPhone.includes('@') ? `mailto:${inq.emailOrPhone}` : `tel:${inq.emailOrPhone}`} className="text-sm font-bold text-orange-400 hover:underline tracking-tight break-all">
+                              {inq.emailOrPhone}
+                            </a>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-0.5 font-sans">Subject / Project Category</p>
+                            <p className="text-sm font-bold text-white uppercase tracking-tight truncate">{inq.subject}</p>
+                          </div>
+                        </div>
+
+                        {/* Message payload */}
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-white/30 font-sans">Message</p>
+                          <p className="text-xs sm:text-sm text-zinc-300 font-sans leading-relaxed whitespace-pre-wrap select-all">
+                            {inq.message}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Deletion control */}
+                      <div className="flex items-center shrink-0 self-end md:self-start">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm(`Are you sure you want to delete the inquiry from "${inq.name}"?`)) {
+                              const updated = inquiries.filter((_: any, i: number) => i !== index);
+                              localStorage.setItem('dc_inquiries', JSON.stringify(updated));
+                              setInquiries(updated);
+                              window.dispatchEvent(new Event('storage_updated_inquiries'));
+                            }
+                          }}
+                          className="p-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl transition-all border border-red-500/10 hover:border-red-500 flex items-center justify-center"
+                          title="Delete Inquiry"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
       </div>

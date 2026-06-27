@@ -27,7 +27,8 @@ const CONFIG_KEYS = [
   'social_instagram', 'social_facebook', 'social_youtube', 'social_twitter',
   'nav_logo_type', 'nav_logo_text_short', 'nav_logo_text_full', 'nav_logo_image_url',
   'cinematic_slides_list',
-  'dc_locations'
+  'dc_locations',
+  'dc_inquiries'
 ];
 
 let isWritingToFirestore = false;
@@ -130,7 +131,8 @@ export function initSiteSync() {
     'storage_updated_cinematic_slides',
     'storage_updated_paragraph_frames',
     'storage_updated_verticals',
-    'storage_updated_locations'
+    'storage_updated_locations',
+    'storage_updated_inquiries'
   ];
 
   adminUpdateEvents.forEach(evt => {
