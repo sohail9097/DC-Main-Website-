@@ -691,7 +691,7 @@ const AboutPage = () => {
                   <h2 className="text-4xl md:text-6xl lg:text-7xl font-black font-redhat text-orange-500 tracking-tighter leading-none uppercase text-left">
                     {genesisTitle}
                   </h2>
-                  <div className="space-y-8 font-redhat text-white/60 text-lg md:text-2xl font-medium leading-relaxed tracking-tight text-left">
+                  <div className="space-y-8 font-redhat text-white/60 text-lg md:text-2xl font-medium leading-relaxed tracking-tight text-justify">
                     <p>
                       {genesisP1}
                     </p>
