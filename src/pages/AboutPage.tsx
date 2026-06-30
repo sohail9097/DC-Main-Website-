@@ -891,15 +891,15 @@ const AboutPage = () => {
              </div>
 
              {/* Film Strip Outer Frame Sprocket slots */}
-             <div className="absolute top-0 left-0 right-0 h-6 bg-zinc-950/90 z-10 flex items-center border-b border-white/5 overflow-hidden">
-               <div className="w-full h-2 film-strip" />
+             <div className="absolute top-0 left-0 right-0 h-4 md:h-6 bg-zinc-950/90 z-10 flex items-center border-b border-white/5 overflow-hidden">
+               <div className="w-full h-1 md:h-2 film-strip" />
              </div>
              <div className="absolute bottom-0 left-0 right-0 h-6 bg-zinc-950/90 z-10 flex items-center border-t border-white/5 overflow-hidden">
                <div className="w-full h-2 film-strip" />
              </div>
 
              {/* Dynamic Viewfinder Cameras Hub Overlays */}
-             <div className="absolute top-10 left-8 md:left-24 z-10 pointer-events-none text-[10px] font-mono tracking-wider text-white/30 flex items-center gap-12 select-none">
+             <div className="absolute top-6 md:top-10 left-8 md:left-24 z-10 pointer-events-none text-[10px] font-mono tracking-wider text-white/30 flex items-center gap-12 select-none">
                <div className="flex items-center gap-2">
                  <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse inline-block" />
                  <span className="font-extrabold text-red-500 uppercase">REC [RAW_4K]</span>
@@ -910,7 +910,7 @@ const AboutPage = () => {
                <div className="hidden sm:block">5600K</div>
              </div>
 
-             <div className="absolute top-10 right-8 md:right-24 z-10 pointer-events-none text-[10px] font-mono tracking-wider text-white/30 flex items-center gap-8 select-none">
+             <div className="absolute top-6 md:top-10 right-8 md:right-24 z-10 pointer-events-none text-[10px] font-mono tracking-wider text-white/30 flex items-center gap-8 select-none">
                <div className="flex items-center gap-2">
                  <span>AUDIO dB</span>
                  <div className="flex items-end gap-[1.5px] h-3 w-10 bg-zinc-900/40 p-[2px] rounded border border-white/5">
@@ -986,7 +986,7 @@ const AboutPage = () => {
              `}</style>
  
              {/* Header Area (Lower Z-index to prevent covering the cards) */}
-             <div className="relative z-10 max-w-xl pl-8 md:pl-24">
+             <div className="relative z-10 max-w-xl pl-8 md:pl-24 pt-8 md:pt-0">
                <h2 className="text-3xl md:text-5xl font-black font-redhat text-white tracking-tighter leading-none uppercase mb-4">
                  Dream Team
                </h2>
@@ -1077,7 +1077,7 @@ const AboutPage = () => {
            </div>
  
              {/* Horizontal Continuous Stream Indicator */}
-             <div className="absolute bottom-8 right-8 md:right-24 z-20 flex items-center gap-4 text-white/20 text-[10px] font-black uppercase tracking-widest">
+             <div className="absolute bottom-8 right-8 md:right-24 z-20 hidden md:flex items-center gap-4 text-white/20 text-[10px] font-black uppercase tracking-widest">
                <span>Continuous Cinematic Stream</span>
                <div className="w-12 h-[2px] bg-white/10 relative overflow-hidden rounded-full">
                  <div 

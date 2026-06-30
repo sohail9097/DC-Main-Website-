@@ -2919,7 +2919,7 @@ function LandingPage() {
                     initial="hidden"
                     whileInView="visible"
                     viewport={{ once: false, amount: 0.12 }}
-                    className="grid grid-cols-2 lg:grid-cols-2 gap-2 xs:gap-3 md:gap-16 max-w-[1440px] mx-auto mt-4 md:mt-8 px-2 sm:px-8 lg:px-12 pb-8" 
+                    className="grid grid-cols-1 md:grid-cols-2 gap-6 xs:gap-8 md:gap-16 max-w-[1440px] mx-auto mt-4 md:mt-8 px-4 sm:px-8 lg:px-12 pb-8" 
                     style={{ perspective: 1200 }}
                   >
                     {/* SPORTS BOX Card */}
@@ -2939,7 +2939,7 @@ function LandingPage() {
                           window.open('https://www.sportsbox.in/', '_blank', 'noopener,noreferrer');
                         }
                       }}
-                      className="group relative flex flex-col items-center justify-between p-2.5 xs:p-4 sm:p-6 md:p-10 rounded-2xl md:rounded-[2.5rem] bg-zinc-950/40 border border-orange-500/25 backdrop-blur-xl overflow-hidden select-none cursor-pointer text-center h-[260px] xs:h-[300px] sm:h-[380px] md:h-[610px] w-full hover:border-orange-500/50 hover:shadow-[0_0_80px_rgba(249,115,22,0.14)] transition-[background-color,border-color,box-shadow] duration-500"
+                      className="group relative flex flex-col items-center justify-between p-2.5 xs:p-4 sm:p-6 md:p-10 rounded-2xl md:rounded-[2.5rem] bg-zinc-950/40 border border-orange-500/25 backdrop-blur-xl overflow-hidden select-none cursor-pointer text-center h-[320px] xs:h-[380px] sm:h-[450px] md:h-[610px] w-full hover:border-orange-500/50 hover:shadow-[0_0_80px_rgba(249,115,22,0.14)] transition-[background-color,border-color,box-shadow] duration-500"
                     >
                       {/* Moving Digital Scanline Grid backdrop */}
                       <div className="absolute inset-0 opacity-[0.03] group-hover:opacity-[0.06] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] transition-opacity duration-500 pointer-events-none" />
@@ -3121,7 +3121,7 @@ function LandingPage() {
                           setInlinePlayingId('dc_digital');
                         }
                       }}
-                      className={`group relative flex flex-col items-center justify-between p-2.5 xs:p-4 sm:p-6 md:p-10 rounded-2xl md:rounded-[2.5rem] bg-zinc-950/40 border border-orange-500/25 backdrop-blur-xl overflow-hidden select-none ${dcDigital.url ? 'cursor-pointer' : 'cursor-default'} transition-[background-color,border-color,box-shadow] duration-500 hover:border-orange-500/50 hover:shadow-[0_0_80px_rgba(249,115,22,0.14)] text-center h-[260px] xs:h-[300px] sm:h-[380px] md:h-[610px] w-full`}
+                      className={`group relative flex flex-col items-center justify-between p-2.5 xs:p-4 sm:p-6 md:p-10 rounded-2xl md:rounded-[2.5rem] bg-zinc-950/40 border border-orange-500/25 backdrop-blur-xl overflow-hidden select-none ${dcDigital.url ? 'cursor-pointer' : 'cursor-default'} transition-[background-color,border-color,box-shadow] duration-500 hover:border-orange-500/50 hover:shadow-[0_0_80px_rgba(249,115,22,0.14)] text-center h-[320px] xs:h-[380px] sm:h-[450px] md:h-[610px] w-full`}
                     >
                       {/* Grid Backdrop */}
                       <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:30px_30px] pointer-events-none" />
