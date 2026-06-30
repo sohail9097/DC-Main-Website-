@@ -736,7 +736,7 @@ const AboutPage = () => {
         </section>
 
         {/* Team Section with continuous auto sliding horizontal marquee */}
-        <section className="relative py-24 min-h-[92vh] bg-black flex flex-col justify-between overflow-hidden">
+        <section className="relative py-12 md:py-24 min-h-0 md:min-h-[92vh] bg-black flex flex-col justify-between overflow-hidden">
              
              {/* Flickering Projector Beam of light */}
              <div 
@@ -1016,7 +1016,7 @@ const AboutPage = () => {
                onTouchStart={handleTeamTouchStart}
                onTouchMove={handleTeamTouchMove}
                onTouchEnd={handleTeamMouseUpOrLeave}
-               className={`w-full flex-grow relative z-20 flex items-center min-h-0 overflow-x-hidden py-10 select-none ${isDraggingTeam ? 'cursor-grabbing' : 'cursor-grab'}`}
+               className={`w-full flex-grow relative z-20 flex items-center min-h-0 overflow-x-hidden py-4 md:py-10 select-none ${isDraggingTeam ? 'cursor-grabbing' : 'cursor-grab'}`}
                style={{ scrollBehavior: 'auto' }}
              >
                <div className="flex gap-0 w-max px-[4vw] md:px-[10vw]">
@@ -1024,12 +1024,12 @@ const AboutPage = () => {
                     return (
                       <div 
                         key={`${member.name}-${idx}`}
-                        className="bg-transparent w-[27vw] min-w-[100px] max-w-[135px] md:w-[320px] md:max-w-none flex-shrink-0 relative group/card select-none flex flex-col items-center border-r-[4px] md:border-r-[24px] border-black pt-4 pb-3.5 md:pt-8 md:pb-7"
+                        className="bg-transparent w-[38vw] min-w-[130px] max-w-[185px] md:w-[320px] md:max-w-none flex-shrink-0 relative group/card select-none flex flex-col items-center border-r-[8px] md:border-r-[24px] border-black pt-4 pb-3.5 md:pt-8 md:pb-7"
                       >
                         {/* Top Perforation Sprocket Holes */}
                         <div className="absolute top-1 md:top-2.5 left-0 right-0 h-1 md:h-2.5 flex justify-between px-0.5 md:px-1 pointer-events-none select-none z-20 gap-0.5 md:gap-1.5 overflow-hidden">
                           {Array.from({ length: 8 }).map((_, s) => (
-                            <div key={`sprocket-top-${s}`} className="w-1.5 md:w-4 h-1 md:h-2.5 bg-white/95 shadow-sm flex-shrink-0" />
+                            <div key={`sprocket-top-${s}`} className="w-2 md:w-4 h-1 md:h-2.5 bg-white/95 shadow-sm flex-shrink-0" />
                           ))}
                         </div>
 
@@ -1046,10 +1046,10 @@ const AboutPage = () => {
 
                         {/* Name and Role */}
                         <div className="text-center relative z-10 px-1 md:px-2 pointer-events-none select-none">
-                          <h4 className="text-[10px] xs:text-[11px] md:text-lg font-black tracking-wider md:tracking-widest text-zinc-300 uppercase group-hover/card:text-orange-500 transition-colors duration-300 line-clamp-1">
+                          <h4 className="text-[11.5px] xs:text-[12.5px] md:text-lg font-black tracking-wider md:tracking-widest text-zinc-300 uppercase group-hover/card:text-orange-500 transition-colors duration-300 line-clamp-1">
                             {member.name}
                           </h4>
-                          <p className="text-[7.5px] xs:text-[9px] md:text-[10px] font-mono tracking-widest text-zinc-500 uppercase mt-0.5 md:mt-1">
+                          <p className="text-[8.5px] xs:text-[10px] md:text-[10px] font-mono tracking-widest text-zinc-500 uppercase mt-0.5 md:mt-1">
                             {member.role}
                           </p>
                         </div>
@@ -1057,7 +1057,7 @@ const AboutPage = () => {
                         {/* Bottom Perforation Sprocket Holes */}
                         <div className="absolute bottom-1 md:bottom-2.5 left-0 right-0 h-1 md:h-2.5 flex justify-between px-0.5 md:px-1 pointer-events-none select-none z-20 gap-0.5 md:gap-1.5 overflow-hidden">
                           {Array.from({ length: 8 }).map((_, s) => (
-                            <div key={`sprocket-bottom-${s}`} className="w-1.5 md:w-4 h-1 md:h-2.5 bg-white/95 shadow-sm flex-shrink-0" />
+                            <div key={`sprocket-bottom-${s}`} className="w-2 md:w-4 h-1 md:h-2.5 bg-white/95 shadow-sm flex-shrink-0" />
                           ))}
                         </div>
                       </div>
