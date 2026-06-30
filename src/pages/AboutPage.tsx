@@ -736,7 +736,7 @@ const AboutPage = () => {
         </section>
 
         {/* Team Section with continuous auto sliding horizontal marquee */}
-        <section className="relative py-12 md:py-24 min-h-0 md:min-h-[92vh] bg-black flex flex-col justify-between overflow-hidden">
+        <section className="relative py-6 md:py-24 min-h-0 md:min-h-[92vh] bg-black flex flex-col justify-start md:justify-between gap-4 md:gap-0 overflow-hidden">
              
              {/* Flickering Projector Beam of light */}
              <div 
@@ -996,7 +996,7 @@ const AboutPage = () => {
              </div>
  
              {/* Sliding Container Track Wrapper with Navigation Arrows */}
-             <div className="relative w-full flex-grow flex items-center">
+             <div className="relative w-full flex-grow-0 md:flex-grow flex items-center">
                {/* Left Navigation Arrow */}
                <button
                  onClick={() => scrollTeam('left')}
@@ -1024,7 +1024,7 @@ const AboutPage = () => {
                     return (
                       <div 
                         key={`${member.name}-${idx}`}
-                        className="bg-transparent w-[38vw] min-w-[130px] max-w-[185px] md:w-[320px] md:max-w-none flex-shrink-0 relative group/card select-none flex flex-col items-center border-r-[8px] md:border-r-[24px] border-black pt-4 pb-3.5 md:pt-8 md:pb-7"
+                        className="bg-transparent w-[43vw] min-w-[150px] max-w-[210px] md:w-[320px] md:max-w-none flex-shrink-0 relative group/card select-none flex flex-col items-center border-r-[8px] md:border-r-[24px] border-black pt-4 pb-3.5 md:pt-8 md:pb-7"
                       >
                         {/* Top Perforation Sprocket Holes */}
                         <div className="absolute top-1 md:top-2.5 left-0 right-0 h-1 md:h-2.5 flex justify-between px-0.5 md:px-1 pointer-events-none select-none z-20 gap-0.5 md:gap-1.5 overflow-hidden">
