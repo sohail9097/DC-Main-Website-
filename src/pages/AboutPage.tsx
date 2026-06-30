@@ -463,20 +463,23 @@ const AboutPage = () => {
     });
   };
 
+  // Set initial scroll position to the middle copy of infinite loop.
+  // Runs only once when the team array loads/updates.
   useEffect(() => {
     const container = teamCarouselRef.current;
     if (!container) return;
 
-    // Rendered list is 3 copies of team: [...team, ...team, ...team]
-    // Start scroll in the middle copy
     const setInitialScroll = () => {
       const totalWidth = container.scrollWidth;
       container.scrollLeft = totalWidth / 3;
     };
 
-    // Wait a moment for images/elements to render and measure
     const timer = setTimeout(setInitialScroll, 150);
+    return () => clearTimeout(timer);
+  }, [team]);
 
+  // Main animation frame loop for smooth auto-scrolling
+  useEffect(() => {
     let animationFrameId: number;
     let lastTime = performance.now();
 
@@ -504,10 +507,9 @@ const AboutPage = () => {
     animationFrameId = requestAnimationFrame(updateScroll);
 
     return () => {
-      clearTimeout(timer);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [isDraggingTeam, team]);
+  }, [isDraggingTeam]);
 
   const handleTeamMouseDown = (e: MouseEvent) => {
     const container = teamCarouselRef.current;
@@ -544,7 +546,10 @@ const AboutPage = () => {
   };
 
   const handleTeamMouseUpOrLeave = () => {
-    setIsDraggingTeam(false);
+    if (isDraggingTeam) {
+      setIsDraggingTeam(false);
+      autoScrollPauseUntilRef.current = Date.now() + 2500;
+    }
   };
 
   const handleTeamTouchStart = (e: TouchEvent) => {

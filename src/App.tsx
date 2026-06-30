@@ -633,25 +633,6 @@ function Clients() {
   const row2Clients = clients.filter((c, idx) => c.layer ? (Number(c.layer) === 2) : (idx % 3 === 1));
   const row3Clients = clients.filter((c, idx) => c.layer ? (Number(c.layer) === 3) : (idx % 3 === 2));
 
-  // Helper helper to ensure a row has enough duplicate elements to scroll infinitely on extra-wide screens without gap
-  const getPaddedRowItems = (rowList: ClientItem[]) => {
-    if (rowList.length === 0) return [];
-    let list = [...rowList];
-    while (list.length < 15) {
-      list = [...list, ...rowList];
-    }
-    return [...list, ...list];
-  };
-
-  const itemsRow1 = getPaddedRowItems(row1Clients);
-  const itemsRow2 = getPaddedRowItems(row2Clients);
-  const itemsRow3 = getPaddedRowItems(row3Clients);
-
-  const secondsPerItem = isMobile ? 1.0 : 1.8;
-  const duration1 = itemsRow1.length * secondsPerItem;
-  const duration2 = itemsRow2.length * secondsPerItem;
-  const duration3 = itemsRow3.length * secondsPerItem;
-
   return (
     <section 
       id="clients" 
@@ -673,91 +654,203 @@ function Clients() {
         {/* Scrolling Marquees */}
         <div className="w-full space-y-2 md:space-y-3 lg:space-y-4 overflow-hidden pointer-events-auto">
           {/* Top Row - Scrolling Left */}
-          {itemsRow1.length > 0 && (
-            <div className="flex overflow-hidden relative w-full mask-gradient py-3 md:py-4">
-              <div className="animate-scroll-left" style={{ animationDuration: `${duration1}s` }}>
-                {itemsRow1.map((client, i) => (
-                  <ClientLogo key={`${client.name}-r1-${client.id || i}-${i}`} client={client} />
-                ))}
-              </div>
-            </div>
+          {row1Clients.length > 0 && (
+            <DraggableMarqueeRow items={row1Clients} direction="left" isMobile={isMobile} />
           )}
 
           {/* Middle Row - Scrolling Right */}
-          {itemsRow2.length > 0 && (
-            <div className="flex overflow-hidden relative w-full mask-gradient py-3 md:py-4">
-              <div className="animate-scroll-right" style={{ animationDuration: `${duration2}s` }}>
-                {itemsRow2.map((client, i) => (
-                  <ClientLogo key={`${client.name}-r2-${client.id || i}-${i}`} client={client} />
-                ))}
-              </div>
-            </div>
+          {row2Clients.length > 0 && (
+            <DraggableMarqueeRow items={row2Clients} direction="right" isMobile={isMobile} />
           )}
 
           {/* Bottom Row - Scrolling Left */}
-          {itemsRow3.length > 0 && (
-            <div className="flex overflow-hidden relative w-full mask-gradient py-3 md:py-4">
-              <div className="animate-scroll-left" style={{ animationDuration: `${duration3}s` }}>
-                {itemsRow3.map((client, i) => (
-                  <ClientLogo key={`${client.name}-r3-${client.id || i}-${i}`} client={client} />
-                ))}
-              </div>
-            </div>
+          {row3Clients.length > 0 && (
+            <DraggableMarqueeRow items={row3Clients} direction="left" isMobile={isMobile} />
           )}
         </div>
       </div>
 
-      {/* Styled inline mask & keyframes for buttery smooth GPU-accelerated performance */}
+      {/* Styled inline mask for edge-fade effect */}
       <style>{`
         .mask-gradient {
-          mask-image: linear-gradient(to right, transparent, white 20%, white 80%, transparent);
-          -webkit-mask-image: linear-gradient(to right, transparent, white 20%, white 80%, transparent);
-        }
-        @keyframes scroll-left {
-          0% {
-            transform: translate3d(0, 0, 0);
-          }
-          100% {
-            transform: translate3d(-50%, 0, 0);
-          }
-        }
-        @keyframes scroll-right {
-          0% {
-            transform: translate3d(-50%, 0, 0);
-          }
-          100% {
-            transform: translate3d(0, 0, 0);
-          }
-        }
-        .animate-scroll-left {
-          animation: scroll-left 32s linear infinite;
-          display: flex;
-          width: max-content;
-          will-change: transform;
-        }
-        .animate-scroll-right {
-          animation: scroll-right 32s linear infinite;
-          display: flex;
-          width: max-content;
-          will-change: transform;
-        }
-        @media (min-width: 768px) {
-          .animate-scroll-left {
-            animation: scroll-left 90s linear infinite;
-          }
-          .animate-scroll-right {
-            animation: scroll-right 90s linear infinite;
-          }
-        }
-        /* Pause on hover to allow users to interact/inspect */
-        .animate-scroll-left:hover,
-        .animate-scroll-right:hover {
-          animation-play-state: paused;
+          mask-image: linear-gradient(to right, transparent, white 15%, white 85%, transparent);
+          -webkit-mask-image: linear-gradient(to right, transparent, white 15%, white 85%, transparent);
         }
       `}</style>
     </section>
   );
 }
+
+interface DraggableMarqueeRowProps {
+  items: ClientItem[];
+  direction: 'left' | 'right';
+  isMobile: boolean;
+}
+
+const DraggableMarqueeRow: FC<DraggableMarqueeRowProps> = ({ items, direction, isMobile }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartX = useRef(0);
+  const dragScrollLeft = useRef(0);
+  const autoScrollPauseUntilRef = useRef(0);
+
+  // Pad list elements to guarantee seamless infinite wrapping
+  const getPaddedRowItems = (rowList: ClientItem[]) => {
+    if (rowList.length === 0) return [];
+    let list = [...rowList];
+    while (list.length < 12) {
+      list = [...list, ...rowList];
+    }
+    // Return 3 copies to easily center and wrap seamlessly
+    return [...list, ...list, ...list];
+  };
+
+  const paddedItems = getPaddedRowItems(items);
+
+  // Set initial scroll position to the middle copy
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const setInitialScroll = () => {
+      const totalWidth = container.scrollWidth;
+      container.scrollLeft = totalWidth / 3;
+    };
+
+    const timer = setTimeout(setInitialScroll, 100);
+    return () => clearTimeout(timer);
+  }, [items]);
+
+  // Handle requestAnimationFrame automatic scroll
+  useEffect(() => {
+    let animationFrameId: number;
+    let lastTime = performance.now();
+
+    const updateScroll = (time: number) => {
+      const container = containerRef.current;
+      if (container && !isDragging && Date.now() >= autoScrollPauseUntilRef.current) {
+        const delta = (time - lastTime) / 1000;
+        // Speed: 35px/sec on mobile, 55px/sec on desktop
+        const speed = isMobile ? 35 : 55;
+        const scrollAmount = direction === 'left' ? speed * delta : -speed * delta;
+        container.scrollLeft += scrollAmount;
+
+        // Seamless wrap checks
+        const totalWidth = container.scrollWidth;
+        if (totalWidth > 0) {
+          const oneThird = totalWidth / 3;
+          if (container.scrollLeft >= oneThird * 2) {
+            container.scrollLeft -= oneThird;
+          } else if (container.scrollLeft <= 5) {
+            container.scrollLeft += oneThird;
+          }
+        }
+      }
+      lastTime = time;
+      animationFrameId = requestAnimationFrame(updateScroll);
+    };
+
+    animationFrameId = requestAnimationFrame(updateScroll);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [isDragging, direction, isMobile]);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    setIsDragging(true);
+    dragStartX.current = e.pageX - container.offsetLeft;
+    dragScrollLeft.current = container.scrollLeft;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    if (!isDragging) return;
+    e.preventDefault();
+    const x = e.pageX - container.offsetLeft;
+    const walk = (dragStartX.current - x) * 1.5;
+    container.scrollLeft = dragScrollLeft.current + walk;
+
+    const totalWidth = container.scrollWidth;
+    if (totalWidth > 0) {
+      const oneThird = totalWidth / 3;
+      if (container.scrollLeft >= oneThird * 2) {
+        container.scrollLeft -= oneThird;
+        dragStartX.current = x;
+        dragScrollLeft.current = container.scrollLeft;
+      } else if (container.scrollLeft <= 5) {
+        container.scrollLeft += oneThird;
+        dragStartX.current = x;
+        dragScrollLeft.current = container.scrollLeft;
+      }
+    }
+  };
+
+  const handleMouseUpOrLeave = () => {
+    if (isDragging) {
+      setIsDragging(false);
+      autoScrollPauseUntilRef.current = Date.now() + 2500;
+    }
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    setIsDragging(true);
+    dragStartX.current = e.touches[0].pageX - container.offsetLeft;
+    dragScrollLeft.current = container.scrollLeft;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    if (!isDragging) return;
+    const x = e.touches[0].pageX - container.offsetLeft;
+    const walk = (dragStartX.current - x) * 1.5;
+    container.scrollLeft = dragScrollLeft.current + walk;
+
+    const totalWidth = container.scrollWidth;
+    if (totalWidth > 0) {
+      const oneThird = totalWidth / 3;
+      if (container.scrollLeft >= oneThird * 2) {
+        container.scrollLeft -= oneThird;
+        dragStartX.current = x;
+        dragScrollLeft.current = container.scrollLeft;
+      } else if (container.scrollLeft <= 5) {
+        container.scrollLeft += oneThird;
+        dragStartX.current = x;
+        dragScrollLeft.current = container.scrollLeft;
+      }
+    }
+  };
+
+  return (
+    <div 
+      ref={containerRef}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUpOrLeave}
+      onMouseLeave={handleMouseUpOrLeave}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleMouseUpOrLeave}
+      className={`flex overflow-x-hidden relative w-full mask-gradient py-3 md:py-4 select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+    >
+      <div className="flex w-max flex-shrink-0">
+        {paddedItems.map((client, i) => (
+          <ClientLogo key={`${client.name}-${direction}-${client.id || i}-${i}`} client={client} />
+        ))}
+      </div>
+    </div>
+  );
+};
 
 interface ClientLogoProps {
   client: ClientItem;
