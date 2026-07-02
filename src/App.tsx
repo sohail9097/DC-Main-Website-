@@ -645,7 +645,7 @@ function Clients() {
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="font-redhat text-[29px] md:text-[41px] lg:text-[53px] font-black tracking-[0.02em] text-orange-500 uppercase mb-2 select-none"
+            className="font-redhat text-[19px] xs:text-[23px] sm:text-[29px] md:text-[41px] lg:text-[53px] font-black tracking-[0.02em] text-orange-500 uppercase mb-2 select-none"
           >
             Collaborators
           </motion.h3>
@@ -2973,7 +2973,7 @@ function LandingPage() {
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                  className="font-redhat text-[29px] md:text-[41px] lg:text-[53px] font-black tracking-[0.02em] text-orange-500 uppercase mb-2 select-none"
+                  className="font-redhat text-[19px] xs:text-[23px] sm:text-[29px] md:text-[41px] lg:text-[53px] font-black tracking-[0.02em] text-orange-500 uppercase mb-2 select-none"
                 >
                   Our Verticals & Sub-Brands
                 </motion.h3>

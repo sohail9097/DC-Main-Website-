@@ -25,8 +25,11 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [passcodeError, setPasscodeError] = useState('');
   const [googleError, setGoogleError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [isIframe, setIsIframe] = useState(false);
 
   useEffect(() => {
+    setIsIframe(window.self !== window.top);
+
     // Check if there is a local bypass session
     const localBypass = localStorage.getItem('admin_bypass_user');
     if (localBypass) {
@@ -81,15 +84,15 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
       let errMsg = err.message || "Sign in failed";
       
       const isDomainErr = errMsg.includes("auth/unauthorized-domain") || errMsg.includes("unauthorized-client");
-      const isPopupErr = errMsg.includes("cross-origin-opener-policy") || errMsg.includes("iframe");
+      const isPopupErr = errMsg.includes("cross-origin-opener-policy") || errMsg.includes("iframe") || errMsg.includes("cancelled-popup-request") || errMsg.includes("popup-closed-by-user");
       const isNetworkErr = errMsg.includes("network-request-failed") || errMsg.includes("auth/network-request-failed");
       
       if (isDomainErr) {
         errMsg = "Domain not authorized. Please use the Passcode bypass option below!";
       } else if (isPopupErr) {
-        errMsg = "Third-party popup blocked by your browser. Please use the Passcode bypass tab!";
+        errMsg = "Google Sign-In was blocked or cancelled. Because this preview runs in an iframe, standard popups are restricted. Please click 'Open in New Tab' below to sign in, or use the Admin Passcode bypass!";
       } else if (isNetworkErr) {
-        errMsg = "Google login blocked by browser iframe boundaries. Please use the Admin Passcode tab with code DC@9097 to enter instantly!";
+        errMsg = "Google login blocked by browser iframe boundaries. Please click 'Open in New Tab' below to sign in, or use the Admin Passcode bypass!";
       }
       setGoogleError(errMsg);
     }
@@ -223,6 +226,15 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
                       Authenticate with your authorized Google Admin Account (<span className="text-white/80">{ADMIN_EMAIL}</span>) to unlock the live editor dashboard.
                     </p>
 
+                    {isIframe && (
+                      <div className="p-3.5 bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs rounded-2xl flex gap-2">
+                        <AlertCircle size={15} className="shrink-0 mt-0.5 animate-pulse" />
+                        <span className="leading-normal font-medium">
+                          Google Login is restricted inside preview iframes. Click <strong>Open in New Tab</strong> below or use <strong>Admin Passcode</strong>.
+                        </span>
+                      </div>
+                    )}
+
                     {googleError && (
                       <div className="space-y-3">
                         <div className="p-4 bg-red-950/20 border border-red-500/20 rounded-2xl flex gap-3 text-red-500 text-xs">
@@ -242,13 +254,26 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
                       </div>
                     )}
 
-                    <button
-                      onClick={handleGoogleLogin}
-                      className="w-full flex items-center justify-center gap-3 py-4 bg-white hover:bg-orange-500 text-black hover:text-white font-black uppercase tracking-[0.15em] text-[10px] rounded-full transition-all cursor-pointer shadow-lg outline-none"
-                    >
-                      <Chrome size={14} />
-                      <span>Authenticate with Google</span>
-                    </button>
+                    <div className="flex flex-col gap-3">
+                      <button
+                        onClick={handleGoogleLogin}
+                        className="w-full flex items-center justify-center gap-3 py-4 bg-white hover:bg-orange-500 text-black hover:text-white font-black uppercase tracking-[0.15em] text-[10px] rounded-full transition-all cursor-pointer shadow-lg outline-none"
+                      >
+                        <Chrome size={14} />
+                        <span>Authenticate with Google</span>
+                      </button>
+
+                      {isIframe && (
+                        <a
+                          href={window.location.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full flex items-center justify-center gap-3 py-4 bg-zinc-900 border border-white/10 hover:border-white/20 hover:bg-zinc-800 text-white font-black uppercase tracking-[0.15em] text-[10px] rounded-full transition-all cursor-pointer shadow-lg outline-none text-center"
+                        >
+                          <span>Open in New Tab</span>
+                        </a>
+                      )}
+                    </div>
                   </div>
                 ) : (
                   <form onSubmit={handlePasscodeLogin} className="space-y-6 py-2">

@@ -1005,7 +1005,7 @@ const AboutPage = () => {
                {/* Left Navigation Arrow */}
                <button
                  onClick={() => scrollTeam('left')}
-                 className="absolute left-4 md:left-10 z-30 w-11 h-11 md:w-14 md:h-14 rounded-full bg-white text-black shadow-xl flex items-center justify-center hover:bg-orange-500 hover:text-white transition-all duration-300 pointer-events-auto active:scale-95 border border-zinc-200"
+                 className="absolute left-4 md:left-10 z-30 w-11 h-11 md:w-14 md:h-14 rounded-full bg-transparent text-white border border-white/25 flex items-center justify-center hover:bg-orange-500 hover:border-orange-500 hover:text-white transition-all duration-300 pointer-events-auto active:scale-95 shadow-lg"
                  aria-label="Previous team frame"
                >
                  <ChevronLeft size={22} className="md:w-7 md:h-7 text-current" />
@@ -1074,7 +1074,7 @@ const AboutPage = () => {
              {/* Right Navigation Arrow */}
              <button
                onClick={() => scrollTeam('right')}
-               className="absolute right-4 md:right-10 z-30 w-11 h-11 md:w-14 md:h-14 rounded-full bg-white text-black shadow-xl flex items-center justify-center hover:bg-orange-500 hover:text-white transition-all duration-300 pointer-events-auto active:scale-95 border border-zinc-200"
+               className="absolute right-4 md:right-10 z-30 w-11 h-11 md:w-14 md:h-14 rounded-full bg-transparent text-white border border-white/25 flex items-center justify-center hover:bg-orange-500 hover:border-orange-500 hover:text-white transition-all duration-300 pointer-events-auto active:scale-95 shadow-lg"
                aria-label="Next team frame"
              >
                <ChevronRight size={22} className="md:w-7 md:h-7 text-current" />
