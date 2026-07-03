@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform } from 'motion/react';
-import { ChevronRight, Play, Menu, X, Instagram, Facebook, Youtube, Twitter } from 'lucide-react';
+import { ChevronRight, Play, Menu, X, Instagram, Facebook, Youtube, Twitter, ExternalLink } from 'lucide-react';
 import { useState, useEffect, FC } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Navbar, DEFAULT_FILMS_LIST, Footer, InteractiveOptions, transformGoogleDriveUrl, isEmbedUrl, getEmbedUrl, isYouTubeUrl, getYouTubeWatchUrl } from '../App';
@@ -288,6 +288,36 @@ const FilmsPage = () => {
         <div className="relative z-20 w-full py-4 bg-zinc-950/90 backdrop-blur-md border-y border-white/5 overflow-hidden">
           <div className="max-w-[1600px] mx-auto px-4">
             <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-orange-500/20 scrollbar-track-transparent snap-x touch-pan-x justify-start">
+              {/* External Detailed Portfolio link */}
+              <a
+                href="https://canva.link/dreamcatchers-portfolio2026"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="relative group h-14 sm:h-16 md:h-20 min-w-[180px] xs:min-w-[220px] sm:min-w-[260px] md:min-w-[280px] rounded-sm overflow-hidden text-left flex-shrink-0 snap-start border border-orange-500/25 bg-orange-950/5 hover:border-orange-500/60 hover:shadow-[0_0_15px_rgba(249,115,22,0.3)] transition-all duration-300 cursor-pointer"
+              >
+                <img 
+                  src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=600"
+                  alt="Detailed Portfolio"
+                  className="absolute inset-0 w-full h-full object-cover brightness-[0.55] group-hover:brightness-[0.75] group-hover:scale-105 transition-all duration-500"
+                />
+                <div className="absolute inset-0 bg-black/50 group-hover:bg-black/30 transition-all duration-300" />
+                
+                <div className="absolute inset-0 flex flex-col justify-between p-3 sm:p-4 z-10">
+                  <span className="font-bebas text-lg xs:text-xl sm:text-2xl font-bold tracking-wider text-orange-500 uppercase select-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] flex items-center gap-1.5">
+                    DETAILED PORTFOLIO
+                    <ExternalLink size={14} className="text-orange-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
+                  </span>
+                  <div className="flex justify-between items-end gap-3">
+                    <span className="text-[9px] font-mono tracking-widest text-white/50 group-hover:text-white/80 transition-colors uppercase leading-none truncate max-w-[120px] sm:max-w-[180px]">
+                      View Canva presentation deck
+                    </span>
+                    <span className="text-[10px] font-mono text-orange-400 font-bold px-1.5 py-0.5 bg-black/60 rounded-sm">
+                      DECK ↗
+                    </span>
+                  </div>
+                </div>
+              </a>
+
               <button
                 onClick={() => selectAndScroll("All")}
                 className={`relative group h-14 sm:h-16 md:h-20 min-w-[180px] xs:min-w-[220px] sm:min-w-[260px] md:min-w-[280px] rounded-sm overflow-hidden text-left flex-shrink-0 snap-start border transition-all duration-300 ${
