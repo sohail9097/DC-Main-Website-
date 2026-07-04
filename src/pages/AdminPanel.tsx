@@ -19,7 +19,7 @@ export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = '
     if (match && match[1]) {
       const fileId = match[1];
       if (type === 'video') {
-        return `https://docs.google.com/uc?export=download&id=${fileId}`;
+        return `/api/drive-stream?id=${fileId}`;
       }
       return `https://lh3.googleusercontent.com/d/${fileId}`;
     }
@@ -94,6 +94,171 @@ const AdminPanel: FC = () => {
   const [homeHeroBgUrl, setHomeHeroBgUrl] = useState('');
   const [homeHeroBgImageUrl, setHomeHeroBgImageUrl] = useState('');
   const [homeShowreelUrl, setHomeShowreelUrl] = useState('');
+  
+  // Local Videos Upload & Library Management States
+  interface LocalVideo {
+    filename: string;
+    url: string;
+    size: number;
+    createdAt: string;
+  }
+  const [localVideos, setLocalVideos] = useState<LocalVideo[]>([]);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [videoUploadError, setVideoUploadError] = useState('');
+  const [selectedVideoFile, setSelectedVideoFile] = useState<File | null>(null);
+
+  const fetchLocalVideos = async () => {
+    try {
+      const response = await fetch('/api/uploaded-videos');
+      if (response.ok) {
+        const data = await response.json();
+        setLocalVideos(data);
+      }
+    } catch (err) {
+      console.error('Error fetching local videos:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchLocalVideos();
+  }, []);
+
+  const handleVideoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.size > 150 * 1024 * 1024) {
+        setVideoUploadError('Video file exceeds 150MB limit.');
+        setSelectedVideoFile(null);
+        return;
+      }
+      setSelectedVideoFile(file);
+      setVideoUploadError('');
+    }
+  };
+
+  const handleUploadVideo = async () => {
+    if (!selectedVideoFile) return;
+    setUploadingVideo(true);
+    setVideoUploadError('');
+    setUploadProgress(0);
+
+    const chunkSize = 1.5 * 1024 * 1024; // 1.5MB chunks (highly reliable for proxy limits and slow connections)
+    const totalChunks = Math.ceil(selectedVideoFile.size / chunkSize);
+    const uploadId = Date.now().toString() + '-' + Math.round(Math.random() * 1e9);
+
+    // Helper for robust fetch with exponential backoff retry on failure
+    const fetchWithRetry = async (url: string, options: RequestInit, retries = 3, delay = 1000): Promise<Response> => {
+      try {
+        const response = await fetch(url, options);
+        if (!response.ok && retries > 0) {
+          await new Promise(resolve => setTimeout(resolve, delay));
+          return fetchWithRetry(url, options, retries - 1, delay * 1.5);
+        }
+        return response;
+      } catch (err) {
+        if (retries > 0) {
+          await new Promise(resolve => setTimeout(resolve, delay));
+          return fetchWithRetry(url, options, retries - 1, delay * 1.5);
+        }
+        throw err;
+      }
+    };
+
+    try {
+      for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+        const start = chunkIndex * chunkSize;
+        const end = Math.min(start + chunkSize, selectedVideoFile.size);
+        const chunkBlob = selectedVideoFile.slice(start, end);
+
+        const formData = new FormData();
+        // Crucial: we must append the filename to ensure multer processes it as an uploaded file properly
+        formData.append('chunk', chunkBlob, `chunk-${chunkIndex}.bin`);
+        formData.append('uploadId', uploadId);
+        formData.append('chunkIndex', chunkIndex.toString());
+        formData.append('totalChunks', totalChunks.toString());
+        formData.append('filename', selectedVideoFile.name);
+
+        const response = await fetchWithRetry('/api/upload-video-chunk', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          let errorMsg = `Failed to upload chunk ${chunkIndex + 1} of ${totalChunks}`;
+          try {
+            const errData = await response.json();
+            errorMsg = errData.error || errorMsg;
+          } catch {}
+          throw new Error(errorMsg);
+        }
+
+        // Calculate progress based on chunks sent
+        const percent = Math.round(((chunkIndex + 1) / totalChunks) * 90); // Use 90% for chunks, last 10% for assembly
+        setUploadProgress(percent);
+      }
+
+      // Assemble chunks on server
+      setUploadProgress(95);
+      const assembleResponse = await fetchWithRetry('/api/upload-video-assemble', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          uploadId,
+          filename: selectedVideoFile.name,
+          totalChunks: totalChunks.toString()
+        })
+      });
+
+      if (!assembleResponse.ok) {
+        let errorMsg = 'Failed to assemble video file on server';
+        try {
+          const errData = await assembleResponse.json();
+          errorMsg = errData.error || errorMsg;
+        } catch {}
+        throw new Error(errorMsg);
+      }
+
+      const data = await assembleResponse.json();
+      setHomeHeroBgUrl(data.url);
+      setHomeShowreelUrl(data.url);
+      setSelectedVideoFile(null);
+      setUploadProgress(100);
+      
+      setTimeout(() => {
+        setUploadProgress(0);
+        setUploadingVideo(false);
+      }, 800);
+      fetchLocalVideos();
+
+    } catch (err: any) {
+      console.error('Upload failed:', err);
+      setVideoUploadError(err.message || 'Upload failed due to connection error.');
+      setUploadingVideo(false);
+    }
+  };
+
+  const handleDeleteLocalVideo = async (filename: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm('Are you sure you want to delete this video file from the website?')) return;
+    try {
+      const response = await fetch(`/api/uploaded-videos/${filename}`, {
+        method: 'DELETE'
+      });
+      if (response.ok) {
+        fetchLocalVideos();
+        const deletedUrl = `/uploads/${filename}`;
+        if (homeHeroBgUrl === deletedUrl) {
+          setHomeHeroBgUrl('https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
+          setHomeShowreelUrl('https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
+        }
+      }
+    } catch (err) {
+      console.error('Error deleting video:', err);
+    }
+  };
   
   // Hero sliding texts
   const [homeTitle1Line1, setHomeTitle1Line1] = useState('VISUAL');
@@ -1985,10 +2150,125 @@ const AdminPanel: FC = () => {
                       </button>
                     </div>
 
+                    {/* Local Video Uploader & Library (Only shown when media type is video) */}
+                    {homeHeroBgType === 'video' && (
+                      <div className="border border-white/5 bg-zinc-950 p-5 rounded-2xl space-y-4 font-sans">
+                        <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                          <h4 className="text-xs uppercase tracking-wider font-black text-orange-500 flex items-center gap-2">
+                            <Upload size={14} />
+                            WEBSITE LOCAL VIDEO LOOPS
+                          </h4>
+                          <span className="text-[9px] text-zinc-500 font-bold uppercase">MAX 150MB</span>
+                        </div>
+
+                        {/* Drag and Drop Zone or Click Selection */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="border border-dashed border-white/10 hover:border-orange-500/50 rounded-xl p-4 flex flex-col items-center justify-center text-center transition-colors bg-black/40">
+                            <input 
+                              type="file" 
+                              id="local-video-file-input"
+                              accept="video/*" 
+                              onChange={handleVideoFileChange}
+                              className="hidden" 
+                            />
+                            <label htmlFor="local-video-file-input" className="cursor-pointer flex flex-col items-center gap-2 w-full">
+                              <FileVideo size={28} className="text-zinc-400 hover:text-orange-500 transition-colors" />
+                              <span className="text-xs font-semibold text-zinc-300 truncate max-w-full">
+                                {selectedVideoFile ? selectedVideoFile.name : "Select Video File"}
+                              </span>
+                              <span className="text-[10px] text-zinc-500">
+                                {selectedVideoFile ? `(${(selectedVideoFile.size / (1024 * 1024)).toFixed(2)} MB)` : "Click to browse local files"}
+                              </span>
+                            </label>
+
+                            {videoUploadError && (
+                              <p className="text-[10px] text-red-500 mt-2 font-bold uppercase">{videoUploadError}</p>
+                            )}
+
+                            {selectedVideoFile && !uploadingVideo && (
+                              <button
+                                type="button"
+                                onClick={handleUploadVideo}
+                                className="mt-3 px-4 py-1.5 bg-orange-500 text-white rounded-lg text-[10px] font-bold uppercase hover:bg-orange-600 transition-colors cursor-pointer"
+                              >
+                                Upload to Website
+                              </button>
+                            )}
+
+                            {uploadingVideo && (
+                              <div className="w-full mt-3 space-y-1">
+                                <div className="w-full bg-zinc-800 rounded-full h-1.5">
+                                  <div 
+                                    className="bg-orange-500 h-1.5 rounded-full transition-all duration-300"
+                                    style={{ width: `${uploadProgress}%` }}
+                                  />
+                                </div>
+                                <span className="text-[9px] text-zinc-400 font-bold uppercase">Uploading... {uploadProgress}%</span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Uploaded Videos Library List */}
+                          <div className="flex flex-col space-y-2 bg-black/20 p-3 rounded-xl border border-white/5 max-h-[140px] overflow-y-auto">
+                            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block border-b border-white/5 pb-1 mb-1">
+                              Uploaded Video Library ({localVideos.length})
+                            </span>
+                            
+                            {localVideos.length === 0 ? (
+                              <div className="flex flex-col items-center justify-center py-6 text-zinc-600">
+                                <FileVideo size={18} className="opacity-40 mb-1" />
+                                <span className="text-[9px] font-bold uppercase">No videos uploaded yet</span>
+                              </div>
+                            ) : (
+                              localVideos.map((v) => {
+                                const isActive = homeHeroBgUrl === v.url;
+                                return (
+                                  <div 
+                                    key={v.filename}
+                                    onClick={() => {
+                                      setHomeHeroBgUrl(v.url);
+                                      setHomeShowreelUrl(v.url);
+                                    }}
+                                    className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${
+                                      isActive 
+                                        ? 'bg-orange-500/10 border border-orange-500/30 text-orange-500' 
+                                        : 'bg-zinc-900/50 hover:bg-zinc-900 border border-white/5 text-zinc-300'
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-2 truncate pr-2">
+                                      <Play size={10} className={isActive ? 'text-orange-500' : 'text-zinc-500'} />
+                                      <div className="truncate flex flex-col text-[10px]">
+                                        <span className="font-bold truncate">{v.filename.replace(/^video-\d+-/, '')}</span>
+                                        <span className="text-[8px] text-zinc-500">{(v.size / (1024 * 1024)).toFixed(1)} MB</span>
+                                      </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-1.5">
+                                      {isActive && (
+                                        <span className="text-[8px] font-black uppercase bg-orange-500 text-white px-1.5 py-0.5 rounded">ACTIVE</span>
+                                      )}
+                                      <button
+                                        type="button"
+                                        onClick={(e) => handleDeleteLocalVideo(v.filename, e)}
+                                        className="text-zinc-500 hover:text-red-500 p-1 rounded hover:bg-white/5 transition-colors cursor-pointer"
+                                        title="Delete local file"
+                                      >
+                                        <Trash2 size={12} />
+                                      </button>
+                                    </div>
+                                  </div>
+                                );
+                              })
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {/* URL Input field */}
                     <div className="space-y-2">
                       <label className="block text-[10px] uppercase tracking-widest text-orange-500 font-black">
-                        {homeHeroBgType === 'video' ? 'GOOGLE DRIVE / DIRECT VIDEO LINK' : 'BACKGROUND IMAGE URL'}
+                        {homeHeroBgType === 'video' ? 'OR USE GOOGLE DRIVE / DIRECT VIDEO LINK' : 'BACKGROUND IMAGE URL'}
                       </label>
                       <input 
                         type="text" 
@@ -2007,7 +2287,7 @@ const AdminPanel: FC = () => {
                       />
                       <p className="text-[10px] text-white/30 font-medium">
                         {homeHeroBgType === 'video'
-                          ? "Supports Google Drive video links! The server automatically processes and proxies the stream so that it autoplays, loops, and runs continuously and seamlessly in the background."
+                          ? "Supports local uploaded videos, direct MP4s, or Google Drive links! The server automatically processes and proxies the stream so that it autoplays, loops, and runs continuously and seamlessly in the background."
                           : "This high-fidelity image will be shown as a fixed backdrop behind your entrance titles."
                         }
                       </p>

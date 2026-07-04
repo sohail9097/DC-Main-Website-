@@ -199,7 +199,7 @@ export const CinematicSlideshow: FC = memo(() => {
       if (matches && matches[1]) {
         const fileId = matches[1];
         if (isVideoUrl(url)) {
-          return `https://drive.google.com/uc?export=download&id=${fileId}`;
+          return `/api/drive-stream?id=${fileId}`;
         }
         return `https://lh3.googleusercontent.com/d/${fileId}`;
       }

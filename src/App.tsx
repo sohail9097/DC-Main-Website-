@@ -206,8 +206,8 @@ export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = '
     if (match && match[1]) {
       const fileId = match[1];
       if (type === 'video') {
-        // Direct stream and download link for HTML5 <video> tag
-        return `https://docs.google.com/uc?export=download&id=${fileId}`;
+        // Direct stream via server proxy for high-performance chunking, range support, and bypass CORS/Auth limits
+        return `/api/drive-stream?id=${fileId}`;
       }
       return `https://lh3.googleusercontent.com/d/${fileId}`;
     }
@@ -446,10 +446,11 @@ function Hero() {
       localStorage.setItem('home_showreel_url', 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
     }
     
-    // Also migrate the home_hero_bg_url if it was pointing to the old video
+    // Also migrate the home_hero_bg_url if it was pointing to the old video, or if it is empty, or if we want to ensure the showreel video plays directly
     const storedHeroBgUrl = localStorage.getItem('home_hero_bg_url');
-    if (storedHeroBgUrl && storedHeroBgUrl.includes('11IhUdtZgucLSQsiqe2OZb08DOhidbTmD')) {
+    if (!storedHeroBgUrl || storedHeroBgUrl.includes('11IhUdtZgucLSQsiqe2OZb08DOhidbTmD') || storedHeroBgUrl.includes('UhTRVjkQZMw') || storedHeroBgUrl.includes('EngS8gK6u4I')) {
       localStorage.setItem('home_hero_bg_url', 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
+      localStorage.setItem('home_hero_bg_type', 'video');
     }
     
     const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
@@ -2992,7 +2993,7 @@ function LandingPage() {
                       setVideoPlayFailed(true);
                     }
                   }}
-                  className="absolute inset-0 w-full h-full object-contain opacity-100 transition-opacity duration-1000"
+                  className="absolute inset-0 w-full h-full object-cover opacity-100 transition-opacity duration-1000"
                 />
               </div>
             );
@@ -3837,7 +3838,7 @@ export function ShowreelPage() {
     
     // Migrate any broken/expired Vimeo, old YouTube, or old Google Drive showreel URL in localStorage to the Google Drive video
     const storedShowreel = localStorage.getItem('home_showreel_url');
-    if (!storedShowreel || storedShowreel.includes('371433846') || storedShowreel.includes('EngS8gK6u4I') || storedShowreel.includes('11IhUdtZgucLSQsiqe2OZb08DOhidbTmD')) {
+    if (!storedShowreel || storedShowreel.includes('371433846') || storedShowreel.includes('EngS8gK6u4I') || storedShowreel.includes('UhTRVjkQZMw') || storedShowreel.includes('11IhUdtZgucLSQsiqe2OZb08DOhidbTmD')) {
       localStorage.setItem('home_showreel_url', 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
     }
 

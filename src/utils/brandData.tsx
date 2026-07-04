@@ -29,7 +29,7 @@ export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = '
   if (match && match[1]) {
     const fileId = match[1];
     if (type === 'video') {
-      return `https://drive.google.com/uc?export=download&id=${fileId}`;
+      return `/api/drive-stream?id=${fileId}`;
     }
     return `https://lh3.googleusercontent.com/d/${fileId}`;
   }
