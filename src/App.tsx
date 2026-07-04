@@ -204,7 +204,7 @@ export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = '
   if (match && match[1]) {
     const fileId = match[1];
     if (type === 'video') {
-      return `https://drive.google.com/uc?export=download&id=${fileId}`;
+      return `/api/drive-stream?id=${fileId}`;
     }
     return `https://lh3.googleusercontent.com/d/${fileId}`;
   }
@@ -435,7 +435,14 @@ function Hero() {
   const loadHomeHeroConfigs = () => {
     const bgType = localStorage.getItem('home_hero_bg_type') || 'video';
     const bgUrl = localStorage.getItem('home_hero_bg_url') || '';
-    const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761';
+    
+    // Migration: Migrate any broken/expired Vimeo showreel URL in localStorage
+    const storedShowreel = localStorage.getItem('home_showreel_url');
+    if (storedShowreel && storedShowreel.includes('371433846')) {
+      localStorage.setItem('home_showreel_url', 'https://www.youtube.com/watch?v=EngS8gK6u4I');
+    }
+    
+    const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://www.youtube.com/watch?v=EngS8gK6u4I';
     
     // If background is video and populated, use it. Otherwise, use stored/default showreel.
     if (bgType === 'video' && bgUrl) {
@@ -532,39 +539,39 @@ function Hero() {
 }
 
 export const DEFAULT_FILMS_LIST = [
-  { id: '1', title: 'Boat x Netflix Stream Edition', category: 'Branded Content', img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '2', title: 'Marvel x Guardians of the Galaxy', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '3', title: 'Netflix Dhamaka Mood Promo', category: 'Branded Content', img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '4', title: 'Coke Studio Global | Afroto | 7ALA', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1540959733332-e94e270b4a8a?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '5', title: 'Directors Cut | Green Vibes Festival', category: 'Travel', img: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '6', title: 'Bumble x Kindness is sexy ft. ARK', category: 'Corporate', img: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '7', title: 'Maleficent', category: 'Sports', img: 'https://images.unsplash.com/photo-1606503825008-909a67e74360?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '8', title: 'Shaitaan', category: 'Lifestyle', img: 'https://images.unsplash.com/photo-1616530940355-351fabd9524b?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '9', title: 'Deadpool & Wolverine', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '10', title: 'Spider-Man: No Way Home', category: 'Sports', img: 'https://images.unsplash.com/photo-1635805737707-575885ab0820?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '11', title: 'Padmaavat', category: 'Lifestyle', img: 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '12', title: 'Beauty and the Beast', category: 'Lifestyle', img: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '13', title: 'Black Panther', category: 'Corporate', img: 'https://images.unsplash.com/photo-1542204172-3c3066385d0d?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '14', title: 'Interstellar', category: 'Corporate', img: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '15', title: 'Dune: Part Two', category: 'Travel', img: 'https://images.unsplash.com/photo-1506466010722-395aa2bef877?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '16', title: 'Inception', category: 'Corporate', img: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '17', title: 'Joker', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '18', title: 'The Batman', category: 'Sports', img: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '19', title: 'Blade Runner 2049', category: 'Corporate', img: 'https://images.unsplash.com/photo-1493612276216-ee3925520721?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '20', title: 'The Revenant', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1540959733332-e94e270b4a8a?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '21', title: 'Doctor Strange', category: 'Travel', img: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '22', title: 'Avatar: Way of Water', category: 'Travel', img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '23', title: 'Jurassic World', category: 'Sports', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '24', title: 'Thor: Love and Thunder', category: 'Sports', img: 'https://images.unsplash.com/photo-1542204172-3c3066385d0d?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '25', title: 'The Matrix Resurrections', category: 'Corporate', img: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '26', title: 'Wonder Woman 1984', category: 'Lifestyle', img: 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '27', title: 'Guardians of the Galaxy Vol. 3', category: 'Corporate', img: 'https://images.unsplash.com/photo-1485098262243-ea7631fec367?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '28', title: 'Oppenheimer', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '29', title: 'Barbie', category: 'Lifestyle', img: 'https://images.unsplash.com/photo-1531259683007-01397e899182?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '30', title: 'Top Gun: Maverick', category: 'Sports', img: 'https://images.unsplash.com/photo-1598897135853-90d56621252e?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '31', title: 'Mission Impossible', category: 'Travel', img: 'https://images.unsplash.com/photo-1525498128445-66d4825950dc?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '32', title: 'John Wick: Chapter 4', category: 'Sports', img: 'https://images.unsplash.com/photo-1550101617-dc139a028670?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' },
-  { id: '33', title: 'Mad Max: Fury Road', category: 'Sports', img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=1000', video: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761' }
+  { id: '1', title: 'Boat x Netflix Stream Edition', category: 'Branded Content', img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=EngS8gK6u4I' },
+  { id: '2', title: 'Marvel x Guardians of the Galaxy', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=NpEaa2P7qZI' },
+  { id: '3', title: 'Netflix Dhamaka Mood Promo', category: 'Branded Content', img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=9No-FiEInLA' },
+  { id: '4', title: 'Coke Studio Global | Afroto | 7ALA', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1540959733332-e94e270b4a8a?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=ScMzIvxBSi4' },
+  { id: '5', title: 'Directors Cut | Green Vibes Festival', category: 'Travel', img: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=hZ8Z4S73V0I' },
+  { id: '6', title: 'Bumble x Kindness is sexy ft. ARK', category: 'Corporate', img: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=V-_O7nl0Ii0' },
+  { id: '7', title: 'Maleficent', category: 'Sports', img: 'https://images.unsplash.com/photo-1606503825008-909a67e74360?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=j3K_9v1-vG0' },
+  { id: '8', title: 'Shaitaan', category: 'Lifestyle', img: 'https://images.unsplash.com/photo-1616530940355-351fabd9524b?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=LXb3EKWsInQ' },
+  { id: '9', title: 'Deadpool & Wolverine', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=EngS8gK6u4I' },
+  { id: '10', title: 'Spider-Man: No Way Home', category: 'Sports', img: 'https://images.unsplash.com/photo-1635805737707-575885ab0820?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=NpEaa2P7qZI' },
+  { id: '11', title: 'Padmaavat', category: 'Lifestyle', img: 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=9No-FiEInLA' },
+  { id: '12', title: 'Beauty and the Beast', category: 'Lifestyle', img: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=ScMzIvxBSi4' },
+  { id: '13', title: 'Black Panther', category: 'Corporate', img: 'https://images.unsplash.com/photo-1542204172-3c3066385d0d?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=hZ8Z4S73V0I' },
+  { id: '14', title: 'Interstellar', category: 'Corporate', img: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=V-_O7nl0Ii0' },
+  { id: '15', title: 'Dune: Part Two', category: 'Travel', img: 'https://images.unsplash.com/photo-1506466010722-395aa2bef877?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=j3K_9v1-vG0' },
+  { id: '16', title: 'Inception', category: 'Corporate', img: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=LXb3EKWsInQ' },
+  { id: '17', title: 'Joker', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=EngS8gK6u4I' },
+  { id: '18', title: 'The Batman', category: 'Sports', img: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=NpEaa2P7qZI' },
+  { id: '19', title: 'Blade Runner 2049', category: 'Corporate', img: 'https://images.unsplash.com/photo-1493612276216-ee3925520721?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=9No-FiEInLA' },
+  { id: '20', title: 'The Revenant', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1540959733332-e94e270b4a8a?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=ScMzIvxBSi4' },
+  { id: '21', title: 'Doctor Strange', category: 'Travel', img: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=hZ8Z4S73V0I' },
+  { id: '22', title: 'Avatar: Way of Water', category: 'Travel', img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=V-_O7nl0Ii0' },
+  { id: '23', title: 'Jurassic World', category: 'Sports', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=j3K_9v1-vG0' },
+  { id: '24', title: 'Thor: Love and Thunder', category: 'Sports', img: 'https://images.unsplash.com/photo-1542204172-3c3066385d0d?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=LXb3EKWsInQ' },
+  { id: '25', title: 'The Matrix Resurrections', category: 'Corporate', img: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=EngS8gK6u4I' },
+  { id: '26', title: 'Wonder Woman 1984', category: 'Lifestyle', img: 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=NpEaa2P7qZI' },
+  { id: '27', title: 'Guardians of the Galaxy Vol. 3', category: 'Corporate', img: 'https://images.unsplash.com/photo-1485098262243-ea7631fec367?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=9No-FiEInLA' },
+  { id: '28', title: 'Oppenheimer', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=ScMzIvxBSi4' },
+  { id: '29', title: 'Barbie', category: 'Lifestyle', img: 'https://images.unsplash.com/photo-1531259683007-01397e899182?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=hZ8Z4S73V0I' },
+  { id: '30', title: 'Top Gun: Maverick', category: 'Sports', img: 'https://images.unsplash.com/photo-1598897135853-90d56621252e?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=V-_O7nl0Ii0' },
+  { id: '31', title: 'Mission Impossible', category: 'Travel', img: 'https://images.unsplash.com/photo-1525498128445-66d4825950dc?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=j3K_9v1-vG0' },
+  { id: '32', title: 'John Wick: Chapter 4', category: 'Sports', img: 'https://images.unsplash.com/photo-1550101617-dc139a028670?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=LXb3EKWsInQ' },
+  { id: '33', title: 'Mad Max: Fury Road', category: 'Sports', img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=EngS8gK6u4I' }
 ];
 
 export const FILMS = DEFAULT_FILMS_LIST;
@@ -989,7 +996,7 @@ export const DEFAULT_VERTICALS: VerticalItem[] = [
     subtitle: 'SPORTS VERTICAL',
     description: 'INTERNATIONAL TOURNAMENT ORGANISING & BROADCAST',
     type: 'video',
-    url: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761'
+    url: 'https://www.youtube.com/watch?v=9No-FiEInLA'
   },
   {
     id: 'dc_digital',
@@ -998,7 +1005,7 @@ export const DEFAULT_VERTICALS: VerticalItem[] = [
     subtitle: 'DIGITAL VERTICAL',
     description: 'SHORT FORM, DIGITAL, AI CONTENT',
     type: 'video',
-    url: 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761'
+    url: 'https://www.youtube.com/watch?v=hZ8Z4S73V0I'
   }
 ];
 
@@ -1734,7 +1741,10 @@ function Portfolio() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {films.filter(film => normalizeCategoryName(film.category).toLowerCase() === selectedCategory.name.toLowerCase()).map((film, idx) => {
-                    const videoUrl = film.video || 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761';
+                    // Fallback to our cinematic YouTube link if film video is empty or broken
+                    const videoUrl = !film.video || film.video.includes('371433846') 
+                      ? 'https://www.youtube.com/watch?v=EngS8gK6u4I' 
+                      : film.video;
                     const isYouTube = isYouTubeUrl(videoUrl);
                     const isEmbed = isEmbedUrl(videoUrl);
                     const isHovered = hoveredFilmId === film.id;
@@ -2458,6 +2468,13 @@ function Intro() {
 
 const getVimeoEmbedUrl = (url: string) => {
   if (!url) return '';
+  
+  // Try matching unlisted format: vimeo.com/1029384756/e38f97fa62
+  const unlistedMatch = url.match(/vimeo\.com\/(\d+)\/([a-zA-Z0-9]+)/i);
+  if (unlistedMatch) {
+    return `https://player.vimeo.com/video/${unlistedMatch[1]}?h=${unlistedMatch[2]}`;
+  }
+
   // Extract Vimeo video ID
   let videoId = '';
   if (url.includes('/external/')) {
@@ -2531,6 +2548,11 @@ export const isEmbedUrl = (url: string) => {
   ) {
     return false;
   }
+
+  // Google Drive videos should be played in native <video> tags to support autoplay, muted, looping, and playsinline properties
+  if (lowercase.includes('drive.google.com')) {
+    return false;
+  }
   
   return (
     lowercase.includes('iframe') ||
@@ -2540,7 +2562,6 @@ export const isEmbedUrl = (url: string) => {
     lowercase.includes('vimeo.com') ||
     lowercase.includes('youtube.com') ||
     lowercase.includes('youtu.be') ||
-    lowercase.includes('drive.google.com') ||
     lowercase.includes('instagram.com')
   );
 };
@@ -2588,6 +2609,7 @@ export const getEmbedUrl = (url: string, asBackground = true) => {
       const baseEmbed = getVimeoEmbedUrl(url);
       const urlObj = new URL(baseEmbed);
       urlObj.searchParams.set('autoplay', '1');
+      urlObj.searchParams.set('playsinline', '1');
       if (asBackground) {
         urlObj.searchParams.set('loop', '1');
         urlObj.searchParams.set('muted', '1');
@@ -2603,21 +2625,31 @@ export const getEmbedUrl = (url: string, asBackground = true) => {
 
     if (url.includes('youtube.com') || url.includes('youtu.be')) {
       let embedUrl = url;
+      let videoId = '';
       if (url.includes('watch?v=')) {
-        embedUrl = url.replace('watch?v=', 'embed/').split('&')[0];
+        const urlParams = new URLSearchParams(url.split('?')[1]);
+        videoId = urlParams.get('v') || '';
+        embedUrl = `https://www.youtube.com/embed/${videoId}`;
       } else if (url.includes('youtu.be/')) {
-        const videoId = url.split('youtu.be/')[1]?.split('?')[0];
+        videoId = url.split('youtu.be/')[1]?.split('?')[0];
         if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
       } else if (url.includes('/shorts/')) {
-        const videoId = url.split('/shorts/')[1]?.split('?')[0];
+        videoId = url.split('/shorts/')[1]?.split('?')[0];
         if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
+      } else if (url.includes('/embed/')) {
+        videoId = url.split('/embed/')[1]?.split('?')[0];
       }
       const urlObj = new URL(embedUrl);
       urlObj.searchParams.set('autoplay', '1');
+      urlObj.searchParams.set('playsinline', '1');
+      urlObj.searchParams.set('enablejsapi', '1');
       if (asBackground) {
         urlObj.searchParams.set('loop', '1');
         urlObj.searchParams.set('mute', '1');
         urlObj.searchParams.set('controls', '0');
+        if (videoId) {
+          urlObj.searchParams.set('playlist', videoId);
+        }
       } else {
         urlObj.searchParams.set('loop', '0');
         urlObj.searchParams.set('mute', '0');
@@ -2656,8 +2688,8 @@ function LandingPage() {
   const starOpacity = useTransform(scrollY, [100, 700], [0, 1]);
   const heroImgOpacity = useTransform(scrollY, [0, 800], [1, 0.1]);
 
-  const [backdropType, setBackdropType] = useState<'image' | 'video'>('video');
-  const [backdropUrl, setBackdropUrl] = useState('https://player.vimeo.com/video/371433846');
+  const [backdropType, setBackdropType] = useState<'image' | 'video'>('image');
+  const [backdropUrl, setBackdropUrl] = useState('https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071');
   const [isMobileView, setIsMobileView] = useState(false);
   const [verticals, setVerticals] = useState<VerticalItem[]>(DEFAULT_VERTICALS);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
@@ -2806,30 +2838,24 @@ function LandingPage() {
   };
 
   const loadConfigs = () => {
-    const type = (localStorage.getItem('home_hero_bg_type') || 'video') as 'image' | 'video';
-    setBackdropType(type);
+    setBackdropType('image');
     const storedUrl = localStorage.getItem('home_hero_bg_url');
-    if (type === 'video') {
-      setBackdropUrl(storedUrl && storedUrl.trim() !== '' ? storedUrl : 'https://player.vimeo.com/video/371433846');
-    } else {
-      setBackdropUrl(storedUrl && storedUrl.trim() !== '' ? storedUrl : 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071');
-    }
+    setBackdropUrl(storedUrl && storedUrl.trim() !== '' ? storedUrl : 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071');
   };
 
   const getMobileBackdropUrl = () => {
-    const customImg = localStorage.getItem('home_hero_bg_image_url') || '';
-    if (customImg && customImg.trim() !== '') return customImg;
-    
-    const bgType = localStorage.getItem('home_hero_bg_type') || 'video';
     const bgUrl = localStorage.getItem('home_hero_bg_url') || '';
-    if (bgType === 'image' && bgUrl && bgUrl.trim() !== '') {
-      return bgUrl;
+    if (bgUrl && bgUrl.trim() !== '') {
+      return transformGoogleDriveUrl(bgUrl, 'image');
     }
     return 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071';
   };
 
   const getDesktopHighQualityUrl = (url: string) => {
     if (!url) return '';
+    if (url.includes('drive.google.com')) {
+      return transformGoogleDriveUrl(url, 'video');
+    }
     if (!isMobileView) {
       let highQualityUrl = url;
       // Convert Vimeo external SD video links (sd.mp4) to high-definition (hd.mp4)
@@ -2872,47 +2898,11 @@ function LandingPage() {
           style={{ opacity: heroImgOpacity }}
           className="absolute inset-0"
         >
-          {isMobileView ? (
-            <img 
-              src={getMobileBackdropUrl()} 
-              alt="Cinematic Background" 
-              className="w-full h-full object-cover opacity-95 animate-fade-in"
-            />
-          ) : backdropType === 'video' ? (
-            isEmbedUrl(backdropUrl) ? (
-              <iframe
-                key={backdropUrl}
-                src={getEmbedUrl(getDesktopHighQualityUrl(backdropUrl))}
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border-none opacity-95 scale-105 pointer-events-none"
-                allow="autoplay; encrypted-media; picture-in-picture"
-                allowFullScreen
-                style={{
-                  width: '177.77vh',
-                  height: '100vh',
-                  minWidth: '100vw',
-                  minHeight: '56.25vw',
-                  pointerEvents: 'none',
-                }}
-              />
-            ) : (
-              <video 
-                key={backdropUrl}
-                src={getDesktopHighQualityUrl(backdropUrl)} 
-                autoPlay 
-                loop 
-                muted 
-                playsInline 
-                preload="auto"
-                className="w-full h-full object-cover opacity-95"
-              />
-            )
-          ) : (
-            <img 
-              src={backdropUrl} 
-              alt="Cinematic Background" 
-              className="w-full h-full object-cover opacity-95"
-            />
-          )}
+          <img 
+            src={transformGoogleDriveUrl(backdropUrl, 'image')} 
+            alt="Cinematic Background" 
+            className="w-full h-full object-cover opacity-95 animate-fade-in"
+          />
           {/* Transition overlays - Soft bottom blend only, not a dark cover shield */}
           <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black to-transparent pointer-events-none" />
         </motion.div>
@@ -3765,7 +3755,14 @@ export function ShowreelPage() {
   useEffect(() => {
     const bgType = localStorage.getItem('home_hero_bg_type') || 'video';
     const bgUrl = localStorage.getItem('home_hero_bg_url') || '';
-    const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761';
+    
+    // Migrate any broken/expired Vimeo showreel URL in localStorage
+    const storedShowreel = localStorage.getItem('home_showreel_url');
+    if (storedShowreel && storedShowreel.includes('371433846')) {
+      localStorage.setItem('home_showreel_url', 'https://www.youtube.com/watch?v=EngS8gK6u4I');
+    }
+
+    const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://www.youtube.com/watch?v=EngS8gK6u4I';
     
     // Play backdrop video or fallback to configured showreel if background is photo
     let activeUrl = savedShowreel;
@@ -3918,17 +3915,22 @@ export function ShowreelPage() {
               title="Showreel Player"
               className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[178vh] h-[100vh] min-w-[100vw] min-h-[56.25vw] max-w-none border-none transition-all duration-300"
               allowFullScreen
-              allow="autoplay; encrypted-media; picture-in-picture"
+              allow="autoplay; fullscreen; picture-in-picture; encrypted-media; gyroscope; accelerometer"
             />
           ) : (
             <video
               ref={videoElementRef}
-              src={videoUrl}
+              src={transformGoogleDriveUrl(videoUrl, 'video')}
               className="absolute left-0 top-0 w-full h-full object-cover bg-black transition-all duration-300"
               controls
-              autoPlay
-              playsInline
+              autoPlay={true}
+              playsInline={true}
               onPlay={handleVideoPlay}
+              onLoadedMetadata={(e) => {
+                e.currentTarget.play().catch(() => {
+                  console.log("Autoplay with sound was blocked; waiting for user interaction");
+                });
+              }}
             />
           )
         ) : (

@@ -599,7 +599,7 @@ const FilmsPage = () => {
                   title="Video Player" 
                   className="w-full h-full border-none" 
                   allowFullScreen
-                  allow="autoplay; encrypted-media; picture-in-picture"
+                  allow="autoplay; fullscreen; picture-in-picture; encrypted-media; gyroscope; accelerometer"
                 />
               ) : (
                 <video 

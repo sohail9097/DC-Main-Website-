@@ -88,7 +88,7 @@ const AdminPanel: FC = () => {
   const [homeFilmsLimit, setHomeFilmsLimit] = useState<'3' | '6' | '9' | '12' | 'All'>('6');
   
   // Home Banner and Video states
-  const [homeHeroBgType, setHomeHeroBgType] = useState<'image' | 'video'>('video');
+  const [homeHeroBgType, setHomeHeroBgType] = useState<'image' | 'video'>('image');
   const [homeHeroBgUrl, setHomeHeroBgUrl] = useState('');
   const [homeHeroBgImageUrl, setHomeHeroBgImageUrl] = useState('');
   const [homeShowreelUrl, setHomeShowreelUrl] = useState('');
@@ -550,8 +550,8 @@ const AdminPanel: FC = () => {
     }
 
     // Load home configs
-    const savedHeroBgType = localStorage.getItem('home_hero_bg_type') || 'video';
-    setHomeHeroBgType(savedHeroBgType as 'image' | 'video');
+    const savedHeroBgType = 'image';
+    setHomeHeroBgType('image');
 
     // Load nav logo configs
     setNavLogoType((localStorage.getItem('nav_logo_type') as 'text' | 'image') || 'text');
@@ -565,7 +565,7 @@ const AdminPanel: FC = () => {
     const savedHeroBgImageUrl = localStorage.getItem('home_hero_bg_image_url') || 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071';
     setHomeHeroBgImageUrl(savedHeroBgImageUrl);
 
-    const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761';
+    const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://www.youtube.com/watch?v=EngS8gK6u4I';
     setHomeShowreelUrl(savedShowreel);
 
     setHomeTitle1Line1(localStorage.getItem('home_title1_l1') || 'VISUAL');
@@ -1135,9 +1135,9 @@ const AdminPanel: FC = () => {
   // --- Home Hero persistence handlers ---
   const handleSaveHomeHero = (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem('home_hero_bg_type', homeHeroBgType);
+    localStorage.setItem('home_hero_bg_type', 'image');
     localStorage.setItem('home_hero_bg_url', homeHeroBgUrl);
-    localStorage.setItem('home_hero_bg_image_url', homeHeroBgImageUrl);
+    localStorage.setItem('home_hero_bg_image_url', homeHeroBgUrl);
     localStorage.setItem('home_showreel_url', homeShowreelUrl);
 
     localStorage.setItem('home_title1_l1', homeTitle1Line1);
@@ -1153,11 +1153,11 @@ const AdminPanel: FC = () => {
   };
 
   const handleResetHomeHero = () => {
-    if (confirm('Are you sure you want to restore default video and titles?')) {
-      setHomeHeroBgType('video');
+    if (confirm('Are you sure you want to restore default photo and titles?')) {
+      setHomeHeroBgType('image');
       setHomeHeroBgUrl('https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071');
       setHomeHeroBgImageUrl('https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071');
-      setHomeShowreelUrl('https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761');
+      setHomeShowreelUrl('https://www.youtube.com/watch?v=EngS8gK6u4I');
       setHomeTitle1Line1('VISUAL');
       setHomeTitle1Line2('POETRY');
       setHomeTitle2Line1('CINEMATIC');
@@ -1165,7 +1165,7 @@ const AdminPanel: FC = () => {
       setHomeTitle3Line1('DIGITAL');
       setHomeTitle3Line2('RENAISSANCE');
 
-      localStorage.removeItem('home_hero_bg_type');
+      localStorage.setItem('home_hero_bg_type', 'image');
       localStorage.removeItem('home_hero_bg_url');
       localStorage.removeItem('home_hero_bg_image_url');
       localStorage.removeItem('home_showreel_url');
@@ -1433,7 +1433,7 @@ const AdminPanel: FC = () => {
       title: filmTitle,
       category: filmCategory,
       img: filmImg,
-      video: filmVideo || 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761',
+      video: filmVideo || 'https://www.youtube.com/watch?v=EngS8gK6u4I',
       frameType: filmFrameType || 'auto'
     };
     saveFilms([...films, newFilm]);
@@ -1464,7 +1464,7 @@ const AdminPanel: FC = () => {
       title: filmTitle,
       category: filmCategory,
       img: filmImg,
-      video: filmVideo || 'https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c05414d9b9c9dc7671cd24b33b00686c&profile_id=139&oauth2_token_id=57447761',
+      video: filmVideo || 'https://www.youtube.com/watch?v=EngS8gK6u4I',
       frameType: filmFrameType || 'auto'
     };
     saveFilms(updated);
@@ -1944,61 +1944,22 @@ const AdminPanel: FC = () => {
                 </div>
 
                 <form onSubmit={handleSaveHomeHero} className="space-y-6">
-                  {/* Banner Type select */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-sans">
-                    <div>
-                      <label className="block text-xs uppercase tracking-widest text-zinc-400 font-black mb-2">Backdrop Type</label>
-                      <div className="flex gap-2 font-sans">
-                        <button
-                          type="button"
-                          onClick={() => setHomeHeroBgType('image')}
-                          className={`flex-1 py-3 text-xs font-black uppercase rounded-xl border flex items-center justify-center gap-2 transition-all ${homeHeroBgType === 'image' ? 'bg-orange-500/10 border-orange-500 text-orange-500' : 'bg-black border-white/10 text-white/60 hover:text-white'}`}
-                        >
-                          <ImageIcon size={14} />
-                          <span>IMAGE COVER</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setHomeHeroBgType('video')}
-                          className={`flex-1 py-3 text-xs font-black uppercase rounded-xl border flex items-center justify-center gap-2 transition-all ${homeHeroBgType === 'video' ? 'bg-orange-500/10 border-orange-500 text-orange-500' : 'bg-black border-white/10 text-white/60 hover:text-white font-sans'}`}
-                        >
-                          <FileVideo size={14} />
-                          <span>VIDEO LOOP</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="md:col-span-2 font-sans">
-                      <label className="block text-xs uppercase tracking-widest text-zinc-400 font-black mb-2 font-sans">
-                        {homeHeroBgType === 'image' ? 'Hero Background Image url' : 'Hero Background Looping Video URL (.mp4)'}
-                      </label>
-                      <input 
-                        type="text" 
-                        required
-                        value={homeHeroBgUrl}
-                        onChange={(e) => setHomeHeroBgUrl(e.target.value)}
-                        placeholder="Paste premium Unsplash link or direct .mp4/webm video loop URL"
-                        className="w-full bg-black border border-white/10 focus:border-orange-500 outline-none rounded-xl px-4 py-3 text-sm text-white"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Fallback Image URL specifically for mobile background cover */}
+                  {/* Premium Hero Background Image URL */}
                   <div className="bg-black/30 p-6 rounded-3xl border border-white/5 font-sans space-y-3">
                     <label className="block text-xs uppercase tracking-widest text-zinc-400 font-black flex items-center gap-2">
-                      <ImageIcon size={14} className="text-orange-500 animate-pulse" />
-                      <span>Fallback/Mobile Background Image URL</span>
+                      <ImageIcon size={14} className="text-orange-500" />
+                      <span>Hero Background Image URL</span>
                     </label>
                     <input 
                       type="text" 
                       required
-                      value={homeHeroBgImageUrl}
-                      onChange={(e) => setHomeHeroBgImageUrl(e.target.value)}
+                      value={homeHeroBgUrl}
+                      onChange={(e) => setHomeHeroBgUrl(e.target.value)}
                       placeholder="Paste premium Unsplash link or other high-resolution image URL"
                       className="w-full bg-black border border-white/10 focus:border-orange-500 outline-none rounded-xl px-4 py-3 text-sm text-white"
                     />
                     <p className="text-[10px] text-white/40 font-medium uppercase tracking-wider">
-                      Note: On mobile browsers/screens, video backgrounds are replaced with this clean high-resolution image automatically to guarantee perfect sizing, high performance, and zero flickering.
+                      Provide a beautiful high-resolution image to serve as the immersive cinematic backdrop for your home screen.
                     </p>
                   </div>
 
