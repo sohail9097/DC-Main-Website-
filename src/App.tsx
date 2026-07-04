@@ -198,15 +198,19 @@ export const OrbitingFrame: FC<{ index: number; total: number; item: any }> = ({
 export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = 'image'): string {
   if (!url) return '';
   const trimmed = url.trim();
-  // Extract file ID from google drive share link
-  const fileIdRegex = /(?:\/file\/d\/|id=)([^/?#]+)/;
-  const match = trimmed.match(fileIdRegex);
-  if (match && match[1]) {
-    const fileId = match[1];
-    if (type === 'video') {
-      return `/api/drive-stream?id=${fileId}`;
+  
+  // Extract file ID from google drive share link if it's a google drive url
+  if (trimmed.includes('drive.google.com') || trimmed.includes('docs.google.com')) {
+    const fileIdRegex = /(?:\/file\/d\/|id=)([^/?#]+)/;
+    const match = trimmed.match(fileIdRegex);
+    if (match && match[1]) {
+      const fileId = match[1];
+      if (type === 'video') {
+        // Direct stream and download link for HTML5 <video> tag
+        return `https://docs.google.com/uc?export=download&id=${fileId}`;
+      }
+      return `https://lh3.googleusercontent.com/d/${fileId}`;
     }
-    return `https://lh3.googleusercontent.com/d/${fileId}`;
   }
   return trimmed;
 }
@@ -436,13 +440,19 @@ function Hero() {
     const bgType = localStorage.getItem('home_hero_bg_type') || 'video';
     const bgUrl = localStorage.getItem('home_hero_bg_url') || '';
     
-    // Migration: Migrate any broken/expired Vimeo showreel URL in localStorage
+    // Migration: Migrate any broken/expired Vimeo, old YouTube, or old Google Drive showreel URL in localStorage to the new Google Drive video
     const storedShowreel = localStorage.getItem('home_showreel_url');
-    if (storedShowreel && storedShowreel.includes('371433846')) {
-      localStorage.setItem('home_showreel_url', 'https://www.youtube.com/watch?v=EngS8gK6u4I');
+    if (!storedShowreel || storedShowreel.includes('371433846') || storedShowreel.includes('EngS8gK6u4I') || storedShowreel.includes('11IhUdtZgucLSQsiqe2OZb08DOhidbTmD')) {
+      localStorage.setItem('home_showreel_url', 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
     }
     
-    const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://www.youtube.com/watch?v=EngS8gK6u4I';
+    // Also migrate the home_hero_bg_url if it was pointing to the old video
+    const storedHeroBgUrl = localStorage.getItem('home_hero_bg_url');
+    if (storedHeroBgUrl && storedHeroBgUrl.includes('11IhUdtZgucLSQsiqe2OZb08DOhidbTmD')) {
+      localStorage.setItem('home_hero_bg_url', 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
+    }
+    
+    const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
     
     // If background is video and populated, use it. Otherwise, use stored/default showreel.
     if (bgType === 'video' && bgUrl) {
@@ -499,35 +509,7 @@ function Hero() {
         }}
         className="relative z-20 h-full flex flex-col justify-center items-center text-center px-12 md:px-32 lg:px-56 pointer-events-auto"
       >
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="flex flex-col md:flex-row gap-4 md:gap-8"
-        >
-          <button 
-            type="button"
-            onClick={() => navigate('/showreel')}
-            className="group flex items-center gap-3 px-6 md:px-10 py-3 md:py-5 bg-white hover:bg-orange-500 hover:text-white text-black font-black uppercase tracking-[0.2em] text-[10px] md:text-xs rounded-full hover:scale-105 transition-all shadow-xl pointer-events-auto cursor-pointer"
-          >
-            <Play size={10} className="fill-current md:w-[14px]" />
-            Play Showreel
-          </button>
-          <button 
-            type="button"
-            onClick={() => {
-              const el = document.getElementById('contact-section');
-              if (el) {
-                el.scrollIntoView({ behavior: 'smooth' });
-              } else {
-                navigate('/#contact-section');
-              }
-            }}
-            className="px-6 md:px-10 py-3 md:py-5 border border-white/20 text-white hover:border-white font-black uppercase tracking-[0.2em] text-[10px] md:text-xs rounded-full hover:border-orange-500/50 hover:bg-white/5 transition-all pointer-events-auto cursor-pointer"
-          >
-            Contact Us
-          </button>
-        </motion.div>
+        {/* Buttons removed so that the autoplay showreel video background plays directly without obstacles */}
  
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 animate-bounce">
            <span className="text-[9px] text-white/30 uppercase tracking-[0.5em]">Scroll</span>
@@ -950,7 +932,7 @@ export const DEFAULT_PARAGRAPH_FRAMES: ParagraphFrameItem[] = [
     id: 'frame1',
     label: 'Frame 1 (KODAK Film Slide)',
     type: 'video',
-    url: 'https://drive.google.com/file/d/11IhUdtZgucLSQsiqe2OZb08DOhidbTmD/view?usp=sharing'
+    url: 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing'
   },
   {
     id: 'frame2',
@@ -1985,7 +1967,13 @@ export function Footer() {
                 {user ? (
                   <div className="flex flex-col gap-4">
                     <div className="flex items-center gap-4">
-                      <img src={user.photoURL || ''} alt="" className="w-8 h-8 rounded-full border border-white/20" />
+                      {user.photoURL ? (
+                        <img src={user.photoURL} alt="" className="w-8 h-8 rounded-full border border-white/20" />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full border border-white/20 bg-zinc-800 flex items-center justify-center text-white font-bold text-xs uppercase">
+                          {user.displayName ? user.displayName.charAt(0) : 'U'}
+                        </div>
+                      )}
                       <div>
                         <p className="text-white text-xs font-bold">{user.displayName}</p>
                         <button onClick={logout} className="text-[10px] uppercase tracking-widest text-white/40 hover:text-white transition-colors">Logout</button>
@@ -2098,14 +2086,14 @@ function Intro() {
       if (stored) {
         try {
           const parsed = JSON.parse(stored) as ParagraphFrameItem[];
-          const hasOldFrame1 = parsed.some(f => f.id === 'frame1' && (f.type !== 'video' || !f.url.includes('11IhUdtZgucLSQsiqe2OZb08DOhidbTmD')));
+          const hasOldFrame1 = parsed.some(f => f.id === 'frame1' && (f.type !== 'video' || !f.url.includes('1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf')));
           if (hasOldFrame1) {
             const updated = parsed.map(f => {
               if (f.id === 'frame1') {
                 return {
                   ...f,
                   type: 'video' as const,
-                  url: 'https://drive.google.com/file/d/11IhUdtZgucLSQsiqe2OZb08DOhidbTmD/view?usp=sharing'
+                  url: 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing'
                 };
               }
               return f;
@@ -2549,8 +2537,8 @@ export const isEmbedUrl = (url: string) => {
     return false;
   }
 
-  // Google Drive videos should be played in native <video> tags to support autoplay, muted, looping, and playsinline properties
-  if (lowercase.includes('drive.google.com')) {
+  // Google Drive/Docs videos should be played in native <video> tags to support autoplay, muted, looping, and playsinline properties
+  if (lowercase.includes('drive.google.com') || lowercase.includes('docs.google.com')) {
     return false;
   }
   
@@ -2583,7 +2571,7 @@ export const getEmbedUrl = (url: string, asBackground = true) => {
       return embedUrl;
     }
 
-    if (url.includes('drive.google.com')) {
+    if (url.includes('drive.google.com') || url.includes('docs.google.com')) {
       // Extract Google Drive File ID
       let fileId = '';
       if (url.includes('/file/d/')) {
@@ -2688,8 +2676,26 @@ function LandingPage() {
   const starOpacity = useTransform(scrollY, [100, 700], [0, 1]);
   const heroImgOpacity = useTransform(scrollY, [0, 800], [1, 0.1]);
 
-  const [backdropType, setBackdropType] = useState<'image' | 'video'>('image');
-  const [backdropUrl, setBackdropUrl] = useState('https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071');
+  const [backdropType, setBackdropType] = useState<'image' | 'video'>('video');
+  const [backdropUrl, setBackdropUrl] = useState(() => localStorage.getItem('home_showreel_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
+  const [videoPlayFailed, setVideoPlayFailed] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    // Reset play failure flag when URL changes
+    setVideoPlayFailed(false);
+  }, [backdropUrl]);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.defaultMuted = true;
+      videoRef.current.muted = true;
+      videoRef.current.play().catch(err => {
+        console.warn("Autoplay was blocked or video play failed:", err);
+      });
+    }
+  }, [backdropUrl, videoPlayFailed]);
+
   const [isMobileView, setIsMobileView] = useState(false);
   const [verticals, setVerticals] = useState<VerticalItem[]>(DEFAULT_VERTICALS);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
@@ -2838,9 +2844,16 @@ function LandingPage() {
   };
 
   const loadConfigs = () => {
-    setBackdropType('image');
-    const storedUrl = localStorage.getItem('home_hero_bg_url');
-    setBackdropUrl(storedUrl && storedUrl.trim() !== '' ? storedUrl : 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071');
+    const bgType = (localStorage.getItem('home_hero_bg_type') as 'image' | 'video') || 'video';
+    const bgUrl = localStorage.getItem('home_hero_bg_url') || '';
+    setBackdropType(bgType);
+    
+    const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
+    if (bgType === 'video') {
+      setBackdropUrl(bgUrl || savedShowreel);
+    } else {
+      setBackdropUrl(bgUrl || 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=2000');
+    }
   };
 
   const getMobileBackdropUrl = () => {
@@ -2893,31 +2906,97 @@ function LandingPage() {
       {/* Global Transitioned Fixed Background Layer */}
       <div className="fixed inset-0 z-0 bg-black overflow-hidden pointer-events-none">
         
-        {/* Layer 1: The Hero Cinematic Image or Video Loop (Stays fixed, fades slowly) */}
+        {/* Dynamic Video or Image Backdrop Layer for Hero Section */}
         <motion.div 
           style={{ opacity: heroImgOpacity }}
           className="absolute inset-0"
         >
-          <img 
-            src={transformGoogleDriveUrl(backdropUrl, 'image')} 
-            alt="Cinematic Background" 
-            className="w-full h-full object-cover opacity-95 animate-fade-in"
-          />
-          {/* Transition overlays - Soft bottom blend only, not a dark cover shield */}
-          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black to-transparent pointer-events-none" />
-        </motion.div>
+          {backdropType === 'image' ? (
+            <div className="absolute inset-0 w-full h-full overflow-hidden bg-black">
+              <img 
+                src={transformGoogleDriveUrl(backdropUrl, 'image') || 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=2000'} 
+                alt="Hero Image Backdrop" 
+                className="w-full h-full object-cover opacity-100 transition-opacity duration-1000"
+              />
+            </div>
+          ) : (() => {
+            const videoUrl = backdropUrl || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
+            const isEmbed = videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be') || videoUrl.includes('vimeo.com');
+            const isDrive = videoUrl.includes('drive.google.com') || videoUrl.includes('docs.google.com');
 
-        {/* Layer 2: Main Starry Background Image (Fades in as you scroll) */}
-        <motion.div 
-          style={{ opacity: starOpacity }}
-          className="absolute inset-0"
-        >
-          <img 
-            src="https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?auto=format&fit=crop&q=80&w=2070" 
-            alt="Global Stars" 
-            className="w-full h-full object-cover grayscale opacity-50"
-          />
-          <div className="absolute inset-0 bg-black/70" />
+            // If it is YouTube/Vimeo, or if direct MP4 or Google Drive streaming failed (but we avoid iframe fallback for Drive to ensure autoplay)
+            if (isEmbed || (videoPlayFailed && !isDrive)) {
+              const fallbackUrl = (isEmbed || isDrive) ? videoUrl : 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
+              const isFallbackDrive = fallbackUrl.includes('drive.google.com') || fallbackUrl.includes('docs.google.com');
+              const isYouTube = fallbackUrl.includes('youtube.com') || fallbackUrl.includes('youtu.be');
+              return (
+                <div className="absolute inset-0 w-full h-full overflow-hidden bg-black">
+                  <iframe 
+                    src={getEmbedUrl(fallbackUrl, true) || undefined} 
+                    className={`absolute ${isFallbackDrive ? 'pointer-events-auto' : 'pointer-events-none'} animate-fade-in`}
+                    allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+                    style={{ 
+                      border: 'none',
+                      width: isYouTube ? '115%' : '100%',
+                      height: isYouTube ? '115%' : '100%',
+                      top: isYouTube ? '-7.5%' : '0',
+                      left: isYouTube ? '-7.5%' : '0'
+                    }}
+                  />
+                </div>
+              );
+            }
+
+            // High-performance HTML5 Video tag for direct MP4, stream URLs and Google Drive videos
+            // Set high brightness and full color (no grayscale, opacity-100) to remove the dark/black shade overlay!
+            return (
+              <div className="absolute inset-0 w-full h-full overflow-hidden bg-black">
+                <video 
+                  key={videoUrl}
+                  ref={videoRef}
+                  src={transformGoogleDriveUrl(videoUrl, 'video') || undefined} 
+                  autoPlay 
+                  loop 
+                  muted 
+                  playsInline 
+                  preload="auto"
+                  onCanPlay={(e) => {
+                    e.currentTarget.play().catch((err) => {
+                      console.warn("Autoplay failed onCanPlay:", err);
+                    });
+                  }}
+                  onLoadedData={(e) => {
+                    e.currentTarget.play().catch((err) => {
+                      console.warn("Autoplay failed onLoadedData:", err);
+                    });
+                  }}
+                  onLoadedMetadata={(e) => {
+                    e.currentTarget.play().catch((err) => {
+                      console.warn("Autoplay failed onLoadedMetadata:", err);
+                    });
+                  }}
+                  onError={(e) => {
+                    const videoElement = e.currentTarget;
+                    if (videoElement && videoElement.error) {
+                      const code = videoElement.error.code;
+                      // Code 1 is MEDIA_ERR_ABORTED, which happens naturally when browser requests chunking/seeking
+                      if (code === 1) {
+                        return;
+                      }
+                      console.warn("Direct video playback encountered error code:", code);
+                    } else {
+                      console.warn("Direct video playback encountered error");
+                    }
+                    // For any genuine error on non-Google Drive, mark play as failed so they can fall back
+                    if (!isDrive) {
+                      setVideoPlayFailed(true);
+                    }
+                  }}
+                  className="absolute inset-0 w-full h-full object-contain opacity-100 transition-opacity duration-1000"
+                />
+              </div>
+            );
+          })()}
         </motion.div>
 
         {/* Global Animated Star Field */}
@@ -3756,13 +3835,13 @@ export function ShowreelPage() {
     const bgType = localStorage.getItem('home_hero_bg_type') || 'video';
     const bgUrl = localStorage.getItem('home_hero_bg_url') || '';
     
-    // Migrate any broken/expired Vimeo showreel URL in localStorage
+    // Migrate any broken/expired Vimeo, old YouTube, or old Google Drive showreel URL in localStorage to the Google Drive video
     const storedShowreel = localStorage.getItem('home_showreel_url');
-    if (storedShowreel && storedShowreel.includes('371433846')) {
-      localStorage.setItem('home_showreel_url', 'https://www.youtube.com/watch?v=EngS8gK6u4I');
+    if (!storedShowreel || storedShowreel.includes('371433846') || storedShowreel.includes('EngS8gK6u4I') || storedShowreel.includes('11IhUdtZgucLSQsiqe2OZb08DOhidbTmD')) {
+      localStorage.setItem('home_showreel_url', 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
     }
 
-    const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://www.youtube.com/watch?v=EngS8gK6u4I';
+    const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
     
     // Play backdrop video or fallback to configured showreel if background is photo
     let activeUrl = savedShowreel;
@@ -3857,7 +3936,7 @@ export function ShowreelPage() {
     }
   };
 
-  const iframeSrc = getAutoplayUrl(videoUrl);
+  const iframeSrc = getEmbedUrl(videoUrl, false);
 
   return (
     <div 

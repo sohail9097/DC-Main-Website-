@@ -28,20 +28,21 @@ async function startServer() {
     });
 
     try {
+      // Direct download / streaming link
       const url = `https://drive.google.com/uc?export=download&id=${fileId}`;
       
-      // First request: check if it redirects directly or serves the virus warning screen
-      const response = await fetch(url, {
+      // Let fetch handle redirects natively (follow is the default)
+      let response = await fetch(url, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         },
-        redirect: 'manual',
         signal: abortController.signal
       });
 
-      let redirectUrl = response.headers.get('location');
-      
-      // Safe parsing of Set-Cookie header
+      const contentType = response.headers.get('content-type') || '';
+      const finalUrl = response.url;
+
+      // Extract Set-Cookie header safely
       let rawCookies: string[] = [];
       if (typeof response.headers.getSetCookie === 'function') {
         rawCookies = response.headers.getSetCookie();
@@ -49,35 +50,17 @@ async function startServer() {
         const rawCookiesHeader = response.headers.get('set-cookie');
         rawCookies = rawCookiesHeader ? [rawCookiesHeader] : [];
       }
+      let activeCookies = rawCookies.map(c => c.split(';')[0].trim());
 
-      // Extract only the NAME=VALUE pairs for sending in the Cookie request header
-      const cookies = rawCookies.map(c => c.split(';')[0].trim());
-
-      let videoStreamUrl = redirectUrl || url;
-      let activeCookies = [...cookies];
-
-      // Second request: Fetch the video stream URL to check if it's returning HTML (virus check page) or video bytes
-      let videoResponse = await fetch(videoStreamUrl, {
-        headers: {
-          'Cookie': activeCookies.join('; '),
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        },
-        signal: abortController.signal
-      });
-
-      const contentType = videoResponse.headers.get('content-type') || '';
-
+      // If it returned HTML, it is the virus scan warning screen (common for files > 100MB)
       if (contentType.includes('text/html')) {
-        // It returned 200 OK with HTML (the Google virus warning screen for files > 100MB)
-        const htmlText = await videoResponse.text();
+        const htmlText = await response.text();
         
         let confirmToken: string | null = null;
-        // Try finding confirm token in URL query params
         const confirmMatchUrl = htmlText.match(/confirm=([a-zA-Z0-9_-]+)/);
         if (confirmMatchUrl) {
           confirmToken = confirmMatchUrl[1];
         } else {
-          // Look for hidden input: name="confirm" value="t" or value="t" name="confirm"
           const confirmMatchInput = htmlText.match(/name="confirm"\s+value="([^"]+)"/) || 
                                     htmlText.match(/value="([^"]+)"\s+name="confirm"/);
           if (confirmMatchInput) {
@@ -90,23 +73,20 @@ async function startServer() {
           confirmToken = 't';
         }
 
-        // Build the final confirmed stream URL
-        const streamUrlObj = new URL(videoStreamUrl);
+        // Build the bypass stream URL using the final redirected URL
+        const streamUrlObj = new URL(finalUrl);
         streamUrlObj.searchParams.set('confirm', confirmToken);
-        const finalStreamUrl = streamUrlObj.toString();
+        const confirmedStreamUrl = streamUrlObj.toString();
 
-        // Safe parsing of Set-Cookie header from the warning page response
+        // Safe parsing of any additional Set-Cookie headers from the warning page response
         let newRawCookies: string[] = [];
-        if (typeof videoResponse.headers.getSetCookie === 'function') {
-          newRawCookies = videoResponse.headers.getSetCookie();
-        } else {
-          const rawConfirmCookies = videoResponse.headers.get('set-cookie');
-          newRawCookies = rawConfirmCookies ? [rawConfirmCookies] : [];
+        if (typeof response.headers.getSetCookie === 'function') {
+          newRawCookies = response.headers.getSetCookie();
         }
         const newCookies = newRawCookies.map(c => c.split(';')[0].trim());
         activeCookies = [...activeCookies, ...newCookies];
 
-        // Fetch the final video stream, forwarding the Range header for range-requests
+        // Fetch the confirmed stream, forwarding the Range header for range-requests
         const clientRange = req.headers.range;
         const fetchHeaders: Record<string, string> = {
           'Cookie': activeCookies.join('; '),
@@ -117,28 +97,30 @@ async function startServer() {
           fetchHeaders['Range'] = clientRange;
         }
 
-        videoResponse = await fetch(finalStreamUrl, {
+        response = await fetch(confirmedStreamUrl, {
           headers: fetchHeaders,
           signal: abortController.signal
         });
       } else {
-        // If the second request was already the video stream (not HTML), and the client requested a Range,
-        // we should refetch it with the range header if it wasn't already included.
+        // If the first response was already the video stream, check if range support is requested
         const clientRange = req.headers.range;
-        if (clientRange) {
-          videoResponse = await fetch(videoStreamUrl, {
-            headers: {
-              'Cookie': activeCookies.join('; '),
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-              'Range': clientRange
-            },
+        if (clientRange && response.status !== 206) {
+          const fetchHeaders: Record<string, string> = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Range': clientRange
+          };
+          if (activeCookies.length > 0) {
+            fetchHeaders['Cookie'] = activeCookies.join('; ');
+          }
+          response = await fetch(finalUrl, {
+            headers: fetchHeaders,
             signal: abortController.signal
           });
         }
       }
 
-      // Forward response status (e.g., 206 Partial Content or 200 OK)
-      res.status(videoResponse.status);
+      // Forward response status
+      res.status(response.status);
 
       // Copy relevant media headers back to the browser
       const copyHeaders = [
@@ -150,7 +132,7 @@ async function startServer() {
       ];
 
       copyHeaders.forEach(h => {
-        const val = videoResponse.headers.get(h);
+        const val = response.headers.get(h);
         if (val) {
           res.setHeader(h, val);
         }
@@ -164,21 +146,29 @@ async function startServer() {
       }
 
       // Stream the video bytes to the client
-      const reader = videoResponse.body?.getReader();
-      if (!reader) {
-        return res.status(500).send("No body reader available");
+      if (!response.body) {
+        return res.status(500).send("No stream body available");
       }
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        res.write(value);
-      }
-      res.end();
+      const { Readable, pipeline } = await import("stream");
+      const readableStream = Readable.fromWeb(response.body as any);
+
+      pipeline(readableStream, res, (err) => {
+        if (err) {
+          // Stream cancellation, abort on seek/disconnect, or network reset is normal for video chunking
+          if (
+            err.name === 'AbortError' || 
+            (err as any).code === 'ERR_STREAM_PREMATURE_CLOSE' ||
+            (err as any).code === 'ECONNRESET'
+          ) {
+            return;
+          }
+          console.warn("Stream pipeline completed with message:", err.message);
+        }
+      });
 
     } catch (error: any) {
       if (error.name === 'AbortError') {
-        // Normal client cancellation/disconnection - exit gracefully
         return;
       }
       console.error("Error proxying Google Drive video stream:", error);

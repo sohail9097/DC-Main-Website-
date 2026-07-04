@@ -12,15 +12,17 @@ import { normalizeAndSyncData, isSimilarName } from '../utils/syncHelper';
 export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = 'image'): string {
   if (!url) return '';
   const trimmed = url.trim();
-  // Extract file ID from google drive share link
-  const fileIdRegex = /(?:\/file\/d\/|id=)([^/?#]+)/;
-  const match = trimmed.match(fileIdRegex);
-  if (match && match[1]) {
-    const fileId = match[1];
-    if (type === 'video') {
-      return `https://drive.google.com/uc?export=download&id=${fileId}`;
+  
+  if (trimmed.includes('drive.google.com') || trimmed.includes('docs.google.com')) {
+    const fileIdRegex = /(?:\/file\/d\/|id=)([^/?#]+)/;
+    const match = trimmed.match(fileIdRegex);
+    if (match && match[1]) {
+      const fileId = match[1];
+      if (type === 'video') {
+        return `https://docs.google.com/uc?export=download&id=${fileId}`;
+      }
+      return `https://lh3.googleusercontent.com/d/${fileId}`;
     }
-    return `https://lh3.googleusercontent.com/d/${fileId}`;
   }
   return trimmed;
 }
@@ -88,7 +90,7 @@ const AdminPanel: FC = () => {
   const [homeFilmsLimit, setHomeFilmsLimit] = useState<'3' | '6' | '9' | '12' | 'All'>('6');
   
   // Home Banner and Video states
-  const [homeHeroBgType, setHomeHeroBgType] = useState<'image' | 'video'>('image');
+  const [homeHeroBgType, setHomeHeroBgType] = useState<'image' | 'video'>('video');
   const [homeHeroBgUrl, setHomeHeroBgUrl] = useState('');
   const [homeHeroBgImageUrl, setHomeHeroBgImageUrl] = useState('');
   const [homeShowreelUrl, setHomeShowreelUrl] = useState('');
@@ -550,8 +552,8 @@ const AdminPanel: FC = () => {
     }
 
     // Load home configs
-    const savedHeroBgType = 'image';
-    setHomeHeroBgType('image');
+    const savedHeroBgType = 'video';
+    setHomeHeroBgType(savedHeroBgType);
 
     // Load nav logo configs
     setNavLogoType((localStorage.getItem('nav_logo_type') as 'text' | 'image') || 'text');
@@ -565,7 +567,7 @@ const AdminPanel: FC = () => {
     const savedHeroBgImageUrl = localStorage.getItem('home_hero_bg_image_url') || 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071';
     setHomeHeroBgImageUrl(savedHeroBgImageUrl);
 
-    const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://www.youtube.com/watch?v=EngS8gK6u4I';
+    const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
     setHomeShowreelUrl(savedShowreel);
 
     setHomeTitle1Line1(localStorage.getItem('home_title1_l1') || 'VISUAL');
@@ -1135,7 +1137,7 @@ const AdminPanel: FC = () => {
   // --- Home Hero persistence handlers ---
   const handleSaveHomeHero = (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem('home_hero_bg_type', 'image');
+    localStorage.setItem('home_hero_bg_type', homeHeroBgType);
     localStorage.setItem('home_hero_bg_url', homeHeroBgUrl);
     localStorage.setItem('home_hero_bg_image_url', homeHeroBgUrl);
     localStorage.setItem('home_showreel_url', homeShowreelUrl);
@@ -1153,11 +1155,11 @@ const AdminPanel: FC = () => {
   };
 
   const handleResetHomeHero = () => {
-    if (confirm('Are you sure you want to restore default photo and titles?')) {
-      setHomeHeroBgType('image');
-      setHomeHeroBgUrl('https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071');
-      setHomeHeroBgImageUrl('https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071');
-      setHomeShowreelUrl('https://www.youtube.com/watch?v=EngS8gK6u4I');
+    if (confirm('Are you sure you want to restore default video and titles?')) {
+      setHomeHeroBgType('video');
+      setHomeHeroBgUrl('');
+      setHomeHeroBgImageUrl('');
+      setHomeShowreelUrl('https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
       setHomeTitle1Line1('VISUAL');
       setHomeTitle1Line2('POETRY');
       setHomeTitle2Line1('CINEMATIC');
@@ -1165,7 +1167,7 @@ const AdminPanel: FC = () => {
       setHomeTitle3Line1('DIGITAL');
       setHomeTitle3Line2('RENAISSANCE');
 
-      localStorage.setItem('home_hero_bg_type', 'image');
+      localStorage.setItem('home_hero_bg_type', 'video');
       localStorage.removeItem('home_hero_bg_url');
       localStorage.removeItem('home_hero_bg_image_url');
       localStorage.removeItem('home_showreel_url');
@@ -1944,42 +1946,72 @@ const AdminPanel: FC = () => {
                 </div>
 
                 <form onSubmit={handleSaveHomeHero} className="space-y-6">
-                  {/* Premium Hero Background Image URL */}
-                  <div className="bg-black/30 p-6 rounded-3xl border border-white/5 font-sans space-y-3">
-                    <label className="block text-xs uppercase tracking-widest text-zinc-400 font-black flex items-center gap-2">
-                      <ImageIcon size={14} className="text-orange-500" />
-                      <span>Hero Background Image URL</span>
-                    </label>
-                    <input 
-                      type="text" 
-                      required
-                      value={homeHeroBgUrl}
-                      onChange={(e) => setHomeHeroBgUrl(e.target.value)}
-                      placeholder="Paste premium Unsplash link or other high-resolution image URL"
-                      className="w-full bg-black border border-white/10 focus:border-orange-500 outline-none rounded-xl px-4 py-3 text-sm text-white"
-                    />
-                    <p className="text-[10px] text-white/40 font-medium uppercase tracking-wider">
-                      Provide a beautiful high-resolution image to serve as the immersive cinematic backdrop for your home screen.
-                    </p>
-                  </div>
+                  {/* Hero Background Media Configuration */}
+                  <div className="bg-black/40 p-6 rounded-3xl border border-white/5 space-y-6 font-sans">
+                    <div>
+                      <h3 className="text-xs uppercase tracking-[0.2em] font-black text-white/60 mb-1">
+                        HERO BACKGROUND MEDIA
+                      </h3>
+                      <p className="text-[10px] text-white/30 font-medium">
+                        Choose whether your main entrance background plays a cinematic video loop or displays a high-fidelity static image.
+                      </p>
+                    </div>
 
-                  {/* Showreel Config */}
-                  <div className="bg-black/50 p-6 rounded-3xl border border-white/5 font-sans">
-                    <label className="block text-xs uppercase tracking-widest text-orange-500 font-black mb-2 flex items-center gap-2">
-                      <Play size={12} className="fill-current text-orange-500" />
-                      <span>PRIMARY VIDEO SHOWREEL URL</span>
-                    </label>
-                    <input 
-                      type="text" 
-                      required
-                      value={homeShowreelUrl}
-                      onChange={(e) => setHomeShowreelUrl(e.target.value)}
-                      placeholder="e.g. paste vimeo sd loop or custom mp4 / youtube watch link"
-                      className="w-full bg-black border border-white/10 focus:border-orange-500 outline-none rounded-xl px-4 py-3 text-sm text-white font-medium"
-                    />
-                    <p className="text-[10px] text-white/30 mt-2 font-medium">
-                      Plays in an elegant cinematic lightbox dialog overlay when viewers click the main "Play Showreel" button.
-                    </p>
+                    {/* Media Type Selector */}
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setHomeHeroBgType('video')}
+                        className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 ${
+                          homeHeroBgType === 'video'
+                            ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20'
+                            : 'bg-black border border-white/10 text-white/40 hover:text-white'
+                        }`}
+                      >
+                        <Play size={12} className="fill-current" />
+                        Video Loop
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setHomeHeroBgType('image')}
+                        className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 ${
+                          homeHeroBgType === 'image'
+                            ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20'
+                            : 'bg-black border border-white/10 text-white/40 hover:text-white'
+                        }`}
+                      >
+                        <ImageIcon size={12} />
+                        Static Image
+                      </button>
+                    </div>
+
+                    {/* URL Input field */}
+                    <div className="space-y-2">
+                      <label className="block text-[10px] uppercase tracking-widest text-orange-500 font-black">
+                        {homeHeroBgType === 'video' ? 'GOOGLE DRIVE / DIRECT VIDEO LINK' : 'BACKGROUND IMAGE URL'}
+                      </label>
+                      <input 
+                        type="text" 
+                        required
+                        value={homeHeroBgUrl}
+                        onChange={(e) => {
+                          setHomeHeroBgUrl(e.target.value);
+                          setHomeShowreelUrl(e.target.value);
+                        }}
+                        placeholder={
+                          homeHeroBgType === 'video'
+                            ? "Paste a Google Drive share link, direct MP4 link, YouTube, or Vimeo watch URL"
+                            : "Paste an Unsplash, Pexels, or other direct image URL"
+                        }
+                        className="w-full bg-black border border-white/10 focus:border-orange-500 outline-none rounded-xl px-4 py-3 text-sm text-white font-medium transition-colors"
+                      />
+                      <p className="text-[10px] text-white/30 font-medium">
+                        {homeHeroBgType === 'video'
+                          ? "Supports Google Drive video links! The server automatically processes and proxies the stream so that it autoplays, loops, and runs continuously and seamlessly in the background."
+                          : "This high-fidelity image will be shown as a fixed backdrop behind your entrance titles."
+                        }
+                      </p>
+                    </div>
                   </div>
 
                   {/* Text slider titles */}
