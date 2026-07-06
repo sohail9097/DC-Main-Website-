@@ -262,31 +262,76 @@ async function startServer() {
     }
   });
 
-  // Proxy endpoint to support autoplay and streaming of Google Drive videos of any size (>100MB virus scan bypass) with high-performance direct redirection
+  // Proxy endpoint to support autoplay and streaming of Google Drive videos of any size (>100MB virus scan bypass) with high-performance direct streaming proxy
   app.get("/api/drive-stream", async (req, res) => {
-    const fileId = req.query.id as string;
-    if (!fileId) {
+    const rawFileId = req.query.id as string;
+    if (!rawFileId) {
       return res.status(400).send("Missing file id");
     }
 
+    // Helper to extract clean file ID from raw string or a full URL
+    const extractFileId = (input: string): string => {
+      const driveUrlRegex = /\/file\/d\/([a-zA-Z0-9_-]+)/;
+      const match = input.match(driveUrlRegex);
+      if (match) return match[1];
+
+      const idQueryRegex = /[?&]id=([a-zA-Z0-9_-]+)/;
+      const queryMatch = input.match(idQueryRegex);
+      if (queryMatch) return queryMatch[1];
+
+      return input.trim();
+    };
+
+    const fileId = extractFileId(rawFileId);
+    console.log(`[Google Drive Proxy] Initializing stream request for fileId: "${fileId}"`);
+
+    const abortController = new AbortController();
+    req.on('close', () => {
+      console.log(`[Google Drive Proxy] Client disconnected. Aborting request for fileId: "${fileId}"`);
+      abortController.abort();
+    });
+
     try {
-      // Direct download / streaming link
       const url = `https://drive.google.com/uc?export=download&id=${fileId}`;
       
-      // Let's do a quick check on our server side to see if there is a virus scan confirmation bypass needed
-      const response = await fetch(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        }
+      const initialHeaders: Record<string, string> = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      };
+
+      // Forward client's Range header on first request so Google can respond with 206 if no virus scan screen is triggered
+      if (req.headers.range) {
+        initialHeaders['Range'] = req.headers.range;
+      }
+
+      console.log(`[Google Drive Proxy] Sending initial download check request...`);
+      let response = await fetch(url, {
+        headers: initialHeaders,
+        signal: abortController.signal
       });
 
       const contentType = response.headers.get('content-type') || '';
-      const finalUrl = response.url;
+      let finalUrl = response.url;
 
-      // If it returned HTML, it is the virus scan warning screen (common for files > 100MB)
+      // Safe cookie collection
+      let rawCookies: string[] = [];
+      if (typeof response.headers.getSetCookie === 'function') {
+        rawCookies = response.headers.getSetCookie();
+      } else {
+        const rawCookiesHeader = response.headers.get('set-cookie');
+        rawCookies = rawCookiesHeader ? [rawCookiesHeader] : [];
+      }
+      let activeCookies = rawCookies.map(c => c.split(';')[0].trim()).filter(Boolean);
+
+      let streamUrl = finalUrl;
+      let hasWarning = false;
+
+      // If the content type contains HTML, Google is showing a "large file virus scan" warning page
       if (contentType.includes('text/html')) {
+        hasWarning = true;
         const htmlText = await response.text();
-        
+        console.log(`[Google Drive Proxy] File >100MB warning page detected. Bypassing virus scan check...`);
+
+        // Extract the confirmation token
         let confirmToken: string | null = null;
         const confirmMatchUrl = htmlText.match(/confirm=([a-zA-Z0-9_-]+)/);
         if (confirmMatchUrl) {
@@ -299,23 +344,123 @@ async function startServer() {
           }
         }
 
-        if (confirmToken) {
-          // Build the bypass stream URL using the final redirected URL
-          const streamUrlObj = new URL(finalUrl);
-          streamUrlObj.searchParams.set('confirm', confirmToken);
-          
-          // 302 redirect browser to stream directly from Google's high-performance CDN with the bypass token
-          return res.redirect(302, streamUrlObj.toString());
+        // Fallback to 't' if not matched, which is the standard generic bypass token
+        if (!confirmToken) {
+          confirmToken = 't';
         }
+
+        console.log(`[Google Drive Proxy] Extracted confirmation token: "${confirmToken}"`);
+
+        const streamUrlObj = new URL(finalUrl);
+        streamUrlObj.searchParams.set('confirm', confirmToken);
+        streamUrl = streamUrlObj.toString();
+
+        // Accumulate any cookies returned on the warning page
+        let newRawCookies: string[] = [];
+        if (typeof response.headers.getSetCookie === 'function') {
+          newRawCookies = response.headers.getSetCookie();
+        }
+        const newCookies = newRawCookies.map(c => c.split(';')[0].trim()).filter(Boolean);
+        activeCookies = Array.from(new Set([...activeCookies, ...newCookies]));
       }
 
-      // Already direct video stream/redirect. Redirect browser to get native range request support from Google's CDN
-      return res.redirect(302, finalUrl);
+      // If we had no warning page and no Range header requested, we can reuse the initial response body directly
+      let streamResponse = response;
+      if (hasWarning || req.headers.range) {
+        // If we didn't hit a warning but have range, we should cancel the previous unused body to release resources
+        if (!hasWarning) {
+          try {
+            if (response.body) {
+              await response.body.cancel();
+            }
+          } catch (e) {}
+        }
+
+        const fetchHeaders: Record<string, string> = {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        };
+
+        if (activeCookies.length > 0) {
+          fetchHeaders['Cookie'] = activeCookies.join('; ');
+        }
+
+        if (req.headers.range) {
+          fetchHeaders['Range'] = req.headers.range;
+          console.log(`[Google Drive Proxy] Forwarding Range: "${req.headers.range}"`);
+        }
+
+        console.log(`[Google Drive Proxy] Fetching binary stream from: ${streamUrl}`);
+        streamResponse = await fetch(streamUrl, {
+          headers: fetchHeaders,
+          signal: abortController.signal
+        });
+      }
+
+      // Verify that we are streaming actual video/media content, not HTML
+      const finalContentType = streamResponse.headers.get('content-type') || '';
+      if (finalContentType.includes('text/html')) {
+        console.error(`[Google Drive Proxy] Error: Google returned an HTML page instead of a video stream. The file may be private or deleted.`);
+        return res.status(502).send("Unable to fetch video. The Google Drive file might be private, restricted, or deleted. Please make sure the file sharing settings are set to 'Anyone with the link can view'.");
+      }
+
+      // Forward correct status code (especially 206 for Range requests)
+      res.status(streamResponse.status);
+
+      // Copy key media streaming headers back to the browser
+      const copyHeaders = [
+        'content-type',
+        'content-length',
+        'content-range',
+        'accept-ranges',
+        'cache-control'
+      ];
+
+      copyHeaders.forEach(h => {
+        const val = streamResponse.headers.get(h);
+        if (val) {
+          res.setHeader(h, val);
+        }
+      });
+
+      // Ensure necessary video delivery headers are present
+      if (!res.getHeader('content-type')) {
+        res.setHeader('content-type', 'video/mp4');
+      }
+      if (!res.getHeader('accept-ranges')) {
+        res.setHeader('accept-ranges', 'bytes');
+      }
+
+      // Stream the video bytes to the client
+      if (!streamResponse.body) {
+        console.error(`[Google Drive Proxy] Stream response body is empty`);
+        return res.status(500).send("No stream body available");
+      }
+
+      const { Readable, pipeline } = await import("stream");
+      const readableStream = Readable.fromWeb(streamResponse.body as any);
+
+      pipeline(readableStream, res, (err) => {
+        if (err) {
+          if (
+            err.name === 'AbortError' || 
+            (err as any).code === 'ERR_STREAM_PREMATURE_CLOSE' ||
+            (err as any).code === 'ECONNRESET'
+          ) {
+            // Normal client-side seeking/disconnections, safe to ignore
+            return;
+          }
+          console.warn("[Google Drive Proxy] Stream pipeline completed with warning:", err.message);
+        }
+      });
 
     } catch (error: any) {
-      console.error("Error redirecting Google Drive video stream:", error);
-      // Failover redirect directly to UC download link which allows the client to resolve it
-      return res.redirect(302, `https://drive.google.com/uc?export=download&id=${fileId}`);
+      if (error.name === 'AbortError') {
+        return;
+      }
+      console.error("[Google Drive Proxy] Stream error occurred:", error);
+      if (!res.headersSent) {
+        res.status(500).send("Error streaming Google Drive video");
+      }
     }
   });
 
