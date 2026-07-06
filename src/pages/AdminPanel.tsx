@@ -227,6 +227,13 @@ const AdminPanel: FC = () => {
       setSelectedVideoFile(null);
       setUploadProgress(100);
       
+      // Auto-commit to Portal so the newly uploaded video is instantly active and synced!
+      localStorage.setItem('home_hero_bg_type', 'video');
+      localStorage.setItem('home_hero_bg_url', data.url);
+      localStorage.setItem('home_hero_bg_image_url', data.url);
+      localStorage.setItem('home_showreel_url', data.url);
+      window.dispatchEvent(new Event('storage_updated_home_hero'));
+      
       setTimeout(() => {
         setUploadProgress(0);
         setUploadingVideo(false);
@@ -2228,6 +2235,12 @@ const AdminPanel: FC = () => {
                                     onClick={() => {
                                       setHomeHeroBgUrl(v.url);
                                       setHomeShowreelUrl(v.url);
+                                      // Auto-commit to Portal so the selected video is instantly active and synced!
+                                      localStorage.setItem('home_hero_bg_type', 'video');
+                                      localStorage.setItem('home_hero_bg_url', v.url);
+                                      localStorage.setItem('home_hero_bg_image_url', v.url);
+                                      localStorage.setItem('home_showreel_url', v.url);
+                                      window.dispatchEvent(new Event('storage_updated_home_hero'));
                                     }}
                                     className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${
                                       isActive 

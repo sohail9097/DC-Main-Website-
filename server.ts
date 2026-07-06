@@ -18,7 +18,22 @@ async function startServer() {
     fs.mkdirSync(uploadsDir, { recursive: true });
   }
 
-  // Serve uploads statically
+  // Serve uploads using high-performance, range-request compliant res.sendFile
+  app.get("/uploads/:filename", (req, res) => {
+    const filename = req.params.filename;
+    // Sanitize path to prevent directory traversal
+    const safeFilename = path.basename(filename);
+    const filePath = path.join(uploadsDir, safeFilename);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).send("File not found");
+    }
+
+    // res.sendFile natively handles Range requests (206), Content-Type mapping, Accept-Ranges, and chunking!
+    res.sendFile(filePath);
+  });
+
+  // Serve uploads statically as a fallback
   app.use("/uploads", express.static(uploadsDir));
 
   // Configure multer storage for secure video uploads
@@ -203,16 +218,27 @@ async function startServer() {
         return res.json([]);
       }
       const files = fs.readdirSync(uploadsDir);
-      const videos = files.map(file => {
-        const filePath = path.join(uploadsDir, file);
-        const stats = fs.statSync(filePath);
-        return {
-          filename: file,
-          url: `/uploads/${file}`,
-          size: stats.size,
-          createdAt: stats.birthtime
-        };
-      }).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      const videos = files
+        .filter(file => {
+          const filePath = path.join(uploadsDir, file);
+          try {
+            const stat = fs.statSync(filePath);
+            return stat.isFile() && /\.(mp4|webm|ogg|mov|m4v)$/i.test(file);
+          } catch (e) {
+            return false;
+          }
+        })
+        .map(file => {
+          const filePath = path.join(uploadsDir, file);
+          const stats = fs.statSync(filePath);
+          return {
+            filename: file,
+            url: `/uploads/${file}`,
+            size: stats.size,
+            createdAt: stats.birthtime
+          };
+        })
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
       res.json(videos);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -236,42 +262,26 @@ async function startServer() {
     }
   });
 
-  // Proxy endpoint to support autoplay and streaming of Google Drive videos of any size (>100MB virus scan bypass)
+  // Proxy endpoint to support autoplay and streaming of Google Drive videos of any size (>100MB virus scan bypass) with high-performance direct redirection
   app.get("/api/drive-stream", async (req, res) => {
     const fileId = req.query.id as string;
     if (!fileId) {
       return res.status(400).send("Missing file id");
     }
 
-    const abortController = new AbortController();
-    req.on('close', () => {
-      abortController.abort();
-    });
-
     try {
       // Direct download / streaming link
       const url = `https://drive.google.com/uc?export=download&id=${fileId}`;
       
-      // Let fetch handle redirects natively (follow is the default)
-      let response = await fetch(url, {
+      // Let's do a quick check on our server side to see if there is a virus scan confirmation bypass needed
+      const response = await fetch(url, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        },
-        signal: abortController.signal
+        }
       });
 
       const contentType = response.headers.get('content-type') || '';
       const finalUrl = response.url;
-
-      // Extract Set-Cookie header safely
-      let rawCookies: string[] = [];
-      if (typeof response.headers.getSetCookie === 'function') {
-        rawCookies = response.headers.getSetCookie();
-      } else {
-        const rawCookiesHeader = response.headers.get('set-cookie');
-        rawCookies = rawCookiesHeader ? [rawCookiesHeader] : [];
-      }
-      let activeCookies = rawCookies.map(c => c.split(';')[0].trim());
 
       // If it returned HTML, it is the virus scan warning screen (common for files > 100MB)
       if (contentType.includes('text/html')) {
@@ -289,113 +299,23 @@ async function startServer() {
           }
         }
 
-        // Fallback to 't' which is the universal Google Drive bypass token for large files
-        if (!confirmToken) {
-          confirmToken = 't';
-        }
-
-        // Build the bypass stream URL using the final redirected URL
-        const streamUrlObj = new URL(finalUrl);
-        streamUrlObj.searchParams.set('confirm', confirmToken);
-        const confirmedStreamUrl = streamUrlObj.toString();
-
-        // Safe parsing of any additional Set-Cookie headers from the warning page response
-        let newRawCookies: string[] = [];
-        if (typeof response.headers.getSetCookie === 'function') {
-          newRawCookies = response.headers.getSetCookie();
-        }
-        const newCookies = newRawCookies.map(c => c.split(';')[0].trim());
-        activeCookies = [...activeCookies, ...newCookies];
-
-        // Fetch the confirmed stream, forwarding the Range header for range-requests
-        const clientRange = req.headers.range;
-        const fetchHeaders: Record<string, string> = {
-          'Cookie': activeCookies.join('; '),
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        };
-
-        if (clientRange) {
-          fetchHeaders['Range'] = clientRange;
-        }
-
-        response = await fetch(confirmedStreamUrl, {
-          headers: fetchHeaders,
-          signal: abortController.signal
-        });
-      } else {
-        // If the first response was already the video stream, check if range support is requested
-        const clientRange = req.headers.range;
-        if (clientRange && response.status !== 206) {
-          const fetchHeaders: Record<string, string> = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Range': clientRange
-          };
-          if (activeCookies.length > 0) {
-            fetchHeaders['Cookie'] = activeCookies.join('; ');
-          }
-          response = await fetch(finalUrl, {
-            headers: fetchHeaders,
-            signal: abortController.signal
-          });
+        if (confirmToken) {
+          // Build the bypass stream URL using the final redirected URL
+          const streamUrlObj = new URL(finalUrl);
+          streamUrlObj.searchParams.set('confirm', confirmToken);
+          
+          // 302 redirect browser to stream directly from Google's high-performance CDN with the bypass token
+          return res.redirect(302, streamUrlObj.toString());
         }
       }
 
-      // Forward response status
-      res.status(response.status);
-
-      // Copy relevant media headers back to the browser
-      const copyHeaders = [
-        'content-type',
-        'content-length',
-        'content-range',
-        'accept-ranges',
-        'cache-control'
-      ];
-
-      copyHeaders.forEach(h => {
-        const val = response.headers.get(h);
-        if (val) {
-          res.setHeader(h, val);
-        }
-      });
-
-      if (!res.getHeader('content-type')) {
-        res.setHeader('content-type', 'video/mp4');
-      }
-      if (!res.getHeader('accept-ranges')) {
-        res.setHeader('accept-ranges', 'bytes');
-      }
-
-      // Stream the video bytes to the client
-      if (!response.body) {
-        return res.status(500).send("No stream body available");
-      }
-
-      const { Readable, pipeline } = await import("stream");
-      const readableStream = Readable.fromWeb(response.body as any);
-
-      pipeline(readableStream, res, (err) => {
-        if (err) {
-          // Stream cancellation, abort on seek/disconnect, or network reset is normal for video chunking
-          if (
-            err.name === 'AbortError' || 
-            (err as any).code === 'ERR_STREAM_PREMATURE_CLOSE' ||
-            (err as any).code === 'ECONNRESET'
-          ) {
-            return;
-          }
-          console.warn("Stream pipeline completed with message:", err.message);
-        }
-      });
+      // Already direct video stream/redirect. Redirect browser to get native range request support from Google's CDN
+      return res.redirect(302, finalUrl);
 
     } catch (error: any) {
-      if (error.name === 'AbortError') {
-        return;
-      }
-      console.error("Error proxying Google Drive video stream:", error);
-      if (!res.headersSent) {
-        res.status(500).send("Error streaming Google Drive video");
-      }
+      console.error("Error redirecting Google Drive video stream:", error);
+      // Failover redirect directly to UC download link which allows the client to resolve it
+      return res.redirect(302, `https://drive.google.com/uc?export=download&id=${fileId}`);
     }
   });
 

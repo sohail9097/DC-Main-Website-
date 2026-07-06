@@ -2680,22 +2680,53 @@ function LandingPage() {
   const [backdropType, setBackdropType] = useState<'image' | 'video'>('video');
   const [backdropUrl, setBackdropUrl] = useState(() => localStorage.getItem('home_showreel_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
   const [videoPlayFailed, setVideoPlayFailed] = useState(false);
+  const [videoStarted, setVideoStarted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    // Reset play failure flag when URL changes
+    // Reset play failure flag and video playback status when URL changes
     setVideoPlayFailed(false);
+    setVideoStarted(false);
   }, [backdropUrl]);
 
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.defaultMuted = true;
       videoRef.current.muted = true;
-      videoRef.current.play().catch(err => {
-        console.warn("Autoplay was blocked or video play failed:", err);
-      });
+      videoRef.current.play()
+        .then(() => {
+          setVideoStarted(true);
+        })
+        .catch(err => {
+          console.warn("Autoplay was blocked or video play failed:", err);
+        });
     }
   }, [backdropUrl, videoPlayFailed]);
+
+  // Resume background video play on user interaction if blocked (crucial for Chrome inside iframe/mobile)
+  useEffect(() => {
+    const resumeVideo = () => {
+      if (backdropType === 'video' && videoRef.current && !videoStarted) {
+        videoRef.current.play()
+          .then(() => {
+            setVideoStarted(true);
+          })
+          .catch(err => {
+            console.warn("User interaction video playback resume failed:", err);
+          });
+      }
+    };
+
+    window.addEventListener('click', resumeVideo);
+    window.addEventListener('touchstart', resumeVideo);
+    window.addEventListener('keydown', resumeVideo);
+
+    return () => {
+      window.removeEventListener('click', resumeVideo);
+      window.removeEventListener('touchstart', resumeVideo);
+      window.removeEventListener('keydown', resumeVideo);
+    };
+  }, [backdropType, videoStarted]);
 
   const [isMobileView, setIsMobileView] = useState(false);
   const [verticals, setVerticals] = useState<VerticalItem[]>(DEFAULT_VERTICALS);
@@ -2860,6 +2891,17 @@ function LandingPage() {
   const getMobileBackdropUrl = () => {
     const bgUrl = localStorage.getItem('home_hero_bg_url') || '';
     if (bgUrl && bgUrl.trim() !== '') {
+      const lowercase = bgUrl.toLowerCase();
+      // If the URL is actually a video file, return a high-quality default poster image instead
+      if (
+        lowercase.includes('.mp4') || 
+        lowercase.includes('.webm') || 
+        lowercase.includes('.ogg') || 
+        lowercase.includes('.mov') ||
+        lowercase.startsWith('/uploads/')
+      ) {
+        return 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=2000';
+      }
       return transformGoogleDriveUrl(bgUrl, 'image');
     }
     return 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071';
@@ -2924,9 +2966,17 @@ function LandingPage() {
             const videoUrl = backdropUrl || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
             const isEmbed = videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be') || videoUrl.includes('vimeo.com');
             const isDrive = videoUrl.includes('drive.google.com') || videoUrl.includes('docs.google.com');
+            const isLocal = videoUrl.startsWith('/') || videoUrl.includes('/uploads/') || videoUrl.includes('video-');
+            const isDirectVideo = isLocal || isDrive ||
+                                  videoUrl.toLowerCase().includes('.mp4') || 
+                                  videoUrl.toLowerCase().includes('.webm') || 
+                                  videoUrl.toLowerCase().includes('.ogg') || 
+                                  videoUrl.toLowerCase().includes('.mov') || 
+                                  videoUrl.toLowerCase().includes('.m4v');
 
-            // If it is YouTube/Vimeo, or if direct MP4 or Google Drive streaming failed (but we avoid iframe fallback for Drive to ensure autoplay)
-            if (isEmbed || (videoPlayFailed && !isDrive)) {
+            // If it is YouTube/Vimeo, or if Google Drive stream failed, we can use an iframe to let it play.
+            // But if it is a direct/local video file, we should NEVER fall back to iframe!
+            if ((isEmbed || (videoPlayFailed && !isLocal && !isDrive)) && !isDirectVideo) {
               const fallbackUrl = (isEmbed || isDrive) ? videoUrl : 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
               const isFallbackDrive = fallbackUrl.includes('drive.google.com') || fallbackUrl.includes('docs.google.com');
               const isYouTube = fallbackUrl.includes('youtube.com') || fallbackUrl.includes('youtu.be');
@@ -2956,25 +3006,47 @@ function LandingPage() {
                   key={videoUrl}
                   ref={videoRef}
                   src={transformGoogleDriveUrl(videoUrl, 'video') || undefined} 
+                  poster={getMobileBackdropUrl() || 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=2000'}
                   autoPlay 
                   loop 
                   muted 
                   playsInline 
                   preload="auto"
+                  onPlaying={() => {
+                    console.log("Video started playing successfully!");
+                    setVideoStarted(true);
+                  }}
+                  onTimeUpdate={(e) => {
+                    if (e.currentTarget.currentTime > 0.1) {
+                      setVideoStarted(true);
+                    }
+                  }}
                   onCanPlay={(e) => {
-                    e.currentTarget.play().catch((err) => {
-                      console.warn("Autoplay failed onCanPlay:", err);
-                    });
+                    e.currentTarget.play()
+                      .then(() => {
+                        setVideoStarted(true);
+                      })
+                      .catch((err) => {
+                        console.warn("Autoplay failed onCanPlay:", err);
+                      });
                   }}
                   onLoadedData={(e) => {
-                    e.currentTarget.play().catch((err) => {
-                      console.warn("Autoplay failed onLoadedData:", err);
-                    });
+                    e.currentTarget.play()
+                      .then(() => {
+                        setVideoStarted(true);
+                      })
+                      .catch((err) => {
+                        console.warn("Autoplay failed onLoadedData:", err);
+                      });
                   }}
                   onLoadedMetadata={(e) => {
-                    e.currentTarget.play().catch((err) => {
-                      console.warn("Autoplay failed onLoadedMetadata:", err);
-                    });
+                    e.currentTarget.play()
+                      .then(() => {
+                        setVideoStarted(true);
+                      })
+                      .catch((err) => {
+                        console.warn("Autoplay failed onLoadedMetadata:", err);
+                      });
                   }}
                   onError={(e) => {
                     const videoElement = e.currentTarget;
@@ -2988,12 +3060,12 @@ function LandingPage() {
                     } else {
                       console.warn("Direct video playback encountered error");
                     }
-                    // For any genuine error on non-Google Drive, mark play as failed so they can fall back
-                    if (!isDrive) {
+                    // For any genuine error on remote (excluding Google Drive) videos, mark play as failed so we can fall back to iframe
+                    if (!isLocal && !isDrive) {
                       setVideoPlayFailed(true);
                     }
                   }}
-                  className="absolute inset-0 w-full h-full object-cover opacity-100 transition-opacity duration-1000"
+                  className="absolute inset-0 w-full h-full object-cover opacity-100 transition-opacity duration-1000 z-0"
                 />
               </div>
             );
