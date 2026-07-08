@@ -550,7 +550,7 @@ const FilmsPage = () => {
 
                           {/* Title bottom overlay */}
                           <div className="absolute inset-x-0 bottom-0 p-1.5 xs:p-3 sm:p-5 z-20 flex items-center gap-1.5 xs:gap-3 bg-gradient-to-t from-black/95 via-black/55 to-transparent pt-6 xs:pt-8 sm:pt-12 transition-all duration-300">
-                            <div className="w-5 h-5 xs:w-8 xs:h-8 sm:w-11 sm:h-11 bg-orange-500 group-hover:bg-orange-600 text-white rounded-full flex items-center justify-center transition-all duration-300 shadow-[0_4px_15px_rgba(249,115,22,0.35)] group-hover:scale-110 flex-shrink-0">
+                            <div className="hidden">
                                <Play className="fill-current w-2 h-2 xs:w-3 xs:h-3 sm:w-3.5 sm:h-3.5 translate-x-0.5 text-white" />
                              </div>
                              <div className="flex-1 min-w-0">

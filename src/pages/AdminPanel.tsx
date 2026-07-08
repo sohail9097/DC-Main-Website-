@@ -323,7 +323,7 @@ const AdminPanel: FC = () => {
   const [clientColor, setClientColor] = useState('#FFFFFF');
   const [clientSize, setClientSize] = useState<'small' | 'medium' | 'large' | 'xlarge' | 'extralarge'>('medium');
   const [clientLogoUrl, setClientLogoUrl] = useState('');
-  const [clientLayer, setClientLayer] = useState<1 | 2 | 3>(1);
+  const [clientLayer, setClientLayer] = useState<1 | 2 | 3 | 4>(1);
 
   const saveClientsToStorage = (updatedClients: ClientItem[]) => {
     localStorage.setItem('dc_clients', JSON.stringify(updatedClients));
@@ -390,7 +390,7 @@ const AdminPanel: FC = () => {
     setClientColor(client.color || '#FFFFFF');
     setClientSize((client.size as any) || 'medium');
     setClientLogoUrl(client.logoUrl || '');
-    setClientLayer(client.layer ? (Number(client.layer) as 1 | 2 | 3) : 1);
+    setClientLayer(client.layer ? (Number(client.layer) as 1 | 2 | 3 | 4) : 1);
     setEditingClientIndex(index);
     setShowAddClientForm(false);
   };
@@ -2729,16 +2729,17 @@ const AdminPanel: FC = () => {
                         {/* Layer row assignment */}
                         <div>
                           <label className="block text-xs uppercase tracking-widest text-orange-400 font-black mb-2">
-                            Marquee Ticker Layer (Row 1, 2, or 3)
+                            Marquee Ticker Layer (Row 1, 2, 3, or 4)
                           </label>
                           <select
                             value={clientLayer}
-                            onChange={(e) => setClientLayer(Number(e.target.value) as 1 | 2 | 3)}
+                            onChange={(e) => setClientLayer(Number(e.target.value) as 1 | 2 | 3 | 4)}
                             className="w-full bg-black border border-white/10 focus:border-orange-500 outline-none rounded-xl px-4 py-3 text-sm text-white"
                           >
                             <option value={1}>Layer 1 (Row 1 - Scrolls Left)</option>
                             <option value={2}>Layer 2 (Row 2 - Scrolls Right)</option>
                             <option value={3}>Layer 3 (Row 3 - Scrolls Left)</option>
+                            <option value={4}>Layer 4 (Row 4 - Scrolls Right)</option>
                           </select>
                         </div>
                       </div>
@@ -2856,11 +2857,12 @@ const AdminPanel: FC = () => {
                                   {client.size || 'medium'}
                                 </span>
                                 <span className={`text-[8px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${
-                                  (client.layer ? Number(client.layer) : (idx % 3 + 1)) === 1 ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/10' :
-                                  (client.layer ? Number(client.layer) : (idx % 3 + 1)) === 2 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/10' :
-                                  'bg-purple-500/10 text-purple-400 border border-purple-500/10'
+                                  (client.layer ? Number(client.layer) : (idx % 4 + 1)) === 1 ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/10' :
+                                  (client.layer ? Number(client.layer) : (idx % 4 + 1)) === 2 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/10' :
+                                  (client.layer ? Number(client.layer) : (idx % 4 + 1)) === 3 ? 'bg-purple-500/10 text-purple-400 border border-purple-500/10' :
+                                  'bg-pink-500/10 text-pink-400 border border-pink-500/10'
                                 }`}>
-                                  L{(client.layer ? Number(client.layer) : (idx % 3 + 1))}
+                                  L{(client.layer ? Number(client.layer) : (idx % 4 + 1))}
                                 </span>
                               </div>
                             </div>

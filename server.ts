@@ -4,6 +4,7 @@ import { createServer as createViteServer } from "vite";
 import { fileURLToPath } from "url";
 import fs from "fs";
 import multer from "multer";
+import nodemailer from "nodemailer";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,6 +59,229 @@ async function startServer() {
   // API routes FIRST
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
+  });
+
+  // Configure a resume-specific multer config
+  const resumeStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, uploadsDir);
+    },
+    filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+      const ext = path.extname(file.originalname);
+      cb(null, "resume-" + uniqueSuffix + ext);
+    }
+  });
+
+  const uploadResume = multer({
+    storage: resumeStorage,
+    limits: {
+      fileSize: 15 * 1024 * 1024 // 15MB limit
+    },
+    fileFilter: (req, file, cb) => {
+      const allowedExts = [".pdf", ".doc", ".docx", ".txt", ".rtf", ".png", ".jpg", ".jpeg"];
+      const ext = path.extname(file.originalname).toLowerCase();
+      if (allowedExts.includes(ext)) {
+        cb(null, true);
+      } else {
+        cb(new Error("Only PDF, Word (DOC/DOCX), Text (TXT/RTF), and Image files are allowed."));
+      }
+    }
+  });
+
+  // Upload candidate resume
+  app.post("/api/upload-resume", (req, res) => {
+    uploadResume.single("resume")(req, res, (err) => {
+      if (err) {
+        let errMsg = "Upload failed";
+        if (err instanceof multer.MulterError) {
+          errMsg = `Multer error: ${err.message}`;
+          if (err.code === "LIMIT_FILE_SIZE") {
+            errMsg = "File size limit exceeded. Max limit is 15MB.";
+          }
+        } else if (err instanceof Error) {
+          errMsg = err.message;
+        }
+        return res.status(400).json({ error: errMsg });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ error: "No resume file selected or uploaded" });
+      }
+
+      const resumeUrl = `/uploads/${req.file.filename}`;
+      res.json({
+        url: resumeUrl,
+        filename: req.file.filename,
+        originalname: req.file.originalname,
+        size: req.file.size
+      });
+    });
+  });
+
+  // Simple in-memory rate limiter to prevent spam
+  const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+
+  // Send email and notify candidate application
+  app.post("/api/notify-apply", express.json(), async (req, res) => {
+    const { name, email, phone, role, message, resumeUrl } = req.body;
+
+    // Server-side validation
+    if (!name || typeof name !== "string" || name.trim() === "") {
+      return res.status(400).json({ error: "Full Name is required." });
+    }
+    if (!email || typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: "A valid Email Address is required." });
+    }
+    if (!role || typeof role !== "string" || role.trim() === "") {
+      return res.status(400).json({ error: "Position Applied For is required." });
+    }
+
+    // Rate limiting to prevent spam (max 5 submissions per 15 minutes per IP)
+    const clientIp = (req.headers["x-forwarded-for"] as string || req.socket.remoteAddress || "").split(",")[0].trim();
+    const now = Date.now();
+    const windowMs = 15 * 60 * 1000; // 15 minutes
+    const maxSubmissions = 5;
+
+    let rateInfo = rateLimitMap.get(clientIp);
+    if (!rateInfo || now > rateInfo.resetTime) {
+      rateInfo = { count: 0, resetTime: now + windowMs };
+    }
+
+    if (rateInfo.count >= maxSubmissions) {
+      const remainingMinutes = Math.ceil((rateInfo.resetTime - now) / 60000);
+      return res.status(429).json({
+        error: `Too many submissions. Please try again after ${remainingMinutes} minute(s) to prevent spam.`
+      });
+    }
+
+    rateInfo.count += 1;
+    rateLimitMap.set(clientIp, rateInfo);
+
+    // Prepare transporter with standard env settings or fallback simulated
+    const smtpHost = process.env.SMTP_HOST;
+    const smtpPort = process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT, 10) : 587;
+    const smtpUser = process.env.SMTP_USER;
+    const smtpPass = process.env.SMTP_PASS;
+    const smtpFrom = process.env.SMTP_FROM || '"Dream Team Careers" <noreply@cinematic-dreamteam.com>';
+
+    const recipientEmail = "sohailgaji9097@gmail.com";
+
+    const emailSubject = `New Job Application: ${name} is applying for ${role}`;
+    
+    // Attachments handling
+    const attachments: any[] = [];
+    let resumeStatusMsg = "No resume uploaded";
+
+    if (resumeUrl) {
+      const filename = path.basename(resumeUrl);
+      const filePath = path.join(uploadsDir, filename);
+      if (fs.existsSync(filePath)) {
+        attachments.push({
+          filename: filename,
+          path: filePath
+        });
+        resumeStatusMsg = `Attached: ${filename}`;
+      } else {
+        resumeStatusMsg = `Resume uploaded but file not found on server: ${filename}`;
+      }
+    }
+
+    // Format full resume link using APP_URL if available
+    const appUrl = process.env.APP_URL || "http://localhost:3000";
+    const fullResumeUrl = resumeUrl ? (resumeUrl.startsWith("http") ? resumeUrl : `${appUrl}${resumeUrl}`) : "No resume uploaded";
+
+    const emailHtml = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px; background-color: #ffffff; color: #1f2937;">
+        <h2 style="color: #ea580c; border-bottom: 2px solid #ea580c; padding-bottom: 10px; margin-top: 0;">New Job Application Received</h2>
+        
+        <p style="font-size: 16px; line-height: 1.5;">A new candidate has submitted an application for the <strong>${role}</strong> position.</p>
+        
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold; width: 150px; border-bottom: 1px solid #f3f4f6;">Full Name:</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">${name}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold; border-bottom: 1px solid #f3f4f6;">Email:</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><a href="mailto:${email}" style="color: #ea580c; text-decoration: none;">${email}</a></td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold; border-bottom: 1px solid #f3f4f6;">Phone:</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">${phone || "Not specified"}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold; border-bottom: 1px solid #f3f4f6;">Target Role:</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><span style="background-color: #fff7ed; color: #c2410c; padding: 2px 8px; border-radius: 4px; font-size: 14px; font-weight: 600;">${role}</span></td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold; border-bottom: 1px solid #f3f4f6;">Resume Status:</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">${resumeStatusMsg}</td>
+          </tr>
+        </table>
+        
+        <div style="margin: 20px 0;">
+          <h3 style="color: #374151; font-size: 16px; margin-bottom: 8px;">Candidate's Message / Cover Letter:</h3>
+          <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px 15px; font-style: italic; white-space: pre-wrap; line-height: 1.5; color: #4b5563;">
+            ${message || "No message provided."}
+          </div>
+        </div>
+
+        <div style="margin: 25px 0 10px 0; text-align: center;">
+          ${resumeUrl ? `
+            <a href="${fullResumeUrl}" target="_blank" style="background-color: #ea580c; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+              View & Download Resume File
+            </a>
+          ` : `
+            <p style="color: #dc2626; font-weight: bold;">No resume was attached.</p>
+          `}
+        </div>
+
+        <p style="font-size: 12px; color: #9ca3af; text-align: center; margin-top: 40px; border-top: 1px solid #f3f4f6; padding-top: 15px;">
+          This application was processed securely by the web backend.
+        </p>
+      </div>
+    `;
+
+    console.log(`[Job Application System] Processing application for: ${name} (${email}) - Role: ${role}`);
+
+    if (!smtpHost || !smtpUser || !smtpPass) {
+      return res.status(500).json({
+        error: "SMTP credentials (SMTP_HOST, SMTP_USER, SMTP_PASS) are not configured in your environment variables. Please open the Secrets panel in AI Studio to set them."
+      });
+    }
+
+    try {
+      const transporter = nodemailer.createTransport({
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpPort === 465,
+        auth: {
+          user: smtpUser,
+          pass: smtpPass
+        }
+      });
+
+      await transporter.sendMail({
+        from: smtpFrom,
+        to: recipientEmail,
+        subject: emailSubject,
+        html: emailHtml,
+        attachments: attachments
+      });
+
+      console.log(`[Job Application System] SUCCESS: Email successfully sent with attachments to ${recipientEmail}`);
+      return res.json({
+        success: true,
+        emailSent: true,
+        message: "Your application and resume have been successfully submitted and emailed to the Dream Team production desk."
+      });
+    } catch (err: any) {
+      console.error(`[Job Application System] ERROR sending email via SMTP:`, err.message);
+      return res.status(500).json({
+        error: `Failed to transmit application email: ${err.message}`
+      });
+    }
   });
 
   // Upload a local video file with custom error handling to ensure JSON is always returned

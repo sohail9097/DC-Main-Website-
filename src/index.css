@@ -88,3 +88,12 @@ body {
   scrollbar-width: none;  /* Firefox */
 }
 
+/* Hide native center play/pause overlay on video elements */
+video::-webkit-media-controls-overlay-play-button,
+video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+  -webkit-appearance: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+

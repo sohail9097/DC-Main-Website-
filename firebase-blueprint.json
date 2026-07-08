@@ -68,6 +68,22 @@
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["settings"]
+    },
+    "JobApplication": {
+      "title": "JobApplication",
+      "description": "Candidates who applied for positions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "role": { "type": "string" },
+        "message": { "type": "string" },
+        "resumeUrl": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "role"]
     }
   },
   "firestore": {
@@ -90,6 +106,10 @@
     "/users/{userId}": {
       "schema": "User",
       "description": "User profiles"
+    },
+    "/job_applications/{applicationId}": {
+      "schema": "JobApplication",
+      "description": "Job applicant submissions"
     }
   }
 }

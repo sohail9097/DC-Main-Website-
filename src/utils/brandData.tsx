@@ -16,7 +16,7 @@ export interface ClientItem {
   color: string;
   size?: 'small' | 'medium' | 'large' | 'xlarge' | 'extralarge' | string;
   logoUrl?: string;
-  layer?: 1 | 2 | 3 | string;
+  layer?: 1 | 2 | 3 | 4 | string;
   description?: string;
   renderLogo?: () => React.ReactNode;
 }

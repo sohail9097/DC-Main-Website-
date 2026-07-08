@@ -281,9 +281,10 @@ export const normalizeAndSyncData = (defaultClients: ClientItem[] = [], defaultB
   for (const brand of cleanedBrands) {
     const existsAsClient = cleanedClients.some(c => isSimilarName(c.name, brand.name));
     if (!existsAsClient) {
-      let assignedLayer: 1 | 2 | 3 = 1;
+      let assignedLayer: 1 | 2 | 3 | 4 = 1;
       if (brand.category === 'govt') assignedLayer = 2;
       else if (brand.category === 'corporates') assignedLayer = 3;
+      else if (brand.category === 'platforms') assignedLayer = 4;
 
       cleanedClients.push({
         id: brand.id || `brand-sync-${Date.now()}-${Math.random()}`,
@@ -305,6 +306,7 @@ export const normalizeAndSyncData = (defaultClients: ClientItem[] = [], defaultB
       let assignedCategory: 'brands' | 'platforms' | 'govt' | 'corporates' = 'brands';
       if (client.layer === 2) assignedCategory = 'govt';
       else if (client.layer === 3) assignedCategory = 'corporates';
+      else if (client.layer === 4) assignedCategory = 'platforms';
 
       cleanedBrands.push({
         id: client.id || `client-sync-${Date.now()}-${Math.random()}`,

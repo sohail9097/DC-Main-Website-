@@ -588,9 +588,9 @@ function Clients() {
         );
 
         // Fallback layer assignment if layer is not defined or invalid
-        let assignedLayer: 1 | 2 | 3 | string = item.layer || '';
+        let assignedLayer: 1 | 2 | 3 | 4 | string = item.layer || '';
         if (!assignedLayer) {
-          assignedLayer = (((idx % 3) + 1) as 1 | 2 | 3);
+          assignedLayer = (((idx % 4) + 1) as 1 | 2 | 3 | 4);
         }
 
         const matchesName = defaultItem ? isSimilarName(defaultItem.name, item.name) : false;
@@ -618,10 +618,11 @@ function Clients() {
 
   if (clients.length === 0) return null;
 
-  // Filter clients into Row 1, Row 2, Row 3 based on 'layer' setting (fallback to index % 3 if unset)
-  const row1Clients = clients.filter((c, idx) => c.layer ? (Number(c.layer) === 1) : (idx % 3 === 0));
-  const row2Clients = clients.filter((c, idx) => c.layer ? (Number(c.layer) === 2) : (idx % 3 === 1));
-  const row3Clients = clients.filter((c, idx) => c.layer ? (Number(c.layer) === 3) : (idx % 3 === 2));
+  // Filter clients into Row 1, Row 2, Row 3, Row 4 based on 'layer' setting (fallback to index % 4 if unset)
+  const row1Clients = clients.filter((c, idx) => c.layer ? (Number(c.layer) === 1) : (idx % 4 === 0));
+  const row2Clients = clients.filter((c, idx) => c.layer ? (Number(c.layer) === 2) : (idx % 4 === 1));
+  const row3Clients = clients.filter((c, idx) => c.layer ? (Number(c.layer) === 3) : (idx % 4 === 2));
+  const row4Clients = clients.filter((c, idx) => c.layer ? (Number(c.layer) === 4) : (idx % 4 === 3));
 
   return (
     <section 
@@ -656,6 +657,11 @@ function Clients() {
           {/* Bottom Row - Scrolling Left */}
           {row3Clients.length > 0 && (
             <DraggableMarqueeRow items={row3Clients} direction="left" isMobile={isMobile} />
+          )}
+
+          {/* Fourth Row - Scrolling Right */}
+          {row4Clients.length > 0 && (
+            <DraggableMarqueeRow items={row4Clients} direction="right" isMobile={isMobile} />
           )}
         </div>
       </div>
@@ -1787,7 +1793,7 @@ function Portfolio() {
                           </h5>
                         </div>
 
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 backdrop-blur-sm text-white rounded-full flex items-center justify-center scale-0 group-hover:scale-100 transition-all duration-300 z-30 pointer-events-auto">
+                        <div className="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 backdrop-blur-sm text-white rounded-full flex items-center justify-center scale-0 group-hover:scale-100 transition-all duration-300 z-30 pointer-events-auto">
                           <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
                             <Play className="w-4 h-4 fill-current translate-x-0.5 animate-pulse" />
                           </div>
@@ -2636,6 +2642,12 @@ export const getEmbedUrl = (url: string, asBackground = true) => {
         urlObj.searchParams.set('loop', '1');
         urlObj.searchParams.set('mute', '1');
         urlObj.searchParams.set('controls', '0');
+        urlObj.searchParams.set('modestbranding', '1');
+        urlObj.searchParams.set('rel', '0');
+        urlObj.searchParams.set('showinfo', '0');
+        urlObj.searchParams.set('iv_load_policy', '3');
+        urlObj.searchParams.set('disablekb', '1');
+        urlObj.searchParams.set('fs', '0');
         if (videoId) {
           urlObj.searchParams.set('playlist', videoId);
         }
@@ -2645,6 +2657,8 @@ export const getEmbedUrl = (url: string, asBackground = true) => {
         urlObj.searchParams.set('controls', '1');
       }
       urlObj.searchParams.set('vq', 'hd1080'); // Force HD 1080p quality on YouTube
+      urlObj.searchParams.set('hd', '1'); // Legacy fallback for high definition
+      urlObj.searchParams.set('suggestedQuality', 'hd1080'); // Force high quality through player suggestion API parameters
       return urlObj.toString();
     }
 

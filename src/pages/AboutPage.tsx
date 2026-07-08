@@ -1,8 +1,33 @@
 import { motion, useScroll, useTransform, useSpring, AnimatePresence, useMotionValue, animate } from 'motion/react';
-import { ChevronRight, ChevronLeft, Camera, Users, Target, Rocket, Instagram, Facebook, Youtube, Twitter, X } from 'lucide-react';
+import { 
+  ChevronRight, 
+  ChevronLeft, 
+  Camera, 
+  Users, 
+  Target, 
+  Rocket, 
+  Instagram, 
+  Facebook, 
+  Youtube, 
+  Twitter, 
+  X, 
+  Briefcase, 
+  UploadCloud, 
+  CheckCircle2, 
+  AlertCircle, 
+  Loader2, 
+  Mail, 
+  Phone, 
+  User, 
+  MapPin, 
+  Sparkles, 
+  Clock 
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useState, useEffect, useRef, useMemo, FC, MouseEvent, TouchEvent } from 'react';
+import { useState, useEffect, useRef, useMemo, FC, MouseEvent, TouchEvent, FormEvent } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 import { 
   Navbar, 
   Footer, 
@@ -147,6 +172,155 @@ const AboutPage = () => {
   // Admin edit states
   const [isEditingBg, setIsEditingBg] = useState(false);
   const [tempBgImg, setTempBgImg] = useState('');
+
+  // Careers Form States
+  const [candidateName, setCandidateName] = useState('');
+  const [candidateEmail, setCandidateEmail] = useState('');
+  const [candidatePhone, setCandidatePhone] = useState('');
+  const [candidateRole, setCandidateRole] = useState('');
+  const [candidateMessage, setCandidateMessage] = useState('');
+  const [candidateResume, setCandidateResume] = useState<File | null>(null);
+  const [resumeUrl, setResumeUrl] = useState('');
+  const [resumeFilename, setResumeFilename] = useState('');
+  const [uploadProgress, setUploadProgress] = useState<'idle' | 'uploading' | 'uploaded' | 'error'>('idle');
+  const [uploadError, setUploadError] = useState('');
+  const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [formError, setFormError] = useState('');
+  const [emailMessage, setEmailMessage] = useState('');
+  const [emailSent, setEmailSent] = useState(false);
+
+  const openRoles = useMemo(() => [
+    { id: 'dop', title: 'Director of Photography', category: 'Cinematography', type: 'Full-time', location: 'Mumbai, India' },
+    { id: 'editor', title: 'Senior Film Editor', category: 'Post-Production', type: 'Full-time', location: 'New Delhi, India' },
+    { id: 'vfx', title: 'VFX Artist / Technical Director', category: 'Creative Tech', type: 'Contract', location: 'Remote / Hybrid' },
+    { id: 'producer', title: 'Creative Producer', category: 'Production', type: 'Full-time', location: 'Bengaluru, India' }
+  ], []);
+
+  // Handle Drag & Drop / Selection for Resume
+  const handleResumeChange = async (file: File) => {
+    const allowedExts = [".pdf", ".doc", ".docx", ".txt", ".rtf", ".png", ".jpg", ".jpeg"];
+    const ext = "." + file.name.split('.').pop()?.toLowerCase();
+    
+    if (!allowedExts.includes(ext)) {
+      setUploadError("Only PDF, Word (DOC/DOCX), Text (TXT/RTF), and Image files are allowed.");
+      setUploadProgress('error');
+      return;
+    }
+
+    if (file.size > 15 * 1024 * 1024) { // 15MB
+      setUploadError("File size limit exceeded. Max is 15MB.");
+      setUploadProgress('error');
+      return;
+    }
+
+    setCandidateResume(file);
+    setUploadProgress('uploading');
+    setUploadError('');
+
+    try {
+      const formData = new FormData();
+      formData.append('resume', file);
+
+      const res = await fetch('/api/upload-resume', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Failed to upload resume file.');
+      }
+
+      const data = await res.json();
+      setResumeUrl(data.url);
+      setResumeFilename(data.originalname || file.name);
+      setUploadProgress('uploaded');
+    } catch (err: any) {
+      console.error("Resume upload error:", err);
+      setUploadError(err.message || "Failed to upload resume. Please try again.");
+      setUploadProgress('error');
+    }
+  };
+
+  const removeResumeFile = () => {
+    setCandidateResume(null);
+    setResumeUrl('');
+    setResumeFilename('');
+    setUploadProgress('idle');
+    setUploadError('');
+  };
+
+  // Handle Job Application Form Submission
+  const handleApplySubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setFormError('');
+
+    if (!candidateName.trim() || !candidateEmail.trim() || !candidateRole) {
+      setFormError('Please fill in all required fields (Name, Email, Role).');
+      return;
+    }
+
+    if (uploadProgress === 'uploading') {
+      setFormError('Please wait for the resume file to finish uploading.');
+      return;
+    }
+
+    setFormStatus('submitting');
+
+    try {
+      const applicationData = {
+        name: candidateName,
+        email: candidateEmail,
+        phone: candidatePhone,
+        role: candidateRole,
+        message: candidateMessage,
+        resumeUrl: resumeUrl,
+        createdAt: new Date().toISOString()
+      };
+
+      // 1. Save directly into Firestore 'job_applications'
+      await addDoc(collection(db, 'job_applications'), {
+        ...applicationData,
+        createdAt: serverTimestamp()
+      });
+
+      // 2. Notify backend to trigger email transmission
+      const emailRes = await fetch('/api/notify-apply', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(applicationData)
+      });
+
+      if (!emailRes.ok) {
+        const emailErr = await emailRes.json().catch(() => ({}));
+        throw new Error(emailErr.error || "Failed to dispatch email notification.");
+      }
+
+      const emailSuccess = await emailRes.json();
+      console.log("Email status:", emailSuccess);
+      
+      setEmailSent(true);
+      setEmailMessage(emailSuccess.message || 'Your application has been successfully sent!');
+
+      // Reset form on success
+      setFormStatus('success');
+      setCandidateName('');
+      setCandidateEmail('');
+      setCandidatePhone('');
+      setCandidateRole('');
+      setCandidateMessage('');
+      setCandidateResume(null);
+      setResumeUrl('');
+      setResumeFilename('');
+      setUploadProgress('idle');
+    } catch (err: any) {
+      console.error("Failed to submit job application:", err);
+      setFormError(err.message || "An unexpected error occurred. Please try again.");
+      setFormStatus('error');
+    }
+  };
 
   // Dynamic states
   const [word1, setWord1] = useState('Dream');
@@ -1095,7 +1269,291 @@ const AboutPage = () => {
 
 
        </main>
-      <InteractiveOptions />
+      {/* Join Us / Careers Section */}
+          <section id="join-us-section" className="relative py-16 md:py-24 bg-black border-t border-zinc-900 overflow-hidden">
+            {/* Ambient Background Glows */}
+            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-orange-600/5 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-zinc-950/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+                
+                {/* Left Side: Copy and Jobs Grid */}
+                <div className="lg:col-span-5 flex flex-col justify-start">
+                  <div className="mb-8">
+                    <span className="text-orange-500 font-mono text-xs uppercase tracking-widest block mb-2 font-bold">Careers</span>
+                    <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none mb-4">
+                      Join us
+                    </h2>
+                    <p className="text-zinc-400 text-sm md:text-base leading-relaxed">
+                      We are always seeking obsessed creators, technical wizards, and poetic dreamers. If you thrive at the intersection of cinematic craft and digital-first storytelling, find your spot here.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Right Side: Elegant Careers Form */}
+                <div className="lg:col-span-7">
+                  <div className="bg-zinc-950/50 border border-zinc-900/80 p-6 md:p-8 rounded-2xl relative shadow-2xl backdrop-blur-md">
+                    
+                    {formStatus === 'success' ? (
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="text-center py-12 px-4 flex flex-col items-center"
+                      >
+                        <div className="w-16 h-16 rounded-full bg-orange-500/10 border border-orange-500/30 flex items-center justify-center mb-6 text-orange-500">
+                          <CheckCircle2 size={32} />
+                        </div>
+                        <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-2">
+                          Application Submitted!
+                        </h3>
+                        <p className="text-zinc-400 text-sm max-w-md mx-auto mb-4 leading-relaxed">
+                          Thank you for applying. Your application has been successfully received and saved to the database.
+                        </p>
+                        
+                        {emailSent ? (
+                          <div className="mb-6 p-3.5 rounded-xl bg-green-950/20 border border-green-500/20 text-green-400 text-xs max-w-md text-center">
+                            📬 {emailMessage || "A live notification email was successfully sent to sohailgaji9097@gmail.com!"}
+                          </div>
+                        ) : (
+                          <div className="mb-6 p-4 rounded-xl bg-orange-950/20 border border-orange-500/20 text-orange-400 text-xs text-left max-w-md">
+                            <p className="font-bold flex items-center gap-1.5 mb-1 text-orange-300 font-mono uppercase tracking-wider text-[10px]">
+                              ⚠️ Email not sent (Simulated Mode)
+                            </p>
+                            <p className="leading-relaxed text-[11px] text-zinc-300">
+                              Since SMTP credentials are not configured yet, the transmission to <strong>sohailgaji9097@gmail.com</strong> was simulated.
+                            </p>
+                            <p className="mt-2 leading-relaxed text-[11px] text-orange-300">
+                              To receive live emails, open the <strong>Settings (Secrets)</strong> panel in the AI Studio UI and configure your SMTP variables (SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS).
+                            </p>
+                          </div>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setFormStatus('idle')}
+                          className="px-6 py-2.5 rounded-lg font-mono text-xs uppercase tracking-wider font-extrabold border border-orange-500/30 bg-orange-500/10 text-orange-400 hover:bg-orange-500 hover:text-white transition-all duration-300 pointer-events-auto cursor-pointer"
+                        >
+                          Submit Another Application
+                        </button>
+                      </motion.div>
+                    ) : (
+                      <form onSubmit={handleApplySubmit} className="space-y-6">
+                        <div className="border-b border-zinc-900 pb-4 mb-2">
+                          <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                            <Sparkles className="text-orange-500 w-4 h-4" />
+                            Apply for a Position
+                          </h3>
+                          <p className="text-xs text-zinc-500 mt-1">
+                            Complete the fields below to submit your details and upload your resume.
+                          </p>
+                        </div>
+
+                        {formError && (
+                          <div className="p-4 rounded-xl bg-red-950/20 border border-red-500/30 text-red-400 text-xs flex items-start gap-2">
+                            <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                            <span>{formError}</span>
+                          </div>
+                        )}
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Name Input */}
+                          <div>
+                            <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">
+                              Full Name <span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative">
+                              <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                              <input
+                                type="text"
+                                required
+                                value={candidateName}
+                                onChange={(e) => setCandidateName(e.target.value)}
+                                placeholder="Your Name"
+                                className="w-full pl-10 pr-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Email Input */}
+                          <div>
+                            <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">
+                              Email Address <span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative">
+                              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                              <input
+                                type="email"
+                                required
+                                value={candidateEmail}
+                                onChange={(e) => setCandidateEmail(e.target.value)}
+                                placeholder="yourname@gmail.com"
+                                className="w-full pl-10 pr-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Phone Input */}
+                          <div>
+                            <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">
+                              Phone Number
+                            </label>
+                            <div className="relative">
+                              <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                              <input
+                                type="tel"
+                                value={candidatePhone}
+                                onChange={(e) => setCandidatePhone(e.target.value)}
+                                placeholder="+91 98765 43210"
+                                className="w-full pl-10 pr-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Role Selection Dropdown */}
+                          <div>
+                            <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">
+                              Position Applied For <span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative">
+                              <Briefcase className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                              <select
+                                required
+                                value={candidateRole}
+                                onChange={(e) => setCandidateRole(e.target.value)}
+                                className="w-full pl-10 pr-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200 appearance-none text-white font-medium"
+                              >
+                                <option value="" className="bg-zinc-950 text-zinc-400">Select a Role...</option>
+                                {openRoles.map((role) => (
+                                  <option key={role.id} value={role.title} className="bg-zinc-950 text-white">
+                                    {role.title}
+                                  </option>
+                                ))}
+                                <option value="General / Other" className="bg-zinc-950 text-white">General Application / Other</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Message / Cover Letter */}
+                        <div>
+                          <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">
+                            Message / Cover Letter
+                          </label>
+                          <textarea
+                            rows={4}
+                            value={candidateMessage}
+                            onChange={(e) => setCandidateMessage(e.target.value)}
+                            placeholder="Tell us about yourself, your reels, and why you want to join our Dream Team..."
+                            className="w-full px-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200 resize-none"
+                          />
+                        </div>
+
+                        {/* Resume Drag & Drop Upload Block */}
+                        <div>
+                          <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">
+                            Resume Upload (PDF, Word, Text, Image)
+                          </label>
+                          
+                          {uploadProgress === 'idle' || uploadProgress === 'error' ? (
+                            <div 
+                              className="border-2 border-dashed border-zinc-800/80 rounded-xl p-6 text-center hover:border-orange-500/50 transition-colors duration-200 cursor-pointer bg-zinc-900/5 relative group"
+                              onClick={() => document.getElementById('resume-file-picker')?.click()}
+                              onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('border-orange-500'); }}
+                              onDragLeave={(e) => { e.preventDefault(); e.currentTarget.classList.remove('border-orange-500'); }}
+                              onDrop={(e) => {
+                                e.preventDefault();
+                                e.currentTarget.classList.remove('border-orange-500');
+                                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                                  handleResumeChange(e.dataTransfer.files[0]);
+                                }
+                              }}
+                            >
+                              <input 
+                                id="resume-file-picker" 
+                                type="file" 
+                                className="hidden" 
+                                accept=".pdf,.doc,.docx,.txt,.rtf,.png,.jpg,.jpeg"
+                                onChange={(e) => {
+                                  if (e.target.files && e.target.files[0]) {
+                                    handleResumeChange(e.target.files[0]);
+                                  }
+                                }}
+                              />
+                              <UploadCloud className="w-8 h-8 text-zinc-600 mx-auto mb-2 group-hover:text-orange-400 transition-colors duration-200" />
+                              <p className="text-xs text-zinc-300 font-semibold mb-1">
+                                Drag & drop your resume file here, or <span className="text-orange-500 underline text-orange-400 font-bold">browse</span>
+                              </p>
+                              <p className="text-[10px] text-zinc-500 font-mono">
+                                PDF, Word, TXT, or Image up to 15MB
+                              </p>
+                              {uploadProgress === 'error' && (
+                                <p className="text-red-500 text-[11px] mt-2 flex items-center justify-center gap-1">
+                                  <AlertCircle size={12} />
+                                  {uploadError}
+                                </p>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="bg-zinc-900/30 border border-zinc-800 p-4 rounded-xl flex items-center justify-between gap-3">
+                              <div className="flex items-center gap-3 overflow-hidden">
+                                {uploadProgress === 'uploading' ? (
+                                  <Loader2 className="w-5 h-5 text-orange-500 animate-spin shrink-0" />
+                                ) : (
+                                  <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+                                )}
+                                <div className="text-left overflow-hidden">
+                                  <p className="text-xs text-white font-bold truncate">
+                                    {resumeFilename || (candidateResume && candidateResume.name)}
+                                  </p>
+                                  <p className="text-[10px] font-mono text-zinc-500">
+                                    {uploadProgress === 'uploading' ? 'Uploading to database...' : 'Successfully attached'}
+                                  </p>
+                                </div>
+                              </div>
+                              {uploadProgress === 'uploaded' && (
+                                <button
+                                  type="button"
+                                  onClick={removeResumeFile}
+                                  className="text-xs font-mono uppercase tracking-wider text-red-500 hover:text-red-400 font-bold cursor-pointer"
+                                >
+                                  Remove
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Submit Button */}
+                        <div className="pt-2">
+                          <button
+                            type="submit"
+                            disabled={formStatus === 'submitting'}
+                            className="w-full py-4 px-6 rounded-xl bg-orange-600 hover:bg-orange-500 disabled:bg-zinc-800 disabled:text-zinc-500 text-white font-bold text-sm uppercase tracking-wider transition-all duration-300 pointer-events-auto cursor-pointer active:scale-[0.99] flex items-center justify-center gap-2 shadow-lg hover:shadow-orange-950/20 shadow-orange-950/10"
+                          >
+                            {formStatus === 'submitting' ? (
+                              <>
+                                <Loader2 size={16} className="animate-spin" />
+                                Submitting Application...
+                              </>
+                            ) : (
+                              <>
+                                Send Application
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </form>
+                    )}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </section>
+
+          <InteractiveOptions />
       <Footer />
 
       {/* Hero Image Management Mini Admin Modal */}
