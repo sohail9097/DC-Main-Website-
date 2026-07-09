@@ -327,6 +327,7 @@ const AboutPage = () => {
   const [word2, setWord2] = useState('Catchers');
   const [tagline, setTagline] = useState('Engineers of visual euphoria. Architects of cinematic truth.');
   const [bgImg, setBgImg] = useState('https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&q=80&w=2072');
+  const [joinUsImg, setJoinUsImg] = useState('https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=800');
   const [genesisSub, setGenesisSub] = useState('The Genesis');
   const [genesisTitle, setGenesisTitle] = useState('The Genesis');
   const [genesisP1, setGenesisP1] = useState('Dreamcatchers began with two storytellers creating lifestyle programming for television. After years of crafting content at some of India\'s leading broadcast networks, Puneet and Amitabh Gautam set out to build a production company.');
@@ -388,6 +389,7 @@ const AboutPage = () => {
     setWord2(localStorage.getItem('about_bgt_word2') || 'Catchers');
     setTagline(localStorage.getItem('about_bgt_tagline') || 'Engineers of visual euphoria. Architects of cinematic truth.');
     setBgImg(localStorage.getItem('about_hero_bg') || 'https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&q=80&w=2072');
+    setJoinUsImg(localStorage.getItem('about_join_us_img') || 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=800');
     setGenesisSub(localStorage.getItem('about_genesis_sub') || 'The Genesis');
 
     let storedTitle = localStorage.getItem('about_genesis_title');
@@ -1279,8 +1281,8 @@ const AboutPage = () => {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
                 
                 {/* Left Side: Copy and Jobs Grid */}
-                <div className="lg:col-span-5 flex flex-col justify-start">
-                  <div className="mb-8">
+                <div className="lg:col-span-5 flex flex-col justify-start gap-6">
+                  <div className="mb-2">
                     <span className="text-orange-500 font-mono text-xs uppercase tracking-widest block mb-2 font-bold">Careers</span>
                     <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none mb-4">
                       Join us
@@ -1289,6 +1291,21 @@ const AboutPage = () => {
                       We are always seeking obsessed creators, technical wizards, and poetic dreamers. If you thrive at the intersection of cinematic craft and digital-first storytelling, find your spot here.
                     </p>
                   </div>
+
+                  {/* Cinematic Career Image Block */}
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6 }}
+                    className="relative w-full mt-4 flex justify-center items-center"
+                  >
+                    <img 
+                      src={transformGoogleDriveUrl(joinUsImg, 'image')} 
+                      alt="Join Dreamcatchers" 
+                      className="w-full h-auto max-h-[550px] object-contain rounded-2xl"
+                    />
+                  </motion.div>
                 </div>
 
                 {/* Right Side: Elegant Careers Form */}
@@ -1405,7 +1422,7 @@ const AboutPage = () => {
                                 type="tel"
                                 value={candidatePhone}
                                 onChange={(e) => setCandidatePhone(e.target.value)}
-                                placeholder="+91 98765 43210"
+                                placeholder="Enter your number"
                                 className="w-full pl-10 pr-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
                               />
                             </div>

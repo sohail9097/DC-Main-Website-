@@ -51,6 +51,7 @@ const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
             top: star.top,
             width: `${star.size}px`,
             height: `${star.size}px`,
+            opacity: 0.3,
             '--drift-x': `${star.driftX}px`,
             '--drift-y': `${star.driftY}px`,
             animation: `starTwinkleDrift ${star.duration}s infinite ease-in-out`,

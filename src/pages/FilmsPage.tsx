@@ -119,7 +119,7 @@ const SECTIONS_CONFIG = [
     desc: "High-energy television formats, live productions & real-time events",
     glow: "rgba(239, 68, 68, 0.4)",
     badge: "06",
-    img: "https://images.unsplash.com/photo-1516280440614-37939bbacd6a?auto=format&fit=crop&q=80&w=600"
+    img: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=600"
   },
   {
     name: "Commercials",

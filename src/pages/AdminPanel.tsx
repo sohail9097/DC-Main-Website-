@@ -611,6 +611,7 @@ const AdminPanel: FC = () => {
   const [aboutWord2, setAboutWord2] = useState('Catchers');
   const [aboutTagline, setAboutTagline] = useState('Engineers of visual euphoria. Architects of cinematic truth.');
   const [aboutHeroBg, setAboutHeroBg] = useState('https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&q=80&w=2072');
+  const [aboutJoinUsImg, setAboutJoinUsImg] = useState('https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=800');
   const [aboutGenesisSub, setAboutGenesisSub] = useState('The Genesis');
   const [aboutGenesisTitle, setAboutGenesisTitle] = useState('The Genesis');
   const [aboutGenesisP1, setAboutGenesisP1] = useState('Dreamcatchers began with two storytellers creating lifestyle programming for television. After years of crafting content at some of India\'s leading broadcast networks, Puneet and Amitabh Gautam set out to build a production company.');
@@ -778,6 +779,7 @@ const AdminPanel: FC = () => {
     setAboutWord2(localStorage.getItem('about_bgt_word2') || 'Catchers');
     setAboutTagline(localStorage.getItem('about_bgt_tagline') || 'Engineers of visual euphoria. Architects of cinematic truth.');
     setAboutHeroBg(localStorage.getItem('about_hero_bg') || 'https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&q=80&w=2072');
+    setAboutJoinUsImg(localStorage.getItem('about_join_us_img') || 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=800');
     setAboutGenesisSub(localStorage.getItem('about_genesis_sub') || 'The Genesis');
 
     let storedTitle = localStorage.getItem('about_genesis_title');
@@ -1389,6 +1391,7 @@ const AdminPanel: FC = () => {
     localStorage.setItem('about_bgt_word2', aboutWord2);
     localStorage.setItem('about_bgt_tagline', aboutTagline);
     localStorage.setItem('about_hero_bg', aboutHeroBg);
+    localStorage.setItem('about_join_us_img', aboutJoinUsImg);
     localStorage.setItem('about_genesis_sub', aboutGenesisSub);
     localStorage.setItem('about_genesis_title', aboutGenesisTitle);
     localStorage.setItem('about_genesis_p1', aboutGenesisP1);
@@ -1487,6 +1490,7 @@ const AdminPanel: FC = () => {
       setAboutWord2('Catchers');
       setAboutTagline('Engineers of visual euphoria. Architects of cinematic truth.');
       setAboutHeroBg('https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&q=80&w=2072');
+      setAboutJoinUsImg('https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=800');
       setAboutGenesisSub('The Genesis');
       setAboutGenesisTitle('The Genesis');
       setAboutGenesisP1('Dreamcatchers began with two storytellers creating lifestyle programming for television. After years of crafting content at some of India\'s leading broadcast networks, Puneet and Amitabh Gautam set out to build a production company.');
@@ -1508,6 +1512,7 @@ const AdminPanel: FC = () => {
       localStorage.removeItem('about_bgt_word2');
       localStorage.removeItem('about_bgt_tagline');
       localStorage.removeItem('about_hero_bg');
+      localStorage.removeItem('about_join_us_img');
       localStorage.removeItem('about_genesis_sub');
       localStorage.removeItem('about_genesis_title');
       localStorage.removeItem('about_genesis_p1');
@@ -4626,6 +4631,35 @@ const AdminPanel: FC = () => {
                     </div>
                   </div>
                 </div>
+
+                 {/* 2.5 JOIN US (CAREERS) MEDIA */}
+                 <div className="bg-zinc-950 border border-white/5 p-6 md:p-8 rounded-[2.5rem] space-y-6">
+                   <h3 className="text-lg font-black uppercase italic tracking-tight text-orange-500 border-b border-white/5 pb-3">
+                     💼 Join Us (Careers) Section Image
+                   </h3>
+                   
+                   <div>
+                     <label className="block text-xs uppercase tracking-widest text-zinc-400 font-bold mb-2">Join Us Section Image URL</label>
+                     <input
+                       type="url"
+                       required
+                       value={aboutJoinUsImg || ''}
+                       onChange={(e) => setAboutJoinUsImg(e.target.value)}
+                       placeholder="https://images.unsplash.com/photo-..."
+                       className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white font-mono"
+                     />
+                     <div className="mt-4 rounded-2xl max-h-[350px] p-2 border border-white/5 relative bg-zinc-900/40 flex items-center justify-center mx-auto overflow-hidden">
+                       {aboutJoinUsImg ? (
+                         <img src={transformGoogleDriveUrl(aboutJoinUsImg, 'image')} className="max-w-full max-h-[320px] object-contain rounded-xl" alt="Join Us Preview" onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=800'; }} />
+                       ) : (
+                         <span className="text-white/20 text-xs font-mono py-10">No Image URL Provided</span>
+                       )}
+                       <div className="absolute bottom-2 right-2 bg-black/80 px-2 py-1 rounded-md">
+                         <span className="text-[9px] font-mono tracking-widest uppercase font-bold text-orange-500">Full Image Preview</span>
+                       </div>
+                     </div>
+                   </div>
+                 </div>
               </div>
 
               {/* Right panel: METRICS & SUBMIT ACTIONS */}

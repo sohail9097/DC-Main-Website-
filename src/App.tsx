@@ -1413,7 +1413,7 @@ const HOME_CATEGORIES = [
   {
     name: "Reality",
     desc: "High-energy television formats, live productions & real-time events",
-    img: "https://images.unsplash.com/photo-1516280440614-37939bbacd6a?auto=format&fit=crop&q=80&w=800",
+    img: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=800",
     glow: "rgba(239, 68, 68, 0.4)"
   },
   {
@@ -2689,7 +2689,7 @@ function LandingPage() {
   const navigate = useNavigate();
   const { scrollY } = useScroll();
   const starOpacity = useTransform(scrollY, [100, 700], [0, 1]);
-  const heroImgOpacity = useTransform(scrollY, [0, 800], [1, 0.1]);
+  const heroImgOpacity = useTransform(scrollY, [0, 800], [1, 0]);
 
   const [backdropType, setBackdropType] = useState<'image' | 'video'>('video');
   const [backdropUrl, setBackdropUrl] = useState(() => localStorage.getItem('home_showreel_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
