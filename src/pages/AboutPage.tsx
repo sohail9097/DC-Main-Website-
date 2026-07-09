@@ -1282,7 +1282,13 @@ const AboutPage = () => {
                 
                 {/* Left Side: Copy and Jobs Grid */}
                 <div className="lg:col-span-5 flex flex-col justify-start gap-6">
-                  <div className="mb-2">
+                  <motion.div 
+                    initial={{ opacity: 0, x: -40 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: false, amount: 0.1 }}
+                    transition={{ duration: 0.7, ease: "easeOut" }}
+                    className="mb-2"
+                  >
                     <span className="text-orange-500 font-mono text-xs uppercase tracking-widest block mb-2 font-bold">Careers</span>
                     <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none mb-4">
                       Join us
@@ -1290,14 +1296,14 @@ const AboutPage = () => {
                     <p className="text-zinc-400 text-sm md:text-base leading-relaxed">
                       We are always seeking obsessed creators, technical wizards, and poetic dreamers. If you thrive at the intersection of cinematic craft and digital-first storytelling, find your spot here.
                     </p>
-                  </div>
+                  </motion.div>
 
                   {/* Cinematic Career Image Block */}
                   <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
+                    initial={{ opacity: 0, y: 50, scale: 0.95 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: false, amount: 0.1 }}
+                    transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
                     className="relative w-full mt-4 flex justify-center items-center"
                   >
                     <img 
@@ -1309,8 +1315,14 @@ const AboutPage = () => {
                 </div>
 
                 {/* Right Side: Elegant Careers Form */}
-                <div className="lg:col-span-7">
-                  <div className="bg-zinc-950/50 border border-zinc-900/80 p-6 md:p-8 rounded-2xl relative shadow-2xl backdrop-blur-md">
+                <motion.div 
+                  initial={{ opacity: 0, y: 50, scale: 0.98 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  viewport={{ once: false, amount: 0.1 }}
+                  transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+                  className="lg:col-span-7"
+                >
+                  <div className="bg-zinc-950/50 border border-zinc-900/80 p-6 md:p-8 rounded-2xl relative shadow-2xl backdrop-blur-md font-sans">
                     
                     {formStatus === 'success' ? (
                       <motion.div 
@@ -1564,7 +1576,7 @@ const AboutPage = () => {
                       </form>
                     )}
                   </div>
-                </div>
+                </motion.div>
 
               </div>
             </div>
