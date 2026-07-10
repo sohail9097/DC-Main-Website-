@@ -613,12 +613,16 @@ export default function ConnectPage() {
                       visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } }
                     }}
                     whileHover={{ y: -6, borderColor: 'rgba(249,115,22,0.5)', boxShadow: '0 10px 30px -10px rgba(249,115,22,0.15)' }}
-                    className="p-6 sm:p-8 bg-zinc-950/60 border border-orange-500/20 rounded-[2rem] flex flex-col items-start transition-all duration-300"
+                    className="p-5 bg-zinc-950/60 border border-orange-500/20 rounded-[2rem] flex flex-col items-start transition-all duration-300 w-full overflow-hidden"
                   >
                     <Mail className="w-8 h-8 text-orange-500 mb-6 flex-shrink-0" />
-                    <div className="text-left">
+                    <div className="text-left w-full overflow-hidden">
                       <p className="text-[9px] sm:text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-500 font-bold mb-1.5">Email Us</p>
-                      <a href={`mailto:${contactEmail}`} className="text-xs min-[380px]:text-sm sm:text-base md:text-lg font-bold text-white hover:text-orange-400 transition-colors font-sans block whitespace-nowrap leading-tight">
+                      <a 
+                        href={`mailto:${contactEmail}`} 
+                        title={contactEmail}
+                        className="text-xs sm:text-xs md:text-sm lg:text-xs xl:text-sm min-[1300px]:text-base font-bold text-white hover:text-orange-400 transition-colors font-sans block truncate leading-tight w-full"
+                      >
                         {contactEmail}
                       </a>
                     </div>
@@ -631,12 +635,16 @@ export default function ConnectPage() {
                       visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } }
                     }}
                     whileHover={{ y: -6, borderColor: 'rgba(249,115,22,0.5)', boxShadow: '0 10px 30px -10px rgba(249,115,22,0.15)' }}
-                    className="p-6 sm:p-8 bg-zinc-950/60 border border-orange-500/20 rounded-[2rem] flex flex-col items-start transition-all duration-300"
+                    className="p-5 bg-zinc-950/60 border border-orange-500/20 rounded-[2rem] flex flex-col items-start transition-all duration-300 w-full overflow-hidden"
                   >
                     <Phone className="w-8 h-8 text-orange-500 mb-6 flex-shrink-0" />
-                    <div className="text-left">
+                    <div className="text-left w-full overflow-hidden">
                       <p className="text-[9px] sm:text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-500 font-bold mb-1.5">Call Us</p>
-                      <a href={`tel:${contactPhone}`} className="text-sm sm:text-base md:text-lg font-bold text-white hover:text-orange-400 transition-colors font-sans block leading-tight">
+                      <a 
+                        href={`tel:${contactPhone}`} 
+                        title={contactPhone}
+                        className="text-xs sm:text-xs md:text-sm lg:text-xs xl:text-sm min-[1300px]:text-base font-bold text-white hover:text-orange-400 transition-colors font-sans block truncate leading-tight w-full"
+                      >
                         {contactPhone}
                       </a>
                     </div>
