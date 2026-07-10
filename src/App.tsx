@@ -3708,7 +3708,7 @@ function LandingPage() {
                       <Mail className="w-8 h-8 text-orange-500 mb-6 flex-shrink-0" />
                       <div className="text-left">
                         <p className="text-[9px] sm:text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-500 font-bold mb-1.5">Email Us</p>
-                        <a href={`mailto:${contactEmail}`} className="text-sm sm:text-base md:text-lg font-bold text-white hover:text-orange-400 transition-colors font-sans block break-all leading-tight">
+                        <a href={`mailto:${contactEmail}`} className="text-xs min-[380px]:text-sm sm:text-base md:text-lg font-bold text-white hover:text-orange-400 transition-colors font-sans block whitespace-nowrap leading-tight">
                           {contactEmail}
                         </a>
                       </div>
