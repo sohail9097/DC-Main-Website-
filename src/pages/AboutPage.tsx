@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef, useMemo, FC, MouseEvent, TouchEvent, FormEvent } from 'react';
+import { uploadFileInChunks } from '../utils/chunkUpload';
 import { useAuth } from '../context/AuthContext';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -218,20 +219,7 @@ const AboutPage = () => {
     setUploadError('');
 
     try {
-      const formData = new FormData();
-      formData.append('resume', file);
-
-      const res = await fetch('/api/upload-resume', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || 'Failed to upload resume file.');
-      }
-
-      const data = await res.json();
+      const data = await uploadFileInChunks(file, 'resume');
       setResumeUrl(data.url);
       setResumeFilename(data.originalname || file.name);
       setUploadProgress('uploaded');
@@ -301,7 +289,7 @@ const AboutPage = () => {
       const emailSuccess = await emailRes.json();
       console.log("Email status:", emailSuccess);
       
-      setEmailSent(true);
+      setEmailSent(!!emailSuccess.emailSent);
       setEmailMessage(emailSuccess.message || 'Your application has been successfully sent!');
 
       // Reset form on success

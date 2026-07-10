@@ -640,8 +640,16 @@ const AdminPanel: FC = () => {
   const [inquiries, setInquiries] = useState<any[]>([]);
 
   // Contact Page state variables
-  const [contactTitleFirst, setContactTitleFirst] = useState("Let's");
-  const [contactTitleOrange, setContactTitleOrange] = useState("Connect.");
+  const [contactTitleFirst, setContactTitleFirst] = useState(() => {
+    const val = localStorage.getItem('contact_title_first');
+    if (!val || val === "Let's") return "Connect with";
+    return val;
+  });
+  const [contactTitleOrange, setContactTitleOrange] = useState(() => {
+    const val = localStorage.getItem('contact_title_orange');
+    if (!val || val === "Connect.") return "us.";
+    return val;
+  });
   const [contactSubtitle, setContactSubtitle] = useState("Start your cinematic journey today.");
   const [contactEmail, setContactEmail] = useState(() => {
     const email = localStorage.getItem('contact_email') || "hello@dreamcatchers.tv";
@@ -651,6 +659,12 @@ const AdminPanel: FC = () => {
   });
   const [contactPhone, setContactPhone] = useState("+91 98765 43210");
   const [contactAddress, setContactAddress] = useState("820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
+  const [contactImage, setContactImage] = useState(() => {
+    return localStorage.getItem('contact_image') || "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=1074&auto=format&fit=crop";
+  });
+  const [isUploadingContactImage, setIsUploadingContactImage] = useState(false);
+  const [contactImageUploadError, setContactImageUploadError] = useState('');
+  const [contactImageInputType, setContactImageInputType] = useState<'upload' | 'url'>('upload');
 
   // Social media links state variables
   const [socialInstagram, setSocialInstagram] = useState('#');
@@ -845,8 +859,10 @@ const AdminPanel: FC = () => {
     }
 
     // Load Contact configs
-    setContactTitleFirst(localStorage.getItem('contact_title_first') || "Let's");
-    setContactTitleOrange(localStorage.getItem('contact_title_orange') || "Connect.");
+    const titleFirst = localStorage.getItem('contact_title_first');
+    setContactTitleFirst(!titleFirst || titleFirst === "Let's" ? "Connect with" : titleFirst);
+    const titleOrange = localStorage.getItem('contact_title_orange');
+    setContactTitleOrange(!titleOrange || titleOrange === "Connect." ? "us." : titleOrange);
     setContactSubtitle(localStorage.getItem('contact_subtitle') || "Start your cinematic journey today.");
     let email = localStorage.getItem('contact_email') || "hello@dreamcatchers.tv";
     if (email.toLowerCase().includes('@dreamcatchers.com')) {
@@ -856,6 +872,7 @@ const AdminPanel: FC = () => {
     setContactEmail(email);
     setContactPhone(localStorage.getItem('contact_phone') || "+91 98765 43210");
     setContactAddress(localStorage.getItem('contact_address') || "820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
+    setContactImage(localStorage.getItem('contact_image') || "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=1074&auto=format&fit=crop");
 
     // Load Social configs
     setSocialInstagram(localStorage.getItem('social_instagram') || '#');
@@ -1545,6 +1562,31 @@ const AdminPanel: FC = () => {
     }
   };
 
+  const handleContactImageUpload = async (file: File) => {
+    if (!file) return;
+    setIsUploadingContactImage(true);
+    setContactImageUploadError('');
+    try {
+      const formData = new FormData();
+      formData.append('contactImage', file);
+      const res = await fetch('/api/upload-contact-image', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to upload image.');
+      }
+      const data = await res.json();
+      setContactImage(data.url);
+    } catch (err: any) {
+      console.error(err);
+      setContactImageUploadError(err.message || 'Image upload failed. Please try again.');
+    } finally {
+      setIsUploadingContactImage(false);
+    }
+  };
+
   // --- Contact Us persistence handlers ---
   const handleSaveContactDetails = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1554,6 +1596,7 @@ const AdminPanel: FC = () => {
     localStorage.setItem('contact_email', contactEmail);
     localStorage.setItem('contact_phone', contactPhone);
     localStorage.setItem('contact_address', contactAddress);
+    localStorage.setItem('contact_image', contactImage);
 
     // Save socials
     localStorage.setItem('social_instagram', socialInstagram);
@@ -1567,13 +1610,14 @@ const AdminPanel: FC = () => {
   };
 
   const handleResetContactDetails = () => {
-    if (confirm('Reset contact cards and social media links to default info values?')) {
-      setContactTitleFirst("Let's");
-      setContactTitleOrange("Connect.");
+    if (confirm('Reset contact cards, custom image and social media links to default info values?')) {
+      setContactTitleFirst("Connect with");
+      setContactTitleOrange("us.");
       setContactSubtitle("Start your cinematic journey today.");
       setContactEmail("hello@dreamcatchers.tv");
       setContactPhone("+91 98765 43210");
       setContactAddress("820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
+      setContactImage("https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=1074&auto=format&fit=crop");
 
       setSocialInstagram('#');
       setSocialFacebook('#');
@@ -1586,6 +1630,7 @@ const AdminPanel: FC = () => {
       localStorage.removeItem('contact_email');
       localStorage.removeItem('contact_phone');
       localStorage.removeItem('contact_address');
+      localStorage.removeItem('contact_image');
 
       localStorage.removeItem('social_instagram');
       localStorage.removeItem('social_facebook');
@@ -5050,6 +5095,107 @@ const AdminPanel: FC = () => {
                 />
               </div>
 
+              {/* Custom Contact Section Image (Customization Option requested by user) */}
+              <div className="bg-zinc-900/20 p-6 rounded-3xl border border-white/5 space-y-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                  <div>
+                    <h4 className="text-sm font-bold uppercase tracking-wider text-orange-500 flex items-center gap-2">
+                      <ImageIcon size={16} />
+                      <span>Contact Column Custom Image</span>
+                    </h4>
+                    <p className="text-xs text-white/40">Add a stunning frameless image in the empty space below the contact cards.</p>
+                  </div>
+                  <div className="flex bg-black p-1 rounded-xl border border-white/10">
+                    <button
+                      type="button"
+                      onClick={() => setContactImageInputType('upload')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+                        contactImageInputType === 'upload' 
+                          ? 'bg-orange-500 text-black shadow-lg' 
+                          : 'text-white/60 hover:text-white'
+                      }`}
+                    >
+                      Upload
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setContactImageInputType('url')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+                        contactImageInputType === 'url' 
+                          ? 'bg-orange-500 text-black shadow-lg' 
+                          : 'text-white/60 hover:text-white'
+                      }`}
+                    >
+                      URL
+                    </button>
+                  </div>
+                </div>
+
+                {contactImageInputType === 'upload' ? (
+                  <div className="space-y-2">
+                    <div className="border-2 border-dashed border-white/10 rounded-2xl p-6 text-center hover:border-orange-500/50 transition-colors relative group cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleContactImageUpload(file);
+                        }}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                      <div className="flex flex-col items-center justify-center space-y-2">
+                        <Upload size={32} className="text-white/30 group-hover:text-orange-500 transition-colors animate-bounce" />
+                        <span className="text-sm font-medium text-white/80">
+                          {isUploadingContactImage ? "Uploading your image..." : "Drag & drop or click to upload image"}
+                        </span>
+                        <span className="text-xs text-white/40">PNG, JPG, WEBP, or SVG up to 10MB</span>
+                      </div>
+                    </div>
+                    {contactImageUploadError && (
+                      <p className="text-xs text-red-500 font-bold">{contactImageUploadError}</p>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-widest text-zinc-400 font-bold mb-2">Image URL / Google Drive Link</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Paste image URL or Google Drive share link..."
+                      value={contactImage}
+                      onChange={(e) => setContactImage(e.target.value)}
+                      className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white font-mono"
+                    />
+                    <p className="mt-1.5 text-[11px] text-white/40 leading-normal">
+                      💡 <span className="text-orange-400 font-semibold">Google Drive Support:</span> You can paste standard Google Drive sharing links here! We will automatically convert them to web-friendly image links. <span className="italic text-zinc-300">(Please make sure your Google Drive file is set to "Anyone with the link" so others can view it!)</span>
+                    </p>
+                  </div>
+                )}
+
+                {contactImage && (
+                  <div className="pt-2">
+                    <span className="block text-[11px] uppercase tracking-widest text-zinc-400 font-bold mb-2">Frameless Live Preview:</span>
+                    <div className="relative group overflow-hidden rounded-2xl border border-white/5 bg-black/40 p-1 w-fit">
+                      <img 
+                        src={transformGoogleDriveUrl(contactImage)} 
+                        alt="Contact Preview" 
+                        referrerPolicy="no-referrer"
+                        className="max-h-[160px] max-w-full rounded-xl object-cover opacity-80"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setContactImage('');
+                        }}
+                        className="absolute top-3 right-3 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full shadow-lg transition-all active:scale-90"
+                        title="Remove Image"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <h3 className="text-lg font-black uppercase italic tracking-tight text-orange-500 border-b border-white/5 pb-3">
                 🌐 Social Media Accounts (Footer Icons)
               </h3>
@@ -5764,6 +5910,39 @@ const AdminPanel: FC = () => {
                             <p className="text-sm font-bold text-white uppercase tracking-tight truncate">{inq.subject}</p>
                           </div>
                         </div>
+
+                        {/* Organization & Project Brief details */}
+                        {(inq.orgName || inq.orgType || inq.briefUrl) && (
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b border-white/5 pb-4">
+                            {inq.orgName && (
+                              <div>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-0.5 font-sans">Organization Name</p>
+                                <p className="text-sm font-bold text-white uppercase tracking-tight">{inq.orgName}</p>
+                              </div>
+                            )}
+                            {inq.orgType && (
+                              <div>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-0.5 font-sans">Organization Type</p>
+                                <span className="inline-block text-xs font-mono uppercase tracking-wider font-bold bg-zinc-900 border border-white/10 px-2.5 py-0.5 rounded text-zinc-400 mt-1">
+                                  {inq.orgType}
+                                </span>
+                              </div>
+                            )}
+                            {inq.briefUrl && (
+                              <div>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-0.5 font-sans">Project Brief</p>
+                                <a 
+                                  href={inq.briefUrl} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer" 
+                                  className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-orange-500 hover:text-orange-400 hover:underline mt-1 bg-orange-500/5 px-2 py-1 rounded border border-orange-500/10"
+                                >
+                                  📎 {inq.briefOriginalName || 'Download Brief'}
+                                </a>
+                              </div>
+                            )}
+                          </div>
+                        )}
 
                         {/* Message payload */}
                         <div className="space-y-1">

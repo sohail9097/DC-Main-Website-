@@ -1,5 +1,5 @@
 import { motion, AnimatePresence, useScroll, useTransform, useTime } from 'motion/react';
-import { Camera, Play, ChevronLeft, ChevronRight, Menu, X, Rocket, Moon, ShieldCheck, Instagram, Facebook, Youtube, Twitter, ArrowLeft, ArrowRight, Sparkles, Globe, Tv, Heart, Compass, Mail, Phone, MapPin, Send } from 'lucide-react';
+import { Camera, Play, ChevronLeft, ChevronRight, Menu, X, Rocket, Moon, ShieldCheck, Instagram, Facebook, Youtube, Twitter, ArrowLeft, ArrowRight, Sparkles, Globe, Tv, Heart, Compass, Mail, Phone, MapPin, Send, UploadCloud, Loader2, CheckCircle2, AlertCircle, User, Building, Trash2, Paperclip } from 'lucide-react';
 import React, { useState, useEffect, useRef, FC, memo } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
@@ -7,8 +7,12 @@ import AdminPanel from './pages/AdminPanel';
 import FilmsPage from './pages/FilmsPage';
 import AboutPage from './pages/AboutPage';
 import BrandPage from './pages/BrandPage';
+import ConnectPage from './pages/ConnectPage';
+import { db } from './lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { normalizeAndSyncData, isSimilarName } from './utils/syncHelper';
 import { BrandItem, ClientItem, DEFAULT_BRAND_ITEMS, DEFAULT_CLIENTS_LIST } from './utils/brandData';
+import { uploadFileInChunks } from './utils/chunkUpload';
 import { initSiteSync } from './lib/siteSync';
 import { CinematicSlideshow } from './components/CinematicSlideshow';
 
@@ -253,6 +257,7 @@ export function Navbar() {
     { name: 'Portfolio', to: '/films', path: '/films' },
     { name: 'Collaborators', to: '/brand', path: '/brand' },
     { name: 'About Us', to: '/about', path: '/about' },
+    { name: 'Connect', to: '/connect', path: '/connect' },
   ];
 
   const isActive = (path?: string) => {
@@ -1860,7 +1865,7 @@ export function InteractiveOptions() {
     { name: 'PORTFOLIO', to: '/films' },
     { name: 'COLLABORATORS', to: '/brand' },
     { name: 'ABOUT US', to: '/about' },
-    { name: 'CONTACT US', to: '/#contact-section' },
+    { name: 'CONNECT', to: '/connect' },
   ];
 
   return (
@@ -2750,45 +2755,142 @@ function LandingPage() {
 
   const [inquiryName, setInquiryName] = useState('');
   const [inquiryEmail, setInquiryEmail] = useState('');
+  const [inquiryOrgName, setInquiryOrgName] = useState('');
+  const [inquiryOrgType, setInquiryOrgType] = useState('brand');
   const [inquirySubject, setInquirySubject] = useState('');
   const [inquiryMessage, setInquiryMessage] = useState('');
+  const [inquiryStatus, setInquiryStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [inquiryFormError, setInquiryFormError] = useState('');
 
-  const handleInquirySubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inquiryName.trim() || !inquiryEmail.trim() || !inquirySubject.trim() || !inquiryMessage.trim()) {
-      alert("All fields are required. Please fill in any empty boxes.");
+  // Brief file attachment states
+  const [briefFile, setBriefFile] = useState<File | null>(null);
+  const [briefUrl, setBriefUrl] = useState('');
+  const [briefFilename, setBriefFilename] = useState('');
+  const [briefUploadProgress, setBriefUploadProgress] = useState<'idle' | 'uploading' | 'uploaded' | 'error'>('idle');
+  const [briefUploadError, setBriefUploadError] = useState('');
+
+  const handleBriefChange = async (file: File) => {
+    const allowedExts = [".pdf", ".doc", ".docx", ".txt", ".exe", ".jpg", ".jpeg", ".png", ".worl"];
+    const ext = "." + file.name.split('.').pop()?.toLowerCase();
+    
+    if (!allowedExts.includes(ext)) {
+      setBriefUploadError("Only .pdf, .doc, .docx, .txt, .exe, .jpg, .jpeg, .png, and .worl files are allowed.");
+      setBriefUploadProgress('error');
       return;
     }
 
-    const newInquiry = {
-      id: 'inq_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-      name: inquiryName.trim(),
-      emailOrPhone: inquiryEmail.trim(),
-      subject: inquirySubject.trim(),
-      message: inquiryMessage.trim(),
-      createdAt: new Date().toISOString()
-    };
-
-    const existingInquiriesStr = localStorage.getItem('dc_inquiries') || '[]';
-    let inquiries = [];
-    try {
-      inquiries = JSON.parse(existingInquiriesStr);
-      if (!Array.isArray(inquiries)) inquiries = [];
-    } catch (error) {
-      inquiries = [];
+    if (file.size > 25 * 1024 * 1024) { // 25MB
+      setBriefUploadError("File size limit exceeded. Max is 25MB.");
+      setBriefUploadProgress('error');
+      return;
     }
 
-    inquiries.unshift(newInquiry);
-    localStorage.setItem('dc_inquiries', JSON.stringify(inquiries));
-    
-    window.dispatchEvent(new Event('storage_updated_inquiries'));
-    
-    alert("Success! Your message has been sent. We will review your enquiry in the Admin Panel.");
-    
-    setInquiryName('');
-    setInquiryEmail('');
-    setInquirySubject('');
-    setInquiryMessage('');
+    setBriefFile(file);
+    setBriefUploadProgress('uploading');
+    setBriefUploadError('');
+
+    try {
+      const data = await uploadFileInChunks(file, 'brief');
+      setBriefUrl(data.url);
+      setBriefFilename(data.originalname || file.name);
+      setBriefUploadProgress('uploaded');
+    } catch (err: any) {
+      console.error("Brief upload error:", err);
+      setBriefUploadError(err.message || "Failed to upload project brief. Please try again.");
+      setBriefUploadProgress('error');
+    }
+  };
+
+  const removeBriefFile = () => {
+    setBriefFile(null);
+    setBriefUrl('');
+    setBriefFilename('');
+    setBriefUploadProgress('idle');
+    setBriefUploadError('');
+  };
+
+  const handleInquirySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inquiryName.trim() || !inquiryEmail.trim() || !inquiryOrgName.trim() || !inquiryOrgType || !inquirySubject.trim() || !inquiryMessage.trim()) {
+      setInquiryFormError("All fields are required (Name, Email/Phone, Organization Name, Organization Type, Subject, Message).");
+      return;
+    }
+
+    if (briefUploadProgress === 'uploading') {
+      setInquiryFormError("Please wait for your project brief file to finish uploading before submitting.");
+      return;
+    }
+
+    setInquiryStatus('submitting');
+    setInquiryFormError('');
+
+    try {
+      const inquiryId = 'inq_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      const newInquiry = {
+        id: inquiryId,
+        name: inquiryName.trim(),
+        emailOrPhone: inquiryEmail.trim(),
+        orgName: inquiryOrgName.trim(),
+        orgType: inquiryOrgType,
+        briefUrl: briefUrl,
+        briefOriginalName: briefFilename,
+        subject: inquirySubject.trim(),
+        message: inquiryMessage.trim(),
+        createdAt: new Date().toISOString()
+      };
+
+      // 1. Save directly into Firestore 'project_inquiries'
+      await addDoc(collection(db, 'project_inquiries'), {
+        ...newInquiry,
+        createdAt: serverTimestamp()
+      });
+
+      // 2. Notify backend to trigger email transmission
+      const emailRes = await fetch('/api/notify-inquiry', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newInquiry)
+      });
+
+      if (!emailRes.ok) {
+        const emailErr = await emailRes.json().catch(() => ({}));
+        throw new Error(emailErr.error || "Failed to dispatch email notification.");
+      }
+
+      const emailSuccess = await emailRes.json();
+      console.log("Inquiry Email status:", emailSuccess);
+
+      // Save to localStorage so Admin panel has immediate local copy
+      const existingInquiriesStr = localStorage.getItem('dc_inquiries') || '[]';
+      let inquiries = [];
+      try {
+        inquiries = JSON.parse(existingInquiriesStr);
+        if (!Array.isArray(inquiries)) inquiries = [];
+      } catch (error) {
+        inquiries = [];
+      }
+
+      inquiries.unshift(newInquiry);
+      localStorage.setItem('dc_inquiries', JSON.stringify(inquiries));
+      
+      window.dispatchEvent(new Event('storage_updated_inquiries'));
+      
+      setInquiryStatus('success');
+      
+      setInquiryName('');
+      setInquiryEmail('');
+      setInquiryOrgName('');
+      setInquiryOrgType('brand');
+      setInquirySubject('');
+      setInquiryMessage('');
+      removeBriefFile();
+    } catch (err: any) {
+      console.error("Failed to submit inquiry:", err);
+      setInquiryFormError(err.message || "An unexpected error occurred. Please try again.");
+      setInquiryStatus('error');
+    }
   };
 
   useEffect(() => {
@@ -2863,8 +2965,16 @@ function LandingPage() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const [contactTitleFirst, setContactTitleFirst] = useState("Let's");
-  const [contactTitleOrange, setContactTitleOrange] = useState("Connect.");
+  const [contactTitleFirst, setContactTitleFirst] = useState(() => {
+    const val = localStorage.getItem('contact_title_first');
+    if (!val || val === "Let's") return "Connect with";
+    return val;
+  });
+  const [contactTitleOrange, setContactTitleOrange] = useState(() => {
+    const val = localStorage.getItem('contact_title_orange');
+    if (!val || val === "Connect.") return "us.";
+    return val;
+  });
   const [contactSubtitle, setContactSubtitle] = useState("Start your cinematic journey today.");
   const [contactEmail, setContactEmail] = useState(() => {
     const email = localStorage.getItem('contact_email') || "hello@dreamcatchers.tv";
@@ -2874,10 +2984,15 @@ function LandingPage() {
   });
   const [contactPhone, setContactPhone] = useState("+91 98765 43210");
   const [contactAddress, setContactAddress] = useState("820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
+  const [contactImage, setContactImage] = useState(() => {
+    return localStorage.getItem('contact_image') || "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=1074&auto=format&fit=crop";
+  });
 
   const loadContactConfigs = () => {
-    setContactTitleFirst(localStorage.getItem('contact_title_first') || "Let's");
-    setContactTitleOrange(localStorage.getItem('contact_title_orange') || "Connect.");
+    const titleFirst = localStorage.getItem('contact_title_first');
+    setContactTitleFirst(!titleFirst || titleFirst === "Let's" ? "Connect with" : titleFirst);
+    const titleOrange = localStorage.getItem('contact_title_orange');
+    setContactTitleOrange(!titleOrange || titleOrange === "Connect." ? "us." : titleOrange);
     setContactSubtitle(localStorage.getItem('contact_subtitle') || "Start your cinematic journey today.");
     let email = localStorage.getItem('contact_email') || "hello@dreamcatchers.tv";
     if (email.toLowerCase().includes('@dreamcatchers.com')) {
@@ -2887,6 +3002,7 @@ function LandingPage() {
     setContactEmail(email);
     setContactPhone(localStorage.getItem('contact_phone') || "+91 98765 43210");
     setContactAddress(localStorage.getItem('contact_address') || "820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
+    setContactImage(localStorage.getItem('contact_image') || "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=1074&auto=format&fit=crop");
   };
 
   const loadConfigs = () => {
@@ -3548,268 +3664,469 @@ function LandingPage() {
             </div>
 
             {/* Integrated Contact Section under Verticals */}
-            <div id="contact-section" className="mt-20 md:mt-48 max-w-[1440px] mx-auto w-full px-2 sm:px-8 lg:px-12 relative z-10 pb-8 scroll-mt-24">
-              <div className="grid grid-cols-2 lg:grid-cols-2 gap-3 xs:gap-6 lg:gap-24 mb-0">
-                {/* Left Side: Contact Details Card Grid */}
-                <div className="space-y-4 md:space-y-12">
+            <div id="contact-form-section" className="mt-16 md:mt-28 max-w-[1440px] mx-auto w-full px-6 sm:px-12 lg:px-16 relative z-10 pb-3">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+                
+                {/* Left Side: Contact Details & Image */}
+                <div className="lg:col-span-5 space-y-8">
                   <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: 50 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: false, amount: 0.2 }}
                     transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className="text-left"
                   >
-                    <h3 className="font-redhat text-[23px] xs:text-[25px] sm:text-[29px] md:text-[41px] lg:text-[53px] font-black tracking-[0.02em] text-orange-500 uppercase mb-1 md:mb-2 select-none">
-                      {contactTitleFirst} {contactTitleOrange}
-                    </h3>
+                    <span className="text-orange-500 font-mono text-xs uppercase tracking-widest block mb-2 font-bold">Contact Info</span>
+                    <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4">
+                      {contactTitleFirst} <span className="text-orange-500">{contactTitleOrange}</span>
+                    </h2>
                   </motion.div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-2 xs:gap-4 md:gap-6">
-                    <motion.div
-                      initial={{ opacity: 0, x: -50, scale: 0.95 }}
-                      whileInView={{ opacity: 1, x: 0, scale: 1 }}
-                      viewport={{ once: false, amount: 0.15 }}
-                      transition={{ type: "spring", stiffness: 90, damping: 15 }}
-                      whileHover={{ y: -8, scale: 1.02 }}
-                      className="p-3 xs:p-4 sm:p-6 md:p-8 xl:p-10 bg-zinc-950/60 border border-orange-500/30 rounded-xl xs:rounded-2xl md:rounded-[2rem] hover:bg-orange-500 hover:border-transparent transition-all duration-500 group cursor-pointer flex flex-col justify-between min-h-[100px] xs:min-h-[130px] md:min-h-[170px]"
-                      onClick={() => window.location.href = `mailto:${contactEmail}`}
-                    >
-                      <div className="text-orange-500 group-hover:text-black mb-1.5 md:mb-6 transition-colors font-sans">
-                        <Mail className="w-5 h-5 xs:w-5 xs:h-5 md:w-6 md:h-6 animate-pulse" />
-                      </div>
-                      <div>
-                        <p className="text-white/30 group-hover:text-black/60 text-[8px] xs:text-[10px] font-black uppercase tracking-widest mb-0.5 md:mb-1 transition-colors">
-                          Email Us
-                        </p>
-                        <p className="text-[9.5px] xs:text-[11px] sm:text-sm md:text-base lg:text-lg xl:text-sm 2xl:text-lg font-bold text-white group-hover:text-black tracking-tight whitespace-nowrap transition-colors font-sans overflow-hidden text-ellipsis">
-                          {contactEmail}
-                        </p>
-                      </div>
-                    </motion.div>
-
-                    <motion.div
-                      initial={{ opacity: 0, x: -50, scale: 0.95 }}
-                      whileInView={{ opacity: 1, x: 0, scale: 1 }}
-                      viewport={{ once: false, amount: 0.15 }}
-                      transition={{ type: "spring", stiffness: 90, damping: 15, delay: 0.1 }}
-                      whileHover={{ y: -8, scale: 1.02 }}
-                      className="p-3 xs:p-4 sm:p-6 md:p-8 xl:p-10 bg-zinc-950/60 border border-orange-500/30 rounded-xl xs:rounded-2xl md:rounded-[2rem] hover:bg-orange-500 hover:border-transparent transition-all duration-500 group cursor-pointer flex flex-col justify-between min-h-[100px] xs:min-h-[130px] md:min-h-[170px]"
-                      onClick={() => window.location.href = `tel:${contactPhone}`}
-                    >
-                      <div className="text-orange-500 group-hover:text-black mb-1.5 md:mb-6 transition-colors">
-                        <Phone className="w-5 h-5 xs:w-5 xs:h-5 md:w-6 md:h-6 animate-pulse" />
-                      </div>
-                      <div>
-                        <p className="text-white/30 group-hover:text-black/60 text-[8px] xs:text-[10px] font-black uppercase tracking-widest mb-0.5 md:mb-1 transition-colors">
-                          Call Us
-                        </p>
-                        <p className="text-[9.5px] xs:text-[11px] sm:text-sm md:text-base lg:text-lg xl:text-sm 2xl:text-lg font-bold text-white group-hover:text-black tracking-tight transition-colors font-sans overflow-hidden text-ellipsis">
-                          {contactPhone}
-                        </p>
-                      </div>
-                    </motion.div>
-                  </div>
-
-                  {/* Added elegant Offices title block aligned below cards with animation matching collaborators */}
+                  {/* Contact Card Details Grid with Staggered Scroll Animation */}
                   <motion.div 
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className="pt-2 md:pt-4 text-left"
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: false, amount: 0.2 }}
+                    variants={{
+                      hidden: {},
+                      visible: {
+                        transition: {
+                          staggerChildren: 0.15
+                        }
+                      }
+                    }}
+                    className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6"
                   >
-                    <h3 className="font-redhat text-[21px] xs:text-[25px] sm:text-[29px] md:text-[41px] lg:text-[53px] font-black tracking-[0.02em] text-orange-500 uppercase mb-1 md:mb-2 select-none">
-                      Offices
-                    </h3>
-                    <p className="text-white/40 text-[7px] xs:text-[10px] sm:text-xs md:text-sm font-semibold uppercase tracking-[0.1em] xs:tracking-[0.3em] font-mono">
-                      Our Locations
-                    </p>
+                    {/* Card 1: Email */}
+                    <motion.div 
+                      variants={{
+                        hidden: { opacity: 0, y: 40, scale: 0.95 },
+                        visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } }
+                      }}
+                      whileHover={{ y: -6, borderColor: 'rgba(249,115,22,0.5)', boxShadow: '0 10px 30px -10px rgba(249,115,22,0.15)' }}
+                      className="p-6 sm:p-8 bg-zinc-950/60 border border-orange-500/20 rounded-[2rem] flex flex-col items-start transition-all duration-300"
+                    >
+                      <Mail className="w-8 h-8 text-orange-500 mb-6 flex-shrink-0" />
+                      <div className="text-left">
+                        <p className="text-[9px] sm:text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-500 font-bold mb-1.5">Email Us</p>
+                        <a href={`mailto:${contactEmail}`} className="text-sm sm:text-base md:text-lg font-bold text-white hover:text-orange-400 transition-colors font-sans block break-all leading-tight">
+                          {contactEmail}
+                        </a>
+                      </div>
+                    </motion.div>
+
+                    {/* Card 2: Phone */}
+                    <motion.div 
+                      variants={{
+                        hidden: { opacity: 0, y: 40, scale: 0.95 },
+                        visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } }
+                      }}
+                      whileHover={{ y: -6, borderColor: 'rgba(249,115,22,0.5)', boxShadow: '0 10px 30px -10px rgba(249,115,22,0.15)' }}
+                      className="p-6 sm:p-8 bg-zinc-950/60 border border-orange-500/20 rounded-[2rem] flex flex-col items-start transition-all duration-300"
+                    >
+                      <Phone className="w-8 h-8 text-orange-500 mb-6 flex-shrink-0" />
+                      <div className="text-left">
+                        <p className="text-[9px] sm:text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-500 font-bold mb-1.5">Call Us</p>
+                        <a href={`tel:${contactPhone}`} className="text-sm sm:text-base md:text-lg font-bold text-white hover:text-orange-400 transition-colors font-sans block leading-tight">
+                          {contactPhone}
+                        </a>
+                      </div>
+                    </motion.div>
+                  </motion.div>
+
+                  {/* Frameless Contact Custom Image */}
+                  {contactImage && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 50, scale: 0.95 }}
+                      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                      viewport={{ once: false, amount: 0.15 }}
+                      transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+                      className="w-full flex justify-center items-center pt-4"
+                    >
+                      <img 
+                        src={transformGoogleDriveUrl(contactImage)} 
+                        alt="Creative Studio Visual" 
+                        referrerPolicy="no-referrer"
+                        className="w-full max-h-[350px] object-contain rounded-none opacity-100 transition-all duration-300"
+                      />
+                    </motion.div>
+                  )}
+                </div>
+
+                {/* Right Side: Inquiry Form */}
+                <div className="lg:col-span-7">
+                  <motion.div
+                    initial={{ opacity: 0, x: 40 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: false, amount: 0.15 }}
+                    transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+                    className="bg-black/40 border border-white/5 rounded-3xl p-6 md:p-8 shadow-2xl backdrop-blur-md"
+                  >
+                    <div className="mb-6 flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+                      <h3 className="text-xl font-bold uppercase tracking-wide text-white">Project Inquiry / Brief</h3>
+                    </div>
+
+                    {inquiryStatus === 'success' ? (
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="text-center py-12 px-4 flex flex-col items-center"
+                      >
+                        <div className="w-16 h-16 rounded-full bg-orange-500/10 border border-orange-500/30 flex items-center justify-center mb-6 text-orange-500">
+                          <CheckCircle2 size={32} />
+                        </div>
+                        <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-2 font-sans">
+                          Inquiry Submitted!
+                        </h3>
+                        <p className="text-zinc-400 text-sm max-w-md mx-auto mb-6 leading-relaxed font-sans">
+                          Thank you for reaching out. Your inquiry and brief have been successfully received and emailed to our team.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setInquiryStatus('idle')}
+                          className="px-6 py-2.5 bg-orange-500 text-black font-bold rounded-xl text-xs uppercase tracking-wider transition-colors hover:bg-orange-600 font-sans"
+                        >
+                          Submit another inquiry
+                        </button>
+                      </motion.div>
+                    ) : (
+                      <form onSubmit={handleInquirySubmit} className="space-y-5 text-left font-sans">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Name */}
+                          <div>
+                            <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Your Name *</label>
+                            <div className="relative">
+                              <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                              <input
+                                type="text"
+                                required
+                                placeholder="Enter your name"
+                                value={inquiryName}
+                                onChange={(e) => setInquiryName(e.target.value)}
+                                className="w-full pl-10 pr-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Email/Number */}
+                          <div>
+                            <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Your Email / Number *</label>
+                            <div className="relative">
+                              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                              <input
+                                type="text"
+                                required
+                                placeholder="Enter email or contact number"
+                                value={inquiryEmail}
+                                onChange={(e) => setInquiryEmail(e.target.value)}
+                                className="w-full pl-10 pr-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Org Name */}
+                          <div>
+                            <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Name of Organisation *</label>
+                            <div className="relative">
+                              <Building className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                              <input
+                                type="text"
+                                required
+                                placeholder="Enter organisation name"
+                                value={inquiryOrgName}
+                                onChange={(e) => setInquiryOrgName(e.target.value)}
+                                className="w-full pl-10 pr-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Org Type */}
+                          <div>
+                            <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Organisation Type *</label>
+                            <div className="relative">
+                              <select
+                                required
+                                value={inquiryOrgType}
+                                onChange={(e) => setInquiryOrgType(e.target.value)}
+                                className="w-full px-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200 appearance-none text-white font-medium"
+                              >
+                                <option value="brand" className="bg-zinc-950 text-white">Brand</option>
+                                <option value="agency" className="bg-zinc-950 text-white">Agency</option>
+                                <option value="individual" className="bg-zinc-950 text-white">Individual Artist</option>
+                                <option value="government" className="bg-zinc-950 text-white">Government / NGO</option>
+                                <option value="other" className="bg-zinc-950 text-white">Other</option>
+                              </select>
+                              <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 pointer-events-none rotate-90" />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Subject */}
+                        <div>
+                          <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Subject *</label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="Project inquiry subject"
+                            value={inquirySubject}
+                            onChange={(e) => setInquirySubject(e.target.value)}
+                            className="w-full px-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
+                          />
+                        </div>
+
+                        {/* Message */}
+                        <div>
+                          <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Message *</label>
+                          <textarea
+                            rows={4}
+                            required
+                            placeholder="Tell us about your project, target audience, timeline, or scope..."
+                            value={inquiryMessage}
+                            onChange={(e) => setInquiryMessage(e.target.value)}
+                            className="w-full px-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200 resize-none"
+                          />
+                        </div>
+
+                        {/* Brief File Upload */}
+                        <div>
+                          <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">
+                            Project Brief (Optional - .pdf, .word, .txt, .exe, .jpg, up to 25MB)
+                          </label>
+                          <div className="border border-dashed border-white/10 rounded-xl p-4 bg-zinc-900/10 hover:border-orange-500/50 transition-colors relative flex flex-col items-center justify-center text-center">
+                            <input
+                              type="file"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleBriefChange(file);
+                              }}
+                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            />
+                            <UploadCloud size={24} className="text-zinc-500 mb-1.5" />
+                            <p className="text-xs font-bold text-zinc-300">
+                              {briefUploadProgress === 'uploading' ? 'Uploading...' : 'Drag & drop or click to upload file'}
+                            </p>
+                          </div>
+
+                          {briefUploadError && (
+                            <p className="text-xs text-red-500 mt-2 font-bold flex items-center gap-1.5">
+                              <AlertCircle size={14} />
+                              {briefUploadError}
+                            </p>
+                          )}
+
+                          {briefUploadProgress === 'uploaded' && briefFilename && (
+                            <div className="mt-3 flex items-center justify-between p-2.5 bg-green-500/5 border border-green-500/20 rounded-xl">
+                              <span className="text-xs text-green-400 font-bold font-mono flex items-center gap-1.5">
+                                <Paperclip size={14} />
+                                {briefFilename} (Uploaded)
+                              </span>
+                              <button
+                                type="button"
+                                onClick={removeBriefFile}
+                                className="text-red-400 hover:text-red-500 p-1 rounded-lg hover:bg-red-500/10 transition-colors"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        {inquiryFormError && (
+                          <p className="text-xs text-red-500 mt-2 font-bold flex items-center gap-1.5 font-sans">
+                            <AlertCircle size={14} />
+                            {inquiryFormError}
+                          </p>
+                        )}
+
+                        {/* Submit Button */}
+                        <button
+                          type="submit"
+                          disabled={inquiryStatus === 'submitting' || briefUploadProgress === 'uploading'}
+                          className="w-full py-4 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-black font-extrabold uppercase tracking-widest text-xs rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(249,115,22,0.25)] hover:scale-[1.01] active:scale-[0.99]"
+                        >
+                          {inquiryStatus === 'submitting' ? (
+                            <>
+                              <Loader2 size={14} className="animate-spin" />
+                              <span>Submitting...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>Submit Inquiry</span>
+                              <ArrowRight size={14} />
+                            </>
+                          )}
+                        </button>
+                      </form>
+                    )}
                   </motion.div>
                 </div>
 
-                {/* Right Side: Contact Submission Form */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.94, y: 50 }}
-                  whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                  viewport={{ once: false, amount: 0.15 }}
-                  transition={{ type: "spring", stiffness: 80, damping: 18 }}
-                  className="bg-zinc-950/60 border border-orange-500/30 rounded-xl xs:rounded-2xl md:rounded-[2.5rem] p-3 xs:p-5 sm:p-8 md:p-12 backdrop-blur-md relative overflow-hidden"
-                >
-                  <form onSubmit={handleInquirySubmit} className="space-y-2 md:space-y-6 relative z-10 w-full">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6">
-                      <div className="space-y-0.5 md:space-y-2">
-                        <label className="text-[8px] xs:text-[9.5px] md:text-[10px] font-black uppercase tracking-widest text-white/30 ml-2 md:ml-4 font-sans">Your Name</label>
-                        <input 
-                          type="text" 
-                          value={inquiryName}
-                          onChange={(e) => setInquiryName(e.target.value)}
-                          className="w-full bg-white/5 border border-white/10 rounded-lg md:rounded-2xl px-2.5 py-1.5 xs:px-4 xs:py-3 md:px-5 md:py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-[9.5px] xs:text-xs md:text-sm tracking-wide" 
-                          placeholder="Enter your name" 
-                          required 
-                        />
-                      </div>
-                      <div className="space-y-0.5 md:space-y-2">
-                        <label className="text-[8px] xs:text-[9.5px] md:text-[10px] font-black uppercase tracking-widest text-white/30 ml-2 md:ml-4 font-sans">Your Email / Number</label>
-                        <input 
-                          type="text" 
-                          value={inquiryEmail}
-                          onChange={(e) => setInquiryEmail(e.target.value)}
-                          className="w-full bg-white/5 border border-white/10 rounded-lg md:rounded-2xl px-2.5 py-1.5 xs:px-4 xs:py-3 md:px-5 md:py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-[9.5px] xs:text-xs md:text-sm tracking-wide" 
-                          placeholder="Enter your email" 
-                          required 
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-0.5 md:space-y-2">
-                      <label className="text-[8px] xs:text-[9.5px] md:text-[10px] font-black uppercase tracking-widest text-white/30 ml-2 md:ml-4 font-sans">Subject</label>
-                      <input 
-                        type="text" 
-                        value={inquirySubject}
-                        onChange={(e) => setInquirySubject(e.target.value)}
-                        className="w-full bg-white/5 border border-white/15 rounded-lg md:rounded-2xl px-2.5 py-1.5 xs:px-4 xs:py-3 md:px-5 md:py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-[9.5px] xs:text-xs md:text-sm tracking-wide" 
-                        placeholder="Project Inquiry" 
-                        required 
-                      />
-                    </div>
-                    <div className="space-y-0.5 md:space-y-2">
-                      <label className="text-[8px] xs:text-[9.5px] md:text-[10px] font-black uppercase tracking-widest text-white/30 ml-2 md:ml-4 font-sans">Message</label>
-                      <textarea 
-                        rows={2} 
-                        value={inquiryMessage}
-                        onChange={(e) => setInquiryMessage(e.target.value)}
-                        className="w-full bg-white/5 border border-white/15 rounded-lg md:rounded-2xl px-2.5 py-1.5 xs:px-4 xs:py-3 md:px-5 md:py-4 focus:outline-none focus:border-orange-500 transition-colors text-white text-[9.5px] xs:text-xs md:text-sm tracking-wide" 
-                        placeholder="Tell us about your project..." 
-                        required
-                      ></textarea>
-                    </div>
-                    <motion.button
-                      whileHover={{ scale: 1.02, backgroundColor: "#f97316", color: "#000" }}
-                      whileTap={{ scale: 0.98 }}
-                      type="submit"
-                      className="w-full py-2 xs:py-3 md:py-5 rounded-lg md:rounded-2xl bg-white/10 text-white font-black uppercase tracking-[0.1em] xs:tracking-[0.3em] flex items-center justify-center gap-1.5 md:gap-3 transition-all text-[9px] xs:text-xs md:text-sm shadow-xl"
-                    >
-                      <Send className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                      Submit Inquiry
-                    </motion.button>
-                  </form>
-                </motion.div>
+              </div>
+            </div>
+          </section>
+
+          {/* OFFICES / LOCATIONS SECTION */}
+          <section id="locations-section" className="pt-4 md:pt-8 pb-12 md:pb-20 border-t border-white/5 bg-zinc-950/40 relative z-10">
+            <div className="max-w-[1440px] mx-auto w-full px-6 sm:px-12 lg:px-16">
+              <div className="text-left mb-10">
+                <h2 className="text-4xl md:text-6xl font-black text-orange-500 uppercase tracking-tighter mb-1.5 leading-none">
+                  OFFICES
+                </h2>
+                <span className="text-zinc-500 font-mono text-xs uppercase tracking-[0.25em] block font-bold">Our Locations</span>
               </div>
 
-              {/* Seamless Locations block in the same contact-section */}
-              <div className="mt-12 relative z-10">
-                <div className="grid grid-cols-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-1.5 xs:gap-2 sm:gap-6 w-full">
-                  {locations.map((loc, idx) => (
-                    <motion.div
-                       key={loc.id}
-                       initial={{ opacity: 0, y: idx % 2 === 0 ? 55 : -55 }}
-                       whileInView={{ opacity: 1, y: 0 }}
-                       viewport={{ once: false, amount: 0.15 }}
-                       transition={{ 
-                         type: "spring",
-                         stiffness: 45,
-                         damping: 14,
-                         mass: 1.2,
-                         delay: idx * 0.08 
-                       }}
-                      whileHover={{ y: -6, scale: 1.02 }}
-                      onClick={() => window.open(loc.mapsUrl, '_blank')}
-                      className="group relative p-1.5 xs:p-2 sm:p-4 bg-[#050505] border border-orange-500/20 rounded-[0.8rem] sm:rounded-[1.8rem] hover:border-orange-500/60 hover:bg-[#070707] transition-[background-color,border-color,box-shadow] duration-500 ease-out cursor-pointer flex flex-col justify-between overflow-hidden min-h-[110px] xs:min-h-[140px] sm:min-h-[290px] shadow-lg w-auto"
-                    >
-                      {/* Top Graphic Map Visual Block */}
-                      <div className="h-[55px] xs:h-[75px] sm:h-[180px] md:h-[200px] w-full bg-zinc-950/60 border border-orange-500/10 rounded-[0.5rem] sm:rounded-[1.4rem] flex items-center justify-center relative overflow-hidden transition-all duration-300 group-hover:border-orange-500/30">
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.04)_0%,transparent_100%)] pointer-events-none" />
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-6 w-full">
+                {locations.map((loc, idx) => (
+                  <motion.div
+                    key={loc.id}
+                    initial={{ opacity: 0, y: idx % 2 === 0 ? 30 : -30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ 
+                      type: "spring",
+                      stiffness: 50,
+                      damping: 15,
+                      delay: idx * 0.08 
+                    }}
+                    whileHover={{ y: -6, scale: 1.02 }}
+                    onClick={() => window.open(loc.mapsUrl, '_blank')}
+                    className="group relative p-4 bg-zinc-950/40 border border-zinc-800 rounded-[1.8rem] hover:border-orange-500/40 hover:bg-black/80 transition-all duration-500 cursor-pointer flex flex-col justify-between overflow-hidden min-h-[280px] shadow-lg"
+                  >
+                    {/* Top Map Graphic Outline */}
+                    <div className="h-[180px] w-full bg-zinc-950/90 rounded-[1.4rem] flex items-center justify-center relative overflow-hidden transition-all duration-300">
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.02)_0%,transparent_100%)] group-hover:bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.18)_0%,transparent_100%)] transition-all duration-500 pointer-events-none" />
 
-                        {loc.mapImage ? (
-                          <motion.img 
-                            src={loc.mapImage} 
-                            alt={loc.cityAlt}
-                            animate={{
-                              y: [2, -6, 2],
-                              rotate: [-0.5, 0.5, -0.5]
-                            }}
-                            transition={{
-                              duration: 4.5 + idx * 0.4,
-                              repeat: Infinity,
-                              repeatType: "reverse",
-                              ease: "easeInOut"
-                            }}
-                            className="absolute inset-0 w-full h-full object-contain p-1 sm:p-3 group-hover:scale-110 group-hover:rotate-[-2deg] group-hover:drop-shadow-[0_0_25px_rgba(249,115,22,0.9)] transition-all duration-500"
-                            referrerPolicy="no-referrer"
-                          />
-                        ) : (
-                          /* 3D Stacked Map outline layers with interactive separating/expanding stack coordinates */
-                          <motion.svg 
-                            viewBox="-10 -10 140 140" 
-                            animate={{
-                              y: [3, -5, 3],
-                            }}
-                            transition={{
-                              duration: 4.2 + idx * 0.4,
-                              repeat: Infinity,
-                              repeatType: "reverse",
-                              ease: "easeInOut"
-                            }}
-                            className="w-10 h-10 xs:w-16 xs:h-16 sm:w-[140px] sm:h-[140px] drop-shadow-2xl relative z-10 select-none pointer-events-none group-hover:scale-110 group-hover:rotate-[-3deg] group-hover:drop-shadow-[0_0_25px_rgba(249,115,22,0.85)] transition-all duration-500"
-                          >
-                            <g transform="translate(0, 0)">
-                              {/* Layer 1 (bottom-most background shadow layer - expands deepest on hover) */}
-                              <g className="transition-transform duration-500 ease-out translate-x-[2px] translate-y-[2px] group-hover:translate-x-[14px] group-hover:translate-y-[14px]">
-                                <path d={loc.path} fill="#000000" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.12" />
-                              </g>
-                              
-                              {/* Layer 2 (middle shadow layer) */}
-                              <g className="transition-transform duration-500 ease-out translate-x-[1.5px] translate-y-[1.5px] group-hover:translate-x-[10.5px] group-hover:translate-y-[10.5px]">
-                                <path d={loc.path} fill="#000000" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.22" />
-                              </g>
-                              
-                              {/* Layer 3 (elevated layer) */}
-                              <g className="transition-transform duration-500 ease-out translate-x-[1px] translate-y-[1px] group-hover:translate-x-[7px] group-hover:translate-y-[7px]">
-                                <path d={loc.path} fill="#030303" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.32" />
-                              </g>
-                              
-                              {/* Layer 4 (close layer) */}
-                              <g className="transition-transform duration-500 ease-out translate-x-[0.5px] translate-y-[0.5px] group-hover:translate-x-[3.5px] group-hover:translate-y-[3.5px]">
-                                <path d={loc.path} fill="#0a0a0a" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.45" />
-                              </g>
-                              
-                              {/* Main Top Layer (floats up and to the left dynamically on hover) */}
-                              <g className="transition-transform duration-500 ease-out translate-x-0 translate-y-0 group-hover:-translate-x-[3px] group-hover:-translate-y-[3px]">
-                                <path 
-                                  d={loc.path} 
-                                  fill="#f97316" 
-                                  stroke="#ffffff" 
-                                  strokeWidth="1.5" 
-                                  className="group-hover:fill-[#ea580c] transition-colors duration-300" 
-                                />
-                                
-                                {/* Centered Bold Identifier Text inside Map with elegant styling */}
-                                <text 
-                                  x="60" 
-                                  y={loc.textY || 58} 
-                                  textAnchor="middle" 
-                                  fill="#000000" 
-                                  fontSize={loc.fontSize || 10} 
-                                  fontWeight="900" 
-                                  className="font-sans font-black tracking-normal select-none pointer-events-none uppercase transition-all duration-300 group-hover:fill-[#ffffff]"
-                                >
-                                  {loc.city.includes("DUBAI") ? "DUBAI" : loc.city.includes("KENYA") ? "KENYA" : loc.city}
-                                </text>
-                              </g>
+                      {loc.mapImage ? (
+                        <motion.img 
+                          src={loc.mapImage} 
+                          alt={loc.cityAlt}
+                          animate={{
+                            y: [2, -6, 2],
+                            rotate: [-0.5, 0.5, -0.5]
+                          }}
+                          transition={{
+                            duration: 4.5 + idx * 0.4,
+                            repeat: Infinity,
+                            repeatType: "reverse",
+                            ease: "easeInOut"
+                          }}
+                          className="absolute inset-0 w-full h-full object-contain p-3 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] group-hover:drop-shadow-[0_0_25px_rgba(249,115,22,0.75)] group-hover:scale-110 group-hover:rotate-[-2deg] transition-all duration-500"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <motion.svg 
+                          viewBox="-20 -10 160 150" 
+                          animate={{
+                            y: [2, -4, 2],
+                          }}
+                          transition={{
+                            duration: 5 + idx * 0.5,
+                            repeat: Infinity,
+                            repeatType: "reverse",
+                            ease: "easeInOut"
+                          }}
+                          className="w-[155px] h-[155px] drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] group-hover:drop-shadow-[0_0_25px_rgba(249,115,22,0.75)] relative z-10 select-none pointer-events-none group-hover:scale-[1.08] group-hover:rotate-[-2deg] transition-all duration-500"
+                        >
+                          <g transform="translate(10, 0)">
+                            {/* Layer 5: Deepest wireframe trail (stroke only) */}
+                            <g className="transition-transform duration-500 ease-out translate-x-[-10px] translate-y-[10px] group-hover:translate-x-[-15px] group-hover:translate-y-[15px]">
+                              <motion.path 
+                                d={loc.path} 
+                                fill="none" 
+                                stroke="rgba(255,255,255,0.06)" 
+                                strokeWidth="0.8" 
+                                strokeDasharray="20 15"
+                                animate={{ strokeDashoffset: [0, 35] }}
+                                transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+                              />
                             </g>
-                          </motion.svg>
-                        )}
-                      </div>
+                            {/* Layer 4: Deep wireframe trail */}
+                            <g className="transition-transform duration-500 ease-out translate-x-[-8px] translate-y-[8px] group-hover:translate-x-[-12px] group-hover:translate-y-[12px]">
+                              <motion.path 
+                                d={loc.path} 
+                                fill="none" 
+                                stroke="rgba(255,255,255,0.1)" 
+                                strokeWidth="0.8" 
+                                strokeDasharray="15 15"
+                                animate={{ strokeDashoffset: [0, -30] }}
+                                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                              />
+                            </g>
+                            {/* Layer 3: Medium wireframe trail */}
+                            <g className="transition-transform duration-500 ease-out translate-x-[-6px] translate-y-[6px] group-hover:translate-x-[-9px] group-hover:translate-y-[9px]">
+                              <motion.path 
+                                d={loc.path} 
+                                fill="none" 
+                                stroke="rgba(255,255,255,0.18)" 
+                                strokeWidth="0.8" 
+                                strokeDasharray="12 10"
+                                animate={{ strokeDashoffset: [0, 22] }}
+                                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                              />
+                            </g>
+                            {/* Layer 2: Shallow wireframe trail */}
+                            <g className="transition-transform duration-500 ease-out translate-x-[-4px] translate-y-[4px] group-hover:translate-x-[-6px] group-hover:translate-y-[6px]">
+                              <motion.path 
+                                d={loc.path} 
+                                fill="none" 
+                                stroke="rgba(255,255,255,0.28)" 
+                                strokeWidth="0.8" 
+                                strokeDasharray="10 12"
+                                animate={{ strokeDashoffset: [0, -22] }}
+                                transition={{ duration: 7, repeat: Infinity, ease: "linear" }}
+                              />
+                            </g>
+                            {/* Layer 1: Closest wireframe trail */}
+                            <g className="transition-transform duration-500 ease-out translate-x-[-2px] translate-y-[2px] group-hover:translate-x-[-3px] group-hover:translate-y-[3px]">
+                              <motion.path 
+                                d={loc.path} 
+                                fill="none" 
+                                stroke="rgba(255,255,255,0.45)" 
+                                strokeWidth="0.8" 
+                                strokeDasharray="8 8"
+                                animate={{ strokeDashoffset: [0, 16] }}
+                                transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+                              />
+                            </g>
+                            {/* Layer 0: Main Solid Orange Map Layer */}
+                            <g className="transition-transform duration-500 ease-out translate-x-0 translate-y-0 group-hover:translate-x-[1px] group-hover:translate-y-[-1px]">
+                              <path 
+                                d={loc.path} 
+                                fill="#f97316" 
+                                stroke="#000000" 
+                                strokeWidth="1.2" 
+                                className="group-hover:fill-[#ff7c17] transition-colors duration-300" 
+                              />
+                              <text 
+                                x="60" 
+                                y={loc.textY || 58} 
+                                textAnchor="middle" 
+                                fill="#000000" 
+                                fontSize={loc.fontSize || 10} 
+                                fontWeight="900" 
+                                className="font-sans font-extrabold tracking-tight select-none pointer-events-none uppercase transition-all duration-300"
+                              >
+                                {loc.city.includes("DUBAI") ? "DUBAI" : loc.city.includes("KENYA") ? "NAIROBI" : loc.city}
+                              </text>
+                            </g>
+                          </g>
+                        </motion.svg>
+                      )}
+                    </div>
 
-                      {/* Info & Redirection Metadata Section */}
-                      <div className="pt-1.5 xs:pt-2 sm:pt-3 pb-0.5 sm:pb-1 text-left pointer-events-none">
-                        <div className="flex items-center justify-between gap-1">
-                          <span className="text-white text-[7.5px] xs:text-[10px] sm:text-base font-black tracking-tighter xs:tracking-tight sm:tracking-wide uppercase font-sans group-hover:text-orange-500 transition-colors duration-300 line-clamp-1">
-                            {loc.cityAlt}
-                          </span>
-                          <ArrowRight className="w-2.5 h-2.5 xs:w-3.5 xs:h-3.5 sm:w-5 sm:h-5 text-white/50 group-hover:text-orange-400 group-hover:translate-x-1 transition-all duration-300 animate-pulse flex-shrink-0" />
-                        </div>
+                    {/* Info and Address */}
+                    <div className="pt-3 pb-1 text-left">
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="text-white text-sm font-black uppercase tracking-wide group-hover:text-orange-500 transition-colors duration-300">
+                          {loc.cityAlt}
+                        </span>
+                        <ArrowRight className="w-4 h-4 text-white/50 group-hover:text-orange-400 group-hover:translate-x-1 transition-all duration-300" />
                       </div>
-                    </motion.div>
-                  ))}
-                </div>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
             </div>
           </section>
@@ -4699,7 +5016,7 @@ export function StoryPage() {
           <div className="pt-8 flex flex-col sm:flex-row gap-4 items-center justify-center">
             <button 
               type="button"
-              onClick={() => navigate('/#contact-section')}
+              onClick={() => navigate('/connect')}
               className="px-8 py-4 bg-orange-500 hover:bg-orange-600 font-bold uppercase tracking-widest text-[10px] md:text-xs rounded-full transition-all text-black hover:scale-105 active:scale-95 shadow-[0_0_25px_rgba(249,115,22,0.4)]"
             >
               Contact Dreamcatchers
@@ -4825,6 +5142,7 @@ export default function App() {
         <Route path="/films" element={<FilmsPage />} />
         <Route path="/brand" element={<BrandPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/connect" element={<ConnectPage />} />
         <Route path="/admin" element={<AdminPanel />} />
       </Routes>
     </>

@@ -119,6 +119,121 @@ async function startServer() {
     });
   });
 
+  // Configure a project brief-specific multer config
+  const briefStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, uploadsDir);
+    },
+    filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+      const ext = path.extname(file.originalname);
+      cb(null, "brief-" + uniqueSuffix + ext);
+    }
+  });
+
+  const uploadBrief = multer({
+    storage: briefStorage,
+    limits: {
+      fileSize: 25 * 1024 * 1024 // 25MB limit
+    },
+    fileFilter: (req, file, cb) => {
+      const allowedExts = [".pdf", ".doc", ".docx", ".txt", ".exe", ".jpg", ".jpeg", ".png", ".worl"];
+      const ext = path.extname(file.originalname).toLowerCase();
+      if (allowedExts.includes(ext)) {
+        cb(null, true);
+      } else {
+        cb(new Error("Only .pdf, .doc, .docx, .txt, .exe, .jpg, .jpeg, .png, and .worl files are allowed for project briefs."));
+      }
+    }
+  });
+
+  // Upload project brief file
+  app.post("/api/upload-brief", (req, res) => {
+    uploadBrief.single("brief")(req, res, (err) => {
+      if (err) {
+        let errMsg = "Upload failed";
+        if (err instanceof multer.MulterError) {
+          errMsg = `Multer error: ${err.message}`;
+          if (err.code === "LIMIT_FILE_SIZE") {
+            errMsg = "File size limit exceeded. Max limit is 25MB.";
+          }
+        } else if (err instanceof Error) {
+          errMsg = err.message;
+        }
+        return res.status(400).json({ error: errMsg });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ error: "No brief file selected or uploaded" });
+      }
+
+      const briefUrl = `/uploads/${req.file.filename}`;
+      res.json({
+        url: briefUrl,
+        filename: req.file.filename,
+        originalname: req.file.originalname,
+        size: req.file.size
+      });
+    });
+  });
+
+  // Configure a contact-image-specific multer config
+  const contactImageStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, uploadsDir);
+    },
+    filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+      const ext = path.extname(file.originalname);
+      cb(null, "contact-img-" + uniqueSuffix + ext);
+    }
+  });
+
+  const uploadContactImage = multer({
+    storage: contactImageStorage,
+    limits: {
+      fileSize: 10 * 1024 * 1024 // 10MB limit
+    },
+    fileFilter: (req, file, cb) => {
+      const allowedExts = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
+      const ext = path.extname(file.originalname).toLowerCase();
+      if (allowedExts.includes(ext)) {
+        cb(null, true);
+      } else {
+        cb(new Error("Only image files (.jpg, .jpeg, .png, .gif, .webp, .svg) are allowed."));
+      }
+    }
+  });
+
+  app.post("/api/upload-contact-image", (req, res) => {
+    uploadContactImage.single("contactImage")(req, res, (err) => {
+      if (err) {
+        let errMsg = "Upload failed";
+        if (err instanceof multer.MulterError) {
+          errMsg = `Multer error: ${err.message}`;
+          if (err.code === "LIMIT_FILE_SIZE") {
+            errMsg = "File size limit exceeded. Max limit is 10MB.";
+          }
+        } else if (err instanceof Error) {
+          errMsg = err.message;
+        }
+        return res.status(400).json({ error: errMsg });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ error: "No image file selected or uploaded" });
+      }
+
+      const imageUrl = `/uploads/${req.file.filename}`;
+      res.json({
+        url: imageUrl,
+        filename: req.file.filename,
+        originalname: req.file.originalname,
+        size: req.file.size
+      });
+    });
+  });
+
   // Simple in-memory rate limiter to prevent spam
   const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 
@@ -246,8 +361,11 @@ async function startServer() {
     console.log(`[Job Application System] Processing application for: ${name} (${email}) - Role: ${role}`);
 
     if (!smtpHost || !smtpUser || !smtpPass) {
-      return res.status(500).json({
-        error: "SMTP credentials (SMTP_HOST, SMTP_USER, SMTP_PASS) are not configured in your environment variables. Please open the Secrets panel in AI Studio to set them."
+      console.log(`[Job Application System] SMTP credentials not configured. Running in Simulated Mode for ${name} (${email}).`);
+      return res.json({
+        success: true,
+        emailSent: false,
+        message: "Since SMTP credentials are not configured yet, the transmission to sohailgaji9097@gmail.com was simulated. Your application is saved securely in the database."
       });
     }
 
@@ -280,6 +398,174 @@ async function startServer() {
       console.error(`[Job Application System] ERROR sending email via SMTP:`, err.message);
       return res.status(500).json({
         error: `Failed to transmit application email: ${err.message}`
+      });
+    }
+  });
+
+  // Send email and notify project inquiry
+  app.post("/api/notify-inquiry", express.json(), async (req, res) => {
+    const { name, emailOrPhone, orgName, orgType, subject, message, briefUrl, briefOriginalName } = req.body;
+
+    // Server-side validation
+    if (!name || typeof name !== "string" || name.trim() === "") {
+      return res.status(400).json({ error: "Full Name is required." });
+    }
+    if (!emailOrPhone || typeof emailOrPhone !== "string" || emailOrPhone.trim() === "") {
+      return res.status(400).json({ error: "Email or Contact Number is required." });
+    }
+    if (!subject || typeof subject !== "string" || subject.trim() === "") {
+      return res.status(400).json({ error: "Subject is required." });
+    }
+    if (!message || typeof message !== "string" || message.trim() === "") {
+      return res.status(400).json({ error: "Message is required." });
+    }
+
+    // Rate limiting to prevent spam (max 5 submissions per 15 minutes per IP)
+    const clientIp = (req.headers["x-forwarded-for"] as string || req.socket.remoteAddress || "").split(",")[0].trim();
+    const now = Date.now();
+    const windowMs = 15 * 60 * 1000; // 15 minutes
+    const maxSubmissions = 5;
+
+    let rateInfo = rateLimitMap.get(clientIp + "_inq");
+    if (!rateInfo || now > rateInfo.resetTime) {
+      rateInfo = { count: 0, resetTime: now + windowMs };
+    }
+
+    if (rateInfo.count >= maxSubmissions) {
+      const remainingMinutes = Math.ceil((rateInfo.resetTime - now) / 60000);
+      return res.status(429).json({
+        error: `Too many submissions. Please try again after ${remainingMinutes} minute(s) to prevent spam.`
+      });
+    }
+
+    rateInfo.count += 1;
+    rateLimitMap.set(clientIp + "_inq", rateInfo);
+
+    // Prepare transporter with standard env settings or fallback simulated
+    const smtpHost = process.env.SMTP_HOST;
+    const smtpPort = process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT, 10) : 587;
+    const smtpUser = process.env.SMTP_USER;
+    const smtpPass = process.env.SMTP_PASS;
+    const smtpFrom = process.env.SMTP_FROM || '"Dreamcatchers Studio" <noreply@cinematic-dreamteam.com>';
+
+    const recipientEmail = "sohailgaji9097@gmail.com";
+
+    const emailSubject = `New Project Inquiry: ${subject} (From ${name})`;
+    
+    // Attachments handling
+    const attachments: any[] = [];
+    let briefStatusMsg = "No brief file uploaded";
+
+    if (briefUrl) {
+      const filename = path.basename(briefUrl);
+      const filePath = path.join(uploadsDir, filename);
+      if (fs.existsSync(filePath)) {
+        attachments.push({
+          filename: briefOriginalName || filename,
+          path: filePath
+        });
+        briefStatusMsg = `Attached: ${briefOriginalName || filename}`;
+      } else {
+        briefStatusMsg = `Brief uploaded but file not found on server: ${filename}`;
+      }
+    }
+
+    // Format full brief link using APP_URL if available
+    const appUrl = process.env.APP_URL || "http://localhost:3000";
+    const fullBriefUrl = briefUrl ? (briefUrl.startsWith("http") ? briefUrl : `${appUrl}${briefUrl}`) : "No brief uploaded";
+
+    const emailHtml = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px; background-color: #ffffff; color: #1f2937;">
+        <h2 style="color: #ea580c; border-bottom: 2px solid #ea580c; padding-bottom: 10px; margin-top: 0;">New Project Inquiry / Brief Received</h2>
+        
+        <p style="font-size: 16px; line-height: 1.5;">A visitor has submitted a new project inquiry through the contact form.</p>
+        
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold; width: 150px; border-bottom: 1px solid #f3f4f6;">Full Name:</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">${name}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold; border-bottom: 1px solid #f3f4f6;">Email / Phone:</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">${emailOrPhone}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold; border-bottom: 1px solid #f3f4f6;">Organisation:</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">${orgName || "Not specified"} (${orgType || "Other"})</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold; border-bottom: 1px solid #f3f4f6;">Subject:</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">${subject}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold; border-bottom: 1px solid #f3f4f6;">Project Brief:</td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">${briefStatusMsg}</td>
+          </tr>
+        </table>
+        
+        <div style="margin: 20px 0;">
+          <h3 style="color: #374151; font-size: 16px; margin-bottom: 8px;">Message Details:</h3>
+          <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px 15px; font-style: italic; white-space: pre-wrap; line-height: 1.5; color: #4b5563;">
+            ${message}
+          </div>
+        </div>
+
+        <div style="margin: 25px 0 10px 0; text-align: center;">
+          ${briefUrl ? `
+            <a href="${fullBriefUrl}" target="_blank" style="background-color: #ea580c; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+              View & Download Project Brief
+            </a>
+          ` : `
+            <p style="color: #6b7280; font-style: italic;">No attachment was provided.</p>
+          `}
+        </div>
+
+        <p style="font-size: 12px; color: #9ca3af; text-align: center; margin-top: 40px; border-top: 1px solid #f3f4f6; padding-top: 15px;">
+          This inquiry was processed securely by the web backend.
+        </p>
+      </div>
+    `;
+
+    console.log(`[Project Inquiry System] Processing inquiry from: ${name} (${emailOrPhone}) - Subject: ${subject}`);
+
+    if (!smtpHost || !smtpUser || !smtpPass) {
+      console.log(`[Project Inquiry System] SMTP credentials not configured. Running in Simulated Mode for ${name} (${emailOrPhone}).`);
+      return res.json({
+        success: true,
+        emailSent: false,
+        message: "Since SMTP credentials are not configured yet, the transmission to sohailgaji9097@gmail.com was simulated. Your inquiry is saved securely in the database."
+      });
+    }
+
+    try {
+      const transporter = nodemailer.createTransport({
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpPort === 465,
+        auth: {
+          user: smtpUser,
+          pass: smtpPass
+        }
+      });
+
+      await transporter.sendMail({
+        from: smtpFrom,
+        to: recipientEmail,
+        subject: emailSubject,
+        html: emailHtml,
+        attachments: attachments
+      });
+
+      console.log(`[Project Inquiry System] SUCCESS: Email successfully sent with attachments to ${recipientEmail}`);
+      return res.json({
+        success: true,
+        emailSent: true,
+        message: "Your inquiry and brief have been successfully submitted and emailed to the team."
+      });
+    } catch (err: any) {
+      console.error(`[Project Inquiry System] ERROR sending email via SMTP:`, err.message);
+      return res.status(500).json({
+        error: `Failed to transmit inquiry email: ${err.message}`
       });
     }
   });
@@ -360,9 +646,22 @@ async function startServer() {
 
   // Assemble video chunks into the final video file
   app.post("/api/upload-video-assemble", express.json(), (req, res) => {
-    const { uploadId, filename, totalChunks } = req.body;
+    const { uploadId, filename, totalChunks, fileType } = req.body;
     if (!uploadId || !filename || !totalChunks) {
       return res.status(400).json({ error: "Missing uploadId, filename, or totalChunks" });
+    }
+
+    const sanitizedExt = path.extname(filename).toLowerCase();
+    if (fileType === "brief") {
+      const allowedExts = [".pdf", ".doc", ".docx", ".txt", ".exe", ".jpg", ".jpeg", ".png", ".worl"];
+      if (!allowedExts.includes(sanitizedExt)) {
+        return res.status(400).json({ error: "Only .pdf, .doc, .docx, .txt, .exe, .jpg, .jpeg, .png, and .worl files are allowed for project briefs." });
+      }
+    } else if (fileType === "resume") {
+      const allowedExts = [".pdf", ".doc", ".docx", ".txt", ".rtf", ".png", ".jpg", ".jpeg"];
+      if (!allowedExts.includes(sanitizedExt)) {
+        return res.status(400).json({ error: "Only PDF, Word (DOC/DOCX), Text (TXT/RTF), and Image files are allowed." });
+      }
     }
 
     const tempDirName = `temp-${uploadId.replace(/[^a-zA-Z0-9_-]/g, "")}`;
@@ -373,9 +672,19 @@ async function startServer() {
     }
 
     const total = parseInt(totalChunks, 10);
-    const sanitizedExt = path.extname(filename) || ".mp4";
+    const ext = sanitizedExt || ".mp4";
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const finalFilename = `video-${uniqueSuffix}${sanitizedExt}`;
+    
+    let prefix = "video-";
+    if (fileType === "brief") {
+      prefix = "brief-";
+    } else if (fileType === "resume") {
+      prefix = "resume-";
+    } else if (fileType === "contactImage") {
+      prefix = "contact-img-";
+    }
+    
+    const finalFilename = `${prefix}${uniqueSuffix}${ext}`;
     const finalPath = path.join(uploadsDir, finalFilename);
 
     const writeStream = fs.createWriteStream(finalPath);
@@ -685,6 +994,18 @@ async function startServer() {
       if (!res.headersSent) {
         res.status(500).send("Error streaming Google Drive video");
       }
+    }
+  });
+
+  // Global JSON error handler middleware to prevent Express from ever serving default HTML error pages for APIs
+  app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    console.error("[Backend Unhandled Error]:", err);
+    if (!res.headersSent) {
+      res.status(err.status || 500).json({
+        error: err.message || "An internal server error occurred on the backend."
+      });
+    } else {
+      next(err);
     }
   });
 

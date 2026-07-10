@@ -84,6 +84,24 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["name", "email", "role"]
+    },
+    "ProjectInquiry": {
+      "title": "ProjectInquiry",
+      "description": "User inquiries and contact submissions with project details",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "emailOrPhone": { "type": "string" },
+        "orgName": { "type": "string" },
+        "orgType": { "type": "string" },
+        "briefUrl": { "type": "string" },
+        "briefOriginalName": { "type": "string" },
+        "subject": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "emailOrPhone", "subject", "message"]
     }
   },
   "firestore": {
@@ -110,6 +128,10 @@
     "/job_applications/{applicationId}": {
       "schema": "JobApplication",
       "description": "Job applicant submissions"
+    },
+    "/project_inquiries/{inquiryId}": {
+      "schema": "ProjectInquiry",
+      "description": "User submitted project inquiries"
     }
   }
 }
