@@ -5151,6 +5151,7 @@ export default function App() {
         <Route path="/brand" element={<BrandPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/connect" element={<ConnectPage />} />
+        <Route path="/connect/:formType" element={<ConnectPage />} />
         <Route path="/admin" element={<AdminPanel />} />
       </Routes>
     </>

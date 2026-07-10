@@ -8,6 +8,7 @@ import {
   AlertCircle, 
   Loader2, 
   ArrowRight,
+  ArrowLeft,
   User,
   Briefcase,
   Building,
@@ -16,7 +17,7 @@ import {
   Paperclip,
   Trash2
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect, useMemo, FC, FormEvent } from 'react';
 import { uploadFileInChunks } from '../utils/chunkUpload';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -120,8 +121,14 @@ export default function ConnectPage() {
   // Operational locations state
   const [locations, setLocations] = useState<OperationalLocation[]>(DEFAULT_LOCATIONS);
 
-  // Active Tab state for Connect vs Careers - set to null initially to show only the two path boxes
-  const [activeTab, setActiveTab] = useState<'connect' | 'work' | null>(null);
+  const { formType } = useParams<{ formType?: string }>();
+
+  // Active Tab derived from URL parameters (separate pages)
+  const activeTab = useMemo<'connect' | 'work' | null>(() => {
+    if (formType === 'produce') return 'connect';
+    if (formType === 'careers') return 'work';
+    return null;
+  }, [formType]);
 
   // Option Cards Customizations
   const [box1Bg, setBox1Bg] = useState("https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1170&auto=format&fit=crop");
@@ -201,15 +208,9 @@ export default function ConnectPage() {
     const handleHashCheck = () => {
       const h = window.location.hash;
       if (h === '#careers-form-section' || h === '#careers') {
-        setActiveTab('work');
-        setTimeout(() => {
-          document.getElementById('careers-form-section')?.scrollIntoView({ behavior: 'smooth' });
-        }, 150);
+        navigate('/connect/careers');
       } else if (h === '#contact-form-section' || h === '#contact') {
-        setActiveTab('connect');
-        setTimeout(() => {
-          document.getElementById('contact-form-section')?.scrollIntoView({ behavior: 'smooth' });
-        }, 150);
+        navigate('/connect/produce');
       }
     };
 
@@ -471,7 +472,7 @@ export default function ConnectPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white relative flex flex-col justify-between overflow-x-hidden">
+    <div className="min-h-screen bg-black text-white relative flex flex-col justify-between overflow-x-hidden font-redhat">
       {/* Cinematic Star Field */}
       <div className="absolute inset-0 z-0">
         <StarField count={130} />
@@ -485,140 +486,113 @@ export default function ConnectPage() {
 
       <main className="relative z-10 flex-grow pt-24 md:pt-32">
         {/* Main Heading & Navigation Tabs */}
-        <div className="max-w-7xl mx-auto px-6 md:px-12 text-center mb-10 md:mb-16">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="space-y-4"
-          >
-            <h1 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter leading-none">
-              LET'S <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-400">CONNECT</span>
-            </h1>
-            <p className="text-zinc-400 text-sm md:text-base max-w-xl mx-auto font-sans leading-relaxed">
-              Whether you want to initiate a landmark production, explore creative partnerships, or join our world-class team, choose your path below.
-            </p>
-          </motion.div>
-
-          {/* Tab Boxes */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 max-w-5xl mx-auto mt-10 md:mt-14 px-4">
-            {/* Box 1: Produce with Us / Connect With Us */}
-            <motion.button
-              type="button"
-              onClick={() => {
-                const nextTab = activeTab === 'connect' ? null : 'connect';
-                setActiveTab(nextTab);
-                if (nextTab) {
-                  setTimeout(() => {
-                    document.getElementById('contact-form-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  }, 150);
-                }
-              }}
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              whileHover={{ y: -6, scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
-              className={`group relative aspect-[16/10.5] w-full rounded-[2.5rem] overflow-hidden border text-center flex flex-col justify-center items-center p-8 transition-all duration-300 ${
-                activeTab === 'connect'
-                  ? 'border-orange-500 shadow-[0_0_50px_rgba(249,115,22,0.25)]'
-                  : 'border-zinc-800 hover:border-zinc-700 shadow-xl'
-              }`}
+        {activeTab === null ? (
+          <div className="max-w-7xl mx-auto px-6 md:px-12 text-center mb-10 md:mb-16">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="space-y-4"
             >
-              {/* Frameless background image & overlay */}
-              <div className="absolute inset-0 z-0 overflow-hidden">
-                <img 
-                  src={transformGoogleDriveUrl(box1Bg)} 
-                  alt="Connect With Us"
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1170&auto=format&fit=crop";
-                  }}
-                />
-                <div className={`absolute inset-0 transition-all duration-300 ${
+              <h1 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter leading-none">
+                LET'S <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-400">CONNECT</span>
+              </h1>
+              <p className="text-zinc-400 text-sm md:text-base max-w-xl mx-auto font-sans leading-relaxed">
+                Whether you want to initiate a landmark production, explore creative partnerships, or join our world-class team, choose your path below.
+              </p>
+            </motion.div>
+
+            {/* Tab Boxes */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto mt-10 md:mt-12 px-4">
+              {/* Box 1: Connect With Us */}
+              <motion.button
+                type="button"
+                onClick={() => {
+                  navigate('/connect/produce');
+                }}
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={{ y: -4, scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                className={`p-8 md:p-10 rounded-[2.2rem] border text-left flex items-start gap-6 transition-all duration-300 relative overflow-hidden ${
                   activeTab === 'connect'
-                    ? 'bg-black/60'
-                    : 'bg-black/50 group-hover:bg-black/40'
-                }`} />
-              </div>
-
-              {/* Outer soft orange glow when active */}
-              {activeTab === 'connect' && (
-                <div className="absolute inset-0 bg-orange-500/5 rounded-[2.5rem] pointer-events-none z-20" />
-              )}
-
-              {/* Overlying Content: Heading Badge on top of image */}
-              <div className="relative z-10 flex flex-col items-center gap-3 text-center">
-                <div className="bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl px-6 py-3.5 flex items-center gap-3 shadow-2xl group-hover:border-orange-500/40 transition-all duration-300">
-                  <div className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse" />
-                  <span className="text-white font-sans font-black tracking-[0.15em] text-sm md:text-base uppercase">
-                    CONNECT WITH US
-                  </span>
+                    ? 'bg-gradient-to-b from-zinc-900/90 to-zinc-950/90 border-orange-500 shadow-[0_0_35px_rgba(249,115,22,0.18)]'
+                    : 'bg-zinc-950/40 border-white/5 hover:border-orange-500/30'
+                }`}
+              >
+                {activeTab === 'connect' && (
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-2xl pointer-events-none" />
+                )}
+                <div className={`p-5 rounded-2xl flex-shrink-0 transition-colors ${
+                  activeTab === 'connect' ? 'bg-orange-500 text-black' : 'bg-zinc-900 text-zinc-400'
+                }`}>
+                  <Mail className="w-7 h-7" />
                 </div>
-              </div>
-            </motion.button>
+                <div className="flex-grow min-w-0">
+                  <span className="text-[11px] font-redhat uppercase tracking-wider text-orange-500 font-bold block mb-1.5">PRODUCE WITH US</span>
+                  <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight leading-tight whitespace-nowrap">
+                    Connect With Us
+                  </h3>
+                  <p className="text-[13px] text-zinc-400 mt-2.5 font-sans line-clamp-2 leading-relaxed">
+                    Start a new project inquiry, submit a detailed project brief, or request commercial cooperation.
+                  </p>
+                </div>
+              </motion.button>
 
-            {/* Box 2: Join Our Team / Work With Us */}
+              {/* Box 2: Work With Us */}
+              <motion.button
+                type="button"
+                onClick={() => {
+                  navigate('/connect/careers');
+                }}
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={{ y: -4, scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                className={`p-8 md:p-10 rounded-[2.2rem] border text-left flex items-start gap-6 transition-all duration-300 relative overflow-hidden ${
+                  activeTab === 'work'
+                    ? 'bg-gradient-to-b from-zinc-900/90 to-zinc-950/90 border-orange-500 shadow-[0_0_35px_rgba(249,115,22,0.18)]'
+                    : 'bg-zinc-950/40 border-white/5 hover:border-orange-500/30'
+                }`}
+              >
+                {activeTab === 'work' && (
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-2xl pointer-events-none" />
+                )}
+                <div className={`p-5 rounded-2xl flex-shrink-0 transition-colors ${
+                  activeTab === 'work' ? 'bg-orange-500 text-black' : 'bg-zinc-900 text-zinc-400'
+                }`}>
+                  <Briefcase className="w-7 h-7" />
+                </div>
+                <div className="flex-grow min-w-0">
+                  <span className="text-[11px] font-redhat uppercase tracking-wider text-orange-500 font-bold block mb-1.5">JOIN OUR TEAM</span>
+                  <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight leading-tight whitespace-nowrap">
+                    Work With Us
+                  </h3>
+                  <p className="text-[13px] text-zinc-400 mt-2.5 font-sans line-clamp-2 leading-relaxed">
+                    Apply for open creative positions, submit your cinematography reels, or pitch as a contractor.
+                  </p>
+                </div>
+              </motion.button>
+            </div>
+          </div>
+        ) : (
+          <div className="max-w-7xl mx-auto px-6 md:px-12 mb-10">
             <motion.button
               type="button"
-              onClick={() => {
-                const nextTab = activeTab === 'work' ? null : 'work';
-                setActiveTab(nextTab);
-                if (nextTab) {
-                  setTimeout(() => {
-                    document.getElementById('careers-form-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  }, 150);
-                }
-              }}
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              whileHover={{ y: -6, scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
-              className={`group relative aspect-[16/10.5] w-full rounded-[2.5rem] overflow-hidden border text-center flex flex-col justify-center items-center p-8 transition-all duration-300 ${
-                activeTab === 'work'
-                  ? 'border-orange-500 shadow-[0_0_50px_rgba(249,115,22,0.25)]'
-                  : 'border-zinc-800 hover:border-zinc-700 shadow-xl'
-              }`}
+              onClick={() => navigate('/connect')}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full border border-zinc-850 bg-zinc-950/80 hover:border-orange-500 hover:text-orange-500 text-zinc-300 text-xs transition-all font-black uppercase tracking-wider group shadow-lg"
             >
-              {/* Frameless background image & overlay */}
-              <div className="absolute inset-0 z-0 overflow-hidden">
-                <img 
-                  src={transformGoogleDriveUrl(box2Bg)} 
-                  alt="Work With Us"
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1102&auto=format&fit=crop";
-                  }}
-                />
-                <div className={`absolute inset-0 transition-all duration-300 ${
-                  activeTab === 'work'
-                    ? 'bg-black/60'
-                    : 'bg-black/50 group-hover:bg-black/40'
-                }`} />
-              </div>
-
-              {/* Outer soft orange glow when active */}
-              {activeTab === 'work' && (
-                <div className="absolute inset-0 bg-orange-500/5 rounded-[2.5rem] pointer-events-none z-20" />
-              )}
-
-              {/* Overlying Content: Heading Badge on top of image */}
-              <div className="relative z-10 flex flex-col items-center gap-3 text-center">
-                <div className="bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl px-6 py-3.5 flex items-center gap-3 shadow-2xl group-hover:border-orange-500/40 transition-all duration-300">
-                  <div className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse" />
-                  <span className="text-white font-sans font-black tracking-[0.15em] text-sm md:text-base uppercase">
-                    WORK WITH US
-                  </span>
-                </div>
-              </div>
+              <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+              <span>Back to Connect Options</span>
             </motion.button>
           </div>
-        </div>
+        )}
 
         <AnimatePresence mode="wait">
           {activeTab === 'connect' && (
@@ -643,7 +617,7 @@ export default function ConnectPage() {
                   viewport={{ once: false, amount: 0.2 }}
                   transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                 >
-                  <span className="text-orange-500 font-mono text-xs uppercase tracking-widest block mb-2 font-bold">Contact Info</span>
+                  <span className="text-orange-500 font-redhat text-xs uppercase tracking-widest block mb-2 font-bold">Contact Info</span>
                   <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4">
                     {contactTitleFirst} <span className="text-orange-500">{contactTitleOrange}</span>
                   </h2>
@@ -675,7 +649,7 @@ export default function ConnectPage() {
                   >
                     <Mail className="w-8 h-8 text-orange-500 mb-6 flex-shrink-0" />
                     <div className="text-left w-full overflow-hidden">
-                      <p className="text-[9px] sm:text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-500 font-bold mb-1.5">Email Us</p>
+                      <p className="text-[9px] sm:text-[10px] font-redhat uppercase tracking-[0.2em] text-zinc-500 font-bold mb-1.5">Email Us</p>
                       <a 
                         href={`mailto:${contactEmail}`} 
                         title={contactEmail}
@@ -697,7 +671,7 @@ export default function ConnectPage() {
                   >
                     <Phone className="w-8 h-8 text-orange-500 mb-6 flex-shrink-0" />
                     <div className="text-left w-full overflow-hidden">
-                      <p className="text-[9px] sm:text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-500 font-bold mb-1.5">Call Us</p>
+                      <p className="text-[9px] sm:text-[10px] font-redhat uppercase tracking-[0.2em] text-zinc-500 font-bold mb-1.5">Call Us</p>
                       <a 
                         href={`tel:${contactPhone}`} 
                         title={contactPhone}
@@ -770,7 +744,7 @@ export default function ConnectPage() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Name */}
                         <div>
-                          <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Your Name *</label>
+                          <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Your Name *</label>
                           <div className="relative">
                             <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
                             <input
@@ -786,7 +760,7 @@ export default function ConnectPage() {
 
                         {/* Email/Number */}
                         <div>
-                          <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Your Email / Number *</label>
+                          <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Your Email / Number *</label>
                           <div className="relative">
                             <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
                             <input
@@ -804,7 +778,7 @@ export default function ConnectPage() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Org Name */}
                         <div>
-                          <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Name of Organisation *</label>
+                          <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Name of Organisation *</label>
                           <div className="relative">
                             <Building className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
                             <input
@@ -820,7 +794,7 @@ export default function ConnectPage() {
 
                         {/* Org Type */}
                         <div>
-                          <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Organisation Type *</label>
+                          <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Organisation Type *</label>
                           <div className="relative">
                             <select
                               required
@@ -841,7 +815,7 @@ export default function ConnectPage() {
 
                       {/* Subject */}
                       <div>
-                        <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Subject *</label>
+                        <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Subject *</label>
                         <input
                           type="text"
                           required
@@ -854,7 +828,7 @@ export default function ConnectPage() {
 
                       {/* Message */}
                       <div>
-                        <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Message *</label>
+                        <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Message *</label>
                         <textarea
                           rows={4}
                           required
@@ -867,7 +841,7 @@ export default function ConnectPage() {
 
                       {/* Brief File Upload */}
                       <div>
-                        <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">
+                        <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">
                           Project Brief (Optional - .pdf, .word, .txt, .exe, .jpg, up to 25MB)
                         </label>
                         <div className="border border-dashed border-white/10 rounded-xl p-4 bg-zinc-900/10 hover:border-orange-500/50 transition-colors relative flex flex-col items-center justify-center text-center">
@@ -894,7 +868,7 @@ export default function ConnectPage() {
 
                         {briefUploadProgress === 'uploaded' && briefFilename && (
                           <div className="mt-3 flex items-center justify-between p-2.5 bg-green-500/5 border border-green-500/20 rounded-xl">
-                            <span className="text-xs text-green-400 font-bold font-mono flex items-center gap-1.5">
+                            <span className="text-xs text-green-400 font-bold font-redhat flex items-center gap-1.5">
                               <Paperclip size={14} />
                               {briefFilename} (Uploaded)
                             </span>
@@ -968,7 +942,7 @@ export default function ConnectPage() {
                   transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                   className="text-left"
                 >
-                  <span className="text-orange-500 font-mono text-xs uppercase tracking-widest block mb-2 font-bold">Careers</span>
+                  <span className="text-orange-500 font-redhat text-xs uppercase tracking-widest block mb-2 font-bold">Careers</span>
                   <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4">
                     Work with <span className="text-orange-500">us</span>
                   </h2>
@@ -1036,7 +1010,7 @@ export default function ConnectPage() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Name */}
                         <div>
-                          <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Full Name *</label>
+                          <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Full Name *</label>
                           <div className="relative">
                             <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
                             <input
@@ -1052,7 +1026,7 @@ export default function ConnectPage() {
 
                         {/* Email */}
                         <div>
-                          <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Email Address *</label>
+                          <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Email Address *</label>
                           <div className="relative">
                             <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
                             <input
@@ -1070,7 +1044,7 @@ export default function ConnectPage() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Phone */}
                         <div>
-                          <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Phone Number</label>
+                          <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Phone Number</label>
                           <div className="relative">
                             <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
                             <input
@@ -1085,7 +1059,7 @@ export default function ConnectPage() {
 
                         {/* Position */}
                         <div>
-                          <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Position Applied For *</label>
+                          <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Position Applied For *</label>
                           <div className="relative">
                             <Briefcase className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
                             <select
@@ -1109,7 +1083,7 @@ export default function ConnectPage() {
 
                       {/* Message */}
                       <div>
-                        <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Message / Cover Letter</label>
+                        <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Message / Cover Letter</label>
                         <textarea
                           rows={4}
                           placeholder="Tell us about yourself, your reels, and why you want to join our Dream Team..."
@@ -1121,7 +1095,7 @@ export default function ConnectPage() {
 
                       {/* Resume Upload */}
                       <div>
-                        <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">
+                        <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">
                           Resume Upload (PDF, WORD, TEXT, IMAGE up to 15MB)
                         </label>
                         <div className="border border-dashed border-white/10 rounded-xl p-4 bg-zinc-900/10 hover:border-orange-500/50 transition-colors relative flex flex-col items-center justify-center text-center">
@@ -1148,7 +1122,7 @@ export default function ConnectPage() {
 
                         {uploadProgress === 'uploaded' && resumeFilename && (
                           <div className="mt-3 flex items-center justify-between p-2.5 bg-green-500/5 border border-green-500/20 rounded-xl">
-                            <span className="text-xs text-green-400 font-bold font-mono flex items-center gap-1.5">
+                            <span className="text-xs text-green-400 font-bold font-redhat flex items-center gap-1.5">
                               <Paperclip size={14} />
                               {resumeFilename} (Ready)
                             </span>
@@ -1200,14 +1174,16 @@ export default function ConnectPage() {
           )}
         </AnimatePresence>
 
-        {/* SECTION 3: SEAMLESS LOCATIONS / OFFICES */}
-        <section id="locations-section" className="py-12 md:py-24 border-t border-white/5 bg-zinc-950/40 relative">
+        {activeTab === null && (
+          <>
+            {/* SECTION 3: SEAMLESS LOCATIONS / OFFICES */}
+            <section id="locations-section" className="py-12 md:py-24 border-t border-white/5 bg-zinc-950/40 relative">
           <div className="max-w-[1440px] mx-auto w-full px-6 md:px-12">
             <div className="text-left mb-10">
               <h2 className="text-4xl md:text-6xl font-black text-orange-500 uppercase tracking-tighter mb-1.5 leading-none">
                 OFFICES
               </h2>
-              <span className="text-zinc-500 font-mono text-xs uppercase tracking-[0.25em] block font-bold">Our Locations</span>
+              <span className="text-zinc-500 font-redhat text-xs uppercase tracking-[0.25em] block font-bold">Our Locations</span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-6 w-full">
@@ -1364,9 +1340,11 @@ export default function ConnectPage() {
           </div>
         </section>
 
-        <div className="py-8 bg-black">
-          <InteractiveOptions />
-        </div>
+            <div className="py-8 bg-black">
+              <InteractiveOptions />
+            </div>
+          </>
+        )}
       </main>
 
       <Footer />
