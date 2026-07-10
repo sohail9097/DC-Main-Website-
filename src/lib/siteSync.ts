@@ -24,6 +24,8 @@ const CONFIG_KEYS = [
   'about_stat1_val', 'about_stat1_lbl', 'about_stat2_val', 'about_stat2_lbl', 'about_stat3_val', 'about_stat3_lbl', 'about_stat4_val', 'about_stat4_lbl',
   'about_team',
   'contact_title_first', 'contact_title_orange', 'contact_subtitle', 'contact_email', 'contact_phone', 'contact_address',
+  'contact_box1_bg', 'contact_box1_label', 'contact_box1_title',
+  'contact_box2_bg', 'contact_box2_label', 'contact_box2_title',
   'social_instagram', 'social_facebook', 'social_youtube', 'social_twitter',
   'nav_logo_type', 'nav_logo_text_short', 'nav_logo_text_full', 'nav_logo_image_url',
   'cinematic_slides_list',
