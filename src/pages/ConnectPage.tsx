@@ -120,8 +120,16 @@ export default function ConnectPage() {
   // Operational locations state
   const [locations, setLocations] = useState<OperationalLocation[]>(DEFAULT_LOCATIONS);
 
-  // Active Tab state for Connect vs Careers
-  const [activeTab, setActiveTab] = useState<'connect' | 'work'>('connect');
+  // Active Tab state for Connect vs Careers - set to null initially to show only the two path boxes
+  const [activeTab, setActiveTab] = useState<'connect' | 'work' | null>(null);
+
+  // Option Cards Customizations
+  const [box1Bg, setBox1Bg] = useState("https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1170&auto=format&fit=crop");
+  const [box1Label, setBox1Label] = useState("SPORTS VERTICAL");
+  const [box1Title, setBox1Title] = useState("INTERNATIONAL TOURNAMENT ORGANISING & BROADCAST");
+  const [box2Bg, setBox2Bg] = useState("https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1102&auto=format&fit=crop");
+  const [box2Label, setBox2Label] = useState("DIGITAL VERTICAL");
+  const [box2Title, setBox2Title] = useState("SHORT FORM, DIGITAL, AI CONTENT");
 
   // Load configuration and listen to changes
   const loadConfigs = () => {
@@ -140,6 +148,14 @@ export default function ConnectPage() {
     setContactPhone(localStorage.getItem('contact_phone') || "+91 98765 43210");
     setContactAddress(localStorage.getItem('contact_address') || "820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
     setContactImage(localStorage.getItem('contact_image') || "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=1074&auto=format&fit=crop");
+
+    // Load Option Cards Configurations
+    setBox1Bg(localStorage.getItem('contact_box1_bg') || "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1170&auto=format&fit=crop");
+    setBox1Label(localStorage.getItem('contact_box1_label') || "SPORTS VERTICAL");
+    setBox1Title(localStorage.getItem('contact_box1_title') || "INTERNATIONAL TOURNAMENT ORGANISING & BROADCAST");
+    setBox2Bg(localStorage.getItem('contact_box2_bg') || "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1102&auto=format&fit=crop");
+    setBox2Label(localStorage.getItem('contact_box2_label') || "DIGITAL VERTICAL");
+    setBox2Title(localStorage.getItem('contact_box2_title') || "SHORT FORM, DIGITAL, AI CONTENT");
 
     // Careers section details
     setJoinUsImg(localStorage.getItem('about_join_us_img') || 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=800');
@@ -179,6 +195,7 @@ export default function ConnectPage() {
     window.addEventListener('storage', loadConfigs);
     window.addEventListener('storage_updated_locations', loadConfigs);
     window.addEventListener('storage_updated_verticals', loadConfigs);
+    window.addEventListener('storage_updated_contact', loadConfigs);
 
     // Initial and hash change checking
     const handleHashCheck = () => {
@@ -203,6 +220,7 @@ export default function ConnectPage() {
       window.removeEventListener('storage', loadConfigs);
       window.removeEventListener('storage_updated_locations', loadConfigs);
       window.removeEventListener('storage_updated_verticals', loadConfigs);
+      window.removeEventListener('storage_updated_contact', loadConfigs);
       window.removeEventListener('hashchange', handleHashCheck);
     };
   }, []);
@@ -483,80 +501,120 @@ export default function ConnectPage() {
           </motion.div>
 
           {/* Tab Boxes */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-3xl mx-auto mt-10 md:mt-12 overflow-hidden px-4">
-            {/* Box 1: Connect With Us */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 max-w-5xl mx-auto mt-10 md:mt-14 px-4">
+            {/* Box 1: Produce with Us / Connect With Us */}
             <motion.button
               type="button"
               onClick={() => {
-                setActiveTab('connect');
-                window.location.hash = '#contact-form-section';
+                const nextTab = activeTab === 'connect' ? null : 'connect';
+                setActiveTab(nextTab);
+                if (nextTab) {
+                  setTimeout(() => {
+                    document.getElementById('contact-form-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }, 150);
+                }
               }}
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-              whileHover={{ y: -4, scale: 1.01 }}
-              whileTap={{ scale: 0.98 }}
-              className={`p-6 md:p-8 rounded-[2rem] border text-left flex items-start gap-5 transition-all duration-300 relative overflow-hidden ${
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              whileHover={{ y: -6, scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+              className={`group relative aspect-[16/10.5] w-full rounded-[2.5rem] overflow-hidden border text-center flex flex-col justify-center items-center p-8 transition-all duration-300 ${
                 activeTab === 'connect'
-                  ? 'bg-gradient-to-b from-zinc-900/90 to-zinc-950/90 border-orange-500 shadow-[0_0_30px_rgba(249,115,22,0.15)]'
-                  : 'bg-zinc-950/40 border-white/5 hover:border-orange-500/30'
+                  ? 'border-orange-500 shadow-[0_0_50px_rgba(249,115,22,0.25)]'
+                  : 'border-zinc-800 hover:border-zinc-700 shadow-xl'
               }`}
             >
-              {activeTab === 'connect' && (
-                <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/10 rounded-full blur-2xl pointer-events-none" />
-              )}
-              <div className={`p-4 rounded-2xl flex-shrink-0 transition-colors ${
-                activeTab === 'connect' ? 'bg-orange-500 text-black' : 'bg-zinc-900 text-zinc-400'
-              }`}>
-                <Mail className="w-6 h-6" />
+              {/* Frameless background image & overlay */}
+              <div className="absolute inset-0 z-0 overflow-hidden">
+                <img 
+                  src={transformGoogleDriveUrl(box1Bg)} 
+                  alt="Connect With Us"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1170&auto=format&fit=crop";
+                  }}
+                />
+                <div className={`absolute inset-0 transition-all duration-300 ${
+                  activeTab === 'connect'
+                    ? 'bg-black/60'
+                    : 'bg-black/50 group-hover:bg-black/40'
+                }`} />
               </div>
-              <div className="flex-grow min-w-0">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-orange-500 font-bold block mb-1">PRODUCE WITH US</span>
-                <h3 className="text-lg md:text-xl font-black text-white uppercase tracking-tight leading-tight whitespace-nowrap">
-                  Connect With Us
-                </h3>
-                <p className="text-xs text-zinc-400 mt-2 font-sans line-clamp-2 leading-relaxed">
-                  Start a new project inquiry, submit a detailed project brief, or request commercial cooperation.
-                </p>
+
+              {/* Outer soft orange glow when active */}
+              {activeTab === 'connect' && (
+                <div className="absolute inset-0 bg-orange-500/5 rounded-[2.5rem] pointer-events-none z-20" />
+              )}
+
+              {/* Overlying Content: Heading Badge on top of image */}
+              <div className="relative z-10 flex flex-col items-center gap-3 text-center">
+                <div className="bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl px-6 py-3.5 flex items-center gap-3 shadow-2xl group-hover:border-orange-500/40 transition-all duration-300">
+                  <div className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse" />
+                  <span className="text-white font-sans font-black tracking-[0.15em] text-sm md:text-base uppercase">
+                    CONNECT WITH US
+                  </span>
+                </div>
               </div>
             </motion.button>
 
-            {/* Box 2: Work With Us */}
+            {/* Box 2: Join Our Team / Work With Us */}
             <motion.button
               type="button"
               onClick={() => {
-                setActiveTab('work');
-                window.location.hash = '#careers-form-section';
+                const nextTab = activeTab === 'work' ? null : 'work';
+                setActiveTab(nextTab);
+                if (nextTab) {
+                  setTimeout(() => {
+                    document.getElementById('careers-form-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }, 150);
+                }
               }}
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-              whileHover={{ y: -4, scale: 1.01 }}
-              whileTap={{ scale: 0.98 }}
-              className={`p-6 md:p-8 rounded-[2rem] border text-left flex items-start gap-5 transition-all duration-300 relative overflow-hidden ${
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              whileHover={{ y: -6, scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+              className={`group relative aspect-[16/10.5] w-full rounded-[2.5rem] overflow-hidden border text-center flex flex-col justify-center items-center p-8 transition-all duration-300 ${
                 activeTab === 'work'
-                  ? 'bg-gradient-to-b from-zinc-900/90 to-zinc-950/90 border-orange-500 shadow-[0_0_30px_rgba(249,115,22,0.15)]'
-                  : 'bg-zinc-950/40 border-white/5 hover:border-orange-500/30'
+                  ? 'border-orange-500 shadow-[0_0_50px_rgba(249,115,22,0.25)]'
+                  : 'border-zinc-800 hover:border-zinc-700 shadow-xl'
               }`}
             >
-              {activeTab === 'work' && (
-                <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/10 rounded-full blur-2xl pointer-events-none" />
-              )}
-              <div className={`p-4 rounded-2xl flex-shrink-0 transition-colors ${
-                activeTab === 'work' ? 'bg-orange-500 text-black' : 'bg-zinc-900 text-zinc-400'
-              }`}>
-                <Briefcase className="w-6 h-6" />
+              {/* Frameless background image & overlay */}
+              <div className="absolute inset-0 z-0 overflow-hidden">
+                <img 
+                  src={transformGoogleDriveUrl(box2Bg)} 
+                  alt="Work With Us"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1102&auto=format&fit=crop";
+                  }}
+                />
+                <div className={`absolute inset-0 transition-all duration-300 ${
+                  activeTab === 'work'
+                    ? 'bg-black/60'
+                    : 'bg-black/50 group-hover:bg-black/40'
+                }`} />
               </div>
-              <div className="flex-grow min-w-0">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-orange-500 font-bold block mb-1">JOIN OUR TEAM</span>
-                <h3 className="text-lg md:text-xl font-black text-white uppercase tracking-tight leading-tight whitespace-nowrap">
-                  Work With Us
-                </h3>
-                <p className="text-xs text-zinc-400 mt-2 font-sans line-clamp-2 leading-relaxed">
-                  Apply for open creative positions, submit your cinematography reels, or pitch as a contractor.
-                </p>
+
+              {/* Outer soft orange glow when active */}
+              {activeTab === 'work' && (
+                <div className="absolute inset-0 bg-orange-500/5 rounded-[2.5rem] pointer-events-none z-20" />
+              )}
+
+              {/* Overlying Content: Heading Badge on top of image */}
+              <div className="relative z-10 flex flex-col items-center gap-3 text-center">
+                <div className="bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl px-6 py-3.5 flex items-center gap-3 shadow-2xl group-hover:border-orange-500/40 transition-all duration-300">
+                  <div className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse" />
+                  <span className="text-white font-sans font-black tracking-[0.15em] text-sm md:text-base uppercase">
+                    WORK WITH US
+                  </span>
+                </div>
               </div>
             </motion.button>
           </div>

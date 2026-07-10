@@ -666,6 +666,16 @@ const AdminPanel: FC = () => {
   const [contactImageUploadError, setContactImageUploadError] = useState('');
   const [contactImageInputType, setContactImageInputType] = useState<'upload' | 'url'>('upload');
 
+  // Option Card 1 Customizations (Produce / Connect With Us)
+  const [contactBox1Bg, setContactBox1Bg] = useState(() => localStorage.getItem('contact_box1_bg') || "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1170&auto=format&fit=crop");
+  const [contactBox1Label, setContactBox1Label] = useState(() => localStorage.getItem('contact_box1_label') || "SPORTS VERTICAL");
+  const [contactBox1Title, setContactBox1Title] = useState(() => localStorage.getItem('contact_box1_title') || "INTERNATIONAL TOURNAMENT ORGANISING & BROADCAST");
+
+  // Option Card 2 Customizations (Careers / Work With Us)
+  const [contactBox2Bg, setContactBox2Bg] = useState(() => localStorage.getItem('contact_box2_bg') || "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1102&auto=format&fit=crop");
+  const [contactBox2Label, setContactBox2Label] = useState(() => localStorage.getItem('contact_box2_label') || "DIGITAL VERTICAL");
+  const [contactBox2Title, setContactBox2Title] = useState(() => localStorage.getItem('contact_box2_title') || "SHORT FORM, DIGITAL, AI CONTENT");
+
   // Social media links state variables
   const [socialInstagram, setSocialInstagram] = useState('#');
   const [socialFacebook, setSocialFacebook] = useState('#');
@@ -873,6 +883,14 @@ const AdminPanel: FC = () => {
     setContactPhone(localStorage.getItem('contact_phone') || "+91 98765 43210");
     setContactAddress(localStorage.getItem('contact_address') || "820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
     setContactImage(localStorage.getItem('contact_image') || "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=1074&auto=format&fit=crop");
+
+    // Load Option Card Customizations
+    setContactBox1Bg(localStorage.getItem('contact_box1_bg') || "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1170&auto=format&fit=crop");
+    setContactBox1Label(localStorage.getItem('contact_box1_label') || "SPORTS VERTICAL");
+    setContactBox1Title(localStorage.getItem('contact_box1_title') || "INTERNATIONAL TOURNAMENT ORGANISING & BROADCAST");
+    setContactBox2Bg(localStorage.getItem('contact_box2_bg') || "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1102&auto=format&fit=crop");
+    setContactBox2Label(localStorage.getItem('contact_box2_label') || "DIGITAL VERTICAL");
+    setContactBox2Title(localStorage.getItem('contact_box2_title') || "SHORT FORM, DIGITAL, AI CONTENT");
 
     // Load Social configs
     setSocialInstagram(localStorage.getItem('social_instagram') || '#');
@@ -1598,6 +1616,14 @@ const AdminPanel: FC = () => {
     localStorage.setItem('contact_address', contactAddress);
     localStorage.setItem('contact_image', contactImage);
 
+    // Save Option Card Customizations
+    localStorage.setItem('contact_box1_bg', contactBox1Bg);
+    localStorage.setItem('contact_box1_label', contactBox1Label);
+    localStorage.setItem('contact_box1_title', contactBox1Title);
+    localStorage.setItem('contact_box2_bg', contactBox2Bg);
+    localStorage.setItem('contact_box2_label', contactBox2Label);
+    localStorage.setItem('contact_box2_title', contactBox2Title);
+
     // Save socials
     localStorage.setItem('social_instagram', socialInstagram);
     localStorage.setItem('social_facebook', socialFacebook);
@@ -1619,6 +1645,13 @@ const AdminPanel: FC = () => {
       setContactAddress("820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
       setContactImage("https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=1074&auto=format&fit=crop");
 
+      setContactBox1Bg("https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1170&auto=format&fit=crop");
+      setContactBox1Label("SPORTS VERTICAL");
+      setContactBox1Title("INTERNATIONAL TOURNAMENT ORGANISING & BROADCAST");
+      setContactBox2Bg("https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1102&auto=format&fit=crop");
+      setContactBox2Label("DIGITAL VERTICAL");
+      setContactBox2Title("SHORT FORM, DIGITAL, AI CONTENT");
+
       setSocialInstagram('#');
       setSocialFacebook('#');
       setSocialYoutube('#');
@@ -1631,6 +1664,13 @@ const AdminPanel: FC = () => {
       localStorage.removeItem('contact_phone');
       localStorage.removeItem('contact_address');
       localStorage.removeItem('contact_image');
+
+      localStorage.removeItem('contact_box1_bg');
+      localStorage.removeItem('contact_box1_label');
+      localStorage.removeItem('contact_box1_title');
+      localStorage.removeItem('contact_box2_bg');
+      localStorage.removeItem('contact_box2_label');
+      localStorage.removeItem('contact_box2_title');
 
       localStorage.removeItem('social_instagram');
       localStorage.removeItem('social_facebook');
@@ -5194,6 +5234,123 @@ const AdminPanel: FC = () => {
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* Path Option Cards styling customizations */}
+              <h3 className="text-lg font-black uppercase italic tracking-tight text-orange-500 border-b border-white/5 pb-3 flex items-center gap-2">
+                🎴 Option Cards Customizations (Connect vs Careers)
+              </h3>
+
+              <div className="space-y-6">
+                {/* Card 1 Customization */}
+                <div className="bg-zinc-950/60 p-6 rounded-3xl border border-white/5 space-y-4">
+                  <h4 className="text-sm font-black uppercase tracking-wider text-orange-500 flex items-center gap-2">
+                    <span>1. Left Option Card (Produce / Connect With Us)</span>
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-widest text-zinc-400 font-bold mb-2">Orange Badge/Label</label>
+                      <input
+                        type="text"
+                        value={contactBox1Label}
+                        onChange={(e) => setContactBox1Label(e.target.value)}
+                        placeholder="e.g. SPORTS VERTICAL"
+                        className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-widest text-zinc-400 font-bold mb-2">Main Heading Title</label>
+                      <input
+                        type="text"
+                        value={contactBox1Title}
+                        onChange={(e) => setContactBox1Title(e.target.value)}
+                        placeholder="e.g. INTERNATIONAL TOURNAMENT ORGANISING & BROADCAST"
+                        className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-widest text-zinc-400 font-bold mb-2">Background Image URL / Google Drive Link</label>
+                    <input
+                      type="text"
+                      value={contactBox1Bg}
+                      onChange={(e) => setContactBox1Bg(e.target.value)}
+                      placeholder="Paste image link or Google Drive share link..."
+                      className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white font-mono"
+                    />
+                    <p className="mt-1.5 text-[10px] text-white/40">
+                      💡 Supports direct image URLs and Google Drive share links. This image is displayed beautifully inside the left card.
+                    </p>
+                    {contactBox1Bg && (
+                      <div className="mt-3 relative rounded-2xl overflow-hidden border border-white/5 max-w-[280px] aspect-[16/10] bg-zinc-900">
+                        <img 
+                          src={transformGoogleDriveUrl(contactBox1Bg)} 
+                          alt="Left Option Card Preview" 
+                          referrerPolicy="no-referrer"
+                          className="w-full h-full object-cover opacity-80"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1170&auto=format&fit=crop";
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Card 2 Customization */}
+                <div className="bg-zinc-950/60 p-6 rounded-3xl border border-white/5 space-y-4">
+                  <h4 className="text-sm font-black uppercase tracking-wider text-orange-500 flex items-center gap-2">
+                    <span>2. Right Option Card (Careers / Work With Us)</span>
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-widest text-zinc-400 font-bold mb-2">Orange Badge/Label</label>
+                      <input
+                        type="text"
+                        value={contactBox2Label}
+                        onChange={(e) => setContactBox2Label(e.target.value)}
+                        placeholder="e.g. DIGITAL VERTICAL"
+                        className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-widest text-zinc-400 font-bold mb-2">Main Heading Title</label>
+                      <input
+                        type="text"
+                        value={contactBox2Title}
+                        onChange={(e) => setContactBox2Title(e.target.value)}
+                        placeholder="e.g. SHORT FORM, DIGITAL, AI CONTENT"
+                        className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-widest text-zinc-400 font-bold mb-2">Background Image URL / Google Drive Link</label>
+                    <input
+                      type="text"
+                      value={contactBox2Bg}
+                      onChange={(e) => setContactBox2Bg(e.target.value)}
+                      placeholder="Paste image link or Google Drive share link..."
+                      className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white font-mono"
+                    />
+                    <p className="mt-1.5 text-[10px] text-white/40">
+                      💡 Supports direct image URLs and Google Drive share links. This image is displayed beautifully inside the right card.
+                    </p>
+                    {contactBox2Bg && (
+                      <div className="mt-3 relative rounded-2xl overflow-hidden border border-white/5 max-w-[280px] aspect-[16/10] bg-zinc-900">
+                        <img 
+                          src={transformGoogleDriveUrl(contactBox2Bg)} 
+                          alt="Right Option Card Preview" 
+                          referrerPolicy="no-referrer"
+                          className="w-full h-full object-cover opacity-80"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1102&auto=format&fit=crop";
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <h3 className="text-lg font-black uppercase italic tracking-tight text-orange-500 border-b border-white/5 pb-3">
