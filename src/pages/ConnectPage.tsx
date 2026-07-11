@@ -78,7 +78,7 @@ export default function ConnectPage() {
   const navigate = useNavigate();
 
   // Contact details state (CONNECT WITH US)
-  const [contactTitleFirst, setContactTitleFirst] = useState("Connect with");
+  const [contactTitleFirst, setContactTitleFirst] = useState("Partner with");
   const [contactTitleOrange, setContactTitleOrange] = useState("us.");
   const [contactSubtitle, setContactSubtitle] = useState("Start your cinematic journey today.");
   const [contactEmail, setContactEmail] = useState("hello@dreamcatchers.tv");
@@ -142,7 +142,7 @@ export default function ConnectPage() {
   const loadConfigs = () => {
     // Contact Section Details
     const titleFirst = localStorage.getItem('contact_title_first');
-    setContactTitleFirst(!titleFirst || titleFirst === "Let's" ? "Connect with" : titleFirst);
+    setContactTitleFirst(!titleFirst || titleFirst === "Let's" || titleFirst === "Connect with" ? "Partner with" : titleFirst);
     const titleOrange = localStorage.getItem('contact_title_orange');
     setContactTitleOrange(!titleOrange || titleOrange === "Connect." ? "us." : titleOrange);
     setContactSubtitle(localStorage.getItem('contact_subtitle') || "Start your cinematic journey today.");
@@ -532,13 +532,15 @@ export default function ConnectPage() {
                 }`}>
                   <Mail className="w-7 h-7" />
                 </div>
-                <div className="flex-grow min-w-0">
-                  <span className="text-[11px] font-redhat uppercase tracking-wider text-orange-500 font-bold block mb-1.5">PRODUCE WITH US</span>
-                  <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight leading-tight whitespace-nowrap">
-                    Connect With Us
+                <div className="flex-grow min-w-0 font-redhat">
+                  <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight leading-tight font-redhat">
+                    Partner With Us
                   </h3>
-                  <p className="text-[13px] text-zinc-400 mt-2.5 font-sans line-clamp-2 leading-relaxed">
-                    Start a new project inquiry, submit a detailed project brief, or request commercial cooperation.
+                  <span className="text-sm md:text-base font-bold text-orange-500 mt-1.5 block font-redhat">
+                    Let's build something worth watching.
+                  </span>
+                  <p className="text-[13px] text-zinc-400 mt-2 font-redhat leading-relaxed italic">
+                    Have a brief, a brand, an idea, or an ambitious project? We'd love to hear from you.
                   </p>
                 </div>
               </motion.button>
@@ -569,13 +571,15 @@ export default function ConnectPage() {
                 }`}>
                   <Briefcase className="w-7 h-7" />
                 </div>
-                <div className="flex-grow min-w-0">
-                  <span className="text-[11px] font-redhat uppercase tracking-wider text-orange-500 font-bold block mb-1.5">JOIN OUR TEAM</span>
-                  <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight leading-tight whitespace-nowrap">
+                <div className="flex-grow min-w-0 font-redhat">
+                  <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight leading-tight font-redhat">
                     Work With Us
                   </h3>
-                  <p className="text-[13px] text-zinc-400 mt-2.5 font-sans line-clamp-2 leading-relaxed">
-                    Apply for open creative positions, submit your cinematography reels, or pitch as a contractor.
+                  <span className="text-sm md:text-base font-bold text-orange-500 mt-1.5 block font-redhat">
+                    Bring your craft. Leave your mark.
+                  </span>
+                  <p className="text-[13px] text-zinc-400 mt-2 font-redhat leading-relaxed italic">
+                    Explore careers, freelance opportunities and creative collaborations.
                   </p>
                 </div>
               </motion.button>

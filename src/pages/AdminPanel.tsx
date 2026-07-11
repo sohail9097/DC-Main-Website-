@@ -642,7 +642,7 @@ const AdminPanel: FC = () => {
   // Contact Page state variables
   const [contactTitleFirst, setContactTitleFirst] = useState(() => {
     const val = localStorage.getItem('contact_title_first');
-    if (!val || val === "Let's") return "Connect with";
+    if (!val || val === "Let's" || val === "Connect with") return "Partner with";
     return val;
   });
   const [contactTitleOrange, setContactTitleOrange] = useState(() => {
@@ -870,7 +870,7 @@ const AdminPanel: FC = () => {
 
     // Load Contact configs
     const titleFirst = localStorage.getItem('contact_title_first');
-    setContactTitleFirst(!titleFirst || titleFirst === "Let's" ? "Connect with" : titleFirst);
+    setContactTitleFirst(!titleFirst || titleFirst === "Let's" || titleFirst === "Connect with" ? "Partner with" : titleFirst);
     const titleOrange = localStorage.getItem('contact_title_orange');
     setContactTitleOrange(!titleOrange || titleOrange === "Connect." ? "us." : titleOrange);
     setContactSubtitle(localStorage.getItem('contact_subtitle') || "Start your cinematic journey today.");
@@ -1637,7 +1637,7 @@ const AdminPanel: FC = () => {
 
   const handleResetContactDetails = () => {
     if (confirm('Reset contact cards, custom image and social media links to default info values?')) {
-      setContactTitleFirst("Connect with");
+      setContactTitleFirst("Partner with");
       setContactTitleOrange("us.");
       setContactSubtitle("Start your cinematic journey today.");
       setContactEmail("hello@dreamcatchers.tv");
