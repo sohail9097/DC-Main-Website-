@@ -943,6 +943,13 @@ const AboutPage = () => {
                <div className="hidden sm:block">5600K</div>
              </div>
 
+             {/* Heading: Dream Team, positioned lower of REC [RAW_4K] overlay */}
+             <div className="absolute top-16 md:top-24 left-8 md:left-24 z-10 select-none">
+               <h2 className="text-3xl md:text-5xl font-black font-redhat text-white tracking-tighter leading-none uppercase">
+                 Dream Team
+               </h2>
+             </div>
+
              <div className="absolute top-6 md:top-10 right-8 md:right-24 z-10 pointer-events-none text-[10px] font-mono tracking-wider text-white/30 flex items-center gap-8 select-none">
                <div className="flex items-center gap-2">
                  <span>AUDIO dB</span>

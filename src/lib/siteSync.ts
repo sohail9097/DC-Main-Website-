@@ -20,7 +20,7 @@ const CONFIG_KEYS = [
   'dc_brand_partners',
   'paragraph_frames',
   'verticals_list',
-  'about_bgt_word1', 'about_bgt_word2', 'about_bgt_tagline', 'about_hero_bg', 'about_genesis_sub', 'about_genesis_title', 'about_genesis_p1', 'about_genesis_p2', 'about_genesis_sub3', 'about_genesis_title3', 'about_genesis_p3',
+  'about_bgt_word1', 'about_bgt_word2', 'about_bgt_tagline', 'about_hero_bg', 'about_genesis_sub', 'about_genesis_title', 'about_genesis_p1', 'about_genesis_p2', 'about_genesis_sub3', 'about_genesis_title3', 'about_genesis_p3', 'about_promo_video_url',
   'about_stat1_val', 'about_stat1_lbl', 'about_stat2_val', 'about_stat2_lbl', 'about_stat3_val', 'about_stat3_lbl', 'about_stat4_val', 'about_stat4_lbl',
   'about_team', 'about_join_us_img',
   'contact_title_first', 'contact_title_orange', 'contact_subtitle', 'contact_email', 'contact_phone', 'contact_address', 'contact_image',

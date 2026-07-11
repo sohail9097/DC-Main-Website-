@@ -157,14 +157,21 @@ export const AutoplayVideoFrame: FC<AutoplayVideoFrameProps> = ({ videoUrl, clas
     ? `${ytEmbedUrl}${ytEmbedUrl.includes('?') ? '&' : '?'}autoplay=1&mute=1&loop=1&playlist=${videoId}&playsinline=1&controls=0&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&enablejsapi=1`
     : '';
 
-  // Force HTML5 video element playback once in view
+  // Force HTML5 video element playback once in view, ensuring muted is explicitly set on the DOM property
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = isMuted;
+    }
+  }, [isMuted]);
+
   useEffect(() => {
     if (isInView && videoRef.current) {
+      videoRef.current.muted = isMuted;
       videoRef.current.play().catch(err => {
         console.warn("Autoplay was blocked or failed to start programmatically:", err);
       });
     }
-  }, [isInView]);
+  }, [isInView, isMuted]);
 
   const toggleMute = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -206,6 +213,7 @@ export const AutoplayVideoFrame: FC<AutoplayVideoFrameProps> = ({ videoUrl, clas
           className="w-full h-full object-cover"
           autoPlay
           muted={isMuted}
+          defaultMuted
           loop
           playsInline
         />
