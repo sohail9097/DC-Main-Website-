@@ -93,9 +93,29 @@ export const AutoplayVideoFrame: FC<AutoplayVideoFrameProps> = ({ videoUrl, clas
   const ytEmbedUrl = getYouTubeEmbedUrl(videoUrl);
   const [isInView, setIsInView] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+  const [useIframeFallback, setUseIframeFallback] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    setUseIframeFallback(false);
+  }, [videoUrl]);
+
+  const getGoogleDriveFileId = (url: string | undefined): string | null => {
+    if (!url) return null;
+    const trimmed = url.trim();
+    if (trimmed.includes('drive.google.com') || trimmed.includes('docs.google.com')) {
+      const fileIdRegex = /(?:\/file\/d\/|id=)([^/?#]+)/;
+      const match = trimmed.match(fileIdRegex);
+      if (match && match[1]) {
+        return match[1];
+      }
+    }
+    return null;
+  };
+
+  const driveFileId = getGoogleDriveFileId(videoUrl);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -157,6 +177,13 @@ export const AutoplayVideoFrame: FC<AutoplayVideoFrameProps> = ({ videoUrl, clas
     ? `${ytEmbedUrl}${ytEmbedUrl.includes('?') ? '&' : '?'}autoplay=1&mute=1&loop=1&playlist=${videoId}&playsinline=1&controls=0&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&enablejsapi=1`
     : '';
 
+  // Force browser to load the video source when it changes or comes into view
+  useEffect(() => {
+    if (isInView && videoRef.current) {
+      videoRef.current.load();
+    }
+  }, [isInView, absoluteVideoUrl]);
+
   // Force HTML5 video element playback once in view, ensuring muted is explicitly set on the DOM property
   useEffect(() => {
     if (videoRef.current) {
@@ -165,13 +192,13 @@ export const AutoplayVideoFrame: FC<AutoplayVideoFrameProps> = ({ videoUrl, clas
   }, [isMuted]);
 
   useEffect(() => {
-    if (isInView && videoRef.current) {
+    if (isInView && videoRef.current && !useIframeFallback) {
       videoRef.current.muted = isMuted;
       videoRef.current.play().catch(err => {
         console.warn("Autoplay was blocked or failed to start programmatically:", err);
       });
     }
-  }, [isInView, isMuted]);
+  }, [isInView, isMuted, useIframeFallback]);
 
   const toggleMute = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -206,6 +233,14 @@ export const AutoplayVideoFrame: FC<AutoplayVideoFrameProps> = ({ videoUrl, clas
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowFullScreen
         />
+      ) : (useIframeFallback && driveFileId) ? (
+        <iframe
+          src={`https://drive.google.com/file/d/${driveFileId}/preview`}
+          title="Promo Video"
+          className="w-full h-full border-0 absolute inset-0"
+          allow="autoplay; encrypted-media; fullscreen"
+          allowFullScreen
+        />
       ) : (
         <video
           ref={videoRef}
@@ -215,6 +250,10 @@ export const AutoplayVideoFrame: FC<AutoplayVideoFrameProps> = ({ videoUrl, clas
           muted={isMuted}
           loop
           playsInline
+          onError={() => {
+            console.warn("AutoplayVideoFrame: HTML5 video failed to load, falling back to Google Drive iframe preview.");
+            setUseIframeFallback(true);
+          }}
         />
       )}
 
