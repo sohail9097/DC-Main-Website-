@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import { Navigate, Link } from 'react-router-dom';
 import { pushLocalConfigsToFirestore } from '../lib/siteSync';
+import { getYouTubeEmbedUrl } from '../components/AutoplayVideoFrame';
 import { Users, Layout, Settings, LogOut, Home, Plus, Trash2, Edit2, ArrowUp, ArrowDown, RefreshCw, FileVideo, Image as ImageIcon, ImageOff, Film, Play, ChevronRight, ChevronLeft, MapPin, BookOpen, Share2, Sparkles, Upload, Check, Save, Mail, MessageSquare } from 'lucide-react';
 import { DEFAULT_TEAM_MEMBERS, TeamMember, DEFAULT_ORBIT_IMAGES, DEFAULT_FILMS_LIST, ParagraphFrameItem, DEFAULT_PARAGRAPH_FRAMES, DEFAULT_VERTICALS, VerticalItem, DEFAULT_LOCATIONS, OperationalLocation } from '../App';
 import { BrandItem, ClientItem, DEFAULT_BRAND_ITEMS, DEFAULT_CLIENTS_LIST } from '../utils/brandData';
@@ -619,6 +620,7 @@ const AdminPanel: FC = () => {
   const [aboutGenesisSub3, setAboutGenesisSub3] = useState('Our Evolution');
   const [aboutGenesisTitle3, setAboutGenesisTitle3] = useState('From Curiosity to Creation');
   const [aboutGenesisP3, setAboutGenesisP3] = useState('From television beginnings to global productions, our journey has remained rooted in one constant: creating stories that move people.');
+  const [aboutPromoVideoUrl, setAboutPromoVideoUrl] = useState('https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
 
   const [aboutStat1Val, setAboutStat1Val] = useState('20+');
   const [aboutStat1Lbl, setAboutStat1Lbl] = useState('YEARS ON SET');
@@ -832,6 +834,8 @@ const AdminPanel: FC = () => {
       storedP3 = 'From television beginnings to global productions, our journey has remained rooted in one constant: creating stories that move people.';
     }
     setAboutGenesisP3(storedP3);
+
+    setAboutPromoVideoUrl(localStorage.getItem('about_promo_video_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
 
     let storedStat1 = localStorage.getItem('about_stat1_val');
     if (!storedStat1 || storedStat1 === '14+') {
@@ -1435,6 +1439,7 @@ const AdminPanel: FC = () => {
     localStorage.setItem('about_genesis_sub3', aboutGenesisSub3);
     localStorage.setItem('about_genesis_title3', aboutGenesisTitle3);
     localStorage.setItem('about_genesis_p3', aboutGenesisP3);
+    localStorage.setItem('about_promo_video_url', aboutPromoVideoUrl);
 
     localStorage.setItem('about_stat1_val', aboutStat1Val);
     localStorage.setItem('about_stat1_lbl', aboutStat1Lbl);
@@ -1549,6 +1554,7 @@ const AdminPanel: FC = () => {
       localStorage.removeItem('about_bgt_tagline');
       localStorage.removeItem('about_hero_bg');
       localStorage.removeItem('about_join_us_img');
+      localStorage.removeItem('about_join_us_video');
       localStorage.removeItem('about_genesis_sub');
       localStorage.removeItem('about_genesis_title');
       localStorage.removeItem('about_genesis_p1');
@@ -4836,106 +4842,68 @@ const AdminPanel: FC = () => {
 
               {/* Right panel: METRICS & SUBMIT ACTIONS */}
               <div className="space-y-8">
-                {/* 3. METRICS / STAT COUNTERS */}
+                {/* 3. ABOUT PROMO VIDEO */}
                 <div className="bg-zinc-950 border border-white/5 p-6 rounded-[2.5rem] space-y-6">
                   <h3 className="text-lg font-black uppercase italic tracking-tight text-orange-500 border-b border-white/5 pb-2">
-                    📊 Studio Metrics
+                    🎥 About Us Section Video
                   </h3>
 
                   <div className="space-y-4">
-                    {/* Stat Card 1 */}
-                    <div className="p-3 bg-black/60 rounded-2xl border border-white/5 grid grid-cols-3 gap-3">
-                      <div className="col-span-1">
-                        <label className="block text-[9px] uppercase tracking-wider text-zinc-500 font-bold mb-1">Value</label>
-                        <input
-                          type="text"
-                          required
-                          value={aboutStat1Val}
-                          onChange={(e) => setAboutStat1Val(e.target.value)}
-                          className="w-full bg-zinc-900 border border-white/10 focus:border-orange-500/50 outline-none rounded-xl p-2 text-xs text-orange-500 font-extrabold text-center"
-                        />
-                      </div>
-                      <div className="col-span-2">
-                        <label className="block text-[9px] uppercase tracking-wider text-zinc-500 font-bold mb-1">Label Title</label>
-                        <input
-                          type="text"
-                          required
-                          value={aboutStat1Lbl}
-                          onChange={(e) => setAboutStat1Lbl(e.target.value)}
-                          className="w-full bg-zinc-900 border border-white/10 focus:border-orange-500/50 outline-none rounded-xl p-2 text-xs text-white"
-                        />
-                      </div>
-                    </div>
+                    <div>
+                      <label className="block text-xs uppercase tracking-widest text-zinc-400 font-bold mb-2">Google Drive share link / Direct Video URL</label>
+                      <input
+                        type="text"
+                        required
+                        value={aboutPromoVideoUrl}
+                        onChange={(e) => setAboutPromoVideoUrl(e.target.value)}
+                        placeholder="https://drive.google.com/file/d/... or YouTube Embed"
+                        className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white font-mono"
+                      />
+                      <div className="mt-4 rounded-2xl max-h-[350px] p-2 border border-white/5 relative bg-zinc-900/40 flex items-center justify-center mx-auto overflow-hidden">
+                        {aboutPromoVideoUrl ? (
+                          <div className="w-full h-[220px] rounded-xl overflow-hidden relative">
+                            {(() => {
+                              const ytUrl = getYouTubeEmbedUrl(aboutPromoVideoUrl);
+                              if (ytUrl) {
+                                return (
+                                  <iframe
+                                    src={ytUrl}
+                                    title="Promo Video Preview"
+                                    className="w-full h-full border-0 absolute inset-0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    allowFullScreen
+                                  />
+                                );
+                              }
 
-                    {/* Stat Card 2 */}
-                    <div className="p-3 bg-black/60 rounded-2xl border border-white/5 grid grid-cols-3 gap-3">
-                      <div className="col-span-1">
-                        <label className="block text-[9px] uppercase tracking-wider text-zinc-500 font-bold mb-1">Value</label>
-                        <input
-                          type="text"
-                          required
-                          value={aboutStat2Val}
-                          onChange={(e) => setAboutStat2Val(e.target.value)}
-                          className="w-full bg-zinc-900 border border-white/10 focus:border-orange-500/50 outline-none rounded-xl p-2 text-xs text-orange-500 font-extrabold text-center"
-                        />
-                      </div>
-                      <div className="col-span-2">
-                        <label className="block text-[9px] uppercase tracking-wider text-zinc-500 font-bold mb-1">Label Title</label>
-                        <input
-                          type="text"
-                          required
-                          value={aboutStat2Lbl}
-                          onChange={(e) => setAboutStat2Lbl(e.target.value)}
-                          className="w-full bg-zinc-900 border border-white/10 focus:border-orange-500/50 outline-none rounded-xl p-2 text-xs text-white"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Stat Card 3 */}
-                    <div className="p-3 bg-black/60 rounded-2xl border border-white/5 grid grid-cols-3 gap-3">
-                      <div className="col-span-1">
-                        <label className="block text-[9px] uppercase tracking-wider text-zinc-500 font-bold mb-1">Value</label>
-                        <input
-                          type="text"
-                          required
-                          value={aboutStat3Val}
-                          onChange={(e) => setAboutStat3Val(e.target.value)}
-                          className="w-full bg-zinc-900 border border-white/10 focus:border-orange-500/50 outline-none rounded-xl p-2 text-xs text-orange-500 font-extrabold text-center"
-                        />
-                      </div>
-                      <div className="col-span-2">
-                        <label className="block text-[9px] uppercase tracking-wider text-zinc-500 font-bold mb-1">Label Title</label>
-                        <input
-                          type="text"
-                          required
-                          value={aboutStat3Lbl}
-                          onChange={(e) => setAboutStat3Lbl(e.target.value)}
-                          className="w-full bg-zinc-900 border border-white/10 focus:border-orange-500/50 outline-none rounded-xl p-2 text-xs text-white"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Stat Card 4 */}
-                    <div className="p-3 bg-black/60 rounded-2xl border border-white/5 grid grid-cols-3 gap-3">
-                      <div className="col-span-1">
-                        <label className="block text-[9px] uppercase tracking-wider text-zinc-500 font-bold mb-1">Value</label>
-                        <input
-                          type="text"
-                          required
-                          value={aboutStat4Val}
-                          onChange={(e) => setAboutStat4Val(e.target.value)}
-                          className="w-full bg-zinc-900 border border-white/10 focus:border-orange-500/50 outline-none rounded-xl p-2 text-xs text-orange-500 font-extrabold text-center"
-                        />
-                      </div>
-                      <div className="col-span-2">
-                        <label className="block text-[9px] uppercase tracking-wider text-zinc-500 font-bold mb-1">Label Title</label>
-                        <input
-                          type="text"
-                          required
-                          value={aboutStat4Lbl}
-                          onChange={(e) => setAboutStat4Lbl(e.target.value)}
-                          className="w-full bg-zinc-900 border border-white/10 focus:border-orange-500/50 outline-none rounded-xl p-2 text-xs text-white"
-                        />
+                              const transformed = transformGoogleDriveUrl(aboutPromoVideoUrl, 'video');
+                              let absoluteUrl = transformed;
+                              if (transformed && transformed.startsWith('/')) {
+                                absoluteUrl = window.location.origin + transformed;
+                              }
+                              if (absoluteUrl && !absoluteUrl.includes('ext=.mp4')) {
+                                absoluteUrl += (absoluteUrl.includes('?') ? '&' : '?') + 'ext=.mp4';
+                              }
+                              return (
+                                <video 
+                                  controls 
+                                  muted 
+                                  className="w-full h-full object-cover" 
+                                  onError={() => {
+                                    console.warn("Admin preview failed to load video");
+                                  }}
+                                >
+                                  {absoluteUrl ? <source src={absoluteUrl} type="video/mp4" /> : null}
+                                </video>
+                              );
+                            })()}
+                            <div className="absolute bottom-2 left-2 bg-black/80 px-2 py-1 rounded-md">
+                              <span className="text-[9px] font-mono tracking-widest uppercase font-bold text-orange-500">Video Preview</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-white/20 text-xs font-mono py-10">No Video URL Provided</span>
+                        )}
                       </div>
                     </div>
                   </div>

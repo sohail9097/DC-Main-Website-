@@ -24,6 +24,7 @@ import {
   Clock 
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { AutoplayVideoFrame } from '../components/AutoplayVideoFrame';
 import { useState, useEffect, useRef, useMemo, FC, MouseEvent, TouchEvent, FormEvent } from 'react';
 import { uploadFileInChunks } from '../utils/chunkUpload';
 import { useAuth } from '../context/AuthContext';
@@ -315,6 +316,7 @@ const AboutPage = () => {
   const [word2, setWord2] = useState('Catchers');
   const [tagline, setTagline] = useState('Engineers of visual euphoria. Architects of cinematic truth.');
   const [bgImg, setBgImg] = useState('https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&q=80&w=2072');
+  const [promoVideoUrl, setPromoVideoUrl] = useState('https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
   const [joinUsImg, setJoinUsImg] = useState('https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=800');
   const [genesisSub, setGenesisSub] = useState('The Genesis');
   const [genesisTitle, setGenesisTitle] = useState('The Genesis');
@@ -377,6 +379,7 @@ const AboutPage = () => {
     setWord2(localStorage.getItem('about_bgt_word2') || 'Catchers');
     setTagline(localStorage.getItem('about_bgt_tagline') || 'Engineers of visual euphoria. Architects of cinematic truth.');
     setBgImg(localStorage.getItem('about_hero_bg') || 'https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&q=80&w=2072');
+    setPromoVideoUrl(localStorage.getItem('about_promo_video_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
     setJoinUsImg(localStorage.getItem('about_join_us_img') || 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=800');
     setGenesisSub(localStorage.getItem('about_genesis_sub') || 'The Genesis');
 
@@ -845,62 +848,17 @@ const AboutPage = () => {
 
 
         {/* Content Section */}
-        <section id="about-genesis-section" className="relative bg-black/40 backdrop-blur-3xl border-t border-white/5 py-32 px-6">
-          <div className="max-w-[1400px] mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-start">
-              <motion.div
-                initial={{ opacity: 0, x: -50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                className="space-y-16"
-              >
-                <div className="space-y-10">
-
-                  <h2 className="text-4xl md:text-6xl lg:text-7xl font-black font-redhat text-orange-500 tracking-tighter leading-none uppercase text-left">
-                    {genesisTitle}
-                  </h2>
-                  <div className="space-y-8 font-redhat text-white/60 text-lg md:text-2xl font-medium leading-relaxed tracking-tight text-justify">
-                    <p>
-                      {genesisP1}
-                    </p>
-                    <p className="pt-8 md:pt-12" style={{ textIndent: '5rem' }}>
-                      {genesisP2}
-                    </p>
-                    {genesisP3 && (
-                      <p className="pt-8 md:pt-12">
-                        {genesisP3}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-
-              </motion.div>
-
-              <div className="grid grid-cols-2 gap-4 md:gap-8 pt-12 lg:pt-32">
-                {stats.map((stat, idx) => (
-                  <motion.div
-                    key={stat.label}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.8, delay: idx * 0.1 }}
-                    className="p-8 md:p-12 bg-white/5 rounded-[2.5rem] border border-white/5 group hover:bg-orange-500 transition-all duration-700"
-                  >
-                    <div className="text-orange-500 group-hover:text-black transition-colors mb-6">
-                      {stat.icon}
-                    </div>
-                    <h3 className="text-4xl md:text-6xl font-black text-white group-hover:text-black transition-colors tracking-tighter mb-2">
-                      <AnimatedCounter value={stat.value} />
-                    </h3>
-                    <p className="text-white/30 group-hover:text-black/60 transition-colors text-[10px] md:text-xs font-black uppercase tracking-widest leading-none">
-                      {stat.label}
-                    </p>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
+        <section id="about-genesis-section" className="relative bg-black/40 backdrop-blur-3xl border-t border-white/5 py-0 px-0 w-full overflow-hidden">
+          <div className="w-full">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.98 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full"
+            >
+              <AutoplayVideoFrame videoUrl={promoVideoUrl} className="w-full aspect-video rounded-none border-none shadow-none" />
+            </motion.div>
           </div>
         </section>
 
