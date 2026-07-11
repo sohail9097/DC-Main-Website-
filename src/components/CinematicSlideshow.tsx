@@ -118,6 +118,21 @@ export const CinematicSlideshow: FC = memo(() => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [slides, setSlides] = useState<CinematicSlide[]>(DEFAULT_SLIDES);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [heightMultiplier, setHeightMultiplier] = useState(180);
+
+  // Responsive height multiplier to make sliding view faster in mobile view
+  useEffect(() => {
+    const updateMultiplier = () => {
+      if (window.innerWidth < 768) {
+        setHeightMultiplier(110); // significantly faster scrolling on mobile (110vh per slide instead of 180vh)
+      } else {
+        setHeightMultiplier(180);
+      }
+    };
+    updateMultiplier();
+    window.addEventListener('resize', updateMultiplier);
+    return () => window.removeEventListener('resize', updateMultiplier);
+  }, []);
 
   // Track scroll position of the entire pinned slide container
   const { scrollYProgress } = useScroll({
@@ -127,8 +142,8 @@ export const CinematicSlideshow: FC = memo(() => {
 
   // Create a beautiful, physics-based smooth scroll progress to remove scroll jitter
   const smoothScrollYProgress = useSpring(scrollYProgress, {
-    stiffness: 65,
-    damping: 28,
+    stiffness: heightMultiplier < 150 ? 110 : 65, // Snappier spring on mobile for faster feedback
+    damping: heightMultiplier < 150 ? 24 : 28,
     restDelta: 0.0001
   });
 
@@ -212,7 +227,7 @@ export const CinematicSlideshow: FC = memo(() => {
     <section 
       ref={containerRef} 
       className="relative z-20 w-full bg-black overflow-visible"
-      style={{ height: `${slides.length * 180}vh` }}
+      style={{ height: `${slides.length * heightMultiplier}vh` }}
       id="cinematic-slides"
     >
       <div className="sticky top-0 left-0 h-screen w-full overflow-hidden bg-black flex flex-col justify-between">
