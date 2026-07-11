@@ -213,7 +213,6 @@ export const AutoplayVideoFrame: FC<AutoplayVideoFrameProps> = ({ videoUrl, clas
           className="w-full h-full object-cover"
           autoPlay
           muted={isMuted}
-          defaultMuted
           loop
           playsInline
         />
