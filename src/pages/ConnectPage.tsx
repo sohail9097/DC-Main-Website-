@@ -203,6 +203,7 @@ export default function ConnectPage() {
     window.addEventListener('storage_updated_locations', loadConfigs);
     window.addEventListener('storage_updated_verticals', loadConfigs);
     window.addEventListener('storage_updated_contact', loadConfigs);
+    window.addEventListener('storage_updated_about', loadConfigs);
 
     // Initial and hash change checking
     const handleHashCheck = () => {
@@ -222,6 +223,7 @@ export default function ConnectPage() {
       window.removeEventListener('storage_updated_locations', loadConfigs);
       window.removeEventListener('storage_updated_verticals', loadConfigs);
       window.removeEventListener('storage_updated_contact', loadConfigs);
+      window.removeEventListener('storage_updated_about', loadConfigs);
       window.removeEventListener('hashchange', handleHashCheck);
     };
   }, []);
