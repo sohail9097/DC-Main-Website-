@@ -1310,7 +1310,8 @@ const AdminPanel: FC = () => {
 
     const transformedList = slidesList.map(s => ({
       ...s,
-      imageUrl: transformGoogleDriveUrl(s.imageUrl, isVideoUrl(s.imageUrl) ? 'video' : 'image')
+      imageUrl: transformGoogleDriveUrl(s.imageUrl, isVideoUrl(s.imageUrl) ? 'video' : 'image'),
+      mobileImageUrl: s.mobileImageUrl ? transformGoogleDriveUrl(s.mobileImageUrl, isVideoUrl(s.mobileImageUrl) ? 'video' : 'image') : undefined
     }));
     
     setSlidesList(transformedList);
@@ -1334,7 +1335,7 @@ const AdminPanel: FC = () => {
     }
   };
 
-  const handleUpdateSlideField = (id: string, field: 'title' | 'description' | 'imageUrl', value: string) => {
+  const handleUpdateSlideField = (id: string, field: 'title' | 'description' | 'imageUrl' | 'mobileImageUrl', value: string) => {
     setSlidesList(prev => prev.map(s => {
       if (s.id === id) {
         return { ...s, [field]: value };
@@ -3588,93 +3589,179 @@ const AdminPanel: FC = () => {
                                 />
                               </div>
                               <div className="space-y-1">
-                                <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Slide Image or MP4 Video URL (Compatible with Google Drive share-link, Unsplash, external link, etc.)</label>
+                                <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Slide Image or MP4 Video URL (Desktop View)</label>
                                 <input
                                   type="text"
                                   required
                                   value={slide.imageUrl}
                                   onChange={(e) => handleUpdateSlideField(slide.id, 'imageUrl', e.target.value)}
-                                  placeholder="Enter complete HTTPS image or MP4 video source URL..."
+                                  placeholder="Enter complete HTTPS desktop image or MP4 video URL..."
                                   className="w-full bg-black border border-white/10 rounded-lg px-4 py-2 text-xs text-white focus:outline-none focus:border-orange-500 transition-colors"
                                 />
                               </div>
                             </div>
 
-                            <div className="space-y-1">
-                              <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Slide Description / Subtext</label>
-                              <textarea
-                                required
-                                rows={2}
-                                value={slide.description}
-                                onChange={(e) => handleUpdateSlideField(slide.id, 'description', e.target.value)}
-                                placeholder="Explain this cinematic genre or collection..."
-                                className="w-full bg-black border border-white/10 rounded-lg px-4 py-2 text-xs text-white focus:outline-none focus:border-orange-500 transition-colors resize-none"
-                              />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="space-y-1">
+                                <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Slide Image or MP4 Video URL (Vertical Mobile View - Optional)</label>
+                                <input
+                                  type="text"
+                                  value={slide.mobileImageUrl || ''}
+                                  onChange={(e) => handleUpdateSlideField(slide.id, 'mobileImageUrl', e.target.value)}
+                                  placeholder="Enter complete HTTPS vertical mobile image/video URL (falls back to desktop if blank)..."
+                                  className="w-full bg-black border border-white/10 rounded-lg px-4 py-2 text-xs text-white focus:outline-none focus:border-orange-500 transition-colors"
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Slide Description / Subtext</label>
+                                <textarea
+                                  required
+                                  rows={1}
+                                  value={slide.description}
+                                  onChange={(e) => handleUpdateSlideField(slide.id, 'description', e.target.value)}
+                                  placeholder="Explain this cinematic genre or collection..."
+                                  className="w-full bg-black border border-white/10 rounded-lg px-4 py-2 text-xs text-white focus:outline-none focus:border-orange-500 transition-colors resize-none"
+                                />
+                              </div>
                             </div>
 
-                            {/* Local Image/Video File upload drop zone specifically for this slide */}
-                            <div className="space-y-1">
-                              <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Or Upload Local Slide Image / MP4 Video</label>
-                              <div className="relative border border-dashed border-white/15 hover:border-orange-500/50 rounded-xl px-4 py-3 bg-black/40 flex items-center justify-center gap-3 transition-all cursor-pointer group">
-                                <input
-                                  type="file"
-                                  accept="image/*,video/mp4,video/webm"
-                                  onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file) {
-                                      if (file.size > 3 * 1024 * 1024) {
-                                        alert("Note: To prevent issues with storage limits, we recommend file uploads under 3MB. For larger videos, entering an external URL (such as Dropbox, Vimeo, or Google Drive) is highly recommended.");
-                                        return;
-                                      }
-                                      const reader = new FileReader();
-                                      reader.onload = (event) => {
-                                        if (event.target && typeof event.target.result === 'string') {
-                                          handleUpdateSlideField(slide.id, 'imageUrl', event.target.result);
+                            {/* Local Image/Video File upload drop zones for both views */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="space-y-1">
+                                <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Upload Local Slide Image / MP4 Video (Desktop)</label>
+                                <div className="relative border border-dashed border-white/15 hover:border-orange-500/50 rounded-xl px-4 py-3 bg-black/40 flex items-center justify-center gap-3 transition-all cursor-pointer group">
+                                  <input
+                                    type="file"
+                                    accept="image/*,video/mp4,video/webm"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) {
+                                        if (file.size > 3 * 1024 * 1024) {
+                                          alert("Note: To prevent issues with storage limits, we recommend file uploads under 3MB. For larger videos, entering an external URL (such as Dropbox, Vimeo, or Google Drive) is highly recommended.");
+                                          return;
                                         }
-                                      };
-                                      reader.readAsDataURL(file);
-                                    }
-                                  }}
-                                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
-                                />
-                                <svg className="w-5 h-5 text-white/30 group-hover:text-orange-500 transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                                </svg>
-                                <div className="text-left font-sans">
-                                  <p className="text-[10px] text-white/85 font-black uppercase tracking-wider group-hover:text-white transition-colors">Select Local Image or Video for Slide 0{index + 1}</p>
-                                  <p className="text-[8px] text-white/40 uppercase">JPEG, PNG, WebP, MP4 (Max 3MB)</p>
+                                        const reader = new FileReader();
+                                        reader.onload = (event) => {
+                                          if (event.target && typeof event.target.result === 'string') {
+                                            handleUpdateSlideField(slide.id, 'imageUrl', event.target.result);
+                                          }
+                                        };
+                                        reader.readAsDataURL(file);
+                                      }
+                                    }}
+                                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                                  />
+                                  <svg className="w-5 h-5 text-white/30 group-hover:text-orange-500 transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                  </svg>
+                                  <div className="text-left font-sans">
+                                    <p className="text-[10px] text-white/85 font-black uppercase tracking-wider group-hover:text-white transition-colors">Select Desktop Image/Video 0{index + 1}</p>
+                                    <p className="text-[8px] text-white/40 uppercase">JPEG, PNG, WebP, MP4 (Max 3MB)</p>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="space-y-1">
+                                <label className="block text-[9px] font-black uppercase tracking-widest text-white/40">Upload Local Slide Vertical Image / MP4 Video (Mobile)</label>
+                                <div className="relative border border-dashed border-white/15 hover:border-orange-500/50 rounded-xl px-4 py-3 bg-black/40 flex items-center justify-center gap-3 transition-all cursor-pointer group">
+                                  <input
+                                    type="file"
+                                    accept="image/*,video/mp4,video/webm"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) {
+                                        if (file.size > 3 * 1024 * 1024) {
+                                          alert("Note: To prevent issues with storage limits, we recommend file uploads under 3MB. For larger videos, entering an external URL (such as Dropbox, Vimeo, or Google Drive) is highly recommended.");
+                                          return;
+                                        }
+                                        const reader = new FileReader();
+                                        reader.onload = (event) => {
+                                          if (event.target && typeof event.target.result === 'string') {
+                                            handleUpdateSlideField(slide.id, 'mobileImageUrl', event.target.result);
+                                          }
+                                        };
+                                        reader.readAsDataURL(file);
+                                      }
+                                    }}
+                                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                                  />
+                                  <svg className="w-5 h-5 text-white/30 group-hover:text-orange-500 transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                  </svg>
+                                  <div className="text-left font-sans">
+                                    <p className="text-[10px] text-white/85 font-black uppercase tracking-wider group-hover:text-white transition-colors">Select Mobile Vertical Image/Video 0{index + 1}</p>
+                                    <p className="text-[8px] text-white/40 uppercase">JPEG, PNG, WebP, MP4 (Max 3MB)</p>
+                                  </div>
                                 </div>
                               </div>
                             </div>
                           </div>
 
-                          {/* Preview container */}
-                          <div className="w-full lg:w-48 h-32 shrink-0 bg-zinc-950 rounded-xl border border-white/5 relative overflow-hidden flex items-center justify-center">
-                            {slide.imageUrl ? (
-                              isSlideVideo ? (
-                                <video
-                                  src={transformedUrl}
-                                  className="w-full h-full object-cover"
-                                  autoPlay
-                                  loop
-                                  muted
-                                  playsInline
-                                />
-                              ) : (
-                                <img
-                                  src={transformedUrl}
-                                  alt={`Slide ${index + 1} Preview`}
-                                  className="w-full h-full object-cover"
-                                  referrerPolicy="no-referrer"
-                                  onError={(e) => {
-                                    (e.currentTarget as HTMLImageElement).src = 'https://placehold.co/150x150/111111/ff4500/ffffff?text=Image+Error';
-                                  }}
-                                />
-                              )
-                            ) : (
-                              <span className="text-[8px] text-white/20 uppercase font-black font-sans">No URL Entered</span>
-                            )}
-                            <div className="absolute inset-0 bg-radial from-transparent to-black/60 pointer-events-none" />
+                          {/* Previews block */}
+                          <div className="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0 w-full lg:w-48 bg-black/30 p-3 rounded-xl border border-white/5">
+                            {/* Desktop Preview */}
+                            <div className="flex-1 space-y-1">
+                              <span className="text-[8px] font-black uppercase tracking-widest text-white/30 block text-center">Desktop Preview</span>
+                              <div className="h-24 bg-zinc-950 rounded-lg border border-white/5 relative overflow-hidden flex items-center justify-center">
+                                {slide.imageUrl ? (
+                                  isVideoUrl(slide.imageUrl) ? (
+                                    <video
+                                      src={transformedUrl}
+                                      className="w-full h-full object-cover"
+                                      autoPlay
+                                      loop
+                                      muted
+                                      playsInline
+                                    />
+                                  ) : (
+                                    <img
+                                      src={transformedUrl}
+                                      alt={`Slide ${index + 1} Desktop Preview`}
+                                      className="w-full h-full object-cover"
+                                      referrerPolicy="no-referrer"
+                                      onError={(e) => {
+                                        (e.currentTarget as HTMLImageElement).src = 'https://placehold.co/150x150/111111/ff4500/ffffff?text=Image+Error';
+                                      }}
+                                    />
+                                  )
+                                ) : (
+                                  <span className="text-[8px] text-white/20 uppercase font-black font-sans">No URL</span>
+                                )}
+                                <div className="absolute inset-0 bg-radial from-transparent to-black/60 pointer-events-none" />
+                              </div>
+                            </div>
+
+                            {/* Mobile Preview */}
+                            <div className="flex-1 space-y-1">
+                              <span className="text-[8px] font-black uppercase tracking-widest text-white/30 block text-center">Mobile Vertical Preview</span>
+                              <div className="h-24 bg-zinc-950 rounded-lg border border-white/5 relative overflow-hidden flex items-center justify-center">
+                                {slide.mobileImageUrl ? (
+                                  isVideoUrl(slide.mobileImageUrl) ? (
+                                    <video
+                                      src={transformGoogleDriveUrl(slide.mobileImageUrl, 'video')}
+                                      className="w-full h-full object-cover"
+                                      autoPlay
+                                      loop
+                                      muted
+                                      playsInline
+                                    />
+                                  ) : (
+                                    <img
+                                      src={transformGoogleDriveUrl(slide.mobileImageUrl, 'image')}
+                                      alt={`Slide ${index + 1} Mobile Preview`}
+                                      className="w-full h-full object-cover"
+                                      referrerPolicy="no-referrer"
+                                      onError={(e) => {
+                                        (e.currentTarget as HTMLImageElement).src = 'https://placehold.co/150x150/111111/ff4500/ffffff?text=Image+Error';
+                                      }}
+                                    />
+                                  )
+                                ) : (
+                                  <span className="text-[8px] text-white/25 uppercase font-semibold font-sans text-center px-1">Same as desktop</span>
+                                )}
+                                <div className="absolute inset-0 bg-radial from-transparent to-black/60 pointer-events-none" />
+                              </div>
+                            </div>
                           </div>
                         </div>
                       );

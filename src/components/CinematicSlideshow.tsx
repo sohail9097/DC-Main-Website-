@@ -19,6 +19,7 @@ export interface CinematicSlide {
   title: string;
   description: string;
   imageUrl: string;
+  mobileImageUrl?: string;
 }
 
 export const DEFAULT_SLIDES: CinematicSlide[] = [
@@ -324,22 +325,69 @@ export const CinematicSlideshow: FC = memo(() => {
               >
                 {/* Background Image without visual scaling gaps */}
                 <div className="absolute inset-0 w-full h-full pb-0">
-                  {isVideoUrl(slide.imageUrl) ? (
-                    <video
-                      src={transformUrl(slide.imageUrl)}
-                      className="w-full h-full object-cover select-none"
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                    />
+                  {slide.mobileImageUrl ? (
+                    <>
+                      {/* Desktop view */}
+                      <div className="hidden md:block w-full h-full">
+                        {isVideoUrl(slide.imageUrl) ? (
+                          <video
+                            src={transformUrl(slide.imageUrl)}
+                            className="w-full h-full object-cover select-none"
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                          />
+                        ) : (
+                          <img
+                            src={transformUrl(slide.imageUrl)}
+                            alt={slide.title}
+                            className="w-full h-full object-cover select-none pointer-events-none"
+                            referrerPolicy="no-referrer"
+                          />
+                        )}
+                      </div>
+                      {/* Mobile view */}
+                      <div className="block md:hidden w-full h-full">
+                        {isVideoUrl(slide.mobileImageUrl) ? (
+                          <video
+                            src={transformUrl(slide.mobileImageUrl)}
+                            className="w-full h-full object-cover select-none"
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                          />
+                        ) : (
+                          <img
+                            src={transformUrl(slide.mobileImageUrl)}
+                            alt={slide.title}
+                            className="w-full h-full object-cover select-none pointer-events-none"
+                            referrerPolicy="no-referrer"
+                          />
+                        )}
+                      </div>
+                    </>
                   ) : (
-                    <img
-                      src={transformUrl(slide.imageUrl)}
-                      alt={slide.title}
-                      className="w-full h-full object-cover select-none pointer-events-none"
-                      referrerPolicy="no-referrer"
-                    />
+                    <>
+                      {isVideoUrl(slide.imageUrl) ? (
+                        <video
+                          src={transformUrl(slide.imageUrl)}
+                          className="w-full h-full object-cover select-none"
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                        />
+                      ) : (
+                        <img
+                          src={transformUrl(slide.imageUrl)}
+                          alt={slide.title}
+                          className="w-full h-full object-cover select-none pointer-events-none"
+                          referrerPolicy="no-referrer"
+                        />
+                      )}
+                    </>
                   )}
                 </div>
 
