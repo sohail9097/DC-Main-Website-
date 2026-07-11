@@ -848,17 +848,49 @@ const AboutPage = () => {
 
 
         {/* Content Section */}
-        <section id="about-genesis-section" className="relative bg-black/40 backdrop-blur-3xl border-t border-white/5 py-0 px-0 w-full overflow-hidden">
+        <section id="about-genesis-section" className="relative bg-black/40 backdrop-blur-3xl border-t border-white/5 py-32 pl-6 lg:pl-16 pr-6 lg:pr-16 w-full overflow-hidden">
           <div className="w-full">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.98 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full"
-            >
-              <AutoplayVideoFrame videoUrl={promoVideoUrl} className="w-full aspect-video rounded-none border-none shadow-none" />
-            </motion.div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+              <motion.div
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                className="space-y-16 lg:col-span-5"
+              >
+                <div className="space-y-10">
+                  <h2 className="text-4xl md:text-6xl lg:text-7xl font-black font-redhat text-orange-500 tracking-tighter leading-none uppercase text-left">
+                    {genesisTitle}
+                  </h2>
+                  <div className="space-y-8 font-redhat text-white/60 text-lg md:text-2xl font-medium leading-relaxed tracking-tight text-justify">
+                    <p>
+                      {genesisP1}
+                    </p>
+                    <p className="pt-8 md:pt-12" style={{ textIndent: '5rem' }}>
+                      {genesisP2}
+                    </p>
+                    {genesisP3 && (
+                      <p className="pt-8 md:pt-12">
+                        {genesisP3}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: 50, scale: 0.98 }}
+                whileInView={{ opacity: 1, x: 0, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                className="w-full lg:col-span-7 pt-6 lg:pt-0"
+              >
+                <AutoplayVideoFrame 
+                  videoUrl={promoVideoUrl} 
+                  className="w-full aspect-video rounded-[1.5rem] md:rounded-[2rem] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden" 
+                />
+              </motion.div>
+            </div>
           </div>
         </section>
 
@@ -899,132 +931,6 @@ const AboutPage = () => {
                  the tribe
                </span>
              </div>
-
-             {/* Dynamic Scrolling Celluloid Movie Reels (Background) */}
-             <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden flex flex-col justify-around py-16 opacity-30 select-none">
-               
-               {/* Reel 1: Upper Track (Scrolling Left) */}
-               <div className="w-full h-24 overflow-hidden relative border-y border-white/[0.03] bg-zinc-950/20">
-                 <div className="flex w-max gap-0 animate-film-reel-left">
-                   {/* Loop 1 */}
-                   <div className="flex">
-                     {Array.from({ length: 12 }).map((_, idx) => (
-                       <div key={`reel-top-${idx}`} className="w-56 h-24 flex-shrink-0 bg-neutral-950 border-r-2 border-neutral-900 relative flex flex-col justify-between py-1.5">
-                         {/* Top Sprockets */}
-                         <div className="flex justify-between px-1.5 opacity-60">
-                           {Array.from({ length: 9 }).map((_, s) => (
-                             <span key={s} className="w-2 h-2.5 bg-zinc-700/80 border border-white/20 rounded-[1px]" />
-                           ))}
-                         </div>
-                         {/* Frame Space */}
-                         <div className="flex-grow mx-3 my-0.5 bg-black/55 border border-white/[0.05] rounded-[1px] flex items-center justify-between px-3 text-white/10 font-mono text-[8px] tracking-widest select-none">
-                           <span className="text-orange-500/20 font-black">KODAK 500T</span>
-                           <span>01:{String(idx + 1).padStart(2, '0')}</span>
-                           <span className="text-white/5 font-extrabold">▲ {12 + idx}</span>
-                         </div>
-                         {/* Bottom Sprockets */}
-                         <div className="flex justify-between px-1.5 opacity-60">
-                           {Array.from({ length: 9 }).map((_, s) => (
-                             <span key={s} className="w-2 h-2.5 bg-zinc-700/80 border border-white/20 rounded-[1px]" />
-                           ))}
-                         </div>
-                       </div>
-                     ))}
-                   </div>
-                   {/* Loop 2 (Duplicate for seamless infinite wrap) */}
-                   <div className="flex">
-                     {Array.from({ length: 12 }).map((_, idx) => (
-                       <div key={`reel-top-dup-${idx}`} className="w-56 h-24 flex-shrink-0 bg-neutral-950 border-r-2 border-neutral-900 relative flex flex-col justify-between py-1.5">
-                         {/* Top Sprockets */}
-                         <div className="flex justify-between px-1.5 opacity-60">
-                           {Array.from({ length: 9 }).map((_, s) => (
-                             <span key={s} className="w-2 h-2.5 bg-zinc-700/80 border border-white/20 rounded-[1px]" />
-                           ))}
-                         </div>
-                         {/* Frame Space */}
-                         <div className="flex-grow mx-3 my-0.5 bg-black/55 border border-white/[0.05] rounded-[1px] flex items-center justify-between px-3 text-white/10 font-mono text-[8px] tracking-widest select-none">
-                           <span className="text-orange-500/20 font-black">KODAK 500T</span>
-                           <span>01:{String(idx + 1).padStart(2, '0')}</span>
-                           <span className="text-white/5 font-extrabold">▲ {12 + idx}</span>
-                         </div>
-                         {/* Bottom Sprockets */}
-                         <div className="flex justify-between px-1.5 opacity-60">
-                           {Array.from({ length: 9 }).map((_, s) => (
-                             <span key={s} className="w-2 h-2.5 bg-zinc-700/80 border border-white/20 rounded-[1px]" />
-                           ))}
-                         </div>
-                       </div>
-                     ))}
-                   </div>
-                 </div>
-               </div>
-
-               {/* Reel 2: Lower Track (Scrolling Left) */}
-               <div className="w-full h-24 overflow-hidden relative border-y border-white/[0.03] bg-zinc-950/20">
-                 <div className="flex w-max gap-0 animate-film-reel-left">
-                   {/* Loop 1 */}
-                   <div className="flex">
-                     {Array.from({ length: 12 }).map((_, idx) => (
-                       <div key={`reel-bottom-${idx}`} className="w-56 h-24 flex-shrink-0 bg-neutral-950 border-r-2 border-neutral-900 relative flex flex-col justify-between py-1.5">
-                         {/* Top Sprockets */}
-                         <div className="flex justify-between px-1.5 opacity-60">
-                           {Array.from({ length: 9 }).map((_, s) => (
-                             <span key={s} className="w-2 h-2.5 bg-zinc-700/80 border border-white/20 rounded-[1px]" />
-                           ))}
-                         </div>
-                         {/* Frame Space */}
-                         <div className="flex-grow mx-3 my-0.5 bg-black/55 border border-white/[0.05] rounded-[1px] flex items-center justify-between px-3 text-white/10 font-mono text-[8px] tracking-widest select-none">
-                           <span className="text-orange-500/20 font-black">FUJI REALA</span>
-                           <span>02:{String(idx + 1).padStart(2, '0')}</span>
-                           <span className="text-white/5 font-extrabold">▲ {38 + idx}</span>
-                         </div>
-                         {/* Bottom Sprockets */}
-                         <div className="flex justify-between px-1.5 opacity-60">
-                           {Array.from({ length: 9 }).map((_, s) => (
-                             <span key={s} className="w-2 h-2.5 bg-zinc-700/80 border border-white/20 rounded-[1px]" />
-                           ))}
-                         </div>
-                       </div>
-                     ))}
-                   </div>
-                   {/* Loop 2 (Duplicate for seamless infinite wrap) */}
-                   <div className="flex">
-                     {Array.from({ length: 12 }).map((_, idx) => (
-                       <div key={`reel-bottom-dup-${idx}`} className="w-56 h-24 flex-shrink-0 bg-neutral-950 border-r-2 border-neutral-900 relative flex flex-col justify-between py-1.5">
-                         {/* Top Sprockets */}
-                         <div className="flex justify-between px-1.5 opacity-60">
-                           {Array.from({ length: 9 }).map((_, s) => (
-                             <span key={s} className="w-2 h-2.5 bg-zinc-700/80 border border-white/20 rounded-[1px]" />
-                           ))}
-                         </div>
-                         {/* Frame Space */}
-                         <div className="flex-grow mx-3 my-0.5 bg-black/55 border border-white/[0.05] rounded-[1px] flex items-center justify-between px-3 text-white/10 font-mono text-[8px] tracking-widest select-none">
-                           <span className="text-orange-500/20 font-black">FUJI REALA</span>
-                           <span>02:{String(idx + 1).padStart(2, '0')}</span>
-                           <span className="text-white/5 font-extrabold">▲ {38 + idx}</span>
-                         </div>
-                         {/* Bottom Sprockets */}
-                         <div className="flex justify-between px-1.5 opacity-60">
-                           {Array.from({ length: 9 }).map((_, s) => (
-                             <span key={s} className="w-2 h-2.5 bg-zinc-700/80 border border-white/20 rounded-[1px]" />
-                           ))}
-                         </div>
-                       </div>
-                     ))}
-                   </div>
-                 </div>
-               </div>
-
-             </div>
-
-             {/* Film Strip Outer Frame Sprocket slots */}
-             <div className="absolute top-0 left-0 right-0 h-4 md:h-6 bg-zinc-950/90 z-10 flex items-center border-b border-white/5 overflow-hidden">
-               <div className="w-full h-1 md:h-2 film-strip" />
-             </div>
-             <div className="absolute bottom-0 left-0 right-0 h-6 bg-zinc-950/90 z-10 flex items-center border-t border-white/5 overflow-hidden">
-               <div className="w-full h-2 film-strip" />
-             </div>
-
              {/* Dynamic Viewfinder Cameras Hub Overlays */}
              <div className="absolute top-6 md:top-10 left-8 md:left-24 z-10 pointer-events-none text-[10px] font-mono tracking-wider text-white/30 flex items-center gap-12 select-none">
                <div className="flex items-center gap-2">
@@ -1112,15 +1018,7 @@ const AboutPage = () => {
                }
              `}</style>
  
-             {/* Header Area (Lower Z-index to prevent covering the cards) */}
-             <div className="relative z-10 max-w-xl pl-8 md:pl-24 pt-8 md:pt-0">
-               <h2 className="text-3xl md:text-5xl font-black font-redhat text-white tracking-tighter leading-none uppercase mb-4">
-                 Dream Team
-               </h2>
-               <p className="font-redhat text-white/30 text-xs md:text-sm font-semibold uppercase tracking-widest leading-relaxed">
-                 A collective of obsessed creators, technical wizards, and poetic dreamers.
-               </p>
-             </div>
+  
  
              {/* Sliding Container Track Wrapper with Navigation Arrows */}
              <div className="relative w-full flex-grow-0 md:flex-grow flex items-center">
@@ -1214,319 +1112,7 @@ const AboutPage = () => {
              </div>
  
          </section>
-
-
-       </main>
-      {/* Join Us / Careers Section */}
-          <section id="join-us-section" className="relative py-16 md:py-24 bg-black border-t border-zinc-900 overflow-hidden">
-            {/* Ambient Background Glows */}
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-orange-600/5 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-zinc-950/10 rounded-full blur-3xl pointer-events-none" />
-
-            <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-                
-                {/* Left Side: Copy and Jobs Grid */}
-                <div className="lg:col-span-5 flex flex-col justify-start gap-6">
-                  <motion.div 
-                    initial={{ opacity: 0, x: -40 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: false, amount: 0.1 }}
-                    transition={{ duration: 0.7, ease: "easeOut" }}
-                    className="mb-2"
-                  >
-                    <span className="text-orange-500 font-mono text-xs uppercase tracking-widest block mb-2 font-bold">Careers</span>
-                    <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none mb-4">
-                      Join us
-                    </h2>
-                    <p className="text-zinc-400 text-sm md:text-base leading-relaxed">
-                      We are always seeking obsessed creators, technical wizards, and poetic dreamers. If you thrive at the intersection of cinematic craft and digital-first storytelling, find your spot here.
-                    </p>
-                  </motion.div>
-
-                  {/* Cinematic Career Image Block */}
-                  <motion.div 
-                    initial={{ opacity: 0, y: 50, scale: 0.95 }}
-                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                    viewport={{ once: false, amount: 0.1 }}
-                    transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
-                    className="relative w-full mt-4 flex justify-center items-center"
-                  >
-                    <img 
-                      src={transformGoogleDriveUrl(joinUsImg, 'image')} 
-                      alt="Join Dreamcatchers" 
-                      className="w-full h-auto max-h-[550px] object-contain rounded-2xl"
-                    />
-                  </motion.div>
-                </div>
-
-                {/* Right Side: Elegant Careers Form */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 50, scale: 0.98 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: false, amount: 0.1 }}
-                  transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-                  className="lg:col-span-7"
-                >
-                  <div className="bg-zinc-950/50 border border-zinc-900/80 p-6 md:p-8 rounded-2xl relative shadow-2xl backdrop-blur-md font-sans">
-                    
-                    {formStatus === 'success' ? (
-                      <motion.div 
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="text-center py-12 px-4 flex flex-col items-center"
-                      >
-                        <div className="w-16 h-16 rounded-full bg-orange-500/10 border border-orange-500/30 flex items-center justify-center mb-6 text-orange-500">
-                          <CheckCircle2 size={32} />
-                        </div>
-                        <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-2">
-                          Application Submitted!
-                        </h3>
-                        <p className="text-zinc-400 text-sm max-w-md mx-auto mb-4 leading-relaxed">
-                          Thank you for applying. Your application has been successfully received and saved to the database.
-                        </p>
-                        
-                        {emailSent ? (
-                          <div className="mb-6 p-3.5 rounded-xl bg-green-950/20 border border-green-500/20 text-green-400 text-xs max-w-md text-center">
-                            📬 {emailMessage || "A live notification email was successfully sent to sohailgaji9097@gmail.com!"}
-                          </div>
-                        ) : (
-                          <div className="mb-6 p-4 rounded-xl bg-orange-950/20 border border-orange-500/20 text-orange-400 text-xs text-left max-w-md">
-                            <p className="font-bold flex items-center gap-1.5 mb-1 text-orange-300 font-mono uppercase tracking-wider text-[10px]">
-                              ⚠️ Email not sent (Simulated Mode)
-                            </p>
-                            <p className="leading-relaxed text-[11px] text-zinc-300">
-                              Since SMTP credentials are not configured yet, the transmission to <strong>sohailgaji9097@gmail.com</strong> was simulated.
-                            </p>
-                            <p className="mt-2 leading-relaxed text-[11px] text-orange-300">
-                              To receive live emails, open the <strong>Settings (Secrets)</strong> panel in the AI Studio UI and configure your SMTP variables (SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS).
-                            </p>
-                          </div>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => setFormStatus('idle')}
-                          className="px-6 py-2.5 rounded-lg font-mono text-xs uppercase tracking-wider font-extrabold border border-orange-500/30 bg-orange-500/10 text-orange-400 hover:bg-orange-500 hover:text-white transition-all duration-300 pointer-events-auto cursor-pointer"
-                        >
-                          Submit Another Application
-                        </button>
-                      </motion.div>
-                    ) : (
-                      <form onSubmit={handleApplySubmit} className="space-y-6">
-                        <div className="border-b border-zinc-900 pb-4 mb-2">
-                          <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                            <Sparkles className="text-orange-500 w-4 h-4" />
-                            Apply for a Position
-                          </h3>
-                          <p className="text-xs text-zinc-500 mt-1">
-                            Complete the fields below to submit your details and upload your resume.
-                          </p>
-                        </div>
-
-                        {formError && (
-                          <div className="p-4 rounded-xl bg-red-950/20 border border-red-500/30 text-red-400 text-xs flex items-start gap-2">
-                            <AlertCircle size={16} className="shrink-0 mt-0.5" />
-                            <span>{formError}</span>
-                          </div>
-                        )}
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {/* Name Input */}
-                          <div>
-                            <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">
-                              Full Name <span className="text-red-500">*</span>
-                            </label>
-                            <div className="relative">
-                              <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                              <input
-                                type="text"
-                                required
-                                value={candidateName}
-                                onChange={(e) => setCandidateName(e.target.value)}
-                                placeholder="Your Name"
-                                className="w-full pl-10 pr-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
-                              />
-                            </div>
-                          </div>
-
-                          {/* Email Input */}
-                          <div>
-                            <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">
-                              Email Address <span className="text-red-500">*</span>
-                            </label>
-                            <div className="relative">
-                              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                              <input
-                                type="email"
-                                required
-                                value={candidateEmail}
-                                onChange={(e) => setCandidateEmail(e.target.value)}
-                                placeholder="yourname@gmail.com"
-                                className="w-full pl-10 pr-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
-                              />
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {/* Phone Input */}
-                          <div>
-                            <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">
-                              Phone Number
-                            </label>
-                            <div className="relative">
-                              <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                              <input
-                                type="tel"
-                                value={candidatePhone}
-                                onChange={(e) => setCandidatePhone(e.target.value)}
-                                placeholder="Enter your number"
-                                className="w-full pl-10 pr-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
-                              />
-                            </div>
-                          </div>
-
-                          {/* Role Selection Dropdown */}
-                          <div>
-                            <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">
-                              Position Applied For <span className="text-red-500">*</span>
-                            </label>
-                            <div className="relative">
-                              <Briefcase className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                              <select
-                                required
-                                value={candidateRole}
-                                onChange={(e) => setCandidateRole(e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200 appearance-none text-white font-medium"
-                              >
-                                <option value="" className="bg-zinc-950 text-zinc-400">Select a Role...</option>
-                                {openRoles.map((role) => (
-                                  <option key={role.id} value={role.title} className="bg-zinc-950 text-white">
-                                    {role.title}
-                                  </option>
-                                ))}
-                                <option value="General / Other" className="bg-zinc-950 text-white">General Application / Other</option>
-                              </select>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Message / Cover Letter */}
-                        <div>
-                          <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">
-                            Message / Cover Letter
-                          </label>
-                          <textarea
-                            rows={4}
-                            value={candidateMessage}
-                            onChange={(e) => setCandidateMessage(e.target.value)}
-                            placeholder="Tell us about yourself, your reels, and why you want to join our Dream Team..."
-                            className="w-full px-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200 resize-none"
-                          />
-                        </div>
-
-                        {/* Resume Drag & Drop Upload Block */}
-                        <div>
-                          <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">
-                            Resume Upload (PDF, Word, Text, Image)
-                          </label>
-                          
-                          {uploadProgress === 'idle' || uploadProgress === 'error' ? (
-                            <div 
-                              className="border-2 border-dashed border-zinc-800/80 rounded-xl p-6 text-center hover:border-orange-500/50 transition-colors duration-200 cursor-pointer bg-zinc-900/5 relative group"
-                              onClick={() => document.getElementById('resume-file-picker')?.click()}
-                              onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('border-orange-500'); }}
-                              onDragLeave={(e) => { e.preventDefault(); e.currentTarget.classList.remove('border-orange-500'); }}
-                              onDrop={(e) => {
-                                e.preventDefault();
-                                e.currentTarget.classList.remove('border-orange-500');
-                                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                                  handleResumeChange(e.dataTransfer.files[0]);
-                                }
-                              }}
-                            >
-                              <input 
-                                id="resume-file-picker" 
-                                type="file" 
-                                className="hidden" 
-                                accept=".pdf,.doc,.docx,.txt,.rtf,.png,.jpg,.jpeg"
-                                onChange={(e) => {
-                                  if (e.target.files && e.target.files[0]) {
-                                    handleResumeChange(e.target.files[0]);
-                                  }
-                                }}
-                              />
-                              <UploadCloud className="w-8 h-8 text-zinc-600 mx-auto mb-2 group-hover:text-orange-400 transition-colors duration-200" />
-                              <p className="text-xs text-zinc-300 font-semibold mb-1">
-                                Drag & drop your resume file here, or <span className="text-orange-500 underline text-orange-400 font-bold">browse</span>
-                              </p>
-                              <p className="text-[10px] text-zinc-500 font-mono">
-                                PDF, Word, TXT, or Image up to 15MB
-                              </p>
-                              {uploadProgress === 'error' && (
-                                <p className="text-red-500 text-[11px] mt-2 flex items-center justify-center gap-1">
-                                  <AlertCircle size={12} />
-                                  {uploadError}
-                                </p>
-                              )}
-                            </div>
-                          ) : (
-                            <div className="bg-zinc-900/30 border border-zinc-800 p-4 rounded-xl flex items-center justify-between gap-3">
-                              <div className="flex items-center gap-3 overflow-hidden">
-                                {uploadProgress === 'uploading' ? (
-                                  <Loader2 className="w-5 h-5 text-orange-500 animate-spin shrink-0" />
-                                ) : (
-                                  <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-                                )}
-                                <div className="text-left overflow-hidden">
-                                  <p className="text-xs text-white font-bold truncate">
-                                    {resumeFilename || (candidateResume && candidateResume.name)}
-                                  </p>
-                                  <p className="text-[10px] font-mono text-zinc-500">
-                                    {uploadProgress === 'uploading' ? 'Uploading to database...' : 'Successfully attached'}
-                                  </p>
-                                </div>
-                              </div>
-                              {uploadProgress === 'uploaded' && (
-                                <button
-                                  type="button"
-                                  onClick={removeResumeFile}
-                                  className="text-xs font-mono uppercase tracking-wider text-red-500 hover:text-red-400 font-bold cursor-pointer"
-                                >
-                                  Remove
-                                </button>
-                              )}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Submit Button */}
-                        <div className="pt-2">
-                          <button
-                            type="submit"
-                            disabled={formStatus === 'submitting'}
-                            className="w-full py-4 px-6 rounded-xl bg-orange-600 hover:bg-orange-500 disabled:bg-zinc-800 disabled:text-zinc-500 text-white font-bold text-sm uppercase tracking-wider transition-all duration-300 pointer-events-auto cursor-pointer active:scale-[0.99] flex items-center justify-center gap-2 shadow-lg hover:shadow-orange-950/20 shadow-orange-950/10"
-                          >
-                            {formStatus === 'submitting' ? (
-                              <>
-                                <Loader2 size={16} className="animate-spin" />
-                                Submitting Application...
-                              </>
-                            ) : (
-                              <>
-                                Send Application
-                              </>
-                            )}
-                          </button>
-                        </div>
-                      </form>
-                    )}
-                  </div>
-                </motion.div>
-
-              </div>
-            </div>
-          </section>
+        </main>
 
           <InteractiveOptions />
       <Footer />

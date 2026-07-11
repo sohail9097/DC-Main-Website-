@@ -1,4 +1,5 @@
 import React, { FC, useState, useEffect, useRef } from 'react';
+import { Volume2, VolumeX } from 'lucide-react';
 import { transformGoogleDriveUrl } from '../App';
 
 interface AutoplayVideoFrameProps {
@@ -91,8 +92,10 @@ export function getYouTubeEmbedUrl(url: string | undefined): string | null {
 export const AutoplayVideoFrame: FC<AutoplayVideoFrameProps> = ({ videoUrl, className = "" }) => {
   const ytEmbedUrl = getYouTubeEmbedUrl(videoUrl);
   const [isInView, setIsInView] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -151,7 +154,7 @@ export const AutoplayVideoFrame: FC<AutoplayVideoFrameProps> = ({ videoUrl, clas
 
   const videoId = ytEmbedUrl ? getYTVideoId(ytEmbedUrl) : '';
   const finalYtUrl = ytEmbedUrl 
-    ? `${ytEmbedUrl}${ytEmbedUrl.includes('?') ? '&' : '?'}autoplay=1&mute=1&loop=1&playlist=${videoId}&playsinline=1&controls=1`
+    ? `${ytEmbedUrl}${ytEmbedUrl.includes('?') ? '&' : '?'}autoplay=1&mute=1&loop=1&playlist=${videoId}&playsinline=1&controls=0&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&enablejsapi=1`
     : '';
 
   // Force HTML5 video element playback once in view
@@ -163,6 +166,25 @@ export const AutoplayVideoFrame: FC<AutoplayVideoFrameProps> = ({ videoUrl, clas
     }
   }, [isInView]);
 
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const nextMuted = !isMuted;
+    setIsMuted(nextMuted);
+
+    if (ytEmbedUrl) {
+      const iframe = iframeRef.current;
+      if (iframe && iframe.contentWindow) {
+        const command = nextMuted ? 'mute' : 'unMute';
+        iframe.contentWindow.postMessage(
+          JSON.stringify({ event: 'command', func: command }),
+          '*'
+        );
+      }
+    } else if (videoRef.current) {
+      videoRef.current.muted = nextMuted;
+    }
+  };
+
   return (
     <div 
       ref={containerRef}
@@ -170,7 +192,8 @@ export const AutoplayVideoFrame: FC<AutoplayVideoFrameProps> = ({ videoUrl, clas
     >
       {ytEmbedUrl ? (
         <iframe
-          src={isInView ? finalYtUrl : ''}
+          ref={iframeRef}
+          src={isInView ? finalYtUrl : undefined}
           title="Promo Video"
           className="w-full h-full border-0 absolute inset-0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -181,12 +204,26 @@ export const AutoplayVideoFrame: FC<AutoplayVideoFrameProps> = ({ videoUrl, clas
           ref={videoRef}
           src={isInView ? absoluteVideoUrl : undefined}
           className="w-full h-full object-cover"
-          controls
           autoPlay
-          muted
+          muted={isMuted}
           loop
           playsInline
         />
+      )}
+
+      {/* Floating Glassmorphic Audio Controls overlay */}
+      {isInView && (
+        <button
+          onClick={toggleMute}
+          className="absolute bottom-4 right-4 z-20 flex items-center justify-center w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white hover:bg-orange-500 hover:border-orange-500/50 hover:scale-110 transition-all duration-300 shadow-lg group"
+          aria-label={isMuted ? "Unmute video" : "Mute video"}
+        >
+          {isMuted ? (
+            <VolumeX className="w-4 h-4 text-white/90 group-hover:text-white" />
+          ) : (
+            <Volume2 className="w-4 h-4 text-orange-500 group-hover:text-white animate-pulse" />
+          )}
+        </button>
       )}
     </div>
   );
