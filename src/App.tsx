@@ -1123,6 +1123,26 @@ function DreamTeam() {
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
+  const [isTeamSectionInView, setIsTeamSectionInView] = useState(false);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsTeamSectionInView(entry.isIntersecting);
+      },
+      {
+        threshold: 0.1, // Trigger when 10% of the section is visible
+      }
+    );
+
+    observer.observe(el);
+    return () => {
+      observer.unobserve(el);
+    };
+  }, []);
 
   useEffect(() => {
     const loadTeamMembers = () => {
@@ -1197,13 +1217,13 @@ function DreamTeam() {
 
   // Slow automated rotation
   useEffect(() => {
-    if (teamMembers.length === 0) return;
+    if (teamMembers.length === 0 || !isTeamSectionInView) return;
     const timer = setInterval(() => {
       const nextIndex = (activeIndex + 1) % teamMembers.length;
       scrollToCard(nextIndex);
     }, 5000);
     return () => clearInterval(timer);
-  }, [teamMembers, activeIndex]);
+  }, [teamMembers, activeIndex, isTeamSectionInView]);
 
   if (teamMembers.length === 0) {
     return (
@@ -3985,7 +4005,7 @@ function LandingPage() {
                 <span className="text-zinc-500 font-mono text-xs uppercase tracking-[0.25em] block font-bold">Our Locations</span>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-6 w-full">
+              <div className="grid grid-cols-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-1.5 xs:gap-2.5 sm:gap-6 w-full">
                 {locations.map((loc, idx) => (
                   <motion.div
                     key={loc.id}
@@ -4000,10 +4020,12 @@ function LandingPage() {
                     }}
                     whileHover={{ y: -6, scale: 1.02 }}
                     onClick={() => window.open(loc.mapsUrl, '_blank')}
-                    className="group relative p-4 bg-zinc-950/40 border border-zinc-800 rounded-[1.8rem] hover:border-orange-500/40 hover:bg-black/80 transition-all duration-500 cursor-pointer flex flex-col justify-between overflow-hidden min-h-[280px] shadow-lg"
+                    className={`group relative p-1.5 xs:p-2.5 sm:p-4 bg-zinc-950/40 border border-zinc-800 rounded-[1rem] sm:rounded-[1.8rem] hover:border-orange-500/40 hover:bg-black/80 transition-all duration-500 cursor-pointer flex flex-col justify-between overflow-hidden min-h-[140px] xs:min-h-[160px] sm:min-h-[220px] md:min-h-[280px] shadow-lg md:w-auto md:flex-shrink ${
+                      idx < 3 ? 'col-span-2' : 'col-span-3'
+                    } md:col-span-1`}
                   >
                     {/* Top Map Graphic Outline */}
-                    <div className="h-[180px] w-full bg-zinc-950/90 rounded-[1.4rem] flex items-center justify-center relative overflow-hidden transition-all duration-300">
+                    <div className="h-[75px] xs:h-[100px] sm:h-[140px] md:h-[180px] w-full bg-zinc-950/90 rounded-[0.8rem] sm:rounded-[1.4rem] flex items-center justify-center relative overflow-hidden transition-all duration-300">
                       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.02)_0%,transparent_100%)] group-hover:bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.18)_0%,transparent_100%)] transition-all duration-500 pointer-events-none" />
 
                       {loc.mapImage ? (
@@ -4020,7 +4042,7 @@ function LandingPage() {
                             repeatType: "reverse",
                             ease: "easeInOut"
                           }}
-                          className="absolute inset-0 w-full h-full object-contain p-3 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] group-hover:drop-shadow-[0_0_25px_rgba(249,115,22,0.75)] group-hover:scale-110 group-hover:rotate-[-2deg] transition-all duration-500"
+                          className="absolute inset-0 w-full h-full object-contain p-1.5 xs:p-2 md:p-3 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] group-hover:drop-shadow-[0_0_25px_rgba(249,115,22,0.75)] group-hover:scale-110 group-hover:rotate-[-2deg] transition-all duration-500"
                           referrerPolicy="no-referrer"
                         />
                       ) : (
@@ -4035,7 +4057,7 @@ function LandingPage() {
                             repeatType: "reverse",
                             ease: "easeInOut"
                           }}
-                          className="w-[155px] h-[155px] drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] group-hover:drop-shadow-[0_0_25px_rgba(249,115,22,0.75)] relative z-10 select-none pointer-events-none group-hover:scale-[1.08] group-hover:rotate-[-2deg] transition-all duration-500"
+                          className="w-[70px] h-[70px] xs:w-[90px] xs:h-[90px] sm:w-[120px] sm:h-[120px] md:w-[155px] md:h-[155px] drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] group-hover:drop-shadow-[0_0_25px_rgba(249,115,22,0.75)] relative z-10 select-none pointer-events-none group-hover:scale-[1.08] group-hover:rotate-[-2deg] transition-all duration-500"
                         >
                           <g transform="translate(10, 0)">
                             {/* Layer 5: Deepest wireframe trail (stroke only) */}
@@ -4125,12 +4147,12 @@ function LandingPage() {
                     </div>
 
                     {/* Info and Address */}
-                    <div className="pt-3 pb-1 text-left">
-                      <div className="flex items-center justify-between gap-1">
-                        <span className="text-white text-sm font-black uppercase tracking-wide group-hover:text-orange-500 transition-colors duration-300">
+                    <div className="pt-2 pb-0.5 text-left">
+                      <div className="flex items-center justify-between gap-0.5 sm:gap-1">
+                        <span className="text-white text-[9px] xs:text-[11px] sm:text-xs md:text-sm font-black uppercase tracking-wide group-hover:text-orange-500 transition-colors duration-300 truncate">
                           {loc.cityAlt}
                         </span>
-                        <ArrowRight className="w-4 h-4 text-white/50 group-hover:text-orange-400 group-hover:translate-x-1 transition-all duration-300" />
+                        <ArrowRight className="w-2.5 h-2.5 xs:w-3.5 xs:h-3.5 md:w-4 md:h-4 text-white/50 group-hover:text-orange-400 group-hover:translate-x-1 transition-all duration-300 flex-shrink-0" />
                       </div>
                     </div>
                   </motion.div>

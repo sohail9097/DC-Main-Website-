@@ -518,7 +518,7 @@ export default function ConnectPage() {
                 transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
                 whileHover={{ y: -4, scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
-                className={`p-8 md:p-10 rounded-[2.2rem] border text-left flex items-start gap-6 transition-all duration-300 relative overflow-hidden ${
+                className={`p-6 sm:p-8 md:p-10 rounded-[1.75rem] sm:rounded-[2.2rem] border text-left flex items-start gap-4 sm:gap-6 transition-all duration-300 relative overflow-hidden ${
                   activeTab === 'connect'
                     ? 'bg-gradient-to-b from-zinc-900/90 to-zinc-950/90 border-orange-500 shadow-[0_0_35px_rgba(249,115,22,0.18)]'
                     : 'bg-zinc-950/40 border-white/5 hover:border-orange-500/30'
@@ -557,7 +557,7 @@ export default function ConnectPage() {
                 transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
                 whileHover={{ y: -4, scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
-                className={`p-8 md:p-10 rounded-[2.2rem] border text-left flex items-start gap-6 transition-all duration-300 relative overflow-hidden ${
+                className={`p-6 sm:p-8 md:p-10 rounded-[1.75rem] sm:rounded-[2.2rem] border text-left flex items-start gap-4 sm:gap-6 transition-all duration-300 relative overflow-hidden ${
                   activeTab === 'work'
                     ? 'bg-gradient-to-b from-zinc-900/90 to-zinc-950/90 border-orange-500 shadow-[0_0_35px_rgba(249,115,22,0.18)]'
                     : 'bg-zinc-950/40 border-white/5 hover:border-orange-500/30'
@@ -642,7 +642,7 @@ export default function ConnectPage() {
                       }
                     }
                   }}
-                  className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6"
+                  className="grid grid-cols-2 gap-3 sm:gap-6"
                 >
                   {/* Card 1: Email */}
                   <motion.div 
@@ -651,15 +651,15 @@ export default function ConnectPage() {
                       visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } }
                     }}
                     whileHover={{ y: -6, borderColor: 'rgba(249,115,22,0.5)', boxShadow: '0 10px 30px -10px rgba(249,115,22,0.15)' }}
-                    className="p-5 bg-zinc-950/60 border border-orange-500/20 rounded-[2rem] flex flex-col items-start transition-all duration-300 w-full overflow-hidden"
+                    className="p-3.5 sm:p-5 bg-zinc-950/60 border border-orange-500/20 rounded-[1.5rem] sm:rounded-[2rem] flex flex-col items-start transition-all duration-300 w-full overflow-hidden"
                   >
-                    <Mail className="w-8 h-8 text-orange-500 mb-6 flex-shrink-0" />
+                    <Mail className="w-6 h-6 sm:w-8 sm:h-8 text-orange-500 mb-4 sm:mb-6 flex-shrink-0" />
                     <div className="text-left w-full overflow-hidden">
-                      <p className="text-[9px] sm:text-[10px] font-redhat uppercase tracking-[0.2em] text-zinc-500 font-bold mb-1.5">Email Us</p>
+                      <p className="text-[8px] sm:text-[10px] font-redhat uppercase tracking-[0.15em] sm:tracking-[0.2em] text-zinc-500 font-bold mb-1">Email Us</p>
                       <a 
                         href={`mailto:${contactEmail}`} 
                         title={contactEmail}
-                        className="text-xs sm:text-xs md:text-sm lg:text-xs xl:text-sm min-[1300px]:text-base font-bold text-white hover:text-orange-400 transition-colors font-sans block truncate leading-tight w-full"
+                        className="text-[10px] xs:text-xs sm:text-xs md:text-sm lg:text-xs xl:text-sm min-[1300px]:text-base font-bold text-white hover:text-orange-400 transition-colors font-sans block truncate leading-tight w-full"
                       >
                         {contactEmail}
                       </a>
@@ -673,15 +673,15 @@ export default function ConnectPage() {
                       visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } }
                     }}
                     whileHover={{ y: -6, borderColor: 'rgba(249,115,22,0.5)', boxShadow: '0 10px 30px -10px rgba(249,115,22,0.15)' }}
-                    className="p-5 bg-zinc-950/60 border border-orange-500/20 rounded-[2rem] flex flex-col items-start transition-all duration-300 w-full overflow-hidden"
+                    className="p-3.5 sm:p-5 bg-zinc-950/60 border border-orange-500/20 rounded-[1.5rem] sm:rounded-[2rem] flex flex-col items-start transition-all duration-300 w-full overflow-hidden"
                   >
-                    <Phone className="w-8 h-8 text-orange-500 mb-6 flex-shrink-0" />
+                    <Phone className="w-6 h-6 sm:w-8 sm:h-8 text-orange-500 mb-4 sm:mb-6 flex-shrink-0" />
                     <div className="text-left w-full overflow-hidden">
-                      <p className="text-[9px] sm:text-[10px] font-redhat uppercase tracking-[0.2em] text-zinc-500 font-bold mb-1.5">Call Us</p>
+                      <p className="text-[8px] sm:text-[10px] font-redhat uppercase tracking-[0.15em] sm:tracking-[0.2em] text-zinc-500 font-bold mb-1">Call Us</p>
                       <a 
                         href={`tel:${contactPhone}`} 
                         title={contactPhone}
-                        className="text-xs sm:text-xs md:text-sm lg:text-xs xl:text-sm min-[1300px]:text-base font-bold text-white hover:text-orange-400 transition-colors font-sans block truncate leading-tight w-full"
+                        className="text-[10px] xs:text-xs sm:text-xs md:text-sm lg:text-xs xl:text-sm min-[1300px]:text-base font-bold text-white hover:text-orange-400 transition-colors font-sans block truncate leading-tight w-full"
                       >
                         {contactPhone}
                       </a>
@@ -696,13 +696,13 @@ export default function ConnectPage() {
                     whileInView={{ opacity: 1, y: 0, scale: 1 }}
                     viewport={{ once: false, amount: 0.15 }}
                     transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-                    className="w-full flex justify-center items-center pt-4"
+                    className="w-full flex justify-center items-center pt-2 sm:pt-4"
                   >
                     <img 
                       src={transformGoogleDriveUrl(contactImage)} 
                       alt="Creative Studio Visual" 
                       referrerPolicy="no-referrer"
-                      className="w-full max-h-[350px] object-contain rounded-none opacity-100 transition-all duration-300"
+                      className="w-full max-h-[160px] sm:max-h-[350px] object-contain rounded-none opacity-100 transition-all duration-300"
                     />
                   </motion.div>
                 )}
@@ -715,7 +715,7 @@ export default function ConnectPage() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: false, amount: 0.15 }}
                   transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-                  className="bg-black/40 border border-white/5 rounded-3xl p-6 md:p-8 shadow-2xl backdrop-blur-md"
+                  className="bg-black/40 border border-white/5 rounded-[1.5rem] sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl backdrop-blur-md"
                 >
                   <div className="mb-6 flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
@@ -963,12 +963,12 @@ export default function ConnectPage() {
                     whileInView={{ opacity: 1, y: 0, scale: 1 }}
                     viewport={{ once: false, amount: 0.15 }}
                     transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-                    className="relative w-full pt-4 flex justify-center items-center"
+                    className="relative w-full pt-2 sm:pt-4 flex justify-center items-center"
                   >
                     <img 
                       src={transformGoogleDriveUrl(joinUsImg, 'image')} 
                       alt="Join Dreamcatchers" 
-                      className="w-full h-auto max-h-[480px] object-contain rounded-2xl border border-white/5"
+                      className="w-full h-auto max-h-[220px] sm:max-h-[480px] object-contain rounded-2xl border border-white/5"
                     />
                   </motion.div>
                 )}
@@ -981,7 +981,7 @@ export default function ConnectPage() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: false, amount: 0.15 }}
                   transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-                  className="bg-black/40 border border-white/5 rounded-3xl p-6 md:p-8 shadow-2xl backdrop-blur-md"
+                  className="bg-black/40 border border-white/5 rounded-[1.5rem] sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl backdrop-blur-md"
                 >
                   <div className="mb-6 flex items-center gap-3">
                     <Sparkles size={18} className="text-orange-500 animate-pulse" />
@@ -1192,7 +1192,7 @@ export default function ConnectPage() {
               <span className="text-zinc-500 font-redhat text-xs uppercase tracking-[0.25em] block font-bold">Our Locations</span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-6 w-full">
+            <div className="grid grid-cols-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-1.5 xs:gap-2.5 sm:gap-6 w-full">
               {locations.map((loc, idx) => (
                 <motion.div
                   key={loc.id}
@@ -1207,10 +1207,12 @@ export default function ConnectPage() {
                   }}
                   whileHover={{ y: -6, scale: 1.02 }}
                   onClick={() => window.open(loc.mapsUrl, '_blank')}
-                  className="group relative p-4 bg-zinc-950/40 border border-zinc-800 rounded-[1.8rem] hover:border-orange-500/40 hover:bg-black/80 transition-all duration-500 cursor-pointer flex flex-col justify-between overflow-hidden min-h-[280px] shadow-lg"
+                  className={`group relative p-1.5 xs:p-2.5 sm:p-4 bg-zinc-950/40 border border-zinc-800 rounded-[1rem] sm:rounded-[1.8rem] hover:border-orange-500/40 hover:bg-black/80 transition-all duration-500 cursor-pointer flex flex-col justify-between overflow-hidden min-h-[140px] xs:min-h-[160px] sm:min-h-[220px] md:min-h-[280px] shadow-lg md:w-auto md:flex-shrink ${
+                    idx < 3 ? 'col-span-2' : 'col-span-3'
+                  } md:col-span-1`}
                 >
                   {/* Top Map Graphic Outline */}
-                  <div className="h-[180px] w-full bg-zinc-950/90 rounded-[1.4rem] flex items-center justify-center relative overflow-hidden transition-all duration-300">
+                  <div className="h-[75px] xs:h-[100px] sm:h-[140px] md:h-[180px] w-full bg-zinc-950/90 rounded-[0.8rem] sm:rounded-[1.4rem] flex items-center justify-center relative overflow-hidden transition-all duration-300">
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.02)_0%,transparent_100%)] group-hover:bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.18)_0%,transparent_100%)] transition-all duration-500 pointer-events-none" />
 
                     {loc.mapImage ? (
@@ -1227,7 +1229,7 @@ export default function ConnectPage() {
                           repeatType: "reverse",
                           ease: "easeInOut"
                         }}
-                        className="absolute inset-0 w-full h-full object-contain p-3 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] group-hover:drop-shadow-[0_0_25px_rgba(249,115,22,0.75)] group-hover:scale-110 group-hover:rotate-[-2deg] transition-all duration-500"
+                        className="absolute inset-0 w-full h-full object-contain p-1.5 xs:p-2 md:p-3 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] group-hover:drop-shadow-[0_0_25px_rgba(249,115,22,0.75)] group-hover:scale-110 group-hover:rotate-[-2deg] transition-all duration-500"
                         referrerPolicy="no-referrer"
                       />
                     ) : (
@@ -1242,7 +1244,7 @@ export default function ConnectPage() {
                           repeatType: "reverse",
                           ease: "easeInOut"
                         }}
-                        className="w-[155px] h-[155px] drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] group-hover:drop-shadow-[0_0_25px_rgba(249,115,22,0.75)] relative z-10 select-none pointer-events-none group-hover:scale-[1.08] group-hover:rotate-[-2deg] transition-all duration-500"
+                        className="w-[70px] h-[70px] xs:w-[90px] xs:h-[90px] sm:w-[120px] sm:h-[120px] md:w-[155px] md:h-[155px] drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] group-hover:drop-shadow-[0_0_25px_rgba(249,115,22,0.75)] relative z-10 select-none pointer-events-none group-hover:scale-[1.08] group-hover:rotate-[-2deg] transition-all duration-500"
                       >
                         <g transform="translate(10, 0)">
                           {/* Layer 5: Deepest wireframe trail (stroke only) */}
@@ -1332,12 +1334,12 @@ export default function ConnectPage() {
                   </div>
 
                   {/* Info and Address */}
-                  <div className="pt-3 pb-1 text-left">
-                    <div className="flex items-center justify-between gap-1">
-                      <span className="text-white text-sm font-black uppercase tracking-wide group-hover:text-orange-500 transition-colors duration-300">
+                  <div className="pt-2 pb-0.5 text-left">
+                    <div className="flex items-center justify-between gap-0.5 sm:gap-1">
+                      <span className="text-white text-[9px] xs:text-[11px] sm:text-xs md:text-sm font-black uppercase tracking-wide group-hover:text-orange-500 transition-colors duration-300 truncate">
                         {loc.cityAlt}
                       </span>
-                      <ArrowRight className="w-4 h-4 text-white/50 group-hover:text-orange-400 group-hover:translate-x-1 transition-all duration-300" />
+                      <ArrowRight className="w-2.5 h-2.5 xs:w-3.5 xs:h-3.5 md:w-4 md:h-4 text-white/50 group-hover:text-orange-400 group-hover:translate-x-1 transition-all duration-300 flex-shrink-0" />
                     </div>
                   </div>
                 </motion.div>

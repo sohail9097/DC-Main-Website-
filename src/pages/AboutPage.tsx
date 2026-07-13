@@ -609,9 +609,30 @@ const AboutPage = () => {
 
   const teamCarouselRef = useRef<HTMLDivElement>(null);
   const [isDraggingTeam, setIsDraggingTeam] = useState(false);
+  const [isTeamInView, setIsTeamInView] = useState(false);
   const dragStartX = useRef(0);
   const dragScrollLeft = useRef(0);
   const autoScrollPauseUntilRef = useRef(0);
+
+  // Set up intersection observer for the team carousel section
+  useEffect(() => {
+    const container = teamCarouselRef.current;
+    if (!container) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsTeamInView(entry.isIntersecting);
+      },
+      {
+        threshold: 0.1, // Trigger when 10% of the carousel is visible
+      }
+    );
+
+    observer.observe(container);
+    return () => {
+      observer.unobserve(container);
+    };
+  }, []);
 
   const scrollTeam = (direction: 'left' | 'right') => {
     const container = teamCarouselRef.current;
@@ -651,7 +672,7 @@ const AboutPage = () => {
     let lastTime = performance.now();
 
     const updateScroll = (time: number) => {
-      if (!isDraggingTeam && teamCarouselRef.current && Date.now() >= autoScrollPauseUntilRef.current) {
+      if (isTeamInView && !isDraggingTeam && teamCarouselRef.current && Date.now() >= autoScrollPauseUntilRef.current) {
         const delta = (time - lastTime) / 1000;
         // speed of transition: 85px per second
         teamCarouselRef.current.scrollLeft += 85 * delta;
@@ -676,7 +697,7 @@ const AboutPage = () => {
     return () => {
       cancelAnimationFrame(animationFrameId);
     };
-  }, [isDraggingTeam]);
+  }, [isDraggingTeam, isTeamInView]);
 
   const handleTeamMouseDown = (e: MouseEvent) => {
     const container = teamCarouselRef.current;
