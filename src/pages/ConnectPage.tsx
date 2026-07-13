@@ -120,6 +120,7 @@ export default function ConnectPage() {
 
   // Operational locations state
   const [locations, setLocations] = useState<OperationalLocation[]>(DEFAULT_LOCATIONS);
+  const [isMobileView, setIsMobileView] = useState(false);
 
   const { formType } = useParams<{ formType?: string }>();
 
@@ -205,6 +206,14 @@ export default function ConnectPage() {
     window.addEventListener('storage_updated_contact', loadConfigs);
     window.addEventListener('storage_updated_about', loadConfigs);
 
+    // Mobile view detection for smooth animations
+    const handleResize = () => {
+      const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsMobileView(isMobileUA || window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
     // Initial and hash change checking
     const handleHashCheck = () => {
       const h = window.location.hash;
@@ -225,6 +234,7 @@ export default function ConnectPage() {
       window.removeEventListener('storage_updated_contact', loadConfigs);
       window.removeEventListener('storage_updated_about', loadConfigs);
       window.removeEventListener('hashchange', handleHashCheck);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
@@ -505,7 +515,7 @@ export default function ConnectPage() {
             </motion.div>
 
             {/* Tab Boxes */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto mt-10 md:mt-12 px-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-8 max-w-5xl mx-auto mt-10 md:mt-12 px-4">
               {/* Box 1: Connect With Us */}
               <motion.button
                 type="button"
@@ -518,7 +528,7 @@ export default function ConnectPage() {
                 transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
                 whileHover={{ y: -4, scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
-                className={`p-6 sm:p-8 md:p-10 rounded-[1.75rem] sm:rounded-[2.2rem] border text-left flex items-start gap-4 sm:gap-6 transition-all duration-300 relative overflow-hidden ${
+                className={`p-3 sm:p-8 md:p-10 rounded-[1rem] sm:rounded-[2.2rem] border text-left flex flex-col sm:flex-row items-start gap-3 sm:gap-6 transition-all duration-300 relative overflow-hidden ${
                   activeTab === 'connect'
                     ? 'bg-gradient-to-b from-zinc-900/90 to-zinc-950/90 border-orange-500 shadow-[0_0_35px_rgba(249,115,22,0.18)]'
                     : 'bg-zinc-950/40 border-white/5 hover:border-orange-500/30'
@@ -527,19 +537,19 @@ export default function ConnectPage() {
                 {activeTab === 'connect' && (
                   <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-2xl pointer-events-none" />
                 )}
-                <div className={`p-5 rounded-2xl flex-shrink-0 transition-colors ${
+                <div className={`p-2.5 sm:p-5 rounded-lg sm:rounded-2xl flex-shrink-0 transition-colors ${
                   activeTab === 'connect' ? 'bg-orange-500 text-black' : 'bg-zinc-900 text-zinc-400'
                 }`}>
-                  <Mail className="w-7 h-7" />
+                  <Mail className="w-4 h-4 sm:w-7 sm:h-7" />
                 </div>
                 <div className="flex-grow min-w-0 font-redhat">
-                  <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight leading-tight font-redhat">
+                  <h3 className="text-xs sm:text-xl md:text-2xl font-black text-white uppercase tracking-tight leading-tight font-redhat">
                     Partner With Us
                   </h3>
-                  <span className="text-sm md:text-base font-bold text-orange-500 mt-1.5 block font-redhat">
+                  <span className="text-[9px] xs:text-[10px] sm:text-sm md:text-base font-bold text-orange-500 mt-1 sm:mt-1.5 block font-redhat leading-tight">
                     Let's build something worth watching.
                   </span>
-                  <p className="text-[13px] text-zinc-400 mt-2 font-redhat leading-relaxed italic">
+                  <p className="text-[8px] xs:text-[9px] sm:text-[13px] text-zinc-400 mt-1 sm:mt-2 font-redhat leading-relaxed italic line-clamp-2 sm:line-clamp-none">
                     Have a brief, a brand, an idea, or an ambitious project? We'd love to hear from you.
                   </p>
                 </div>
@@ -557,7 +567,7 @@ export default function ConnectPage() {
                 transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
                 whileHover={{ y: -4, scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
-                className={`p-6 sm:p-8 md:p-10 rounded-[1.75rem] sm:rounded-[2.2rem] border text-left flex items-start gap-4 sm:gap-6 transition-all duration-300 relative overflow-hidden ${
+                className={`p-3 sm:p-8 md:p-10 rounded-[1rem] sm:rounded-[2.2rem] border text-left flex flex-col sm:flex-row items-start gap-3 sm:gap-6 transition-all duration-300 relative overflow-hidden ${
                   activeTab === 'work'
                     ? 'bg-gradient-to-b from-zinc-900/90 to-zinc-950/90 border-orange-500 shadow-[0_0_35px_rgba(249,115,22,0.18)]'
                     : 'bg-zinc-950/40 border-white/5 hover:border-orange-500/30'
@@ -566,19 +576,19 @@ export default function ConnectPage() {
                 {activeTab === 'work' && (
                   <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-2xl pointer-events-none" />
                 )}
-                <div className={`p-5 rounded-2xl flex-shrink-0 transition-colors ${
+                <div className={`p-2.5 sm:p-5 rounded-lg sm:rounded-2xl flex-shrink-0 transition-colors ${
                   activeTab === 'work' ? 'bg-orange-500 text-black' : 'bg-zinc-900 text-zinc-400'
                 }`}>
-                  <Briefcase className="w-7 h-7" />
+                  <Briefcase className="w-4 h-4 sm:w-7 sm:h-7" />
                 </div>
                 <div className="flex-grow min-w-0 font-redhat">
-                  <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight leading-tight font-redhat">
+                  <h3 className="text-xs sm:text-xl md:text-2xl font-black text-white uppercase tracking-tight leading-tight font-redhat">
                     Work With Us
                   </h3>
-                  <span className="text-sm md:text-base font-bold text-orange-500 mt-1.5 block font-redhat">
+                  <span className="text-[9px] xs:text-[10px] sm:text-sm md:text-base font-bold text-orange-500 mt-1 sm:mt-1.5 block font-redhat leading-tight">
                     Bring your craft. Leave your mark.
                   </span>
-                  <p className="text-[13px] text-zinc-400 mt-2 font-redhat leading-relaxed italic">
+                  <p className="text-[8px] xs:text-[9px] sm:text-[13px] text-zinc-400 mt-1 sm:mt-2 font-redhat leading-relaxed italic line-clamp-2 sm:line-clamp-none">
                     Explore careers, freelance opportunities and creative collaborations.
                   </p>
                 </div>
@@ -746,67 +756,67 @@ export default function ConnectPage() {
                       </button>
                     </motion.div>
                   ) : (
-                    <form onSubmit={handleInquirySubmit} className="space-y-5 text-left font-sans">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <form onSubmit={handleInquirySubmit} className="space-y-2.5 sm:space-y-5 text-left font-sans">
+                      <div className="grid grid-cols-2 gap-2 sm:gap-4">
                         {/* Name */}
                         <div>
-                          <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Your Name *</label>
+                          <label className="block text-[9px] xs:text-[10px] sm:text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-0.5 sm:mb-1.5 font-bold">Your Name *</label>
                           <div className="relative">
-                            <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                            <User className="absolute left-2.5 sm:left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 h-4 text-zinc-600" />
                             <input
                               type="text"
                               required
-                              placeholder="Enter your name"
+                              placeholder="Your name"
                               value={inquiryName}
                               onChange={(e) => setInquiryName(e.target.value)}
-                              className="w-full pl-10 pr-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
+                              className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-lg sm:rounded-xl text-white text-xs sm:text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
                             />
                           </div>
                         </div>
 
                         {/* Email/Number */}
                         <div>
-                          <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Your Email / Number *</label>
+                          <label className="block text-[9px] xs:text-[10px] sm:text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-0.5 sm:mb-1.5 font-bold">Your Email / Number *</label>
                           <div className="relative">
-                            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                            <Mail className="absolute left-2.5 sm:left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 h-4 text-zinc-600" />
                             <input
                               type="text"
                               required
-                              placeholder="Enter email or contact number"
+                              placeholder="Email or phone"
                               value={inquiryEmail}
                               onChange={(e) => setInquiryEmail(e.target.value)}
-                              className="w-full pl-10 pr-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
+                              className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-lg sm:rounded-xl text-white text-xs sm:text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
                             />
                           </div>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-2 sm:gap-4">
                         {/* Org Name */}
                         <div>
-                          <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Name of Organisation *</label>
+                          <label className="block text-[9px] xs:text-[10px] sm:text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-0.5 sm:mb-1.5 font-bold">Organisation *</label>
                           <div className="relative">
-                            <Building className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                            <Building className="absolute left-2.5 sm:left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 h-4 text-zinc-600" />
                             <input
                               type="text"
                               required
-                              placeholder="Enter organisation name"
+                              placeholder="Organisation name"
                               value={inquiryOrgName}
                               onChange={(e) => setInquiryOrgName(e.target.value)}
-                              className="w-full pl-10 pr-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
+                              className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-lg sm:rounded-xl text-white text-xs sm:text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
                             />
                           </div>
                         </div>
 
                         {/* Org Type */}
                         <div>
-                          <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Organisation Type *</label>
+                          <label className="block text-[9px] xs:text-[10px] sm:text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-0.5 sm:mb-1.5 font-bold">Org Type *</label>
                           <div className="relative">
                             <select
                               required
                               value={inquiryOrgType}
                               onChange={(e) => setInquiryOrgType(e.target.value)}
-                              className="w-full px-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200 appearance-none text-white font-medium"
+                              className="w-full pl-3 pr-8 sm:px-4 py-2 sm:py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-lg sm:rounded-xl text-white text-xs sm:text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200 appearance-none text-white font-medium"
                             >
                               <option value="brand" className="bg-zinc-950 text-white">Brand</option>
                               <option value="agency" className="bg-zinc-950 text-white">Agency</option>
@@ -814,54 +824,55 @@ export default function ConnectPage() {
                               <option value="government" className="bg-zinc-950 text-white">Government / NGO</option>
                               <option value="other" className="bg-zinc-950 text-white">Other</option>
                             </select>
-                            <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 pointer-events-none rotate-90" />
+                            <ChevronRight className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 h-4 text-zinc-600 pointer-events-none rotate-90" />
                           </div>
                         </div>
                       </div>
 
                       {/* Subject */}
                       <div>
-                        <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Subject *</label>
+                        <label className="block text-[9px] xs:text-[10px] sm:text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-0.5 sm:mb-1.5 font-bold">Subject *</label>
                         <input
                           type="text"
                           required
                           placeholder="Project inquiry subject"
                           value={inquirySubject}
                           onChange={(e) => setInquirySubject(e.target.value)}
-                          className="w-full px-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
+                          className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-lg sm:rounded-xl text-white text-xs sm:text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
                         />
                       </div>
 
                       {/* Message */}
                       <div>
-                        <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Message *</label>
+                        <label className="block text-[9px] xs:text-[10px] sm:text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-0.5 sm:mb-1.5 font-bold">Message *</label>
                         <textarea
-                          rows={4}
+                          rows={2}
                           required
                           placeholder="Tell us about your project, target audience, timeline, or scope..."
                           value={inquiryMessage}
                           onChange={(e) => setInquiryMessage(e.target.value)}
-                          className="w-full px-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200 resize-none"
+                          className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-lg sm:rounded-xl text-white text-xs sm:text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200 resize-none md:rows-4"
+                          style={{ minHeight: isMobileView ? '60px' : '100px' }}
                         />
                       </div>
 
                       {/* Brief File Upload */}
                       <div>
-                        <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">
-                          Project Brief (Optional - .pdf, .word, .txt, .exe, .jpg, up to 25MB)
+                        <label className="block text-[9px] xs:text-[10px] sm:text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-0.5 sm:mb-1.5 font-bold">
+                          Project Brief (Optional)
                         </label>
-                        <div className="border border-dashed border-white/10 rounded-xl p-4 bg-zinc-900/10 hover:border-orange-500/50 transition-colors relative flex flex-col items-center justify-center text-center">
+                        <div className="border border-dashed border-white/10 rounded-lg sm:rounded-xl p-2.5 sm:p-4 bg-zinc-900/10 hover:border-orange-500/50 transition-colors relative flex flex-row sm:flex-col items-center sm:justify-center justify-start text-left sm:text-center gap-3 sm:gap-1.5 cursor-pointer">
                           <input
                             type="file"
                             onChange={(e) => {
                               const file = e.target.files?.[0];
                               if (file) handleBriefChange(file);
                             }}
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                           />
-                          <UploadCloud size={24} className="text-zinc-500 mb-1.5" />
-                          <p className="text-xs font-bold text-zinc-300">
-                            {briefUploadProgress === 'uploading' ? 'Uploading...' : 'Drag & drop or click to upload file'}
+                          <UploadCloud className="text-zinc-500 w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+                          <p className="text-[10px] sm:text-xs font-bold text-zinc-300">
+                            {briefUploadProgress === 'uploading' ? 'Uploading...' : 'Drag & drop or click to upload brief file'}
                           </p>
                         </div>
 
@@ -900,7 +911,7 @@ export default function ConnectPage() {
                       <button
                         type="submit"
                         disabled={inquiryStatus === 'submitting' || briefUploadProgress === 'uploading'}
-                        className="w-full py-4 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-black font-extrabold uppercase tracking-widest text-xs rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(249,115,22,0.25)] hover:scale-[1.01] active:scale-[0.99]"
+                        className="w-full py-2.5 sm:py-4 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-black font-extrabold uppercase tracking-widest text-[10px] sm:text-xs rounded-lg sm:rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(249,115,22,0.25)] hover:scale-[1.01] active:scale-[0.99]"
                       >
                         {inquiryStatus === 'submitting' ? (
                           <>
@@ -1012,67 +1023,67 @@ export default function ConnectPage() {
                       </button>
                     </motion.div>
                   ) : (
-                    <form onSubmit={handleApplySubmit} className="space-y-5 text-left font-sans">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <form onSubmit={handleApplySubmit} className="space-y-2.5 sm:space-y-5 text-left font-sans">
+                      <div className="grid grid-cols-2 gap-2 sm:gap-4">
                         {/* Name */}
                         <div>
-                          <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Full Name *</label>
+                          <label className="block text-[9px] xs:text-[10px] sm:text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-0.5 sm:mb-1.5 font-bold">Full Name *</label>
                           <div className="relative">
-                            <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                            <User className="absolute left-2.5 sm:left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-600" />
                             <input
                               type="text"
                               required
-                              placeholder="Your Name"
+                              placeholder="Name"
                               value={candidateName}
                               onChange={(e) => setCandidateName(e.target.value)}
-                              className="w-full pl-10 pr-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
+                              className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-lg sm:rounded-xl text-white text-xs sm:text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
                             />
                           </div>
                         </div>
 
                         {/* Email */}
                         <div>
-                          <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Email Address *</label>
+                          <label className="block text-[9px] xs:text-[10px] sm:text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-0.5 sm:mb-1.5 font-bold">Email Address *</label>
                           <div className="relative">
-                            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                            <Mail className="absolute left-2.5 sm:left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-600" />
                             <input
                               type="email"
                               required
-                              placeholder="yourname@gmail.com"
+                              placeholder="Email"
                               value={candidateEmail}
                               onChange={(e) => setCandidateEmail(e.target.value)}
-                              className="w-full pl-10 pr-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
+                              className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-lg sm:rounded-xl text-white text-xs sm:text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
                             />
                           </div>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-2 sm:gap-4">
                         {/* Phone */}
                         <div>
-                          <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Phone Number</label>
+                          <label className="block text-[9px] xs:text-[10px] sm:text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-0.5 sm:mb-1.5 font-bold">Phone Number</label>
                           <div className="relative">
-                            <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                            <Phone className="absolute left-2.5 sm:left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-600" />
                             <input
                               type="tel"
-                              placeholder="Enter your number"
+                              placeholder="Phone number"
                               value={candidatePhone}
                               onChange={(e) => setCandidatePhone(e.target.value)}
-                              className="w-full pl-10 pr-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
+                              className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-lg sm:rounded-xl text-white text-xs sm:text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
                             />
                           </div>
                         </div>
 
                         {/* Position */}
                         <div>
-                          <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Position Applied For *</label>
+                          <label className="block text-[9px] xs:text-[10px] sm:text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-0.5 sm:mb-1.5 font-bold">Position Applied For *</label>
                           <div className="relative">
-                            <Briefcase className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                            <Briefcase className="absolute left-2.5 sm:left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-600" />
                             <select
                               required
                               value={candidateRole}
                               onChange={(e) => setCandidateRole(e.target.value)}
-                              className="w-full pl-10 pr-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200 appearance-none text-white font-medium"
+                              className="w-full pl-8 sm:pl-10 pr-8 sm:pr-4 py-2 sm:py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-lg sm:rounded-xl text-white text-xs sm:text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200 appearance-none text-white font-medium"
                             >
                               <option value="" className="bg-zinc-950 text-zinc-400">Select a Role...</option>
                               {openRoles.map((role) => (
@@ -1082,40 +1093,41 @@ export default function ConnectPage() {
                               ))}
                               <option value="General / Other" className="bg-zinc-950 text-white">General Application / Other</option>
                             </select>
-                            <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 pointer-events-none rotate-90" />
+                            <ChevronRight className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-600 pointer-events-none rotate-90" />
                           </div>
                         </div>
                       </div>
 
                       {/* Message */}
                       <div>
-                        <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Message / Cover Letter</label>
+                        <label className="block text-[9px] xs:text-[10px] sm:text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-0.5 sm:mb-1.5 font-bold">Message / Cover Letter</label>
                         <textarea
-                          rows={4}
+                          rows={2}
                           placeholder="Tell us about yourself, your reels, and why you want to join our Dream Team..."
                           value={candidateMessage}
                           onChange={(e) => setCandidateMessage(e.target.value)}
-                          className="w-full px-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200 resize-none"
+                          className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-lg sm:rounded-xl text-white text-xs sm:text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200 resize-none md:rows-4"
+                          style={{ minHeight: isMobileView ? '60px' : '100px' }}
                         />
                       </div>
 
                       {/* Resume Upload */}
                       <div>
-                        <label className="block text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">
-                          Resume Upload (PDF, WORD, TEXT, IMAGE up to 15MB)
+                        <label className="block text-[9px] xs:text-[10px] sm:text-[11px] font-redhat uppercase tracking-wider text-zinc-400 mb-0.5 sm:mb-1.5 font-bold">
+                          Resume Upload (Optional)
                         </label>
-                        <div className="border border-dashed border-white/10 rounded-xl p-4 bg-zinc-900/10 hover:border-orange-500/50 transition-colors relative flex flex-col items-center justify-center text-center">
+                        <div className="border border-dashed border-white/10 rounded-lg sm:rounded-xl p-2.5 sm:p-4 bg-zinc-900/10 hover:border-orange-500/50 transition-colors relative flex flex-row sm:flex-col items-center sm:justify-center justify-start text-left sm:text-center gap-3 sm:gap-1.5 cursor-pointer">
                           <input
                             type="file"
                             onChange={(e) => {
                               const file = e.target.files?.[0];
                               if (file) handleResumeChange(file);
                             }}
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                           />
-                          <UploadCloud size={24} className="text-zinc-500 mb-1.5" />
-                          <p className="text-xs font-bold text-zinc-300">
-                            {uploadProgress === 'uploading' ? 'Uploading...' : 'Drag & drop your resume file here, or browse'}
+                          <UploadCloud className="text-zinc-500 w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+                          <p className="text-[10px] sm:text-xs font-bold text-zinc-300">
+                            {uploadProgress === 'uploading' ? 'Uploading...' : 'Drag & drop or click to upload resume file'}
                           </p>
                         </div>
 
@@ -1154,7 +1166,7 @@ export default function ConnectPage() {
                       <button
                         type="submit"
                         disabled={formStatus === 'submitting' || uploadProgress === 'uploading'}
-                        className="w-full py-4 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-black font-extrabold uppercase tracking-widest text-xs rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(249,115,22,0.25)] hover:scale-[1.01] active:scale-[0.99]"
+                        className="w-full py-2.5 sm:py-4 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-black font-extrabold uppercase tracking-widest text-[10px] sm:text-xs rounded-lg sm:rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(249,115,22,0.25)] hover:scale-[1.01] active:scale-[0.99]"
                       >
                         {formStatus === 'submitting' ? (
                           <>
@@ -1219,11 +1231,11 @@ export default function ConnectPage() {
                       <motion.img 
                         src={loc.mapImage} 
                         alt={loc.cityAlt}
-                        animate={{
+                        animate={isMobileView ? { y: 0, rotate: 0 } : {
                           y: [2, -6, 2],
                           rotate: [-0.5, 0.5, -0.5]
                         }}
-                        transition={{
+                        transition={isMobileView ? { duration: 0 } : {
                           duration: 4.5 + idx * 0.4,
                           repeat: Infinity,
                           repeatType: "reverse",
@@ -1235,10 +1247,10 @@ export default function ConnectPage() {
                     ) : (
                       <motion.svg 
                         viewBox="-20 -10 160 150" 
-                        animate={{
+                        animate={isMobileView ? { y: 0 } : {
                           y: [2, -4, 2],
                         }}
-                        transition={{
+                        transition={isMobileView ? { duration: 0 } : {
                           duration: 5 + idx * 0.5,
                           repeat: Infinity,
                           repeatType: "reverse",
@@ -1255,8 +1267,8 @@ export default function ConnectPage() {
                               stroke="rgba(255,255,255,0.06)" 
                               strokeWidth="0.8" 
                               strokeDasharray="20 15"
-                              animate={{ strokeDashoffset: [0, 35] }}
-                              transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+                              animate={isMobileView ? undefined : { strokeDashoffset: [0, 35] }}
+                              transition={isMobileView ? undefined : { duration: 12, repeat: Infinity, ease: "linear" }}
                             />
                           </g>
                           {/* Layer 4: Deep wireframe trail */}
@@ -1267,8 +1279,8 @@ export default function ConnectPage() {
                               stroke="rgba(255,255,255,0.1)" 
                               strokeWidth="0.8" 
                               strokeDasharray="15 15"
-                              animate={{ strokeDashoffset: [0, -30] }}
-                              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                              animate={isMobileView ? undefined : { strokeDashoffset: [0, -30] }}
+                              transition={isMobileView ? undefined : { duration: 10, repeat: Infinity, ease: "linear" }}
                             />
                           </g>
                           {/* Layer 3: Medium wireframe trail */}
@@ -1279,8 +1291,8 @@ export default function ConnectPage() {
                               stroke="rgba(255,255,255,0.18)" 
                               strokeWidth="0.8" 
                               strokeDasharray="12 10"
-                              animate={{ strokeDashoffset: [0, 22] }}
-                              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                              animate={isMobileView ? undefined : { strokeDashoffset: [0, 22] }}
+                              transition={isMobileView ? undefined : { duration: 8, repeat: Infinity, ease: "linear" }}
                             />
                           </g>
                           {/* Layer 2: Shallow wireframe trail */}
@@ -1291,8 +1303,8 @@ export default function ConnectPage() {
                               stroke="rgba(255,255,255,0.28)" 
                               strokeWidth="0.8" 
                               strokeDasharray="10 12"
-                              animate={{ strokeDashoffset: [0, -22] }}
-                              transition={{ duration: 7, repeat: Infinity, ease: "linear" }}
+                              animate={isMobileView ? undefined : { strokeDashoffset: [0, -22] }}
+                              transition={isMobileView ? undefined : { duration: 7, repeat: Infinity, ease: "linear" }}
                             />
                           </g>
                           {/* Layer 1: Closest wireframe trail */}
@@ -1303,8 +1315,8 @@ export default function ConnectPage() {
                               stroke="rgba(255,255,255,0.45)" 
                               strokeWidth="0.8" 
                               strokeDasharray="8 8"
-                              animate={{ strokeDashoffset: [0, 16] }}
-                              transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+                              animate={isMobileView ? undefined : { strokeDashoffset: [0, 16] }}
+                              transition={isMobileView ? undefined : { duration: 5, repeat: Infinity, ease: "linear" }}
                             />
                           </g>
                           {/* Layer 0: Main Solid Orange Map Layer */}

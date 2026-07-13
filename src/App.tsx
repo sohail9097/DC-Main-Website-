@@ -2987,7 +2987,7 @@ function LandingPage() {
 
   const [contactTitleFirst, setContactTitleFirst] = useState(() => {
     const val = localStorage.getItem('contact_title_first');
-    if (!val || val === "Let's") return "Connect with";
+    if (!val || val === "Let's" || val === "Connect with") return "Partner with";
     return val;
   });
   const [contactTitleOrange, setContactTitleOrange] = useState(() => {
@@ -3010,7 +3010,7 @@ function LandingPage() {
 
   const loadContactConfigs = () => {
     const titleFirst = localStorage.getItem('contact_title_first');
-    setContactTitleFirst(!titleFirst || titleFirst === "Let's" ? "Connect with" : titleFirst);
+    setContactTitleFirst(!titleFirst || titleFirst === "Let's" || titleFirst === "Connect with" ? "Partner with" : titleFirst);
     const titleOrange = localStorage.getItem('contact_title_orange');
     setContactTitleOrange(!titleOrange || titleOrange === "Connect." ? "us." : titleOrange);
     setContactSubtitle(localStorage.getItem('contact_subtitle') || "Start your cinematic journey today.");
@@ -3604,8 +3604,8 @@ function LandingPage() {
                                 <motion.div
                                   key={`eq-${i}`}
                                   className="w-[20px] rounded-t-sm bg-orange-500"
-                                  animate={{ height: [`${h * 0.2}%`, `${h * 0.8}%`, `${h * 0.2}%`] }}
-                                  transition={{
+                                  animate={isMobileView ? { height: `${h * 0.4}%` } : { height: [`${h * 0.2}%`, `${h * 0.8}%`, `${h * 0.2}%`] }}
+                                  transition={isMobileView ? { duration: 0 } : {
                                     repeat: Infinity,
                                     duration: 1.2 + (i % 5) * 0.2,
                                     ease: "easeInOut"
@@ -3714,7 +3714,7 @@ function LandingPage() {
                         }
                       }
                     }}
-                    className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6"
+                    className="grid grid-cols-2 gap-3 sm:gap-6"
                   >
                     {/* Card 1: Email */}
                     <motion.div 
@@ -3723,15 +3723,15 @@ function LandingPage() {
                         visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } }
                       }}
                       whileHover={{ y: -6, borderColor: 'rgba(249,115,22,0.5)', boxShadow: '0 10px 30px -10px rgba(249,115,22,0.15)' }}
-                      className="p-5 bg-zinc-950/60 border border-orange-500/20 rounded-[2rem] flex flex-col items-start transition-all duration-300 w-full overflow-hidden"
+                      className="p-3.5 sm:p-5 bg-zinc-950/60 border border-orange-500/20 rounded-[1.5rem] sm:rounded-[2rem] flex flex-col items-start transition-all duration-300 w-full overflow-hidden"
                     >
-                      <Mail className="w-8 h-8 text-orange-500 mb-6 flex-shrink-0" />
+                      <Mail className="w-6 h-6 sm:w-8 sm:h-8 text-orange-500 mb-4 sm:mb-6 flex-shrink-0" />
                       <div className="text-left w-full overflow-hidden">
-                        <p className="text-[9px] sm:text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-500 font-bold mb-1.5">Email Us</p>
+                        <p className="text-[8px] sm:text-[10px] font-mono uppercase tracking-[0.15em] sm:tracking-[0.2em] text-zinc-500 font-bold mb-1">Email Us</p>
                         <a 
                           href={`mailto:${contactEmail}`} 
                           title={contactEmail}
-                          className="text-xs sm:text-xs md:text-sm lg:text-xs xl:text-sm min-[1300px]:text-base font-bold text-white hover:text-orange-400 transition-colors font-sans block truncate leading-tight w-full"
+                          className="text-[10px] xs:text-xs sm:text-xs md:text-sm lg:text-xs xl:text-sm min-[1300px]:text-base font-bold text-white hover:text-orange-400 transition-colors font-sans block truncate leading-tight w-full"
                         >
                           {contactEmail}
                         </a>
@@ -3745,15 +3745,15 @@ function LandingPage() {
                         visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } }
                       }}
                       whileHover={{ y: -6, borderColor: 'rgba(249,115,22,0.5)', boxShadow: '0 10px 30px -10px rgba(249,115,22,0.15)' }}
-                      className="p-5 bg-zinc-950/60 border border-orange-500/20 rounded-[2rem] flex flex-col items-start transition-all duration-300 w-full overflow-hidden"
+                      className="p-3.5 sm:p-5 bg-zinc-950/60 border border-orange-500/20 rounded-[1.5rem] sm:rounded-[2rem] flex flex-col items-start transition-all duration-300 w-full overflow-hidden"
                     >
-                      <Phone className="w-8 h-8 text-orange-500 mb-6 flex-shrink-0" />
+                      <Phone className="w-6 h-6 sm:w-8 sm:h-8 text-orange-500 mb-4 sm:mb-6 flex-shrink-0" />
                       <div className="text-left w-full overflow-hidden">
-                        <p className="text-[9px] sm:text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-500 font-bold mb-1.5">Call Us</p>
+                        <p className="text-[8px] sm:text-[10px] font-mono uppercase tracking-[0.15em] sm:tracking-[0.2em] text-zinc-500 font-bold mb-1">Call Us</p>
                         <a 
                           href={`tel:${contactPhone}`} 
                           title={contactPhone}
-                          className="text-xs sm:text-xs md:text-sm lg:text-xs xl:text-sm min-[1300px]:text-base font-bold text-white hover:text-orange-400 transition-colors font-sans block truncate leading-tight w-full"
+                          className="text-[10px] xs:text-xs sm:text-xs md:text-sm lg:text-xs xl:text-sm min-[1300px]:text-base font-bold text-white hover:text-orange-400 transition-colors font-sans block truncate leading-tight w-full"
                         >
                           {contactPhone}
                         </a>
@@ -3818,162 +3818,163 @@ function LandingPage() {
                         </button>
                       </motion.div>
                     ) : (
-                      <form onSubmit={handleInquirySubmit} className="space-y-5 text-left font-sans">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {/* Name */}
-                          <div>
-                            <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Your Name *</label>
-                            <div className="relative">
-                              <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                              <input
-                                type="text"
-                                required
-                                placeholder="Enter your name"
-                                value={inquiryName}
-                                onChange={(e) => setInquiryName(e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
-                              />
-                            </div>
-                          </div>
-
-                          {/* Email/Number */}
-                          <div>
-                            <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Your Email / Number *</label>
-                            <div className="relative">
-                              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                              <input
-                                type="text"
-                                required
-                                placeholder="Enter email or contact number"
-                                value={inquiryEmail}
-                                onChange={(e) => setInquiryEmail(e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
-                              />
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {/* Org Name */}
-                          <div>
-                            <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Name of Organisation *</label>
-                            <div className="relative">
-                              <Building className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                              <input
-                                type="text"
-                                required
-                                placeholder="Enter organisation name"
-                                value={inquiryOrgName}
-                                onChange={(e) => setInquiryOrgName(e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
-                              />
-                            </div>
-                          </div>
-
-                          {/* Org Type */}
-                          <div>
-                            <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Organisation Type *</label>
-                            <div className="relative">
-                              <select
-                                required
-                                value={inquiryOrgType}
-                                onChange={(e) => setInquiryOrgType(e.target.value)}
-                                className="w-full px-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200 appearance-none text-white font-medium"
-                              >
-                                <option value="brand" className="bg-zinc-950 text-white">Brand</option>
-                                <option value="agency" className="bg-zinc-950 text-white">Agency</option>
-                                <option value="individual" className="bg-zinc-950 text-white">Individual Artist</option>
-                                <option value="government" className="bg-zinc-950 text-white">Government / NGO</option>
-                                <option value="other" className="bg-zinc-950 text-white">Other</option>
-                              </select>
-                              <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 pointer-events-none rotate-90" />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Subject */}
+                    <form onSubmit={handleInquirySubmit} className="space-y-2.5 sm:space-y-5 text-left font-sans">
+                      <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                        {/* Name */}
                         <div>
-                          <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Subject *</label>
-                          <input
-                            type="text"
-                            required
-                            placeholder="Project inquiry subject"
-                            value={inquirySubject}
-                            onChange={(e) => setInquirySubject(e.target.value)}
-                            className="w-full px-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
-                          />
-                        </div>
-
-                        {/* Message */}
-                        <div>
-                          <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">Message *</label>
-                          <textarea
-                            rows={4}
-                            required
-                            placeholder="Tell us about your project, target audience, timeline, or scope..."
-                            value={inquiryMessage}
-                            onChange={(e) => setInquiryMessage(e.target.value)}
-                            className="w-full px-4 py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200 resize-none"
-                          />
-                        </div>
-
-                        {/* Brief File Upload */}
-                        <div>
-                          <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 font-bold">
-                            Project Brief (Optional - .pdf, .word, .txt, .exe, .jpg, up to 25MB)
-                          </label>
-                          <div className="border border-dashed border-white/10 rounded-xl p-4 bg-zinc-900/10 hover:border-orange-500/50 transition-colors relative flex flex-col items-center justify-center text-center">
+                          <label className="block text-[9px] xs:text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-0.5 sm:mb-1.5 font-bold">Your Name *</label>
+                          <div className="relative">
+                            <User className="absolute left-2.5 sm:left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 h-4 text-zinc-600" />
                             <input
-                              type="file"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) handleBriefChange(file);
-                              }}
-                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                              type="text"
+                              required
+                              placeholder="Your name"
+                              value={inquiryName}
+                              onChange={(e) => setInquiryName(e.target.value)}
+                              className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-lg sm:rounded-xl text-white text-xs sm:text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
                             />
-                            <UploadCloud size={24} className="text-zinc-500 mb-1.5" />
-                            <p className="text-xs font-bold text-zinc-300">
-                              {briefUploadProgress === 'uploading' ? 'Uploading...' : 'Drag & drop or click to upload file'}
-                            </p>
                           </div>
-
-                          {briefUploadError && (
-                            <p className="text-xs text-red-500 mt-2 font-bold flex items-center gap-1.5">
-                              <AlertCircle size={14} />
-                              {briefUploadError}
-                            </p>
-                          )}
-
-                          {briefUploadProgress === 'uploaded' && briefFilename && (
-                            <div className="mt-3 flex items-center justify-between p-2.5 bg-green-500/5 border border-green-500/20 rounded-xl">
-                              <span className="text-xs text-green-400 font-bold font-mono flex items-center gap-1.5">
-                                <Paperclip size={14} />
-                                {briefFilename} (Uploaded)
-                              </span>
-                              <button
-                                type="button"
-                                onClick={removeBriefFile}
-                                className="text-red-400 hover:text-red-500 p-1 rounded-lg hover:bg-red-500/10 transition-colors"
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            </div>
-                          )}
                         </div>
 
-                        {inquiryFormError && (
-                          <p className="text-xs text-red-500 mt-2 font-bold flex items-center gap-1.5 font-sans">
+                        {/* Email/Number */}
+                        <div>
+                          <label className="block text-[9px] xs:text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-0.5 sm:mb-1.5 font-bold">Your Email / Number *</label>
+                          <div className="relative">
+                            <Mail className="absolute left-2.5 sm:left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 h-4 text-zinc-600" />
+                            <input
+                              type="text"
+                              required
+                              placeholder="Email or phone"
+                              value={inquiryEmail}
+                              onChange={(e) => setInquiryEmail(e.target.value)}
+                              className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-lg sm:rounded-xl text-white text-xs sm:text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                        {/* Org Name */}
+                        <div>
+                          <label className="block text-[9px] xs:text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-0.5 sm:mb-1.5 font-bold">Organisation *</label>
+                          <div className="relative">
+                            <Building className="absolute left-2.5 sm:left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 h-4 text-zinc-600" />
+                            <input
+                              type="text"
+                              required
+                              placeholder="Organisation name"
+                              value={inquiryOrgName}
+                              onChange={(e) => setInquiryOrgName(e.target.value)}
+                              className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-lg sm:rounded-xl text-white text-xs sm:text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Org Type */}
+                        <div>
+                          <label className="block text-[9px] xs:text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-0.5 sm:mb-1.5 font-bold">Org Type *</label>
+                          <div className="relative">
+                            <select
+                              required
+                              value={inquiryOrgType}
+                              onChange={(e) => setInquiryOrgType(e.target.value)}
+                              className="w-full pl-3 pr-8 sm:px-4 py-2 sm:py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-lg sm:rounded-xl text-white text-xs sm:text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200 appearance-none text-white font-medium"
+                            >
+                              <option value="brand" className="bg-zinc-950 text-white">Brand</option>
+                              <option value="agency" className="bg-zinc-950 text-white">Agency</option>
+                              <option value="individual" className="bg-zinc-950 text-white">Individual Artist</option>
+                              <option value="government" className="bg-zinc-950 text-white">Government / NGO</option>
+                              <option value="other" className="bg-zinc-950 text-white">Other</option>
+                            </select>
+                            <ChevronRight className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 h-4 text-zinc-600 pointer-events-none rotate-90" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Subject */}
+                      <div>
+                        <label className="block text-[9px] xs:text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-0.5 sm:mb-1.5 font-bold">Subject *</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Project inquiry subject"
+                          value={inquirySubject}
+                          onChange={(e) => setInquirySubject(e.target.value)}
+                          className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-lg sm:rounded-xl text-white text-xs sm:text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200"
+                        />
+                      </div>
+
+                      {/* Message */}
+                      <div>
+                        <label className="block text-[9px] xs:text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-0.5 sm:mb-1.5 font-bold">Message *</label>
+                        <textarea
+                          rows={2}
+                          required
+                          placeholder="Tell us about your project, target audience, timeline, or scope..."
+                          value={inquiryMessage}
+                          onChange={(e) => setInquiryMessage(e.target.value)}
+                          className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-zinc-900/30 border border-zinc-800/80 rounded-lg sm:rounded-xl text-white text-xs sm:text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all duration-200 resize-none md:rows-4"
+                          style={{ minHeight: isMobileView ? '60px' : '100px' }}
+                        />
+                      </div>
+
+                      {/* Brief File Upload */}
+                      <div>
+                        <label className="block text-[9px] xs:text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-0.5 sm:mb-1.5 font-bold">
+                          Project Brief (Optional)
+                        </label>
+                        <div className="border border-dashed border-white/10 rounded-lg sm:rounded-xl p-2.5 sm:p-4 bg-zinc-900/10 hover:border-orange-500/50 transition-colors relative flex flex-row sm:flex-col items-center sm:justify-center justify-start text-left sm:text-center gap-3 sm:gap-1.5 cursor-pointer">
+                          <input
+                            type="file"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleBriefChange(file);
+                            }}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                          />
+                          <UploadCloud className="text-zinc-500 w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+                          <p className="text-[10px] sm:text-xs font-bold text-zinc-300">
+                            {briefUploadProgress === 'uploading' ? 'Uploading...' : 'Drag & drop or click to upload brief file'}
+                          </p>
+                        </div>
+
+                        {briefUploadError && (
+                          <p className="text-xs text-red-500 mt-2 font-bold flex items-center gap-1.5">
                             <AlertCircle size={14} />
-                            {inquiryFormError}
+                            {briefUploadError}
                           </p>
                         )}
 
-                        {/* Submit Button */}
-                        <button
-                          type="submit"
-                          disabled={inquiryStatus === 'submitting' || briefUploadProgress === 'uploading'}
-                          className="w-full py-4 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-black font-extrabold uppercase tracking-widest text-xs rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(249,115,22,0.25)] hover:scale-[1.01] active:scale-[0.99]"
-                        >
+                        {briefUploadProgress === 'uploaded' && briefFilename && (
+                          <div className="mt-3 flex items-center justify-between p-2.5 bg-green-500/5 border border-green-500/20 rounded-xl">
+                            <span className="text-xs text-green-400 font-bold font-mono flex items-center gap-1.5">
+                              <Paperclip size={14} />
+                              {briefFilename} (Uploaded)
+                            </span>
+                            <button
+                              type="button"
+                              onClick={removeBriefFile}
+                              className="text-red-400 hover:text-red-500 p-1 rounded-lg hover:bg-red-500/10 transition-colors"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {inquiryFormError && (
+                        <p className="text-xs text-red-500 mt-2 font-bold flex items-center gap-1.5 font-sans">
+                          <AlertCircle size={14} />
+                          {inquiryFormError}
+                        </p>
+                      )}
+
+                      {/* Submit Button */}
+                      <button
+                        type="submit"
+                        disabled={inquiryStatus === 'submitting' || briefUploadProgress === 'uploading'}
+                        className="w-full py-2.5 sm:py-4 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-black font-extrabold uppercase tracking-widest text-[10px] sm:text-xs rounded-lg sm:rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(249,115,22,0.25)] hover:scale-[1.01] active:scale-[0.99]"
+                      >
                           {inquiryStatus === 'submitting' ? (
                             <>
                               <Loader2 size={14} className="animate-spin" />
@@ -4032,11 +4033,11 @@ function LandingPage() {
                         <motion.img 
                           src={loc.mapImage} 
                           alt={loc.cityAlt}
-                          animate={{
+                          animate={isMobileView ? { y: 0, rotate: 0 } : {
                             y: [2, -6, 2],
                             rotate: [-0.5, 0.5, -0.5]
                           }}
-                          transition={{
+                          transition={isMobileView ? { duration: 0 } : {
                             duration: 4.5 + idx * 0.4,
                             repeat: Infinity,
                             repeatType: "reverse",
@@ -4048,10 +4049,10 @@ function LandingPage() {
                       ) : (
                         <motion.svg 
                           viewBox="-20 -10 160 150" 
-                          animate={{
+                          animate={isMobileView ? { y: 0 } : {
                             y: [2, -4, 2],
                           }}
-                          transition={{
+                          transition={isMobileView ? { duration: 0 } : {
                             duration: 5 + idx * 0.5,
                             repeat: Infinity,
                             repeatType: "reverse",
@@ -4068,8 +4069,8 @@ function LandingPage() {
                                 stroke="rgba(255,255,255,0.06)" 
                                 strokeWidth="0.8" 
                                 strokeDasharray="20 15"
-                                animate={{ strokeDashoffset: [0, 35] }}
-                                transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+                                animate={isMobileView ? undefined : { strokeDashoffset: [0, 35] }}
+                                transition={isMobileView ? undefined : { duration: 12, repeat: Infinity, ease: "linear" }}
                               />
                             </g>
                             {/* Layer 4: Deep wireframe trail */}
@@ -4080,8 +4081,8 @@ function LandingPage() {
                                 stroke="rgba(255,255,255,0.1)" 
                                 strokeWidth="0.8" 
                                 strokeDasharray="15 15"
-                                animate={{ strokeDashoffset: [0, -30] }}
-                                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                                animate={isMobileView ? undefined : { strokeDashoffset: [0, -30] }}
+                                transition={isMobileView ? undefined : { duration: 10, repeat: Infinity, ease: "linear" }}
                               />
                             </g>
                             {/* Layer 3: Medium wireframe trail */}
@@ -4092,8 +4093,8 @@ function LandingPage() {
                                 stroke="rgba(255,255,255,0.18)" 
                                 strokeWidth="0.8" 
                                 strokeDasharray="12 10"
-                                animate={{ strokeDashoffset: [0, 22] }}
-                                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                                animate={isMobileView ? undefined : { strokeDashoffset: [0, 22] }}
+                                transition={isMobileView ? undefined : { duration: 8, repeat: Infinity, ease: "linear" }}
                               />
                             </g>
                             {/* Layer 2: Shallow wireframe trail */}
@@ -4104,8 +4105,8 @@ function LandingPage() {
                                 stroke="rgba(255,255,255,0.28)" 
                                 strokeWidth="0.8" 
                                 strokeDasharray="10 12"
-                                animate={{ strokeDashoffset: [0, -22] }}
-                                transition={{ duration: 7, repeat: Infinity, ease: "linear" }}
+                                animate={isMobileView ? undefined : { strokeDashoffset: [0, -22] }}
+                                transition={isMobileView ? undefined : { duration: 7, repeat: Infinity, ease: "linear" }}
                               />
                             </g>
                             {/* Layer 1: Closest wireframe trail */}
@@ -4116,8 +4117,8 @@ function LandingPage() {
                                 stroke="rgba(255,255,255,0.45)" 
                                 strokeWidth="0.8" 
                                 strokeDasharray="8 8"
-                                animate={{ strokeDashoffset: [0, 16] }}
-                                transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+                                animate={isMobileView ? undefined : { strokeDashoffset: [0, 16] }}
+                                transition={isMobileView ? undefined : { duration: 5, repeat: Infinity, ease: "linear" }}
                               />
                             </g>
                             {/* Layer 0: Main Solid Orange Map Layer */}
