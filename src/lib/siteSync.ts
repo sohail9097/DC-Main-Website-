@@ -7,6 +7,7 @@ const CONFIG_KEYS = [
   'home_hero_bg_type',
   'home_hero_bg_url',
   'home_hero_bg_image_url',
+  'home_hero_mobile_bg_url',
   'home_showreel_url',
   'home_title1_l1', 'home_title1_l2',
   'home_title2_l1', 'home_title2_l2',

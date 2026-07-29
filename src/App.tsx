@@ -2832,8 +2832,10 @@ function LandingPage() {
   const starOpacity = useTransform(scrollY, [100, 700], [0, 1]);
   const heroImgOpacity = useTransform(scrollY, [0, 800], [1, 0]);
 
+  const [isMobileView, setIsMobileView] = useState(false);
   const [backdropType, setBackdropType] = useState<'image' | 'video'>('video');
   const [backdropUrl, setBackdropUrl] = useState(() => localStorage.getItem('home_showreel_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
+  const [mobileBackdropUrl, setMobileBackdropUrl] = useState(() => localStorage.getItem('home_hero_mobile_bg_url') || '');
   const [videoPlayFailed, setVideoPlayFailed] = useState(false);
   const [videoStarted, setVideoStarted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -2842,7 +2844,7 @@ function LandingPage() {
     // Reset play failure flag and video playback status when URL changes
     setVideoPlayFailed(false);
     setVideoStarted(false);
-  }, [backdropUrl]);
+  }, [backdropUrl, mobileBackdropUrl, isMobileView]);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -2856,7 +2858,7 @@ function LandingPage() {
           console.warn("Autoplay was blocked or video play failed:", err);
         });
     }
-  }, [backdropUrl, videoPlayFailed]);
+  }, [backdropUrl, mobileBackdropUrl, isMobileView, videoPlayFailed]);
 
   // Resume background video play on user interaction if blocked (crucial for Chrome inside iframe/mobile)
   useEffect(() => {
@@ -2883,7 +2885,6 @@ function LandingPage() {
     };
   }, [backdropType, videoStarted]);
 
-  const [isMobileView, setIsMobileView] = useState(false);
   const [verticals, setVerticals] = useState<VerticalItem[]>(DEFAULT_VERTICALS);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [inlinePlayingId, setInlinePlayingId] = useState<string | null>(null);
@@ -3153,6 +3154,7 @@ function LandingPage() {
   const loadConfigs = () => {
     const bgType = (localStorage.getItem('home_hero_bg_type') as 'image' | 'video') || 'video';
     const bgUrl = localStorage.getItem('home_hero_bg_url') || '';
+    const mobileBgUrl = localStorage.getItem('home_hero_mobile_bg_url') || '';
     setBackdropType(bgType);
     
     const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
@@ -3161,6 +3163,7 @@ function LandingPage() {
     } else {
       setBackdropUrl(bgUrl || 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=2000');
     }
+    setMobileBackdropUrl(mobileBgUrl);
   };
 
   const getMobileBackdropUrl = () => {
@@ -3238,7 +3241,8 @@ function LandingPage() {
               />
             </div>
           ) : (() => {
-            const videoUrl = backdropUrl || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
+            const defaultUrl = backdropUrl || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
+            const videoUrl = (isMobileView && mobileBackdropUrl && mobileBackdropUrl.trim() !== '') ? mobileBackdropUrl : defaultUrl;
             const isEmbed = isEmbedUrl(videoUrl);
             const isDrive = videoUrl.includes('drive.google.com') || videoUrl.includes('docs.google.com');
             const isCloudinary = videoUrl.includes('cloudinary.com');
@@ -4395,6 +4399,7 @@ export function ShowreelPage() {
   useEffect(() => {
     const bgType = localStorage.getItem('home_hero_bg_type') || 'video';
     const bgUrl = localStorage.getItem('home_hero_bg_url') || '';
+    const mobileBgUrl = localStorage.getItem('home_hero_mobile_bg_url') || '';
     
     // Migrate any broken/expired Vimeo, old YouTube, or old Google Drive showreel URL in localStorage to the Google Drive video
     const storedShowreel = localStorage.getItem('home_showreel_url');
@@ -4409,8 +4414,11 @@ export function ShowreelPage() {
     if (bgType === 'video' && bgUrl) {
       activeUrl = bgUrl;
     }
+    if (isMobileView && mobileBgUrl && mobileBgUrl.trim() !== '') {
+      activeUrl = mobileBgUrl;
+    }
     setVideoUrl(activeUrl);
-  }, []);
+  }, [isMobileView]);
 
   // When video starts playing on mobile, attempt to request native full screen
   const handleVideoPlay = () => {

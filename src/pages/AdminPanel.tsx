@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Navigate, Link } from 'react-router-dom';
 import { pushLocalConfigsToFirestore } from '../lib/siteSync';
 import { getYouTubeEmbedUrl } from '../components/AutoplayVideoFrame';
-import { Users, Layout, Settings, LogOut, Home, Plus, Trash2, Edit2, ArrowUp, ArrowDown, RefreshCw, FileVideo, Image as ImageIcon, ImageOff, Film, Play, ChevronRight, ChevronLeft, MapPin, BookOpen, Share2, Sparkles, Upload, Check, Save, Mail, MessageSquare } from 'lucide-react';
+import { Users, Layout, Settings, LogOut, Home, Plus, Trash2, Edit2, ArrowUp, ArrowDown, RefreshCw, FileVideo, Image as ImageIcon, ImageOff, Film, Play, ChevronRight, ChevronLeft, MapPin, BookOpen, Share2, Sparkles, Upload, Check, Save, Mail, MessageSquare, Smartphone, Monitor } from 'lucide-react';
 import { DEFAULT_TEAM_MEMBERS, TeamMember, DEFAULT_ORBIT_IMAGES, DEFAULT_FILMS_LIST, ParagraphFrameItem, DEFAULT_PARAGRAPH_FRAMES, DEFAULT_VERTICALS, VerticalItem, DEFAULT_LOCATIONS, OperationalLocation } from '../App';
 import { BrandItem, ClientItem, DEFAULT_BRAND_ITEMS, DEFAULT_CLIENTS_LIST } from '../utils/brandData';
 import { DEFAULT_SLIDES, CinematicSlide } from '../components/CinematicSlideshow';
@@ -158,6 +158,7 @@ const AdminPanel: FC = () => {
   // Home Banner and Video states
   const [homeHeroBgType, setHomeHeroBgType] = useState<'image' | 'video'>('video');
   const [homeHeroBgUrl, setHomeHeroBgUrl] = useState('');
+  const [homeHeroMobileBgUrl, setHomeHeroMobileBgUrl] = useState('');
   const [homeHeroBgImageUrl, setHomeHeroBgImageUrl] = useState('');
   const [homeShowreelUrl, setHomeShowreelUrl] = useState('');
   
@@ -828,6 +829,9 @@ const AdminPanel: FC = () => {
     const savedHeroBgUrl = localStorage.getItem('home_hero_bg_url') || 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071';
     setHomeHeroBgUrl(savedHeroBgUrl);
 
+    const savedHeroMobileBgUrl = localStorage.getItem('home_hero_mobile_bg_url') || '';
+    setHomeHeroMobileBgUrl(savedHeroMobileBgUrl);
+
     const savedHeroBgImageUrl = localStorage.getItem('home_hero_bg_image_url') || 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071';
     setHomeHeroBgImageUrl(savedHeroBgImageUrl);
 
@@ -1418,6 +1422,7 @@ const AdminPanel: FC = () => {
     e.preventDefault();
     localStorage.setItem('home_hero_bg_type', homeHeroBgType);
     localStorage.setItem('home_hero_bg_url', homeHeroBgUrl);
+    localStorage.setItem('home_hero_mobile_bg_url', homeHeroMobileBgUrl);
     localStorage.setItem('home_hero_bg_image_url', homeHeroBgUrl);
     localStorage.setItem('home_showreel_url', homeShowreelUrl);
 
@@ -1437,6 +1442,7 @@ const AdminPanel: FC = () => {
     if (confirm('Are you sure you want to restore default video and titles?')) {
       setHomeHeroBgType('video');
       setHomeHeroBgUrl('');
+      setHomeHeroMobileBgUrl('');
       setHomeHeroBgImageUrl('');
       setHomeShowreelUrl('https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
       setHomeTitle1Line1('VISUAL');
@@ -1448,6 +1454,7 @@ const AdminPanel: FC = () => {
 
       localStorage.setItem('home_hero_bg_type', 'video');
       localStorage.removeItem('home_hero_bg_url');
+      localStorage.removeItem('home_hero_mobile_bg_url');
       localStorage.removeItem('home_hero_bg_image_url');
       localStorage.removeItem('home_showreel_url');
       localStorage.removeItem('home_title1_l1');
@@ -2390,38 +2397,66 @@ const AdminPanel: FC = () => {
                               </div>
                             ) : (
                               localVideos.map((v) => {
-                                const isActive = homeHeroBgUrl === v.url;
+                                const isActiveDesktop = homeHeroBgUrl === v.url;
+                                const isActiveMobile = homeHeroMobileBgUrl === v.url;
                                 return (
                                   <div 
                                     key={v.filename}
-                                    onClick={() => {
-                                      setHomeHeroBgUrl(v.url);
-                                      setHomeShowreelUrl(v.url);
-                                      // Auto-commit to Portal so the selected video is instantly active and synced!
-                                      localStorage.setItem('home_hero_bg_type', 'video');
-                                      localStorage.setItem('home_hero_bg_url', v.url);
-                                      localStorage.setItem('home_hero_bg_image_url', v.url);
-                                      localStorage.setItem('home_showreel_url', v.url);
-                                      window.dispatchEvent(new Event('storage_updated_home_hero'));
-                                    }}
-                                    className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${
-                                      isActive 
+                                    className={`flex items-center justify-between p-2 rounded-lg transition-colors ${
+                                      isActiveDesktop || isActiveMobile
                                         ? 'bg-orange-500/10 border border-orange-500/30 text-orange-500' 
                                         : 'bg-zinc-900/50 hover:bg-zinc-900 border border-white/5 text-zinc-300'
                                     }`}
                                   >
                                     <div className="flex items-center gap-2 truncate pr-2">
-                                      <Play size={10} className={isActive ? 'text-orange-500' : 'text-zinc-500'} />
+                                      <Play size={10} className={(isActiveDesktop || isActiveMobile) ? 'text-orange-500' : 'text-zinc-500'} />
                                       <div className="truncate flex flex-col text-[10px]">
                                         <span className="font-bold truncate">{v.filename.replace(/^video-\d+-/, '')}</span>
                                         <span className="text-[8px] text-zinc-500">{(v.size / (1024 * 1024)).toFixed(1)} MB</span>
                                       </div>
                                     </div>
 
-                                    <div className="flex items-center gap-1.5">
-                                      {isActive && (
-                                        <span className="text-[8px] font-black uppercase bg-orange-500 text-white px-1.5 py-0.5 rounded">ACTIVE</span>
-                                      )}
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                      <button
+                                        type="button"
+                                        title="Set as Desktop Hero Video"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setHomeHeroBgUrl(v.url);
+                                          setHomeShowreelUrl(v.url);
+                                          localStorage.setItem('home_hero_bg_type', 'video');
+                                          localStorage.setItem('home_hero_bg_url', v.url);
+                                          localStorage.setItem('home_hero_bg_image_url', v.url);
+                                          localStorage.setItem('home_showreel_url', v.url);
+                                          window.dispatchEvent(new Event('storage_updated_home_hero'));
+                                        }}
+                                        className={`px-2 py-1 text-[9px] font-bold rounded flex items-center gap-1 transition-colors ${
+                                          isActiveDesktop 
+                                            ? 'bg-orange-500 text-white' 
+                                            : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300'
+                                        }`}
+                                      >
+                                        <Monitor size={10} />
+                                        Desktop
+                                      </button>
+                                      <button
+                                        type="button"
+                                        title="Set as Mobile Vertical Video"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setHomeHeroMobileBgUrl(v.url);
+                                          localStorage.setItem('home_hero_mobile_bg_url', v.url);
+                                          window.dispatchEvent(new Event('storage_updated_home_hero'));
+                                        }}
+                                        className={`px-2 py-1 text-[9px] font-bold rounded flex items-center gap-1 transition-colors ${
+                                          isActiveMobile 
+                                            ? 'bg-orange-500 text-white' 
+                                            : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300'
+                                        }`}
+                                      >
+                                        <Smartphone size={10} />
+                                        Mobile
+                                      </button>
                                       <button
                                         type="button"
                                         onClick={(e) => handleDeleteLocalVideo(v.filename, e)}
@@ -2440,32 +2475,69 @@ const AdminPanel: FC = () => {
                       </div>
                     )}
 
-                    {/* URL Input field */}
-                    <div className="space-y-2">
-                      <label className="block text-[10px] uppercase tracking-widest text-orange-500 font-black">
-                        {homeHeroBgType === 'video' ? 'OR USE GOOGLE DRIVE / DIRECT VIDEO LINK' : 'BACKGROUND IMAGE URL'}
-                      </label>
-                      <input 
-                        type="text" 
-                        required
-                        value={homeHeroBgUrl}
-                        onChange={(e) => {
-                          setHomeHeroBgUrl(e.target.value);
-                          setHomeShowreelUrl(e.target.value);
-                        }}
-                        placeholder={
-                          homeHeroBgType === 'video'
-                            ? "Paste a Google Drive share link, direct MP4 link, YouTube, or Vimeo watch URL"
-                            : "Paste an Unsplash, Pexels, or other direct image URL"
-                        }
-                        className="w-full bg-black border border-white/10 focus:border-orange-500 outline-none rounded-xl px-4 py-3 text-sm text-white font-medium transition-colors"
-                      />
-                      <p className="text-[10px] text-white/30 font-medium">
-                        {homeHeroBgType === 'video'
-                          ? "Supports local uploaded videos, direct MP4s, or Google Drive links! The server automatically processes and proxies the stream so that it autoplays, loops, and runs continuously and seamlessly in the background."
-                          : "This high-fidelity image will be shown as a fixed backdrop behind your entrance titles."
-                        }
-                      </p>
+                    {/* URL Input fields */}
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="block text-[10px] uppercase tracking-widest text-orange-500 font-black flex items-center gap-1.5">
+                          <Monitor size={12} />
+                          {homeHeroBgType === 'video' ? 'DESKTOP HERO VIDEO URL / LINK' : 'BACKGROUND IMAGE URL'}
+                        </label>
+                        <input 
+                          type="text" 
+                          required
+                          value={homeHeroBgUrl}
+                          onChange={(e) => {
+                            setHomeHeroBgUrl(e.target.value);
+                            setHomeShowreelUrl(e.target.value);
+                          }}
+                          placeholder={
+                            homeHeroBgType === 'video'
+                              ? "Paste Cloudinary link, Google Drive share link, direct MP4 link, YouTube, or Vimeo URL"
+                              : "Paste an Unsplash, Pexels, or other direct image URL"
+                          }
+                          className="w-full bg-black border border-white/10 focus:border-orange-500 outline-none rounded-xl px-4 py-3 text-sm text-white font-medium transition-colors"
+                        />
+                        <p className="text-[10px] text-white/30 font-medium">
+                          {homeHeroBgType === 'video'
+                            ? "Main video stream played on desktop displays. Supports local uploaded videos, Cloudinary embeds, direct MP4s, or Google Drive links."
+                            : "This high-fidelity image will be shown as a fixed backdrop behind your entrance titles."
+                          }
+                        </p>
+                      </div>
+
+                      {homeHeroBgType === 'video' && (
+                        <div className="space-y-2 pt-3 border-t border-white/5">
+                          <div className="flex items-center justify-between">
+                            <label className="block text-[10px] uppercase tracking-widest text-orange-500 font-black flex items-center gap-1.5">
+                              <Smartphone size={12} />
+                              MOBILE VERTICAL VIDEO URL (9:16 PORTRAIT OPTIONAL)
+                            </label>
+                            {homeHeroMobileBgUrl && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setHomeHeroMobileBgUrl('');
+                                  localStorage.removeItem('home_hero_mobile_bg_url');
+                                  window.dispatchEvent(new Event('storage_updated_home_hero'));
+                                }}
+                                className="text-[9px] text-zinc-400 hover:text-red-400 font-bold uppercase transition-colors"
+                              >
+                                Clear Mobile Video
+                              </button>
+                            )}
+                          </div>
+                          <input 
+                            type="text" 
+                            value={homeHeroMobileBgUrl}
+                            onChange={(e) => setHomeHeroMobileBgUrl(e.target.value)}
+                            placeholder="Paste vertical video link (Cloudinary embed / MP4 / Google Drive / Vimeo / YouTube) for mobile view"
+                            className="w-full bg-black border border-white/10 focus:border-orange-500 outline-none rounded-xl px-4 py-3 text-sm text-white font-medium transition-colors"
+                          />
+                          <p className="text-[10px] text-white/40 font-medium leading-relaxed">
+                            💡 <strong className="text-white/70">Mobile Vertical Video:</strong> Provide a vertical (9:16 aspect ratio) video for smartphones and tablets. When visitors access your site on mobile, this vertical video will autoplay seamlessly!
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
 
