@@ -1,4 +1,4 @@
-import { doc, setDoc, onSnapshot } from 'firebase/firestore';
+import { doc, setDoc, onSnapshot, getDoc } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from './firebase';
 
 const CONFIG_KEYS = [
@@ -34,7 +34,27 @@ const CONFIG_KEYS = [
   'dc_inquiries'
 ];
 
+const ALL_UPDATE_EVENTS = [
+  'storage',
+  'storage_updated_clients',
+  'storage_updated_team',
+  'storage_updated_orbit',
+  'storage_updated_home_hero',
+  'storage_updated_home_films',
+  'storage_updated_about',
+  'storage_updated_contact',
+  'storage_updated_films',
+  'storage_updated_socials',
+  'storage_updated_brand_partners',
+  'storage_updated_cinematic_slides',
+  'storage_updated_paragraph_frames',
+  'storage_updated_verticals',
+  'storage_updated_locations',
+  'storage_updated_inquiries'
+];
+
 let isWritingToFirestore = false;
+let pushDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 // Function to push settings from LocalStorage directly into Firestore configs
 export async function pushLocalConfigsToFirestore() {
@@ -56,6 +76,11 @@ export async function pushLocalConfigsToFirestore() {
       }
     });
 
+    if (Object.keys(settings).length === 0) {
+      isWritingToFirestore = false;
+      return;
+    }
+
     console.log("[SiteSync] Pushing settings to Firestore...", Object.keys(settings).length, "keys found in localStorage");
     
     const siteRef = doc(db, 'configs', 'site');
@@ -70,12 +95,17 @@ export async function pushLocalConfigsToFirestore() {
     console.error("[SiteSync] Error pushing configurations to Firestore:", error);
     try {
       handleFirestoreError(error, OperationType.WRITE, 'configs/site');
-    } catch (_) {
-      // Ignored after logging structured error
-    }
+    } catch (_) {}
   } finally {
     isWritingToFirestore = false;
   }
+}
+
+export function debouncedPushToFirestore() {
+  if (pushDebounceTimer) clearTimeout(pushDebounceTimer);
+  pushDebounceTimer = setTimeout(() => {
+    pushLocalConfigsToFirestore();
+  }, 300);
 }
 
 // Global initialization function to listen to Firebase configuration updates
@@ -83,11 +113,31 @@ export function initSiteSync() {
   if (typeof window === 'undefined') return () => {};
 
   console.log("[SiteSync] Initializing site sync with Firestore...");
+
+  // Override localStorage.setItem to auto-push changes on setItem
+  const originalSetItem = localStorage.setItem.bind(localStorage);
+  localStorage.setItem = function(key: string, value: string) {
+    originalSetItem(key, value);
+    if (CONFIG_KEYS.includes(key)) {
+      debouncedPushToFirestore();
+    }
+  };
+
   const siteRef = doc(db, 'configs', 'site');
+
+  // Immediately check document presence; if not found or empty, seed Firestore
+  getDoc(siteRef).then(snap => {
+    if (!snap.exists() || !snap.data()?.settings || Object.keys(snap.data()?.settings || {}).length === 0) {
+      console.log("[SiteSync] Firestore configs/site document empty or missing. Seeding Firestore with local configurations...");
+      pushLocalConfigsToFirestore();
+    }
+  }).catch(err => {
+    console.warn("[SiteSync] Initial fetch error:", err);
+  });
 
   // Listen to Firestore real-time changes
   const unsubscribe = onSnapshot(siteRef, (snap) => {
-    if (isWritingToFirestore) return; // Prevent overwriting while an admin writes
+    if (isWritingToFirestore) return; // Prevent overwriting while actively pushing
     
     if (snap.exists()) {
       const data = snap.data();
@@ -95,14 +145,14 @@ export function initSiteSync() {
       
       let changedCount = 0;
       CONFIG_KEYS.forEach(key => {
-        if (settings[key] !== undefined) {
+        if (settings[key] !== undefined && settings[key] !== null) {
           let value = settings[key];
           if (typeof value === 'string' && value.toLowerCase().includes('@dreamcatchers.com')) {
             value = value.replace(/@dreamcatchers\.com/gi, '@dreamcatchers.tv');
           }
           const currentLocal = localStorage.getItem(key);
           if (currentLocal !== value) {
-            localStorage.setItem(key, value);
+            originalSetItem(key, value);
             changedCount++;
           }
         }
@@ -110,11 +160,14 @@ export function initSiteSync() {
       
       if (changedCount > 0) {
         console.log(`[SiteSync] Synced ${changedCount} settings from Firestore database. Refreshing page components...`);
-        // Notify all page levels to reload their settings
-        window.dispatchEvent(new Event('storage'));
+        // Broadcast all update events so every component in React re-renders with fresh Firestore data
+        ALL_UPDATE_EVENTS.forEach(evt => {
+          window.dispatchEvent(new Event(evt));
+        });
       }
     } else {
-      console.log("[SiteSync] Firestore configs document not found yet. Pushing defaults if admin edits.");
+      console.log("[SiteSync] Firestore configs document not found on snapshot. Seeding initial configs...");
+      pushLocalConfigsToFirestore();
     }
   }, (err) => {
     const msg = err?.message || String(err);
@@ -124,43 +177,29 @@ export function initSiteSync() {
       console.error("[SiteSync] Error listening to Firestore configurations:", err);
       try {
         handleFirestoreError(err, OperationType.GET, 'configs/site');
-      } catch (_) {
-        // Ignored after logging
-      }
+      } catch (_) {}
     }
   });
 
-  // Listen to the custom storage events emitted whenever AdminPanel saves settings
+  // Listen to custom storage events
   const handleLocalChange = () => {
-    pushLocalConfigsToFirestore();
+    debouncedPushToFirestore();
   };
 
-  const adminUpdateEvents = [
-    'storage_updated_clients',
-    'storage_updated_team',
-    'storage_updated_orbit',
-    'storage_updated_home_hero',
-    'storage_updated_home_films',
-    'storage_updated_about',
-    'storage_updated_contact',
-    'storage_updated_films',
-    'storage_updated_socials',
-    'storage_updated_brand_partners',
-    'storage_updated_cinematic_slides',
-    'storage_updated_paragraph_frames',
-    'storage_updated_verticals',
-    'storage_updated_locations',
-    'storage_updated_inquiries'
-  ];
-
-  adminUpdateEvents.forEach(evt => {
-    window.addEventListener(evt, handleLocalChange);
+  ALL_UPDATE_EVENTS.forEach(evt => {
+    if (evt !== 'storage') {
+      window.addEventListener(evt, handleLocalChange);
+    }
   });
 
   return () => {
     unsubscribe();
-    adminUpdateEvents.forEach(evt => {
-      window.removeEventListener(evt, handleLocalChange);
+    ALL_UPDATE_EVENTS.forEach(evt => {
+      if (evt !== 'storage') {
+        window.removeEventListener(evt, handleLocalChange);
+      }
     });
+    localStorage.setItem = originalSetItem;
   };
 }
+
