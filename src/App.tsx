@@ -225,41 +225,28 @@ export function transformCloudinaryUrl(url: string | undefined, type: 'image' | 
     }
   }
 
-  if (trimmed.includes('cloudinary.com')) {
+  // Cloudinary Player Embed links (player.cloudinary.com) must be preserved as embed URLs
+  if (trimmed.includes('player.cloudinary.com')) {
+    return trimmed;
+  }
+
+  if (trimmed.includes('res.cloudinary.com')) {
     let cloudName = '';
     let publicId = '';
 
-    if (trimmed.includes('player.cloudinary.com')) {
-      try {
-        const urlObj = new URL(trimmed);
-        cloudName = urlObj.searchParams.get('cloud_name') || '';
-        publicId = urlObj.searchParams.get('public_id') || '';
-      } catch (e) {
-        // Fallback parsing
-      }
-      if (!cloudName) {
-        const cloudMatch = trimmed.match(/cloud_name=([^&"'\s>]+)/);
-        if (cloudMatch) cloudName = cloudMatch[1];
-      }
-      if (!publicId) {
-        const publicMatch = trimmed.match(/public_id=([^&"'\s>]+)/);
-        if (publicMatch) publicId = publicMatch[1];
-      }
-    } else if (trimmed.includes('res.cloudinary.com')) {
-      try {
-        const parts = trimmed.split('res.cloudinary.com/')[1]?.split('/');
-        if (parts && parts.length >= 3) {
-          cloudName = parts[0];
-          const uploadIndex = parts.indexOf('upload');
-          if (uploadIndex !== -1 && uploadIndex + 1 < parts.length) {
-            const rest = parts.slice(uploadIndex + 1).join('/');
-            const withoutVersion = rest.replace(/^v\d+\//, '');
-            publicId = withoutVersion.replace(/\.(mp4|webm|mov|m4v|m3u8|jpg|jpeg|png|webp|gif)$/i, '');
-          }
+    try {
+      const parts = trimmed.split('res.cloudinary.com/')[1]?.split('/');
+      if (parts && parts.length >= 3) {
+        cloudName = parts[0];
+        const uploadIndex = parts.indexOf('upload');
+        if (uploadIndex !== -1 && uploadIndex + 1 < parts.length) {
+          const rest = parts.slice(uploadIndex + 1).join('/');
+          const withoutVersion = rest.replace(/^v\d+\//, '');
+          publicId = withoutVersion.replace(/\.(mp4|webm|mov|m4v|m3u8|jpg|jpeg|png|webp|gif)$/i, '');
         }
-      } catch (e) {
-        // Fallback
       }
+    } catch (e) {
+      // Fallback
     }
 
     if (cloudName && publicId) {
@@ -271,7 +258,7 @@ export function transformCloudinaryUrl(url: string | undefined, type: 'image' | 
     }
   }
 
-  return null;
+  return trimmed;
 }
 
 export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = 'image'): string {
@@ -2642,10 +2629,16 @@ export const isEmbedUrl = (url: string) => {
   if (!url) return false;
   const lowercase = url.toLowerCase();
   
-  // Direct file extensions that are NOT Vimeo links should play in <video> tags
+  // Cloudinary player embeds are iframe embeds
+  if (lowercase.includes('player.cloudinary.com')) {
+    return true;
+  }
+
+  // Direct file extensions that are NOT Vimeo or Cloudinary Player links should play in <video> tags
   if (
     (lowercase.includes('.mp4') || lowercase.includes('.webm') || lowercase.includes('.ogg')) &&
-    !lowercase.includes('vimeo.com')
+    !lowercase.includes('vimeo.com') &&
+    !lowercase.includes('player.cloudinary.com')
   ) {
     return false;
   }
@@ -2655,8 +2648,8 @@ export const isEmbedUrl = (url: string) => {
     return false;
   }
 
-  // Cloudinary links are converted to direct MP4 streams for native <video> playback
-  if (lowercase.includes('cloudinary.com')) {
+  // Direct res.cloudinary.com links are native video
+  if (lowercase.includes('res.cloudinary.com')) {
     return false;
   }
   
@@ -3245,19 +3238,21 @@ function LandingPage() {
             const videoUrl = (isMobileView && mobileBackdropUrl && mobileBackdropUrl.trim() !== '') ? mobileBackdropUrl : defaultUrl;
             const isEmbed = isEmbedUrl(videoUrl);
             const isDrive = videoUrl.includes('drive.google.com') || videoUrl.includes('docs.google.com');
-            const isCloudinary = videoUrl.includes('cloudinary.com');
+            const isCloudinaryPlayer = videoUrl.includes('player.cloudinary.com');
+            const isCloudinaryDirect = videoUrl.includes('res.cloudinary.com');
             const isLocal = videoUrl.startsWith('/') || videoUrl.includes('/uploads/') || videoUrl.includes('video-');
-            const isDirectVideo = isLocal || isDrive || isCloudinary ||
-                                  videoUrl.toLowerCase().includes('.mp4') || 
-                                  videoUrl.toLowerCase().includes('.webm') || 
-                                  videoUrl.toLowerCase().includes('.ogg') || 
-                                  videoUrl.toLowerCase().includes('.mov') || 
-                                  videoUrl.toLowerCase().includes('.m4v');
+            const isDirectVideo = isLocal || isDrive || isCloudinaryDirect ||
+                                  (!isCloudinaryPlayer && (
+                                    videoUrl.toLowerCase().includes('.mp4') || 
+                                    videoUrl.toLowerCase().includes('.webm') || 
+                                    videoUrl.toLowerCase().includes('.ogg') || 
+                                    videoUrl.toLowerCase().includes('.mov') || 
+                                    videoUrl.toLowerCase().includes('.m4v')
+                                  ));
 
-            // If it is YouTube/Vimeo, or if Google Drive stream failed, we can use an iframe to let it play.
-            // But if it is a direct/local video file, we should NEVER fall back to iframe!
-            if ((isEmbed || (videoPlayFailed && !isLocal && !isDrive)) && !isDirectVideo) {
-              const fallbackUrl = (isEmbed || isDrive) ? videoUrl : 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
+            // If it is YouTube/Vimeo/Cloudinary Player, OR if direct video failed, use embed iframe
+            if ((isEmbed || isCloudinaryPlayer || (videoPlayFailed && !isLocal)) && !isDirectVideo) {
+              const fallbackUrl = (isEmbed || isCloudinaryPlayer || isDrive) ? videoUrl : 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
               const isFallbackDrive = fallbackUrl.includes('drive.google.com') || fallbackUrl.includes('docs.google.com');
               const isYouTube = fallbackUrl.includes('youtube.com') || fallbackUrl.includes('youtu.be');
               return (

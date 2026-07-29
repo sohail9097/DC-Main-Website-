@@ -32,41 +32,28 @@ export function transformCloudinaryUrl(url: string | undefined, type: 'image' | 
     }
   }
 
-  if (trimmed.includes('cloudinary.com')) {
+  // Cloudinary player embed URLs should stay intact
+  if (trimmed.includes('player.cloudinary.com')) {
+    return trimmed;
+  }
+
+  if (trimmed.includes('res.cloudinary.com')) {
     let cloudName = '';
     let publicId = '';
 
-    if (trimmed.includes('player.cloudinary.com')) {
-      try {
-        const urlObj = new URL(trimmed);
-        cloudName = urlObj.searchParams.get('cloud_name') || '';
-        publicId = urlObj.searchParams.get('public_id') || '';
-      } catch (e) {
-        // Fallback
-      }
-      if (!cloudName) {
-        const cloudMatch = trimmed.match(/cloud_name=([^&"'\s>]+)/);
-        if (cloudMatch) cloudName = cloudMatch[1];
-      }
-      if (!publicId) {
-        const publicMatch = trimmed.match(/public_id=([^&"'\s>]+)/);
-        if (publicMatch) publicId = publicMatch[1];
-      }
-    } else if (trimmed.includes('res.cloudinary.com')) {
-      try {
-        const parts = trimmed.split('res.cloudinary.com/')[1]?.split('/');
-        if (parts && parts.length >= 3) {
-          cloudName = parts[0];
-          const uploadIndex = parts.indexOf('upload');
-          if (uploadIndex !== -1 && uploadIndex + 1 < parts.length) {
-            const rest = parts.slice(uploadIndex + 1).join('/');
-            const withoutVersion = rest.replace(/^v\d+\//, '');
-            publicId = withoutVersion.replace(/\.(mp4|webm|mov|m4v|m3u8|jpg|jpeg|png|webp|gif)$/i, '');
-          }
+    try {
+      const parts = trimmed.split('res.cloudinary.com/')[1]?.split('/');
+      if (parts && parts.length >= 3) {
+        cloudName = parts[0];
+        const uploadIndex = parts.indexOf('upload');
+        if (uploadIndex !== -1 && uploadIndex + 1 < parts.length) {
+          const rest = parts.slice(uploadIndex + 1).join('/');
+          const withoutVersion = rest.replace(/^v\d+\//, '');
+          publicId = withoutVersion.replace(/\.(mp4|webm|mov|m4v|m3u8|jpg|jpeg|png|webp|gif)$/i, '');
         }
-      } catch (e) {
-        // Fallback
       }
+    } catch (e) {
+      // Fallback
     }
 
     if (cloudName && publicId) {
@@ -78,7 +65,7 @@ export function transformCloudinaryUrl(url: string | undefined, type: 'image' | 
     }
   }
 
-  return null;
+  return trimmed;
 }
 
 export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = 'image'): string {

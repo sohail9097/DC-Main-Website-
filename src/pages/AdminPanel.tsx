@@ -21,41 +21,28 @@ export function transformCloudinaryUrl(url: string | undefined, type: 'image' | 
     }
   }
 
-  if (trimmed.includes('cloudinary.com')) {
+  // Cloudinary player embed URLs should stay intact
+  if (trimmed.includes('player.cloudinary.com')) {
+    return trimmed;
+  }
+
+  if (trimmed.includes('res.cloudinary.com')) {
     let cloudName = '';
     let publicId = '';
 
-    if (trimmed.includes('player.cloudinary.com')) {
-      try {
-        const urlObj = new URL(trimmed);
-        cloudName = urlObj.searchParams.get('cloud_name') || '';
-        publicId = urlObj.searchParams.get('public_id') || '';
-      } catch (e) {
-        // Fallback
-      }
-      if (!cloudName) {
-        const cloudMatch = trimmed.match(/cloud_name=([^&"'\s>]+)/);
-        if (cloudMatch) cloudName = cloudMatch[1];
-      }
-      if (!publicId) {
-        const publicMatch = trimmed.match(/public_id=([^&"'\s>]+)/);
-        if (publicMatch) publicId = publicMatch[1];
-      }
-    } else if (trimmed.includes('res.cloudinary.com')) {
-      try {
-        const parts = trimmed.split('res.cloudinary.com/')[1]?.split('/');
-        if (parts && parts.length >= 3) {
-          cloudName = parts[0];
-          const uploadIndex = parts.indexOf('upload');
-          if (uploadIndex !== -1 && uploadIndex + 1 < parts.length) {
-            const rest = parts.slice(uploadIndex + 1).join('/');
-            const withoutVersion = rest.replace(/^v\d+\//, '');
-            publicId = withoutVersion.replace(/\.(mp4|webm|mov|m4v|m3u8|jpg|jpeg|png|webp|gif)$/i, '');
-          }
+    try {
+      const parts = trimmed.split('res.cloudinary.com/')[1]?.split('/');
+      if (parts && parts.length >= 3) {
+        cloudName = parts[0];
+        const uploadIndex = parts.indexOf('upload');
+        if (uploadIndex !== -1 && uploadIndex + 1 < parts.length) {
+          const rest = parts.slice(uploadIndex + 1).join('/');
+          const withoutVersion = rest.replace(/^v\d+\//, '');
+          publicId = withoutVersion.replace(/\.(mp4|webm|mov|m4v|m3u8|jpg|jpeg|png|webp|gif)$/i, '');
         }
-      } catch (e) {
-        // Fallback
       }
+    } catch (e) {
+      // Fallback
     }
 
     if (cloudName && publicId) {
@@ -67,7 +54,7 @@ export function transformCloudinaryUrl(url: string | undefined, type: 'image' | 
     }
   }
 
-  return null;
+  return trimmed;
 }
 
 export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = 'image'): string {
@@ -2480,7 +2467,8 @@ const AdminPanel: FC = () => {
                       <div className="space-y-2">
                         <label className="block text-[10px] uppercase tracking-widest text-orange-500 font-black flex items-center gap-1.5">
                           <Monitor size={12} />
-                          {homeHeroBgType === 'video' ? 'DESKTOP HERO VIDEO URL / LINK' : 'BACKGROUND IMAGE URL'}
+                          <Smartphone size={12} />
+                          {homeHeroBgType === 'video' ? 'HERO VIDEO URL (DESKTOP & MOBILE AUTO-CROP)' : 'BACKGROUND IMAGE URL'}
                         </label>
                         <input 
                           type="text" 
@@ -2497,9 +2485,9 @@ const AdminPanel: FC = () => {
                           }
                           className="w-full bg-black border border-white/10 focus:border-orange-500 outline-none rounded-xl px-4 py-3 text-sm text-white font-medium transition-colors"
                         />
-                        <p className="text-[10px] text-white/30 font-medium">
+                        <p className="text-[10px] text-white/40 font-medium leading-relaxed">
                           {homeHeroBgType === 'video'
-                            ? "Main video stream played on desktop displays. Supports local uploaded videos, Cloudinary embeds, direct MP4s, or Google Drive links."
+                            ? "✨ The same video plays seamlessly on both desktop and mobile screens! On mobile devices, it automatically crops into a full-height vertical (9:16) video without requiring any extra video link."
                             : "This high-fidelity image will be shown as a fixed backdrop behind your entrance titles."
                           }
                         </p>
@@ -2508,9 +2496,9 @@ const AdminPanel: FC = () => {
                       {homeHeroBgType === 'video' && (
                         <div className="space-y-2 pt-3 border-t border-white/5">
                           <div className="flex items-center justify-between">
-                            <label className="block text-[10px] uppercase tracking-widest text-orange-500 font-black flex items-center gap-1.5">
+                            <label className="block text-[10px] uppercase tracking-widest text-zinc-400 font-bold flex items-center gap-1.5">
                               <Smartphone size={12} />
-                              MOBILE VERTICAL VIDEO URL (9:16 PORTRAIT OPTIONAL)
+                              OPTIONAL: CUSTOM MOBILE VIDEO URL (OVERRIDE ONLY)
                             </label>
                             {homeHeroMobileBgUrl && (
                               <button
@@ -2520,9 +2508,9 @@ const AdminPanel: FC = () => {
                                   localStorage.removeItem('home_hero_mobile_bg_url');
                                   window.dispatchEvent(new Event('storage_updated_home_hero'));
                                 }}
-                                className="text-[9px] text-zinc-400 hover:text-red-400 font-bold uppercase transition-colors"
+                                className="text-[9px] text-orange-400 hover:text-orange-300 font-bold uppercase transition-colors"
                               >
-                                Clear Mobile Video
+                                Clear (Use Main Video)
                               </button>
                             )}
                           </div>
@@ -2530,12 +2518,9 @@ const AdminPanel: FC = () => {
                             type="text" 
                             value={homeHeroMobileBgUrl}
                             onChange={(e) => setHomeHeroMobileBgUrl(e.target.value)}
-                            placeholder="Paste vertical video link (Cloudinary embed / MP4 / Google Drive / Vimeo / YouTube) for mobile view"
-                            className="w-full bg-black border border-white/10 focus:border-orange-500 outline-none rounded-xl px-4 py-3 text-sm text-white font-medium transition-colors"
+                            placeholder="Leave empty to use main hero video auto-cropped for mobile"
+                            className="w-full bg-black/60 border border-white/10 focus:border-orange-500 outline-none rounded-xl px-4 py-2.5 text-xs text-white/80 font-medium transition-colors"
                           />
-                          <p className="text-[10px] text-white/40 font-medium leading-relaxed">
-                            💡 <strong className="text-white/70">Automatic Mobile Vertical Crop:</strong> The main hero video automatically crops and plays vertically on smartphones! No extra URL is required. (If you want a different custom 9:16 portrait video specifically for mobile, paste its link above).
-                          </p>
                         </div>
                       )}
                     </div>
