@@ -10,9 +10,74 @@ import { BrandItem, ClientItem, DEFAULT_BRAND_ITEMS, DEFAULT_CLIENTS_LIST } from
 import { DEFAULT_SLIDES, CinematicSlide } from '../components/CinematicSlideshow';
 import { normalizeAndSyncData, isSimilarName } from '../utils/syncHelper';
 
+export function transformCloudinaryUrl(url: string | undefined, type: 'image' | 'video' = 'video'): string | null {
+  if (!url) return null;
+  let trimmed = url.trim();
+
+  if (trimmed.toLowerCase().includes('<iframe')) {
+    const srcMatch = trimmed.match(/src=["']([^"']+)["']/i);
+    if (srcMatch && srcMatch[1]) {
+      trimmed = srcMatch[1];
+    }
+  }
+
+  if (trimmed.includes('cloudinary.com')) {
+    let cloudName = '';
+    let publicId = '';
+
+    if (trimmed.includes('player.cloudinary.com')) {
+      try {
+        const urlObj = new URL(trimmed);
+        cloudName = urlObj.searchParams.get('cloud_name') || '';
+        publicId = urlObj.searchParams.get('public_id') || '';
+      } catch (e) {
+        // Fallback
+      }
+      if (!cloudName) {
+        const cloudMatch = trimmed.match(/cloud_name=([^&"'\s>]+)/);
+        if (cloudMatch) cloudName = cloudMatch[1];
+      }
+      if (!publicId) {
+        const publicMatch = trimmed.match(/public_id=([^&"'\s>]+)/);
+        if (publicMatch) publicId = publicMatch[1];
+      }
+    } else if (trimmed.includes('res.cloudinary.com')) {
+      try {
+        const parts = trimmed.split('res.cloudinary.com/')[1]?.split('/');
+        if (parts && parts.length >= 3) {
+          cloudName = parts[0];
+          const uploadIndex = parts.indexOf('upload');
+          if (uploadIndex !== -1 && uploadIndex + 1 < parts.length) {
+            const rest = parts.slice(uploadIndex + 1).join('/');
+            const withoutVersion = rest.replace(/^v\d+\//, '');
+            publicId = withoutVersion.replace(/\.(mp4|webm|mov|m4v|m3u8|jpg|jpeg|png|webp|gif)$/i, '');
+          }
+        }
+      } catch (e) {
+        // Fallback
+      }
+    }
+
+    if (cloudName && publicId) {
+      if (type === 'video') {
+        return `https://res.cloudinary.com/${cloudName}/video/upload/${publicId}.mp4`;
+      } else {
+        return `https://res.cloudinary.com/${cloudName}/image/upload/${publicId}.jpg`;
+      }
+    }
+  }
+
+  return null;
+}
+
 export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = 'image'): string {
   if (!url) return '';
   const trimmed = url.trim();
+
+  const cloudinaryTransformed = transformCloudinaryUrl(trimmed, type);
+  if (cloudinaryTransformed) {
+    return cloudinaryTransformed;
+  }
   
   if (trimmed.includes('drive.google.com') || trimmed.includes('docs.google.com')) {
     const fileIdRegex = /(?:\/file\/d\/|id=)([^/?#]+)/;

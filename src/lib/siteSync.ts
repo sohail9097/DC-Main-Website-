@@ -1,5 +1,5 @@
 import { doc, setDoc, onSnapshot } from 'firebase/firestore';
-import { db } from './firebase';
+import { db, handleFirestoreError, OperationType } from './firebase';
 
 const CONFIG_KEYS = [
   'dream_team',
@@ -67,6 +67,11 @@ export async function pushLocalConfigsToFirestore() {
     console.log("[SiteSync] Successfully pushed configurations to Firestore.");
   } catch (error) {
     console.error("[SiteSync] Error pushing configurations to Firestore:", error);
+    try {
+      handleFirestoreError(error, OperationType.WRITE, 'configs/site');
+    } catch (_) {
+      // Ignored after logging structured error
+    }
   } finally {
     isWritingToFirestore = false;
   }
@@ -111,7 +116,17 @@ export function initSiteSync() {
       console.log("[SiteSync] Firestore configs document not found yet. Pushing defaults if admin edits.");
     }
   }, (err) => {
-    console.error("[SiteSync] Error listing Firestore configurations:", err);
+    const msg = err?.message || String(err);
+    if (msg.includes('offline') || msg.includes('backend') || msg.includes('Could not reach')) {
+      console.warn("[SiteSync] Firestore is currently operating in offline mode.");
+    } else {
+      console.error("[SiteSync] Error listening to Firestore configurations:", err);
+      try {
+        handleFirestoreError(err, OperationType.GET, 'configs/site');
+      } catch (_) {
+        // Ignored after logging
+      }
+    }
   });
 
   // Listen to the custom storage events emitted whenever AdminPanel saves settings

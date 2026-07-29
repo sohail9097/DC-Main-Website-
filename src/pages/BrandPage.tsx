@@ -8,9 +8,12 @@ import { normalizeAndSyncData, isSimilarName } from '../utils/syncHelper';
 
 const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
   const [stars, setStars] = useState<{ id: number; left: string; top: string; size: number; duration: number; delay: number; driftX: number; driftY: number }[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const optimizedCount = Math.min(count, 85);
+    const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+    setIsMobile(isMobileUA);
+    const optimizedCount = isMobileUA ? Math.min(count, 15) : Math.min(count, 85);
     const newStars = Array.from({ length: optimizedCount }).map((_, i) => ({
       id: i,
       left: `${Math.random() * 100}%`,
@@ -18,35 +21,43 @@ const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
       size: Math.random() * 1.6 + 0.4,
       duration: Math.random() * 6 + 4,
       delay: Math.random() * -10, // Negative delay to prevent bulk fade-ins on load
-      driftX: (Math.random() - 0.5) * 40,
-      driftY: (Math.random() - 0.5) * 40,
+      driftX: isMobileUA ? 0 : (Math.random() - 0.5) * 40,
+      driftY: isMobileUA ? 0 : (Math.random() - 0.5) * 40,
     }));
     setStars(newStars);
   }, [count]);
 
   return (
     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-      <style>{`
-        @keyframes starTwinkleDrift {
-          0% {
-            opacity: 0.15;
-            transform: translate3d(0px, 0px, 0) scale(0.8);
+      {!isMobile && (
+        <style>{`
+          @keyframes starTwinkleDrift {
+            0% {
+              opacity: 0.15;
+              transform: translate3d(0px, 0px, 0) scale(0.8);
+            }
+            50% {
+              opacity: 0.95;
+              transform: translate3d(var(--drift-x), var(--drift-y), 0) scale(1.1);
+            }
+            100% {
+              opacity: 0.15;
+              transform: translate3d(0px, 0px, 0) scale(0.8);
+            }
           }
-          50% {
-            opacity: 0.95;
-            transform: translate3d(var(--drift-x), var(--drift-y), 0) scale(1.1);
-          }
-          100% {
-            opacity: 0.15;
-            transform: translate3d(0px, 0px, 0) scale(0.8);
-          }
-        }
-      `}</style>
+        `}</style>
+      )}
       {stars.map((star) => (
         <div
           key={star.id}
           className="absolute bg-white rounded-full"
-          style={{
+          style={isMobile ? {
+            left: star.left,
+            top: star.top,
+            width: `${star.size}px`,
+            height: `${star.size}px`,
+            opacity: 0.35,
+          } : {
             left: star.left,
             top: star.top,
             width: `${star.size}px`,

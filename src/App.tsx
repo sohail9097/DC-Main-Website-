@@ -8,7 +8,7 @@ import FilmsPage from './pages/FilmsPage';
 import AboutPage from './pages/AboutPage';
 import BrandPage from './pages/BrandPage';
 import ConnectPage from './pages/ConnectPage';
-import { db } from './lib/firebase';
+import { db, handleFirestoreError, OperationType } from './lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { normalizeAndSyncData, isSimilarName } from './utils/syncHelper';
 import { BrandItem, ClientItem, DEFAULT_BRAND_ITEMS, DEFAULT_CLIENTS_LIST } from './utils/brandData';
@@ -22,9 +22,12 @@ import { CinematicSlideshow } from './components/CinematicSlideshow';
 
 const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
   const [stars, setStars] = useState<{ id: number; left: string; top: string; size: number; duration: number; delay: number; driftX: number; driftY: number }[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const optimizedCount = Math.min(count, 85);
+    const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+    setIsMobile(isMobileUA);
+    const optimizedCount = isMobileUA ? Math.min(count, 15) : Math.min(count, 85);
     const newStars = Array.from({ length: optimizedCount }).map((_, i) => ({
       id: i,
       left: `${Math.random() * 100}%`,
@@ -32,34 +35,45 @@ const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
       size: Math.random() * 1.6 + 0.4,
       duration: Math.random() * 6 + 4,
       delay: Math.random() * -10, // Negative delay to prevent bulk fade-ins on load
-      driftX: (Math.random() - 0.5) * 40,
-      driftY: (Math.random() - 0.5) * 40,
+      driftX: isMobileUA ? 0 : (Math.random() - 0.5) * 40,
+      driftY: isMobileUA ? 0 : (Math.random() - 0.5) * 40,
     }));
     setStars(newStars);
   }, [count]);
 
   return (
     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-      <style>{`
-        @keyframes starTwinkleDrift {
-          0% {
-            opacity: 0.15;
-            transform: translate3d(0px, 0px, 0) scale(0.8);
+      {!isMobile && (
+        <style>{`
+          @keyframes starTwinkleDrift {
+            0% {
+              opacity: 0.15;
+              transform: translate3d(0px, 0px, 0) scale(0.8);
+            }
+            50% {
+              opacity: 0.95;
+              transform: translate3d(var(--drift-x), var(--drift-y), 0) scale(1.15);
+            }
+            100% {
+              opacity: 0.15;
+              transform: translate3d(0px, 0px, 0) scale(0.8);
+            }
           }
-          50% {
-            opacity: 0.95;
-            transform: translate3d(var(--drift-x), var(--drift-y), 0) scale(1.15);
-          }
-          100% {
-            opacity: 0.15;
-            transform: translate3d(0px, 0px, 0) scale(0.8);
-          }
-        }
-      `}</style>
+        `}</style>
+      )}
       {stars.map((star) => (
         <div
           key={star.id}
-          style={{
+          style={isMobile ? {
+            position: 'absolute',
+            left: star.left,
+            top: star.top,
+            width: `${star.size}px`,
+            height: `${star.size}px`,
+            background: 'white',
+            borderRadius: '50%',
+            opacity: 0.35,
+          } : {
             position: 'absolute',
             left: star.left,
             top: star.top,
@@ -199,9 +213,76 @@ export const OrbitingFrame: FC<{ index: number; total: number; item: any }> = ({
   );
 };
 
+export function transformCloudinaryUrl(url: string | undefined, type: 'image' | 'video' = 'video'): string | null {
+  if (!url) return null;
+  let trimmed = url.trim();
+
+  // If full iframe HTML string is provided
+  if (trimmed.toLowerCase().includes('<iframe')) {
+    const srcMatch = trimmed.match(/src=["']([^"']+)["']/i);
+    if (srcMatch && srcMatch[1]) {
+      trimmed = srcMatch[1];
+    }
+  }
+
+  if (trimmed.includes('cloudinary.com')) {
+    let cloudName = '';
+    let publicId = '';
+
+    if (trimmed.includes('player.cloudinary.com')) {
+      try {
+        const urlObj = new URL(trimmed);
+        cloudName = urlObj.searchParams.get('cloud_name') || '';
+        publicId = urlObj.searchParams.get('public_id') || '';
+      } catch (e) {
+        // Fallback parsing
+      }
+      if (!cloudName) {
+        const cloudMatch = trimmed.match(/cloud_name=([^&"'\s>]+)/);
+        if (cloudMatch) cloudName = cloudMatch[1];
+      }
+      if (!publicId) {
+        const publicMatch = trimmed.match(/public_id=([^&"'\s>]+)/);
+        if (publicMatch) publicId = publicMatch[1];
+      }
+    } else if (trimmed.includes('res.cloudinary.com')) {
+      try {
+        const parts = trimmed.split('res.cloudinary.com/')[1]?.split('/');
+        if (parts && parts.length >= 3) {
+          cloudName = parts[0];
+          const uploadIndex = parts.indexOf('upload');
+          if (uploadIndex !== -1 && uploadIndex + 1 < parts.length) {
+            const rest = parts.slice(uploadIndex + 1).join('/');
+            const withoutVersion = rest.replace(/^v\d+\//, '');
+            publicId = withoutVersion.replace(/\.(mp4|webm|mov|m4v|m3u8|jpg|jpeg|png|webp|gif)$/i, '');
+          }
+        }
+      } catch (e) {
+        // Fallback
+      }
+    }
+
+    if (cloudName && publicId) {
+      if (type === 'video') {
+        return `https://res.cloudinary.com/${cloudName}/video/upload/${publicId}.mp4`;
+      } else {
+        return `https://res.cloudinary.com/${cloudName}/image/upload/${publicId}.jpg`;
+      }
+    }
+  }
+
+  return null;
+}
+
 export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = 'image'): string {
   if (!url) return '';
   const trimmed = url.trim();
+
+  // Cloudinary URL transformation
+  const cloudinaryTransformed = transformCloudinaryUrl(trimmed, type);
+  if (cloudinaryTransformed) {
+    return cloudinaryTransformed;
+  }
   
   // Extract file ID from google drive share link if it's a google drive url
   if (trimmed.includes('drive.google.com') || trimmed.includes('docs.google.com')) {
@@ -2573,6 +2654,11 @@ export const isEmbedUrl = (url: string) => {
   if (lowercase.includes('drive.google.com') || lowercase.includes('docs.google.com')) {
     return false;
   }
+
+  // Cloudinary links are converted to direct MP4 streams for native <video> playback
+  if (lowercase.includes('cloudinary.com')) {
+    return false;
+  }
   
   return (
     lowercase.includes('iframe') ||
@@ -2589,6 +2675,36 @@ export const isEmbedUrl = (url: string) => {
 export const getEmbedUrl = (url: string, asBackground = true) => {
   if (!url) return '';
   try {
+    if (url.includes('cloudinary.com')) {
+      let embedUrl = url;
+      if (!url.includes('player.cloudinary.com')) {
+        const cloudMatch = url.match(/res\.cloudinary\.com\/([^/]+)\/video\/upload\/(?:v\d+\/)?([^/.]+)/);
+        if (cloudMatch) {
+          embedUrl = `https://player.cloudinary.com/embed/?cloud_name=${cloudMatch[1]}&public_id=${cloudMatch[2]}`;
+        }
+      }
+      try {
+        const urlObj = new URL(embedUrl);
+        urlObj.searchParams.set('autoplay', 'true');
+        urlObj.searchParams.set('muted', 'true');
+        urlObj.searchParams.set('loop', 'true');
+        urlObj.searchParams.set('playsinline', 'true');
+        urlObj.searchParams.set('player[autoplay]', 'true');
+        urlObj.searchParams.set('player[muted]', 'true');
+        urlObj.searchParams.set('player[loop]', 'true');
+        if (asBackground) {
+          urlObj.searchParams.set('controls', 'false');
+          urlObj.searchParams.set('player[controls]', 'false');
+        } else {
+          urlObj.searchParams.set('controls', 'true');
+          urlObj.searchParams.set('player[controls]', 'true');
+        }
+        return urlObj.toString();
+      } catch (e) {
+        return embedUrl;
+      }
+    }
+
     if (url.includes('instagram.com')) {
       // Instagram URL can be like: https://www.instagram.com/p/C-h9D7Iy9Xm/ or https://www.instagram.com/reel/C-h9D7Iy9Xm/
       // The embed format is https://www.instagram.com/p/C-h9D7Iy9Xm/embed/ or https://www.instagram.com/reel/C-h9D7Iy9Xm/embed/
@@ -2860,10 +2976,19 @@ function LandingPage() {
       };
 
       // 1. Save directly into Firestore 'project_inquiries'
-      await addDoc(collection(db, 'project_inquiries'), {
-        ...newInquiry,
-        createdAt: serverTimestamp()
-      });
+      try {
+        await addDoc(collection(db, 'project_inquiries'), {
+          ...newInquiry,
+          createdAt: serverTimestamp()
+        });
+      } catch (dbErr) {
+        console.warn("Firestore project_inquiries addDoc notice:", dbErr);
+        try {
+          handleFirestoreError(dbErr, OperationType.WRITE, 'project_inquiries');
+        } catch (_) {
+          // Handled error log
+        }
+      }
 
       // 2. Notify backend to trigger email transmission
       const emailRes = await fetch('/api/notify-inquiry', {
@@ -3114,10 +3239,11 @@ function LandingPage() {
             </div>
           ) : (() => {
             const videoUrl = backdropUrl || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
-            const isEmbed = videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be') || videoUrl.includes('vimeo.com');
+            const isEmbed = isEmbedUrl(videoUrl);
             const isDrive = videoUrl.includes('drive.google.com') || videoUrl.includes('docs.google.com');
+            const isCloudinary = videoUrl.includes('cloudinary.com');
             const isLocal = videoUrl.startsWith('/') || videoUrl.includes('/uploads/') || videoUrl.includes('video-');
-            const isDirectVideo = isLocal || isDrive ||
+            const isDirectVideo = isLocal || isDrive || isCloudinary ||
                                   videoUrl.toLowerCase().includes('.mp4') || 
                                   videoUrl.toLowerCase().includes('.webm') || 
                                   videoUrl.toLowerCase().includes('.ogg') || 
