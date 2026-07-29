@@ -3261,12 +3261,23 @@ function LandingPage() {
               const isFallbackDrive = fallbackUrl.includes('drive.google.com') || fallbackUrl.includes('docs.google.com');
               const isYouTube = fallbackUrl.includes('youtube.com') || fallbackUrl.includes('youtu.be');
               return (
-                <div className="absolute inset-0 w-full h-full overflow-hidden bg-black">
+                <div className="absolute inset-0 w-full h-full overflow-hidden bg-black flex items-center justify-center">
                   <iframe 
                     src={getEmbedUrl(fallbackUrl, true) || undefined} 
                     className={`absolute ${isFallbackDrive ? 'pointer-events-auto' : 'pointer-events-none'} animate-fade-in`}
                     allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
-                    style={{ 
+                    style={isMobileView ? {
+                      border: 'none',
+                      width: '177.78vh',
+                      height: '100vh',
+                      minWidth: '100vw',
+                      minHeight: '100vh',
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      objectFit: 'cover'
+                    } : { 
                       border: 'none',
                       width: isYouTube ? '115%' : '100%',
                       height: isYouTube ? '115%' : '100%',
@@ -3281,7 +3292,7 @@ function LandingPage() {
             // High-performance HTML5 Video tag for direct MP4, stream URLs and Google Drive videos
             // Set high brightness and full color (no grayscale, opacity-100) to remove the dark/black shade overlay!
             return (
-              <div className="absolute inset-0 w-full h-full overflow-hidden bg-black">
+              <div className="absolute inset-0 w-full h-full overflow-hidden bg-black flex items-center justify-center">
                 <video 
                   key={videoUrl}
                   ref={videoRef}
@@ -3345,7 +3356,14 @@ function LandingPage() {
                       setVideoPlayFailed(true);
                     }
                   }}
-                  className="absolute inset-0 w-full h-full object-cover opacity-100 transition-opacity duration-1000 z-0"
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-full min-h-full w-auto h-auto object-cover opacity-100 transition-opacity duration-1000 z-0"
+                  style={{
+                    width: isMobileView ? '177.78vh' : '100%',
+                    height: isMobileView ? '100vh' : '100%',
+                    minWidth: '100%',
+                    minHeight: '100%',
+                    objectFit: 'cover'
+                  }}
                 />
               </div>
             );

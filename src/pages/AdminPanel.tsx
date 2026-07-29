@@ -2534,7 +2534,7 @@ const AdminPanel: FC = () => {
                             className="w-full bg-black border border-white/10 focus:border-orange-500 outline-none rounded-xl px-4 py-3 text-sm text-white font-medium transition-colors"
                           />
                           <p className="text-[10px] text-white/40 font-medium leading-relaxed">
-                            💡 <strong className="text-white/70">Mobile Vertical Video:</strong> Provide a vertical (9:16 aspect ratio) video for smartphones and tablets. When visitors access your site on mobile, this vertical video will autoplay seamlessly!
+                            💡 <strong className="text-white/70">Automatic Mobile Vertical Crop:</strong> The main hero video automatically crops and plays vertically on smartphones! No extra URL is required. (If you want a different custom 9:16 portrait video specifically for mobile, paste its link above).
                           </p>
                         </div>
                       )}
