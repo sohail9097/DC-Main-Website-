@@ -225,15 +225,30 @@ export function transformCloudinaryUrl(url: string | undefined, type: 'image' | 
     }
   }
 
-  // Cloudinary Player Embed links (player.cloudinary.com) must be preserved as embed URLs
-  if (trimmed.includes('player.cloudinary.com')) {
-    return trimmed;
+  if (!trimmed.includes('cloudinary.com')) {
+    return null;
   }
 
-  if (trimmed.includes('res.cloudinary.com')) {
-    let cloudName = '';
-    let publicId = '';
+  let cloudName = '';
+  let publicId = '';
 
+  if (trimmed.includes('player.cloudinary.com')) {
+    try {
+      const urlObj = new URL(trimmed);
+      cloudName = urlObj.searchParams.get('cloud_name') || '';
+      publicId = urlObj.searchParams.get('public_id') || '';
+    } catch (e) {
+      // Fallback
+    }
+    if (!cloudName) {
+      const cloudMatch = trimmed.match(/cloud_name=([^&"'\s>]+)/);
+      if (cloudMatch) cloudName = cloudMatch[1];
+    }
+    if (!publicId) {
+      const publicMatch = trimmed.match(/public_id=([^&"'\s>]+)/);
+      if (publicMatch) publicId = publicMatch[1];
+    }
+  } else if (trimmed.includes('res.cloudinary.com')) {
     try {
       const parts = trimmed.split('res.cloudinary.com/')[1]?.split('/');
       if (parts && parts.length >= 3) {
@@ -248,13 +263,13 @@ export function transformCloudinaryUrl(url: string | undefined, type: 'image' | 
     } catch (e) {
       // Fallback
     }
+  }
 
-    if (cloudName && publicId) {
-      if (type === 'video') {
-        return `https://res.cloudinary.com/${cloudName}/video/upload/${publicId}.mp4`;
-      } else {
-        return `https://res.cloudinary.com/${cloudName}/image/upload/${publicId}.jpg`;
-      }
+  if (cloudName && publicId) {
+    if (type === 'video') {
+      return `https://res.cloudinary.com/${cloudName}/video/upload/${publicId}.mp4`;
+    } else {
+      return `https://res.cloudinary.com/${cloudName}/image/upload/${publicId}.jpg`;
     }
   }
 
@@ -266,14 +281,16 @@ export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = '
   const trimmed = url.trim();
 
   // Cloudinary URL transformation
-  const cloudinaryTransformed = transformCloudinaryUrl(trimmed, type);
-  if (cloudinaryTransformed) {
-    return cloudinaryTransformed;
+  if (trimmed.includes('cloudinary.com')) {
+    const cloudinaryTransformed = transformCloudinaryUrl(trimmed, type);
+    if (cloudinaryTransformed) {
+      return cloudinaryTransformed;
+    }
   }
   
   // Extract file ID from google drive share link if it's a google drive url
-  if (trimmed.includes('drive.google.com') || trimmed.includes('docs.google.com')) {
-    const fileIdRegex = /(?:\/file\/d\/|id=)([^/?#]+)/;
+  if (trimmed.includes('drive.google.com') || trimmed.includes('docs.google.com') || trimmed.includes('googleusercontent.com')) {
+    const fileIdRegex = /(?:\/file\/d\/|id=|\/d\/)([^/?#&]+)/;
     const match = trimmed.match(fileIdRegex);
     if (match && match[1]) {
       const fileId = match[1];
@@ -519,11 +536,16 @@ function Hero() {
       localStorage.setItem('home_showreel_url', 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
     }
     
-    // Also migrate the home_hero_bg_url if it was pointing to the old video, or if it is empty, or if we want to ensure the showreel video plays directly
+    // Also migrate the home_hero_bg_url if it was pointing to the vertical video on desktop, or old links
     const storedHeroBgUrl = localStorage.getItem('home_hero_bg_url');
-    if (!storedHeroBgUrl || storedHeroBgUrl.includes('11IhUdtZgucLSQsiqe2OZb08DOhidbTmD') || storedHeroBgUrl.includes('UhTRVjkQZMw') || storedHeroBgUrl.includes('EngS8gK6u4I')) {
+    if (!storedHeroBgUrl || storedHeroBgUrl.includes('11IhUdtZgucLSQsiqe2OZb08DOhidbTmD') || storedHeroBgUrl.includes('UhTRVjkQZMw') || storedHeroBgUrl.includes('EngS8gK6u4I') || storedHeroBgUrl.includes('Final-Verticle_9X16_-1_1_tuogdw')) {
       localStorage.setItem('home_hero_bg_url', 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
       localStorage.setItem('home_hero_bg_type', 'video');
+    }
+
+    const storedMobileBgUrl = localStorage.getItem('home_hero_mobile_bg_url');
+    if (!storedMobileBgUrl || storedMobileBgUrl.includes('Final-1_1_gfd5cu') || storedMobileBgUrl.includes('11IhUdtZgucLSQsiqe2OZb08DOhidbTmD')) {
+      localStorage.setItem('home_hero_mobile_bg_url', 'https://player.cloudinary.com/embed/?cloud_name=w37bjaa2&public_id=Final-Verticle_9X16_-1_1_tuogdw');
     }
     
     const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
@@ -3146,8 +3168,18 @@ function LandingPage() {
 
   const loadConfigs = () => {
     const bgType = (localStorage.getItem('home_hero_bg_type') as 'image' | 'video') || 'video';
-    const bgUrl = localStorage.getItem('home_hero_bg_url') || '';
-    const mobileBgUrl = localStorage.getItem('home_hero_mobile_bg_url') || '';
+    let bgUrl = localStorage.getItem('home_hero_bg_url') || '';
+    if (!bgUrl || bgUrl.includes('Final-Verticle_9X16_-1_1_tuogdw')) {
+      bgUrl = 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
+      localStorage.setItem('home_hero_bg_url', bgUrl);
+    }
+
+    let mobileBgUrl = localStorage.getItem('home_hero_mobile_bg_url') || '';
+    if (!mobileBgUrl || mobileBgUrl.includes('Final-1_1_gfd5cu')) {
+      mobileBgUrl = 'https://player.cloudinary.com/embed/?cloud_name=w37bjaa2&public_id=Final-Verticle_9X16_-1_1_tuogdw';
+      localStorage.setItem('home_hero_mobile_bg_url', mobileBgUrl);
+    }
+
     setBackdropType(bgType);
     
     const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';

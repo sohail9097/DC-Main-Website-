@@ -32,15 +32,30 @@ export function transformCloudinaryUrl(url: string | undefined, type: 'image' | 
     }
   }
 
-  // Cloudinary player embed URLs should stay intact
-  if (trimmed.includes('player.cloudinary.com')) {
-    return trimmed;
+  if (!trimmed.includes('cloudinary.com')) {
+    return null;
   }
 
-  if (trimmed.includes('res.cloudinary.com')) {
-    let cloudName = '';
-    let publicId = '';
+  let cloudName = '';
+  let publicId = '';
 
+  if (trimmed.includes('player.cloudinary.com')) {
+    try {
+      const urlObj = new URL(trimmed);
+      cloudName = urlObj.searchParams.get('cloud_name') || '';
+      publicId = urlObj.searchParams.get('public_id') || '';
+    } catch (e) {
+      // Fallback
+    }
+    if (!cloudName) {
+      const cloudMatch = trimmed.match(/cloud_name=([^&"'\s>]+)/);
+      if (cloudMatch) cloudName = cloudMatch[1];
+    }
+    if (!publicId) {
+      const publicMatch = trimmed.match(/public_id=([^&"'\s>]+)/);
+      if (publicMatch) publicId = publicMatch[1];
+    }
+  } else if (trimmed.includes('res.cloudinary.com')) {
     try {
       const parts = trimmed.split('res.cloudinary.com/')[1]?.split('/');
       if (parts && parts.length >= 3) {
@@ -55,13 +70,13 @@ export function transformCloudinaryUrl(url: string | undefined, type: 'image' | 
     } catch (e) {
       // Fallback
     }
+  }
 
-    if (cloudName && publicId) {
-      if (type === 'video') {
-        return `https://res.cloudinary.com/${cloudName}/video/upload/${publicId}.mp4`;
-      } else {
-        return `https://res.cloudinary.com/${cloudName}/image/upload/${publicId}.jpg`;
-      }
+  if (cloudName && publicId) {
+    if (type === 'video') {
+      return `https://res.cloudinary.com/${cloudName}/video/upload/${publicId}.mp4`;
+    } else {
+      return `https://res.cloudinary.com/${cloudName}/image/upload/${publicId}.jpg`;
     }
   }
 
@@ -72,19 +87,23 @@ export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = '
   if (!url) return '';
   const trimmed = url.trim();
 
-  const cloudinaryTransformed = transformCloudinaryUrl(trimmed, type);
-  if (cloudinaryTransformed) {
-    return cloudinaryTransformed;
+  if (trimmed.includes('cloudinary.com')) {
+    const cloudinaryTransformed = transformCloudinaryUrl(trimmed, type);
+    if (cloudinaryTransformed) {
+      return cloudinaryTransformed;
+    }
   }
 
-  const fileIdRegex = /(?:\/file\/d\/|id=)([^/?#]+)/;
-  const match = trimmed.match(fileIdRegex);
-  if (match && match[1]) {
-    const fileId = match[1];
-    if (type === 'video') {
-      return `/api/drive-stream?id=${fileId}`;
+  if (trimmed.includes('drive.google.com') || trimmed.includes('docs.google.com') || trimmed.includes('googleusercontent.com')) {
+    const fileIdRegex = /(?:\/file\/d\/|id=|\/d\/)([^/?#&]+)/;
+    const match = trimmed.match(fileIdRegex);
+    if (match && match[1]) {
+      const fileId = match[1];
+      if (type === 'video') {
+        return `/api/drive-stream?id=${fileId}`;
+      }
+      return `https://lh3.googleusercontent.com/d/${fileId}`;
     }
-    return `https://lh3.googleusercontent.com/d/${fileId}`;
   }
   return trimmed;
 }
