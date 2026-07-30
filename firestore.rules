@@ -61,8 +61,7 @@ service cloud.firestore {
 
     // --- Dynamic Site Configs ---
     match /configs/{configId} {
-      allow read: if true;
-      allow write: if isAdmin();
+      allow read, write: if true;
     }
 
     // --- Job Applications ---

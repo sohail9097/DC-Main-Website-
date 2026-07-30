@@ -13,7 +13,7 @@ export const db = getFirestore(app, dbId);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 
-export enum OperationType {
+enum OperationType {
   CREATE = 'create',
   UPDATE = 'update',
   DELETE = 'delete',
@@ -22,7 +22,7 @@ export enum OperationType {
   WRITE = 'write',
 }
 
-export interface FirestoreErrorInfo {
+interface FirestoreErrorInfo {
   error: string;
   operationType: OperationType;
   path: string | null;
@@ -39,7 +39,7 @@ export interface FirestoreErrorInfo {
   }
 }
 
-export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
   const errInfo: FirestoreErrorInfo = {
     error: error instanceof Error ? error.message : String(error),
     authInfo: {
@@ -63,26 +63,15 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
 // Connection test as per instructions
 async function testConnection() {
   try {
-    const fetchDoc = getDocFromServer(doc(db, 'test', 'connection'));
-    const timeout = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('connection-timeout: Could not reach backend in 3 seconds')), 3000)
-    );
-    await Promise.race([fetchDoc, timeout]);
+    await getDocFromServer(doc(db, 'test', 'connection'));
     console.log("Firebase connected successfully");
   } catch (error) {
-    const msg = error instanceof Error ? error.message : String(error);
-    if (
-      msg.includes('offline') ||
-      msg.includes('backend') ||
-      msg.includes('connection-timeout') ||
-      msg.includes('10 seconds') ||
-      msg.includes('Could not reach')
-    ) {
-      console.warn("Firebase: Cloud Firestore is operating in offline/cached mode.");
-    } else if (msg.includes('permission-denied')) {
+    if (error instanceof Error && error.message.includes('offline')) {
+      console.warn("Firebase: Client is offline. The application will operate in offline mode.");
+    } else if (error instanceof Error && error.message.includes('permission-denied')) {
       console.error("Firebase: Permission denied for connection test. Check Firestore rules.");
     } else {
-      console.warn("Firebase connection notice:", msg);
+      console.error("Firebase connection test failed:", error);
     }
   }
 }

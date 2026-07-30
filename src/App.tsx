@@ -8,7 +8,7 @@ import FilmsPage from './pages/FilmsPage';
 import AboutPage from './pages/AboutPage';
 import BrandPage from './pages/BrandPage';
 import ConnectPage from './pages/ConnectPage';
-import { db, handleFirestoreError, OperationType } from './lib/firebase';
+import { db } from './lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { normalizeAndSyncData, isSimilarName } from './utils/syncHelper';
 import { BrandItem, ClientItem, DEFAULT_BRAND_ITEMS, DEFAULT_CLIENTS_LIST } from './utils/brandData';
@@ -22,12 +22,9 @@ import { CinematicSlideshow } from './components/CinematicSlideshow';
 
 const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
   const [stars, setStars] = useState<{ id: number; left: string; top: string; size: number; duration: number; delay: number; driftX: number; driftY: number }[]>([]);
-  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
-    setIsMobile(isMobileUA);
-    const optimizedCount = isMobileUA ? Math.min(count, 15) : Math.min(count, 85);
+    const optimizedCount = Math.min(count, 85);
     const newStars = Array.from({ length: optimizedCount }).map((_, i) => ({
       id: i,
       left: `${Math.random() * 100}%`,
@@ -35,45 +32,34 @@ const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
       size: Math.random() * 1.6 + 0.4,
       duration: Math.random() * 6 + 4,
       delay: Math.random() * -10, // Negative delay to prevent bulk fade-ins on load
-      driftX: isMobileUA ? 0 : (Math.random() - 0.5) * 40,
-      driftY: isMobileUA ? 0 : (Math.random() - 0.5) * 40,
+      driftX: (Math.random() - 0.5) * 40,
+      driftY: (Math.random() - 0.5) * 40,
     }));
     setStars(newStars);
   }, [count]);
 
   return (
     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-      {!isMobile && (
-        <style>{`
-          @keyframes starTwinkleDrift {
-            0% {
-              opacity: 0.15;
-              transform: translate3d(0px, 0px, 0) scale(0.8);
-            }
-            50% {
-              opacity: 0.95;
-              transform: translate3d(var(--drift-x), var(--drift-y), 0) scale(1.15);
-            }
-            100% {
-              opacity: 0.15;
-              transform: translate3d(0px, 0px, 0) scale(0.8);
-            }
+      <style>{`
+        @keyframes starTwinkleDrift {
+          0% {
+            opacity: 0.15;
+            transform: translate3d(0px, 0px, 0) scale(0.8);
           }
-        `}</style>
-      )}
+          50% {
+            opacity: 0.95;
+            transform: translate3d(var(--drift-x), var(--drift-y), 0) scale(1.15);
+          }
+          100% {
+            opacity: 0.15;
+            transform: translate3d(0px, 0px, 0) scale(0.8);
+          }
+        }
+      `}</style>
       {stars.map((star) => (
         <div
           key={star.id}
-          style={isMobile ? {
-            position: 'absolute',
-            left: star.left,
-            top: star.top,
-            width: `${star.size}px`,
-            height: `${star.size}px`,
-            background: 'white',
-            borderRadius: '50%',
-            opacity: 0.35,
-          } : {
+          style={{
             position: 'absolute',
             left: star.left,
             top: star.top,
@@ -213,84 +199,13 @@ export const OrbitingFrame: FC<{ index: number; total: number; item: any }> = ({
   );
 };
 
-export function transformCloudinaryUrl(url: string | undefined, type: 'image' | 'video' = 'video'): string | null {
-  if (!url) return null;
-  let trimmed = url.trim();
-
-  // If full iframe HTML string is provided
-  if (trimmed.toLowerCase().includes('<iframe')) {
-    const srcMatch = trimmed.match(/src=["']([^"']+)["']/i);
-    if (srcMatch && srcMatch[1]) {
-      trimmed = srcMatch[1];
-    }
-  }
-
-  if (!trimmed.includes('cloudinary.com')) {
-    return null;
-  }
-
-  let cloudName = '';
-  let publicId = '';
-
-  if (trimmed.includes('player.cloudinary.com')) {
-    try {
-      const urlObj = new URL(trimmed);
-      cloudName = urlObj.searchParams.get('cloud_name') || '';
-      publicId = urlObj.searchParams.get('public_id') || '';
-    } catch (e) {
-      // Fallback
-    }
-    if (!cloudName) {
-      const cloudMatch = trimmed.match(/cloud_name=([^&"'\s>]+)/);
-      if (cloudMatch) cloudName = cloudMatch[1];
-    }
-    if (!publicId) {
-      const publicMatch = trimmed.match(/public_id=([^&"'\s>]+)/);
-      if (publicMatch) publicId = publicMatch[1];
-    }
-  } else if (trimmed.includes('res.cloudinary.com')) {
-    try {
-      const parts = trimmed.split('res.cloudinary.com/')[1]?.split('/');
-      if (parts && parts.length >= 3) {
-        cloudName = parts[0];
-        const uploadIndex = parts.indexOf('upload');
-        if (uploadIndex !== -1 && uploadIndex + 1 < parts.length) {
-          const rest = parts.slice(uploadIndex + 1).join('/');
-          const withoutVersion = rest.replace(/^v\d+\//, '');
-          publicId = withoutVersion.replace(/\.(mp4|webm|mov|m4v|m3u8|jpg|jpeg|png|webp|gif)$/i, '');
-        }
-      }
-    } catch (e) {
-      // Fallback
-    }
-  }
-
-  if (cloudName && publicId) {
-    if (type === 'video') {
-      return `https://res.cloudinary.com/${cloudName}/video/upload/${publicId}.mp4`;
-    } else {
-      return `https://res.cloudinary.com/${cloudName}/image/upload/${publicId}.jpg`;
-    }
-  }
-
-  return trimmed;
-}
-
 export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = 'image'): string {
   if (!url) return '';
   const trimmed = url.trim();
-
-  // Cloudinary URL transformation
-  if (trimmed.includes('cloudinary.com')) {
-    const cloudinaryTransformed = transformCloudinaryUrl(trimmed, type);
-    if (cloudinaryTransformed) {
-      return cloudinaryTransformed;
-    }
-  }
   
   // Extract file ID from google drive share link if it's a google drive url
-  if (trimmed.includes('drive.google.com') || trimmed.includes('docs.google.com') || trimmed.includes('googleusercontent.com')) {
-    const fileIdRegex = /(?:\/file\/d\/|id=|\/d\/)([^/?#&]+)/;
+  if (trimmed.includes('drive.google.com') || trimmed.includes('docs.google.com')) {
+    const fileIdRegex = /(?:\/file\/d\/|id=)([^/?#]+)/;
     const match = trimmed.match(fileIdRegex);
     if (match && match[1]) {
       const fileId = match[1];
@@ -536,16 +451,11 @@ function Hero() {
       localStorage.setItem('home_showreel_url', 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
     }
     
-    // Also migrate the home_hero_bg_url if it was pointing to the vertical video on desktop, or old links
+    // Also migrate the home_hero_bg_url if it was pointing to the old video, or if it is empty, or if we want to ensure the showreel video plays directly
     const storedHeroBgUrl = localStorage.getItem('home_hero_bg_url');
-    if (!storedHeroBgUrl || storedHeroBgUrl.includes('11IhUdtZgucLSQsiqe2OZb08DOhidbTmD') || storedHeroBgUrl.includes('UhTRVjkQZMw') || storedHeroBgUrl.includes('EngS8gK6u4I') || storedHeroBgUrl.includes('Final-Verticle_9X16_-1_1_tuogdw')) {
+    if (!storedHeroBgUrl || storedHeroBgUrl.includes('11IhUdtZgucLSQsiqe2OZb08DOhidbTmD') || storedHeroBgUrl.includes('UhTRVjkQZMw') || storedHeroBgUrl.includes('EngS8gK6u4I')) {
       localStorage.setItem('home_hero_bg_url', 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
       localStorage.setItem('home_hero_bg_type', 'video');
-    }
-
-    const storedMobileBgUrl = localStorage.getItem('home_hero_mobile_bg_url');
-    if (!storedMobileBgUrl || storedMobileBgUrl.includes('Final-1_1_gfd5cu') || storedMobileBgUrl.includes('11IhUdtZgucLSQsiqe2OZb08DOhidbTmD')) {
-      localStorage.setItem('home_hero_mobile_bg_url', 'https://player.cloudinary.com/embed/?cloud_name=w37bjaa2&public_id=Final-Verticle_9X16_-1_1_tuogdw');
     }
     
     const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
@@ -2651,27 +2561,16 @@ export const isEmbedUrl = (url: string) => {
   if (!url) return false;
   const lowercase = url.toLowerCase();
   
-  // Cloudinary player embeds are iframe embeds
-  if (lowercase.includes('player.cloudinary.com')) {
-    return true;
-  }
-
-  // Direct file extensions that are NOT Vimeo or Cloudinary Player links should play in <video> tags
+  // Direct file extensions that are NOT Vimeo links should play in <video> tags
   if (
     (lowercase.includes('.mp4') || lowercase.includes('.webm') || lowercase.includes('.ogg')) &&
-    !lowercase.includes('vimeo.com') &&
-    !lowercase.includes('player.cloudinary.com')
+    !lowercase.includes('vimeo.com')
   ) {
     return false;
   }
 
   // Google Drive/Docs videos should be played in native <video> tags to support autoplay, muted, looping, and playsinline properties
   if (lowercase.includes('drive.google.com') || lowercase.includes('docs.google.com')) {
-    return false;
-  }
-
-  // Direct res.cloudinary.com links are native video
-  if (lowercase.includes('res.cloudinary.com')) {
     return false;
   }
   
@@ -2690,36 +2589,6 @@ export const isEmbedUrl = (url: string) => {
 export const getEmbedUrl = (url: string, asBackground = true) => {
   if (!url) return '';
   try {
-    if (url.includes('cloudinary.com')) {
-      let embedUrl = url;
-      if (!url.includes('player.cloudinary.com')) {
-        const cloudMatch = url.match(/res\.cloudinary\.com\/([^/]+)\/video\/upload\/(?:v\d+\/)?([^/.]+)/);
-        if (cloudMatch) {
-          embedUrl = `https://player.cloudinary.com/embed/?cloud_name=${cloudMatch[1]}&public_id=${cloudMatch[2]}`;
-        }
-      }
-      try {
-        const urlObj = new URL(embedUrl);
-        urlObj.searchParams.set('autoplay', 'true');
-        urlObj.searchParams.set('muted', 'true');
-        urlObj.searchParams.set('loop', 'true');
-        urlObj.searchParams.set('playsinline', 'true');
-        urlObj.searchParams.set('player[autoplay]', 'true');
-        urlObj.searchParams.set('player[muted]', 'true');
-        urlObj.searchParams.set('player[loop]', 'true');
-        if (asBackground) {
-          urlObj.searchParams.set('controls', 'false');
-          urlObj.searchParams.set('player[controls]', 'false');
-        } else {
-          urlObj.searchParams.set('controls', 'true');
-          urlObj.searchParams.set('player[controls]', 'true');
-        }
-        return urlObj.toString();
-      } catch (e) {
-        return embedUrl;
-      }
-    }
-
     if (url.includes('instagram.com')) {
       // Instagram URL can be like: https://www.instagram.com/p/C-h9D7Iy9Xm/ or https://www.instagram.com/reel/C-h9D7Iy9Xm/
       // The embed format is https://www.instagram.com/p/C-h9D7Iy9Xm/embed/ or https://www.instagram.com/reel/C-h9D7Iy9Xm/embed/
@@ -2847,10 +2716,8 @@ function LandingPage() {
   const starOpacity = useTransform(scrollY, [100, 700], [0, 1]);
   const heroImgOpacity = useTransform(scrollY, [0, 800], [1, 0]);
 
-  const [isMobileView, setIsMobileView] = useState(false);
   const [backdropType, setBackdropType] = useState<'image' | 'video'>('video');
   const [backdropUrl, setBackdropUrl] = useState(() => localStorage.getItem('home_showreel_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
-  const [mobileBackdropUrl, setMobileBackdropUrl] = useState(() => localStorage.getItem('home_hero_mobile_bg_url') || '');
   const [videoPlayFailed, setVideoPlayFailed] = useState(false);
   const [videoStarted, setVideoStarted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -2859,7 +2726,7 @@ function LandingPage() {
     // Reset play failure flag and video playback status when URL changes
     setVideoPlayFailed(false);
     setVideoStarted(false);
-  }, [backdropUrl, mobileBackdropUrl, isMobileView]);
+  }, [backdropUrl]);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -2873,7 +2740,7 @@ function LandingPage() {
           console.warn("Autoplay was blocked or video play failed:", err);
         });
     }
-  }, [backdropUrl, mobileBackdropUrl, isMobileView, videoPlayFailed]);
+  }, [backdropUrl, videoPlayFailed]);
 
   // Resume background video play on user interaction if blocked (crucial for Chrome inside iframe/mobile)
   useEffect(() => {
@@ -2900,6 +2767,7 @@ function LandingPage() {
     };
   }, [backdropType, videoStarted]);
 
+  const [isMobileView, setIsMobileView] = useState(false);
   const [verticals, setVerticals] = useState<VerticalItem[]>(DEFAULT_VERTICALS);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [inlinePlayingId, setInlinePlayingId] = useState<string | null>(null);
@@ -2992,19 +2860,10 @@ function LandingPage() {
       };
 
       // 1. Save directly into Firestore 'project_inquiries'
-      try {
-        await addDoc(collection(db, 'project_inquiries'), {
-          ...newInquiry,
-          createdAt: serverTimestamp()
-        });
-      } catch (dbErr) {
-        console.warn("Firestore project_inquiries addDoc notice:", dbErr);
-        try {
-          handleFirestoreError(dbErr, OperationType.WRITE, 'project_inquiries');
-        } catch (_) {
-          // Handled error log
-        }
-      }
+      await addDoc(collection(db, 'project_inquiries'), {
+        ...newInquiry,
+        createdAt: serverTimestamp()
+      });
 
       // 2. Notify backend to trigger email transmission
       const emailRes = await fetch('/api/notify-inquiry', {
@@ -3168,18 +3027,7 @@ function LandingPage() {
 
   const loadConfigs = () => {
     const bgType = (localStorage.getItem('home_hero_bg_type') as 'image' | 'video') || 'video';
-    let bgUrl = localStorage.getItem('home_hero_bg_url') || '';
-    if (!bgUrl || bgUrl.includes('Final-Verticle_9X16_-1_1_tuogdw')) {
-      bgUrl = 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
-      localStorage.setItem('home_hero_bg_url', bgUrl);
-    }
-
-    let mobileBgUrl = localStorage.getItem('home_hero_mobile_bg_url') || '';
-    if (!mobileBgUrl || mobileBgUrl.includes('Final-1_1_gfd5cu')) {
-      mobileBgUrl = 'https://player.cloudinary.com/embed/?cloud_name=w37bjaa2&public_id=Final-Verticle_9X16_-1_1_tuogdw';
-      localStorage.setItem('home_hero_mobile_bg_url', mobileBgUrl);
-    }
-
+    const bgUrl = localStorage.getItem('home_hero_bg_url') || '';
     setBackdropType(bgType);
     
     const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
@@ -3188,7 +3036,6 @@ function LandingPage() {
     } else {
       setBackdropUrl(bgUrl || 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=2000');
     }
-    setMobileBackdropUrl(mobileBgUrl);
   };
 
   const getMobileBackdropUrl = () => {
@@ -3266,45 +3113,30 @@ function LandingPage() {
               />
             </div>
           ) : (() => {
-            const defaultUrl = backdropUrl || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
-            const videoUrl = (isMobileView && mobileBackdropUrl && mobileBackdropUrl.trim() !== '') ? mobileBackdropUrl : defaultUrl;
-            const isEmbed = isEmbedUrl(videoUrl);
+            const videoUrl = backdropUrl || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
+            const isEmbed = videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be') || videoUrl.includes('vimeo.com');
             const isDrive = videoUrl.includes('drive.google.com') || videoUrl.includes('docs.google.com');
-            const isCloudinaryPlayer = videoUrl.includes('player.cloudinary.com');
-            const isCloudinaryDirect = videoUrl.includes('res.cloudinary.com');
             const isLocal = videoUrl.startsWith('/') || videoUrl.includes('/uploads/') || videoUrl.includes('video-');
-            const isDirectVideo = isLocal || isDrive || isCloudinaryDirect ||
-                                  (!isCloudinaryPlayer && (
-                                    videoUrl.toLowerCase().includes('.mp4') || 
-                                    videoUrl.toLowerCase().includes('.webm') || 
-                                    videoUrl.toLowerCase().includes('.ogg') || 
-                                    videoUrl.toLowerCase().includes('.mov') || 
-                                    videoUrl.toLowerCase().includes('.m4v')
-                                  ));
+            const isDirectVideo = isLocal || isDrive ||
+                                  videoUrl.toLowerCase().includes('.mp4') || 
+                                  videoUrl.toLowerCase().includes('.webm') || 
+                                  videoUrl.toLowerCase().includes('.ogg') || 
+                                  videoUrl.toLowerCase().includes('.mov') || 
+                                  videoUrl.toLowerCase().includes('.m4v');
 
-            // If it is YouTube/Vimeo/Cloudinary Player, OR if direct video failed, use embed iframe
-            if ((isEmbed || isCloudinaryPlayer || (videoPlayFailed && !isLocal)) && !isDirectVideo) {
-              const fallbackUrl = (isEmbed || isCloudinaryPlayer || isDrive) ? videoUrl : 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
+            // If it is YouTube/Vimeo, or if Google Drive stream failed, we can use an iframe to let it play.
+            // But if it is a direct/local video file, we should NEVER fall back to iframe!
+            if ((isEmbed || (videoPlayFailed && !isLocal && !isDrive)) && !isDirectVideo) {
+              const fallbackUrl = (isEmbed || isDrive) ? videoUrl : 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
               const isFallbackDrive = fallbackUrl.includes('drive.google.com') || fallbackUrl.includes('docs.google.com');
               const isYouTube = fallbackUrl.includes('youtube.com') || fallbackUrl.includes('youtu.be');
               return (
-                <div className="absolute inset-0 w-full h-full overflow-hidden bg-black flex items-center justify-center">
+                <div className="absolute inset-0 w-full h-full overflow-hidden bg-black">
                   <iframe 
                     src={getEmbedUrl(fallbackUrl, true) || undefined} 
                     className={`absolute ${isFallbackDrive ? 'pointer-events-auto' : 'pointer-events-none'} animate-fade-in`}
                     allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
-                    style={isMobileView ? {
-                      border: 'none',
-                      width: '177.78vh',
-                      height: '100vh',
-                      minWidth: '100vw',
-                      minHeight: '100vh',
-                      position: 'absolute',
-                      top: '50%',
-                      left: '50%',
-                      transform: 'translate(-50%, -50%)',
-                      objectFit: 'cover'
-                    } : { 
+                    style={{ 
                       border: 'none',
                       width: isYouTube ? '115%' : '100%',
                       height: isYouTube ? '115%' : '100%',
@@ -3319,7 +3151,7 @@ function LandingPage() {
             // High-performance HTML5 Video tag for direct MP4, stream URLs and Google Drive videos
             // Set high brightness and full color (no grayscale, opacity-100) to remove the dark/black shade overlay!
             return (
-              <div className="absolute inset-0 w-full h-full overflow-hidden bg-black flex items-center justify-center">
+              <div className="absolute inset-0 w-full h-full overflow-hidden bg-black">
                 <video 
                   key={videoUrl}
                   ref={videoRef}
@@ -3383,14 +3215,7 @@ function LandingPage() {
                       setVideoPlayFailed(true);
                     }
                   }}
-                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-full min-h-full w-auto h-auto object-cover opacity-100 transition-opacity duration-1000 z-0"
-                  style={{
-                    width: isMobileView ? '177.78vh' : '100%',
-                    height: isMobileView ? '100vh' : '100%',
-                    minWidth: '100%',
-                    minHeight: '100%',
-                    objectFit: 'cover'
-                  }}
+                  className="absolute inset-0 w-full h-full object-cover opacity-100 transition-opacity duration-1000 z-0"
                 />
               </div>
             );
@@ -4444,7 +4269,6 @@ export function ShowreelPage() {
   useEffect(() => {
     const bgType = localStorage.getItem('home_hero_bg_type') || 'video';
     const bgUrl = localStorage.getItem('home_hero_bg_url') || '';
-    const mobileBgUrl = localStorage.getItem('home_hero_mobile_bg_url') || '';
     
     // Migrate any broken/expired Vimeo, old YouTube, or old Google Drive showreel URL in localStorage to the Google Drive video
     const storedShowreel = localStorage.getItem('home_showreel_url');
@@ -4459,11 +4283,8 @@ export function ShowreelPage() {
     if (bgType === 'video' && bgUrl) {
       activeUrl = bgUrl;
     }
-    if (isMobileView && mobileBgUrl && mobileBgUrl.trim() !== '') {
-      activeUrl = mobileBgUrl;
-    }
     setVideoUrl(activeUrl);
-  }, [isMobileView]);
+  }, []);
 
   // When video starts playing on mobile, attempt to request native full screen
   const handleVideoPlay = () => {

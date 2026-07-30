@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform, AnimatePresence, useMotionValue, animate } from 'motion/react';
+import { motion, useScroll, useTransform, useSpring, AnimatePresence, useMotionValue, animate } from 'motion/react';
 import { 
   ChevronRight, 
   ChevronLeft, 
@@ -29,7 +29,7 @@ import { useState, useEffect, useRef, useMemo, FC, MouseEvent, TouchEvent, FormE
 import { uploadFileInChunks } from '../utils/chunkUpload';
 import { useAuth } from '../context/AuthContext';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from '../lib/firebase';
+import { db } from '../lib/firebase';
 import { 
   Navbar, 
   Footer, 
@@ -45,12 +45,9 @@ import {
 
 const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
   const [stars, setStars] = useState<{ id: number; left: string; top: string; size: number; duration: number; delay: number; driftX: number; driftY: number }[]>([]);
-  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
-    setIsMobile(isMobileUA);
-    const optimizedCount = isMobileUA ? Math.min(count, 15) : Math.min(count, 85);
+    const optimizedCount = Math.min(count, 85);
     const newStars = Array.from({ length: optimizedCount }).map((_, i) => ({
       id: i,
       left: `${Math.random() * 100}%`,
@@ -58,45 +55,34 @@ const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
       size: Math.random() * 1.6 + 0.4,
       duration: Math.random() * 6 + 4,
       delay: Math.random() * -10, // Negative delay to prevent bulk fade-ins on load
-      driftX: isMobileUA ? 0 : (Math.random() - 0.5) * 40,
-      driftY: isMobileUA ? 0 : (Math.random() - 0.5) * 40,
+      driftX: (Math.random() - 0.5) * 40,
+      driftY: (Math.random() - 0.5) * 40,
     }));
     setStars(newStars);
   }, [count]);
 
   return (
     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-      {!isMobile && (
-        <style>{`
-          @keyframes starTwinkleDrift {
-            0% {
-              opacity: 0.15;
-              transform: translate3d(0px, 0px, 0) scale(0.8);
-            }
-            50% {
-              opacity: 0.95;
-              transform: translate3d(var(--drift-x), var(--drift-y), 0) scale(1.15);
-            }
-            100% {
-              opacity: 0.15;
-              transform: translate3d(0px, 0px, 0) scale(0.8);
-            }
+      <style>{`
+        @keyframes starTwinkleDrift {
+          0% {
+            opacity: 0.15;
+            transform: translate3d(0px, 0px, 0) scale(0.8);
           }
-        `}</style>
-      )}
+          50% {
+            opacity: 0.95;
+            transform: translate3d(var(--drift-x), var(--drift-y), 0) scale(1.15);
+          }
+          100% {
+            opacity: 0.15;
+            transform: translate3d(0px, 0px, 0) scale(0.8);
+          }
+        }
+      `}</style>
       {stars.map((star) => (
         <div
           key={star.id}
-          style={isMobile ? {
-            position: 'absolute',
-            left: star.left,
-            top: star.top,
-            width: `${star.size}px`,
-            height: `${star.size}px`,
-            background: 'white',
-            borderRadius: '50%',
-            opacity: 0.35,
-          } : {
+          style={{
             position: 'absolute',
             left: star.left,
             top: star.top,
@@ -282,19 +268,10 @@ const AboutPage = () => {
       };
 
       // 1. Save directly into Firestore 'job_applications'
-      try {
-        await addDoc(collection(db, 'job_applications'), {
-          ...applicationData,
-          createdAt: serverTimestamp()
-        });
-      } catch (dbErr) {
-        console.warn("Firestore job_applications addDoc notice:", dbErr);
-        try {
-          handleFirestoreError(dbErr, OperationType.WRITE, 'job_applications');
-        } catch (_) {
-          // Handled error log
-        }
-      }
+      await addDoc(collection(db, 'job_applications'), {
+        ...applicationData,
+        createdAt: serverTimestamp()
+      });
 
       // 2. Notify backend to trigger email transmission
       const emailRes = await fetch('/api/notify-apply', {
@@ -495,6 +472,65 @@ const AboutPage = () => {
     setIsEditingBg(false);
   };
 
+
+  // Staggered custom spring physics for organic fluid waves (inertia, mass, and drag)
+  const springConfig1 = { stiffness: 45, damping: 18, mass: 0.8 };
+  const springConfig2 = { stiffness: 30, damping: 12, mass: 1.0 };
+  const springConfig3 = { stiffness: 60, damping: 22, mass: 0.6 };
+
+  const waveX1 = useMotionValue(0);
+  const waveX2 = useMotionValue(0);
+  const waveY1 = useMotionValue(0);
+  const waveY2 = useMotionValue(0);
+  const waveY3 = useMotionValue(0);
+
+  useEffect(() => {
+    const controlsX1 = animate(waveX1, [0, 180, 0], {
+      duration: 15,
+      ease: "easeInOut",
+      repeat: Infinity
+    });
+    const controlsX2 = animate(waveX2, [0, -180, 0], {
+      duration: 18,
+      ease: "easeInOut",
+      repeat: Infinity
+    });
+    const controlsY1 = animate(waveY1, [0, 50, 0], {
+      duration: 12,
+      ease: "easeInOut",
+      repeat: Infinity
+    });
+    const controlsY2 = animate(waveY2, [0, -40, 0], {
+      duration: 14,
+      ease: "easeInOut",
+      repeat: Infinity
+    });
+    const controlsY3 = animate(waveY3, [0, 30, 0], {
+      duration: 10,
+      ease: "easeInOut",
+      repeat: Infinity
+    });
+
+    return () => {
+      controlsX1.stop();
+      controlsX2.stop();
+      controlsY1.stop();
+      controlsY2.stop();
+      controlsY3.stop();
+    };
+  }, []);
+
+  const scrollWaveX1_A = useSpring(waveX1, springConfig1);
+  const scrollWaveX1_B = useSpring(waveX2, springConfig2);
+  const scrollWaveX1_C = useSpring(waveY1, springConfig3);
+
+  const scrollWaveX2_A = useSpring(waveY2, springConfig1);
+  const scrollWaveX2_B = useSpring(waveY3, springConfig2);
+  const scrollWaveX2_C = useSpring(waveX1, springConfig3);
+
+  const scrollWaveY_A = useSpring(waveY1, springConfig1);
+  const scrollWaveY_B = useSpring(waveY2, springConfig2);
+  const scrollWaveY_C = useSpring(waveY3, springConfig3);
 
   const [orbitImages, setOrbitImages] = useState<string[]>([]);
   

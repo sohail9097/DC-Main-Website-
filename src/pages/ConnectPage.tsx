@@ -21,7 +21,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect, useMemo, FC, FormEvent } from 'react';
 import { uploadFileInChunks } from '../utils/chunkUpload';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from '../lib/firebase';
+import { db } from '../lib/firebase';
 import { 
   Navbar, 
   Footer, 
@@ -33,12 +33,9 @@ import {
 
 const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
   const [stars, setStars] = useState<{ id: number; left: string; top: string; size: number; duration: number; delay: number }[]>([]);
-  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
-    setIsMobile(isMobileUA);
-    const optimizedCount = isMobileUA ? Math.min(count, 15) : Math.min(count, 85);
+    const optimizedCount = Math.min(count, 85);
     const newStars = Array.from({ length: optimizedCount }).map((_, i) => ({
       id: i,
       left: `${Math.random() * 100}%`,
@@ -52,18 +49,7 @@ const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
 
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden">
-      {stars.map((star) => isMobile ? (
-        <div
-          key={star.id}
-          className="absolute rounded-full bg-white/40"
-          style={{
-            left: star.left,
-            top: star.top,
-            width: `${star.size}px`,
-            height: `${star.size}px`,
-          }}
-        />
-      ) : (
+      {stars.map((star) => (
         <motion.div
           key={star.id}
           className="absolute rounded-full bg-white"
@@ -334,19 +320,10 @@ export default function ConnectPage() {
       };
 
       // 1. Save directly into Firestore 'project_inquiries'
-      try {
-        await addDoc(collection(db, 'project_inquiries'), {
-          ...newInquiry,
-          createdAt: serverTimestamp()
-        });
-      } catch (dbErr) {
-        console.warn("Firestore project_inquiries addDoc notice:", dbErr);
-        try {
-          handleFirestoreError(dbErr, OperationType.WRITE, 'project_inquiries');
-        } catch (_) {
-          // Handled error log
-        }
-      }
+      await addDoc(collection(db, 'project_inquiries'), {
+        ...newInquiry,
+        createdAt: serverTimestamp()
+      });
 
       // 2. Notify backend to trigger email transmission
       const emailRes = await fetch('/api/notify-inquiry', {
@@ -466,19 +443,10 @@ export default function ConnectPage() {
       };
 
       // 1. Save directly into Firestore 'job_applications'
-      try {
-        await addDoc(collection(db, 'job_applications'), {
-          ...applicationData,
-          createdAt: serverTimestamp()
-        });
-      } catch (dbErr) {
-        console.warn("Firestore job_applications addDoc notice:", dbErr);
-        try {
-          handleFirestoreError(dbErr, OperationType.WRITE, 'job_applications');
-        } catch (_) {
-          // Handled error log
-        }
-      }
+      await addDoc(collection(db, 'job_applications'), {
+        ...applicationData,
+        createdAt: serverTimestamp()
+      });
 
       // 2. Notify backend to trigger email transmission
       const emailRes = await fetch('/api/notify-apply', {
@@ -634,10 +602,10 @@ export default function ConnectPage() {
               onClick={() => navigate('/connect')}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              className="relative z-50 pointer-events-auto cursor-pointer inline-flex items-center gap-2.5 px-6 py-3 rounded-full border border-zinc-850 bg-zinc-950/80 hover:border-orange-500 hover:text-orange-500 text-zinc-300 text-xs transition-all font-black uppercase tracking-wider group shadow-lg"
+              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full border border-zinc-850 bg-zinc-950/80 hover:border-orange-500 hover:text-orange-500 text-zinc-300 text-xs transition-all font-black uppercase tracking-wider group shadow-lg"
             >
-              <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform pointer-events-none" />
-              <span className="pointer-events-none">Back to Connect Options</span>
+              <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+              <span>Back to Connect Options</span>
             </motion.button>
           </div>
         )}
