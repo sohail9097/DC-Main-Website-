@@ -287,7 +287,7 @@ const FilmsPage = () => {
         {/* Sub-Navbar Categories Quick Jump Menu */}
         <div className="relative z-20 w-full py-4 bg-zinc-950/90 backdrop-blur-md border-y border-white/5 overflow-hidden">
           <div className="max-w-[1600px] mx-auto px-4">
-            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-orange-500/20 scrollbar-track-transparent snap-x touch-pan-x justify-start">
+            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none snap-x touch-pan-x justify-start">
               {/* External Detailed Portfolio link */}
               <a
                 href="https://canva.link/dreamcatchers-portfolio2026"
