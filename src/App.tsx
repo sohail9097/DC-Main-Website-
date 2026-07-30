@@ -202,6 +202,32 @@ export const OrbitingFrame: FC<{ index: number; total: number; item: any }> = ({
 export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = 'image'): string {
   if (!url) return '';
   const trimmed = url.trim();
+
+  // Cloudinary video transformation to direct high quality MP4
+  if (trimmed.includes('cloudinary.com') || trimmed.includes('cloudinary')) {
+    try {
+      if (trimmed.includes('player.cloudinary.com/embed') || trimmed.includes('cloud_name=')) {
+        let cloudName = '';
+        let publicId = '';
+        if (trimmed.includes('?')) {
+          const params = new URLSearchParams(trimmed.split('?')[1]);
+          cloudName = params.get('cloud_name') || '';
+          publicId = params.get('public_id') || '';
+        }
+        if (cloudName && publicId) {
+          return `https://res.cloudinary.com/${cloudName}/video/upload/q_auto:best,f_auto/${publicId}.mp4`;
+        }
+      }
+      if (trimmed.includes('/video/upload/')) {
+        if (!trimmed.includes('q_auto')) {
+          return trimmed.replace('/video/upload/', '/video/upload/q_auto:best,f_auto/');
+        }
+        return trimmed;
+      }
+    } catch (e) {
+      console.warn('Cloudinary transform error:', e);
+    }
+  }
   
   // Extract file ID from google drive share link if it's a google drive url
   if (trimmed.includes('drive.google.com') || trimmed.includes('docs.google.com')) {
@@ -2570,15 +2596,14 @@ export const isEmbedUrl = (url: string) => {
     return false;
   }
 
-  // Google Drive/Docs videos should be played in native <video> tags to support autoplay, muted, looping, and playsinline properties
-  if (lowercase.includes('drive.google.com') || lowercase.includes('docs.google.com')) {
+  // Google Drive/Docs and Cloudinary videos should be played in native <video> tags
+  if (lowercase.includes('drive.google.com') || lowercase.includes('docs.google.com') || lowercase.includes('cloudinary')) {
     return false;
   }
   
   return (
     lowercase.includes('iframe') ||
     lowercase.includes('embed') ||
-    lowercase.includes('cloudinary') ||
     lowercase.includes('cloudflarestream.com') ||
     lowercase.includes('player.vimeo.com') ||
     lowercase.includes('vimeo.com') ||
@@ -3151,33 +3176,38 @@ function LandingPage() {
           ) : (() => {
             const defaultCloudinary = 'https://player.cloudinary.com/embed/?cloud_name=w37bjaa2&public_id=Final-1_1_agtvix';
             const videoUrl = backdropUrl || defaultCloudinary;
+            const transformedUrl = transformGoogleDriveUrl(videoUrl, 'video');
             const isEmbed = isEmbedUrl(videoUrl);
             const isDrive = videoUrl.includes('drive.google.com') || videoUrl.includes('docs.google.com');
+            const isCloudinary = videoUrl.includes('cloudinary') || transformedUrl.includes('cloudinary.com');
             const isLocal = videoUrl.startsWith('/') || videoUrl.includes('/uploads/') || videoUrl.includes('video-');
-            const isDirectVideo = isLocal || isDrive ||
-                                  videoUrl.toLowerCase().includes('.mp4') || 
-                                  videoUrl.toLowerCase().includes('.webm') || 
-                                  videoUrl.toLowerCase().includes('.ogg') || 
-                                  videoUrl.toLowerCase().includes('.mov') || 
-                                  videoUrl.toLowerCase().includes('.m4v');
+            const isDirectVideo = isLocal || isDrive || isCloudinary ||
+                                  transformedUrl.toLowerCase().includes('.mp4') || 
+                                  transformedUrl.toLowerCase().includes('.webm') || 
+                                  transformedUrl.toLowerCase().includes('.ogg') || 
+                                  transformedUrl.toLowerCase().includes('.mov') || 
+                                  transformedUrl.toLowerCase().includes('.m4v');
 
-            // If it is an embed URL (Cloudinary, YouTube, Vimeo, etc.), or if stream failed, use iframe
-            if ((isEmbed || (videoPlayFailed && !isLocal && !isDrive)) && !isDirectVideo) {
+            // If it is an embed URL (YouTube, Vimeo, etc.), or if stream failed, use iframe
+            if ((isEmbed || (videoPlayFailed && !isLocal && !isDrive && !isCloudinary)) && !isDirectVideo) {
               const fallbackUrl = (isEmbed || isDrive) ? videoUrl : defaultCloudinary;
               const isFallbackDrive = fallbackUrl.includes('drive.google.com') || fallbackUrl.includes('docs.google.com');
-              const isYouTube = fallbackUrl.includes('youtube.com') || fallbackUrl.includes('youtu.be');
               return (
-                <div className="absolute inset-0 w-full h-full overflow-hidden bg-black">
+                <div className="absolute inset-0 w-full h-full overflow-hidden bg-black flex items-center justify-center">
                   <iframe 
                     src={getEmbedUrl(fallbackUrl, true) || undefined} 
-                    className={`absolute inset-0 w-full h-full border-none ${isFallbackDrive ? 'pointer-events-auto' : 'pointer-events-none'} animate-fade-in`}
+                    className={`absolute border-none ${isFallbackDrive ? 'pointer-events-auto' : 'pointer-events-none'} animate-fade-in`}
                     allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope"
                     style={{ 
                       border: 'none',
-                      width: isYouTube ? '115%' : '100%',
-                      height: isYouTube ? '115%' : '100%',
-                      top: isYouTube ? '-7.5%' : '0',
-                      left: isYouTube ? '-7.5%' : '0'
+                      width: '100vw',
+                      height: '56.25vw',
+                      minWidth: '177.78vh',
+                      minHeight: '100vh',
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%) scale(1.12)',
                     }}
                   />
                 </div>
@@ -3187,9 +3217,9 @@ function LandingPage() {
             // High-performance HTML5 Video tag for direct MP4, stream URLs and Google Drive videos
             // Set high brightness and full color (no grayscale, opacity-100) to remove the dark/black shade overlay!
             return (
-              <div className="absolute inset-0 w-full h-full overflow-hidden bg-black">
+              <div className="absolute inset-0 w-full h-full overflow-hidden bg-black flex items-center justify-center">
                 <video 
-                  key={videoUrl}
+                  key={transformedUrl}
                   ref={(el) => {
                     (videoRef as any).current = el;
                     if (el) {
@@ -3204,12 +3234,20 @@ function LandingPage() {
                       }
                     }
                   }}
-                  src={transformGoogleDriveUrl(videoUrl, 'video') || undefined} 
+                  src={transformedUrl || undefined} 
                   autoPlay 
                   loop 
                   muted 
                   playsInline 
                   preload="auto"
+                  className="w-full h-full object-cover min-w-full min-h-full scale-[1.01] transform-gpu opacity-100 transition-opacity duration-1000 z-0"
+                  style={{
+                    objectFit: 'cover',
+                    width: '100%',
+                    height: '100%',
+                    minWidth: '100%',
+                    minHeight: '100%'
+                  }}
                   onLoadStart={(e) => {
                     const vid = e.currentTarget;
                     vid.defaultMuted = true;
