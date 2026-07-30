@@ -444,24 +444,25 @@ function Hero() {
   const loadHomeHeroConfigs = () => {
     const bgType = localStorage.getItem('home_hero_bg_type') || 'video';
     const bgUrl = localStorage.getItem('home_hero_bg_url') || '';
+    const defaultCloudinary = 'https://player.cloudinary.com/embed/?cloud_name=w37bjaa2&public_id=Final-1_1_agtvix';
     
-    // Migration: Migrate any broken/expired Vimeo, old YouTube, or old Google Drive showreel URL in localStorage to the new Google Drive video
+    // Migration: Migrate any broken/expired Vimeo, old YouTube, or old Google Drive showreel URL in localStorage to the Cloudinary embed video
     const storedShowreel = localStorage.getItem('home_showreel_url');
-    if (!storedShowreel || storedShowreel.includes('371433846') || storedShowreel.includes('EngS8gK6u4I') || storedShowreel.includes('11IhUdtZgucLSQsiqe2OZb08DOhidbTmD')) {
-      localStorage.setItem('home_showreel_url', 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
+    if (!storedShowreel || storedShowreel.includes('371433846') || storedShowreel.includes('EngS8gK6u4I') || storedShowreel.includes('11IhUdtZgucLSQsiqe2OZb08DOhidbTmD') || storedShowreel.includes('1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf')) {
+      localStorage.setItem('home_showreel_url', defaultCloudinary);
     }
     
     // Also migrate the home_hero_bg_url if it was pointing to the old video, or if it is empty, or if we want to ensure the showreel video plays directly
     const storedHeroBgUrl = localStorage.getItem('home_hero_bg_url');
-    if (!storedHeroBgUrl || storedHeroBgUrl.includes('11IhUdtZgucLSQsiqe2OZb08DOhidbTmD') || storedHeroBgUrl.includes('UhTRVjkQZMw') || storedHeroBgUrl.includes('EngS8gK6u4I')) {
-      localStorage.setItem('home_hero_bg_url', 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
+    if (!storedHeroBgUrl || storedHeroBgUrl.includes('11IhUdtZgucLSQsiqe2OZb08DOhidbTmD') || storedHeroBgUrl.includes('UhTRVjkQZMw') || storedHeroBgUrl.includes('EngS8gK6u4I') || storedHeroBgUrl.includes('1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf')) {
+      localStorage.setItem('home_hero_bg_url', defaultCloudinary);
       localStorage.setItem('home_hero_bg_type', 'video');
     }
     
-    const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
+    const savedShowreel = localStorage.getItem('home_showreel_url') || defaultCloudinary;
     
     // If background is video and populated, use it. Otherwise, use stored/default showreel.
-    if (bgType === 'video' && bgUrl) {
+    if (bgType === 'video' && bgUrl && !bgUrl.includes('1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf')) {
       setShowreelUrl(bgUrl);
     } else {
       setShowreelUrl(savedShowreel);
@@ -944,7 +945,7 @@ export const DEFAULT_PARAGRAPH_FRAMES: ParagraphFrameItem[] = [
     id: 'frame1',
     label: 'Frame 1 (KODAK Film Slide)',
     type: 'video',
-    url: 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing'
+    url: 'https://player.cloudinary.com/embed/?cloud_name=w37bjaa2&public_id=Final-1_1_agtvix'
   },
   {
     id: 'frame2',
@@ -2577,6 +2578,7 @@ export const isEmbedUrl = (url: string) => {
   return (
     lowercase.includes('iframe') ||
     lowercase.includes('embed') ||
+    lowercase.includes('cloudinary') ||
     lowercase.includes('cloudflarestream.com') ||
     lowercase.includes('player.vimeo.com') ||
     lowercase.includes('vimeo.com') ||
@@ -2589,6 +2591,26 @@ export const isEmbedUrl = (url: string) => {
 export const getEmbedUrl = (url: string, asBackground = true) => {
   if (!url) return '';
   try {
+    if (url.includes('cloudinary.com') || url.includes('cloudinary')) {
+      const urlObj = new URL(url);
+      if (asBackground) {
+        urlObj.searchParams.set('autoplay', 'true');
+        urlObj.searchParams.set('loop', 'true');
+        urlObj.searchParams.set('muted', 'true');
+        urlObj.searchParams.set('controls', 'false');
+        urlObj.searchParams.set('player[autoplay]', 'true');
+        urlObj.searchParams.set('player[loop]', 'true');
+        urlObj.searchParams.set('player[muted]', 'true');
+        urlObj.searchParams.set('player[controls]', 'false');
+        urlObj.searchParams.set('playsinline', 'true');
+      } else {
+        urlObj.searchParams.set('autoplay', 'true');
+        urlObj.searchParams.set('controls', 'true');
+        urlObj.searchParams.set('player[autoplay]', 'true');
+        urlObj.searchParams.set('player[controls]', 'true');
+      }
+      return urlObj.toString();
+    }
     if (url.includes('instagram.com')) {
       // Instagram URL can be like: https://www.instagram.com/p/C-h9D7Iy9Xm/ or https://www.instagram.com/reel/C-h9D7Iy9Xm/
       // The embed format is https://www.instagram.com/p/C-h9D7Iy9Xm/embed/ or https://www.instagram.com/reel/C-h9D7Iy9Xm/embed/
@@ -2717,7 +2739,13 @@ function LandingPage() {
   const heroImgOpacity = useTransform(scrollY, [0, 800], [1, 0]);
 
   const [backdropType, setBackdropType] = useState<'image' | 'video'>('video');
-  const [backdropUrl, setBackdropUrl] = useState(() => localStorage.getItem('home_showreel_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
+  const [backdropUrl, setBackdropUrl] = useState(() => {
+    const saved = localStorage.getItem('home_hero_bg_url') || localStorage.getItem('home_showreel_url');
+    if (!saved || saved.includes('1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf')) {
+      return 'https://player.cloudinary.com/embed/?cloud_name=w37bjaa2&public_id=Final-1_1_agtvix';
+    }
+    return saved;
+  });
   const [videoPlayFailed, setVideoPlayFailed] = useState(false);
   const [videoStarted, setVideoStarted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -2729,15 +2757,17 @@ function LandingPage() {
   }, [backdropUrl]);
 
   useEffect(() => {
+    // Force immediate autoplay on videoRef if present
     if (videoRef.current) {
       videoRef.current.defaultMuted = true;
       videoRef.current.muted = true;
+      videoRef.current.playsInline = true;
       videoRef.current.play()
         .then(() => {
           setVideoStarted(true);
         })
         .catch(err => {
-          console.warn("Autoplay was blocked or video play failed:", err);
+          console.warn("Autoplay attempt in useEffect was blocked or failed:", err);
         });
     }
   }, [backdropUrl, videoPlayFailed]);
@@ -3030,9 +3060,15 @@ function LandingPage() {
     const bgUrl = localStorage.getItem('home_hero_bg_url') || '';
     setBackdropType(bgType);
     
-    const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
+    const defaultCloudinary = 'https://player.cloudinary.com/embed/?cloud_name=w37bjaa2&public_id=Final-1_1_agtvix';
+    const savedShowreel = localStorage.getItem('home_showreel_url') || defaultCloudinary;
     if (bgType === 'video') {
-      setBackdropUrl(bgUrl || savedShowreel);
+      const active = bgUrl || savedShowreel;
+      if (!active || active.includes('1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf')) {
+        setBackdropUrl(defaultCloudinary);
+      } else {
+        setBackdropUrl(active);
+      }
     } else {
       setBackdropUrl(bgUrl || 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=2000');
     }
@@ -3113,8 +3149,9 @@ function LandingPage() {
               />
             </div>
           ) : (() => {
-            const videoUrl = backdropUrl || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
-            const isEmbed = videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be') || videoUrl.includes('vimeo.com');
+            const defaultCloudinary = 'https://player.cloudinary.com/embed/?cloud_name=w37bjaa2&public_id=Final-1_1_agtvix';
+            const videoUrl = backdropUrl || defaultCloudinary;
+            const isEmbed = isEmbedUrl(videoUrl);
             const isDrive = videoUrl.includes('drive.google.com') || videoUrl.includes('docs.google.com');
             const isLocal = videoUrl.startsWith('/') || videoUrl.includes('/uploads/') || videoUrl.includes('video-');
             const isDirectVideo = isLocal || isDrive ||
@@ -3124,18 +3161,17 @@ function LandingPage() {
                                   videoUrl.toLowerCase().includes('.mov') || 
                                   videoUrl.toLowerCase().includes('.m4v');
 
-            // If it is YouTube/Vimeo, or if Google Drive stream failed, we can use an iframe to let it play.
-            // But if it is a direct/local video file, we should NEVER fall back to iframe!
+            // If it is an embed URL (Cloudinary, YouTube, Vimeo, etc.), or if stream failed, use iframe
             if ((isEmbed || (videoPlayFailed && !isLocal && !isDrive)) && !isDirectVideo) {
-              const fallbackUrl = (isEmbed || isDrive) ? videoUrl : 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
+              const fallbackUrl = (isEmbed || isDrive) ? videoUrl : defaultCloudinary;
               const isFallbackDrive = fallbackUrl.includes('drive.google.com') || fallbackUrl.includes('docs.google.com');
               const isYouTube = fallbackUrl.includes('youtube.com') || fallbackUrl.includes('youtu.be');
               return (
                 <div className="absolute inset-0 w-full h-full overflow-hidden bg-black">
                   <iframe 
                     src={getEmbedUrl(fallbackUrl, true) || undefined} 
-                    className={`absolute ${isFallbackDrive ? 'pointer-events-auto' : 'pointer-events-none'} animate-fade-in`}
-                    allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+                    className={`absolute inset-0 w-full h-full border-none ${isFallbackDrive ? 'pointer-events-auto' : 'pointer-events-none'} animate-fade-in`}
+                    allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope"
                     style={{ 
                       border: 'none',
                       width: isYouTube ? '115%' : '100%',
@@ -3154,25 +3190,50 @@ function LandingPage() {
               <div className="absolute inset-0 w-full h-full overflow-hidden bg-black">
                 <video 
                   key={videoUrl}
-                  ref={videoRef}
+                  ref={(el) => {
+                    (videoRef as any).current = el;
+                    if (el) {
+                      el.defaultMuted = true;
+                      el.muted = true;
+                      el.playsInline = true;
+                      if (el.paused) {
+                        const playPromise = el.play();
+                        if (playPromise !== undefined) {
+                          playPromise.then(() => setVideoStarted(true)).catch(() => {});
+                        }
+                      }
+                    }
+                  }}
                   src={transformGoogleDriveUrl(videoUrl, 'video') || undefined} 
-                  poster={getMobileBackdropUrl() || 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=2000'}
                   autoPlay 
                   loop 
                   muted 
                   playsInline 
                   preload="auto"
+                  onLoadStart={(e) => {
+                    const vid = e.currentTarget;
+                    vid.defaultMuted = true;
+                    vid.muted = true;
+                    vid.playsInline = true;
+                    if (vid.paused) {
+                      vid.play().then(() => setVideoStarted(true)).catch(() => {});
+                    }
+                  }}
                   onPlaying={() => {
                     console.log("Video started playing successfully!");
                     setVideoStarted(true);
                   }}
                   onTimeUpdate={(e) => {
-                    if (e.currentTarget.currentTime > 0.1) {
+                    if (e.currentTarget.currentTime > 0.05) {
                       setVideoStarted(true);
                     }
                   }}
                   onCanPlay={(e) => {
-                    e.currentTarget.play()
+                    const vid = e.currentTarget;
+                    vid.defaultMuted = true;
+                    vid.muted = true;
+                    vid.playsInline = true;
+                    vid.play()
                       .then(() => {
                         setVideoStarted(true);
                       })
@@ -3180,8 +3241,23 @@ function LandingPage() {
                         console.warn("Autoplay failed onCanPlay:", err);
                       });
                   }}
+                  onCanPlayThrough={(e) => {
+                    const vid = e.currentTarget;
+                    vid.defaultMuted = true;
+                    vid.muted = true;
+                    vid.playsInline = true;
+                    vid.play()
+                      .then(() => {
+                        setVideoStarted(true);
+                      })
+                      .catch(() => {});
+                  }}
                   onLoadedData={(e) => {
-                    e.currentTarget.play()
+                    const vid = e.currentTarget;
+                    vid.defaultMuted = true;
+                    vid.muted = true;
+                    vid.playsInline = true;
+                    vid.play()
                       .then(() => {
                         setVideoStarted(true);
                       })
@@ -3190,7 +3266,11 @@ function LandingPage() {
                       });
                   }}
                   onLoadedMetadata={(e) => {
-                    e.currentTarget.play()
+                    const vid = e.currentTarget;
+                    vid.defaultMuted = true;
+                    vid.muted = true;
+                    vid.playsInline = true;
+                    vid.play()
                       .then(() => {
                         setVideoStarted(true);
                       })
@@ -4267,20 +4347,21 @@ export function ShowreelPage() {
   }, []);
 
   useEffect(() => {
+    const defaultCloudinary = 'https://player.cloudinary.com/embed/?cloud_name=w37bjaa2&public_id=Final-1_1_agtvix';
     const bgType = localStorage.getItem('home_hero_bg_type') || 'video';
     const bgUrl = localStorage.getItem('home_hero_bg_url') || '';
     
-    // Migrate any broken/expired Vimeo, old YouTube, or old Google Drive showreel URL in localStorage to the Google Drive video
+    // Migrate any broken/expired Vimeo, old YouTube, or old Google Drive showreel URL in localStorage to Cloudinary video
     const storedShowreel = localStorage.getItem('home_showreel_url');
-    if (!storedShowreel || storedShowreel.includes('371433846') || storedShowreel.includes('EngS8gK6u4I') || storedShowreel.includes('UhTRVjkQZMw') || storedShowreel.includes('11IhUdtZgucLSQsiqe2OZb08DOhidbTmD')) {
-      localStorage.setItem('home_showreel_url', 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
+    if (!storedShowreel || storedShowreel.includes('371433846') || storedShowreel.includes('EngS8gK6u4I') || storedShowreel.includes('UhTRVjkQZMw') || storedShowreel.includes('11IhUdtZgucLSQsiqe2OZb08DOhidbTmD') || storedShowreel.includes('1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf')) {
+      localStorage.setItem('home_showreel_url', defaultCloudinary);
     }
 
-    const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
+    const savedShowreel = localStorage.getItem('home_showreel_url') || defaultCloudinary;
     
     // Play backdrop video or fallback to configured showreel if background is photo
     let activeUrl = savedShowreel;
-    if (bgType === 'video' && bgUrl) {
+    if (bgType === 'video' && bgUrl && !bgUrl.includes('1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf')) {
       activeUrl = bgUrl;
     }
     setVideoUrl(activeUrl);

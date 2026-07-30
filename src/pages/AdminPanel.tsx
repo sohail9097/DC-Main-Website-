@@ -259,8 +259,8 @@ const AdminPanel: FC = () => {
         fetchLocalVideos();
         const deletedUrl = `/uploads/${filename}`;
         if (homeHeroBgUrl === deletedUrl) {
-          setHomeHeroBgUrl('https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
-          setHomeShowreelUrl('https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
+          setHomeHeroBgUrl('https://player.cloudinary.com/embed/?cloud_name=w37bjaa2&public_id=Final-1_1_agtvix');
+          setHomeShowreelUrl('https://player.cloudinary.com/embed/?cloud_name=w37bjaa2&public_id=Final-1_1_agtvix');
         }
       }
     } catch (err) {
@@ -766,7 +766,7 @@ const AdminPanel: FC = () => {
     const savedHeroBgImageUrl = localStorage.getItem('home_hero_bg_image_url') || 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071';
     setHomeHeroBgImageUrl(savedHeroBgImageUrl);
 
-    const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing';
+    const savedShowreel = localStorage.getItem('home_showreel_url') || 'https://player.cloudinary.com/embed/?cloud_name=w37bjaa2&public_id=Final-1_1_agtvix';
     setHomeShowreelUrl(savedShowreel);
 
     setHomeTitle1Line1(localStorage.getItem('home_title1_l1') || 'VISUAL');
@@ -1373,7 +1373,7 @@ const AdminPanel: FC = () => {
       setHomeHeroBgType('video');
       setHomeHeroBgUrl('');
       setHomeHeroBgImageUrl('');
-      setHomeShowreelUrl('https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
+      setHomeShowreelUrl('https://player.cloudinary.com/embed/?cloud_name=w37bjaa2&public_id=Final-1_1_agtvix');
       setHomeTitle1Line1('VISUAL');
       setHomeTitle1Line2('POETRY');
       setHomeTitle2Line1('CINEMATIC');
