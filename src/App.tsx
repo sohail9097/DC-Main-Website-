@@ -659,7 +659,7 @@ function Clients() {
   return (
     <section 
       id="clients" 
-      className="pt-12 md:pt-16 lg:pt-20 xl:pt-24 pb-8 md:pb-12 bg-transparent overflow-hidden relative snap-start snap-always" 
+      className="pt-12 md:pt-16 lg:pt-20 xl:pt-24 pb-8 md:pb-12 bg-transparent overflow-hidden relative" 
       ref={containerRef}
     >
       <div className="max-w-[1600px] mx-auto px-6 md:px-16 flex flex-col items-start relative z-20">
@@ -1916,7 +1916,7 @@ export function InteractiveOptions() {
   ];
 
   return (
-    <section className="bg-transparent border-t border-white/5 snap-start snap-always">
+    <section className="bg-transparent border-t border-white/5">
       <div className="flex flex-col">
         {options.map((option) => (
           <motion.div
@@ -3353,12 +3353,12 @@ function LandingPage() {
       <Navbar />
       <main className="relative">
         <Hero />
-        <div className="h-screen pointer-events-none snap-start snap-always" /> {/* Spacer for fixed hero */}
+        <div className="h-screen pointer-events-none" /> {/* Spacer for fixed hero */}
         
         <div className="relative z-10">
           <CinematicSlideshow />
           <Clients />
-          <section id="about" className="py-12 md:py-24 relative overflow-hidden bg-black snap-start snap-always">
+          <section id="about" className="py-12 md:py-24 relative overflow-hidden bg-black">
             {/* Background cinematic grid light glow */}
             <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-[120px] pointer-events-none" />
             

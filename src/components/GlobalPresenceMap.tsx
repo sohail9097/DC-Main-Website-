@@ -192,7 +192,7 @@ export default function GlobalPresenceMap() {
   const activeLoc = locations.find(loc => loc.id === activeId) || locations[0];
 
   return (
-    <section id="office-presence" className="w-full bg-black border-t border-zinc-900 py-24 relative overflow-hidden snap-start snap-always">
+    <section id="office-presence" className="w-full bg-black border-t border-zinc-900 py-24 relative overflow-hidden">
       {/* Background radial highlight */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[500px] bg-orange-500/[0.04] rounded-full blur-[180px] pointer-events-none" />
       

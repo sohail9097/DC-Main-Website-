@@ -77,6 +77,19 @@ body {
   animation: pulse-glow 4s ease-in-out infinite;
 }
 
+/* Enable smooth touch momentum scrolling on mobile WebKit browsers */
+html, body {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+@media (max-width: 767px) {
+  /* Prevent mandatory scroll snapping from interrupting smooth touch drag momentum on mobile */
+  html, body, section, div {
+    scroll-snap-stop: normal !important;
+  }
+}
+
 /* Hide scrollbars globally across the entire website */
 html, body, * {
   -ms-overflow-style: none !important;  /* IE and Edge */

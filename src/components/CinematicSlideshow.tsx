@@ -119,12 +119,15 @@ export const CinematicSlideshow: FC = memo(() => {
   const [slides, setSlides] = useState<CinematicSlide[]>(DEFAULT_SLIDES);
   const [activeIndex, setActiveIndex] = useState(0);
   const [heightMultiplier, setHeightMultiplier] = useState(180);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Responsive height multiplier to make sliding view faster in mobile view
   useEffect(() => {
     const updateMultiplier = () => {
-      if (window.innerWidth < 768) {
-        setHeightMultiplier(110); // significantly faster scrolling on mobile (110vh per slide instead of 180vh)
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setHeightMultiplier(100); // 100vh per slide for direct 1:1 scroll feel on mobile
       } else {
         setHeightMultiplier(180);
       }
@@ -140,12 +143,14 @@ export const CinematicSlideshow: FC = memo(() => {
     offset: ['start start', 'end end']
   });
 
-  // Create a beautiful, physics-based smooth scroll progress to remove scroll jitter
+  // Create a physics-based smooth scroll progress for desktop, while mobile uses direct scrollYProgress to prevent touch spring jerks
   const smoothScrollYProgress = useSpring(scrollYProgress, {
-    stiffness: heightMultiplier < 150 ? 110 : 65, // Snappier spring on mobile for faster feedback
-    damping: heightMultiplier < 150 ? 24 : 28,
+    stiffness: 75,
+    damping: 28,
     restDelta: 0.0001
   });
+
+  const progressToUse = isMobile ? scrollYProgress : smoothScrollYProgress;
 
   // Keep tracking current active indices
   useEffect(() => {
@@ -155,9 +160,9 @@ export const CinematicSlideshow: FC = memo(() => {
       setActiveIndex(Math.min((slides.length || 1) - 1, Math.max(0, idx)));
     };
 
-    const unsubscribe = smoothScrollYProgress.on('change', handleScrollUpdate);
+    const unsubscribe = progressToUse.on('change', handleScrollUpdate);
     return () => unsubscribe();
-  }, [smoothScrollYProgress, slides.length]);
+  }, [progressToUse, slides.length]);
 
   // Load slides config from localStorage to ensure perfect admin customization sync
   useEffect(() => {
@@ -269,7 +274,7 @@ export const CinematicSlideshow: FC = memo(() => {
               }
             }
 
-            const y = useTransform(smoothScrollYProgress, yRange, yOutput);
+            const y = useTransform(progressToUse, yRange, yOutput);
             const zIndex = idx + 1;
 
             // Background image stays stable and flat during slide shifts
@@ -282,7 +287,7 @@ export const CinematicSlideshow: FC = memo(() => {
               // First slide starts active at 0vh, then scrolls up smoothly with its slide and subtle parallax
               const keys = [0, outgoingEnd, 1];
               textY = useTransform(
-                smoothScrollYProgress,
+                progressToUse,
                 keys,
                 ["0vh", "-100vh", "-100vh"]
               );
@@ -290,7 +295,7 @@ export const CinematicSlideshow: FC = memo(() => {
               // Last slide's text starts active relative to its rising container to slide in 1:1
               const keys = [0, 1];
               textY = useTransform(
-                smoothScrollYProgress,
+                progressToUse,
                 keys,
                 ["0vh", "0vh"]
               );
@@ -301,14 +306,14 @@ export const CinematicSlideshow: FC = memo(() => {
                 if (outgoingEnd >= 0.999) {
                   const keys = [0, incomingEnd, 1];
                   textY = useTransform(
-                    smoothScrollYProgress,
+                    progressToUse,
                     keys,
                     ["0vh", "0vh", "-100vh"]
                   );
                 } else {
                   const keys = [0, incomingEnd, outgoingEnd, 1];
                   textY = useTransform(
-                    smoothScrollYProgress,
+                    progressToUse,
                     keys,
                     ["0vh", "0vh", "-100vh", "-100vh"]
                   );
@@ -317,14 +322,14 @@ export const CinematicSlideshow: FC = memo(() => {
                 if (outgoingEnd >= 0.999) {
                   const keys = [0, incomingStart, incomingEnd, 1];
                   textY = useTransform(
-                    smoothScrollYProgress,
+                    progressToUse,
                     keys,
                     ["0vh", "0vh", "0vh", "-100vh"]
                   );
                 } else {
                   const keys = [0, incomingStart, incomingEnd, outgoingEnd, 1];
                   textY = useTransform(
-                    smoothScrollYProgress,
+                    progressToUse,
                     keys,
                     ["0vh", "0vh", "0vh", "-100vh", "-100vh"]
                   );
@@ -336,7 +341,7 @@ export const CinematicSlideshow: FC = memo(() => {
               <motion.div
                 key={slide.id}
                 style={{ y, zIndex }}
-                className="absolute inset-0 w-full h-full flex items-center justify-center overflow-hidden bg-black"
+                className="absolute inset-0 w-full h-full flex items-center justify-center overflow-hidden bg-black transform-gpu"
               >
                 {/* Background Image without visual scaling gaps */}
                 <div className="absolute inset-0 w-full h-full pb-0">
