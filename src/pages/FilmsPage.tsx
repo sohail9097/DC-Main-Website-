@@ -532,16 +532,20 @@ const FilmsPage = () => {
                             src={transformGoogleDriveUrl(film.img)} 
                             alt={film.title} 
                             loading="lazy"
+                            decoding="async"
                             referrerPolicy="no-referrer"
-                            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                            onLoad={(e) => {
+                              (e.currentTarget as HTMLElement).style.opacity = '1';
+                            }}
+                            className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105 opacity-0"
                           />
 
                           {/* Subtle spotlight backdrop override on hover */}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent group-hover:via-black/30 duration-500 transition-all pointer-events-none" />
 
-                          {/* Category badge heading overlay inside each video card frame */}
+                          {/* Category badge heading overlay inside each video card frame (Desktop view only) */}
                           {film.category && (
-                            <div className="absolute top-1.5 left-1.5 xs:top-3 xs:left-3 md:top-5 md:left-5 z-20">
+                            <div className="hidden md:block absolute top-1.5 left-1.5 xs:top-3 xs:left-3 md:top-5 md:left-5 z-20">
                               <span className="px-1.5 py-0.5 xs:px-2.5 xs:py-1 md:px-3.5 md:py-1 text-[6px] xs:text-[9px] md:text-[11px] font-medium font-bebas tracking-[0.16em] uppercase rounded-full bg-black/95 text-white backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.5)] border border-orange-500/40">
                                 {normalizeCategoryName(film.category)}
                               </span>

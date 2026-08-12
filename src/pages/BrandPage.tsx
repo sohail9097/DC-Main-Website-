@@ -65,21 +65,25 @@ const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
 };
 
 const AnimatedCounter: FC<{ target: number; suffix?: string; duration?: number }> = ({ target, suffix = '', duration }) => {
-  const countMotion = useMotionValue(0);
-  const rounded = useTransform(countMotion, Math.round);
   const elementRef = useRef<HTMLSpanElement>(null);
+  const countMotion = useMotionValue(0);
 
   useEffect(() => {
     let observer: IntersectionObserver | null = null;
     let controls: any = null;
 
     const startCounting = () => {
-      // Proportional duration: smaller numbers finish faster so they don't stutter, larger numbers have more time.
-      const animDuration = duration || Math.max(1.2, Math.min(2.2, target * 0.04 + 0.8));
-      
+      // Calculate smooth duration based on target size (e.g. 8 => 0.9s, 15 => 1.1s, 50 => 1.4s)
+      const animDuration = duration || Math.max(0.9, Math.min(1.6, Math.sqrt(target) * 0.18 + 0.4));
+
       controls = animate(countMotion, target, {
         duration: animDuration,
-        ease: [0.16, 1, 0.3, 1], // easeOutExpo
+        ease: [0.22, 1, 0.36, 1], // Smooth cubic-bezier easeOut
+        onUpdate: (latest) => {
+          if (elementRef.current) {
+            elementRef.current.textContent = `${Math.round(latest)}${suffix}`;
+          }
+        }
       });
     };
 
@@ -102,12 +106,11 @@ const AnimatedCounter: FC<{ target: number; suffix?: string; duration?: number }
       if (controls) controls.stop();
       if (observer) observer.disconnect();
     };
-  }, [target, duration, countMotion]);
+  }, [target, suffix, duration, countMotion]);
 
   return (
-    <span ref={elementRef} className="tabular-nums inline-flex items-center">
-      <motion.span>{rounded}</motion.span>
-      {suffix}
+    <span ref={elementRef} className="tabular-nums font-mono tracking-tight inline-block">
+      0{suffix}
     </span>
   );
 };
@@ -134,8 +137,13 @@ const BrandCardLogo: FC<{ brand: BrandItem }> = ({ brand }) => {
       <img
         src={transformGoogleDriveUrl(brand.logoUrl)}
         alt={brand.name}
-        className="max-w-[95%] max-h-[95%] object-contain"
+        loading="lazy"
+        decoding="async"
+        className="max-w-[95%] max-h-[95%] object-contain transition-opacity duration-300 opacity-0"
         referrerPolicy="no-referrer"
+        onLoad={(e) => {
+          (e.currentTarget as HTMLElement).style.opacity = '1';
+        }}
         onError={() => setImgError(true)}
       />
     );

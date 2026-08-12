@@ -239,9 +239,33 @@ export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = '
         // Direct stream via server proxy for high-performance chunking, range support, and bypass CORS/Auth limits
         return `/api/drive-stream?id=${fileId}`;
       }
-      return `https://lh3.googleusercontent.com/d/${fileId}`;
+      return `https://lh3.googleusercontent.com/d/${fileId}=w1200`;
     }
   }
+
+  // Optimize direct lh3.googleusercontent.com links
+  if (trimmed.includes('lh3.googleusercontent.com/d/')) {
+    if (type === 'image' && !trimmed.includes('=w') && !trimmed.includes('=s') && !trimmed.includes('=h')) {
+      return `${trimmed}=w1200`;
+    }
+    return trimmed;
+  }
+
+  // Unsplash image performance optimization
+  if (type === 'image' && trimmed.includes('images.unsplash.com')) {
+    if (!trimmed.includes('auto=format')) {
+      const separator = trimmed.includes('?') ? '&' : '?';
+      return `${trimmed}${separator}auto=format&fit=crop&q=80&w=1200`;
+    }
+  }
+
+  // Cloudinary image performance optimization
+  if (type === 'image' && trimmed.includes('cloudinary.com') && trimmed.includes('/image/upload/')) {
+    if (!trimmed.includes('f_auto') && !trimmed.includes('q_auto')) {
+      return trimmed.replace('/image/upload/', '/image/upload/f_auto,q_auto,w_1200/');
+    }
+  }
+
   return trimmed;
 }
 
@@ -1341,8 +1365,13 @@ function DreamTeam() {
                         <img 
                           src={transformGoogleDriveUrl(member.image, 'image')} 
                           alt={member.name} 
-                          className="w-full h-full object-cover pointer-events-none select-none rounded-none"
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full h-full object-cover pointer-events-none select-none rounded-none transition-opacity duration-500 opacity-0"
                           referrerPolicy="no-referrer"
+                          onLoad={(e) => {
+                            (e.currentTarget as HTMLElement).style.opacity = '1';
+                          }}
                         />
                       )}
                       

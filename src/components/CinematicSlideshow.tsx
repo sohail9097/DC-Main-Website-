@@ -222,8 +222,11 @@ export const CinematicSlideshow: FC = memo(() => {
         if (isVideoUrl(url)) {
           return `/api/drive-stream?id=${fileId}`;
         }
-        return `https://lh3.googleusercontent.com/d/${fileId}`;
+        return `https://lh3.googleusercontent.com/d/${fileId}=w1200`;
       }
+    }
+    if (url.includes('lh3.googleusercontent.com/d/') && !url.includes('=w') && !url.includes('=s')) {
+      return `${url}=w1200`;
     }
     return url;
   };

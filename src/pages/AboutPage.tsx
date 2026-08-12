@@ -116,21 +116,24 @@ const parseStatValue = (valStr: string) => {
 
 const AnimatedCounter: FC<{ value: string }> = ({ value }) => {
   const { target, suffix } = parseStatValue(value);
-  const countMotion = useMotionValue(0);
-  const rounded = useTransform(countMotion, Math.round);
   const elementRef = useRef<HTMLSpanElement>(null);
+  const countMotion = useMotionValue(0);
 
   useEffect(() => {
     let observer: IntersectionObserver | null = null;
     let controls: any = null;
 
     const startCounting = () => {
-      // Smooth out duration based on the value to ensure it feels rhythmic and satisfying
-      const animDuration = Math.max(1.2, Math.min(2.2, target * 0.003 + 1.2));
+      const animDuration = Math.max(0.9, Math.min(1.6, Math.sqrt(target) * 0.18 + 0.4));
       
       controls = animate(countMotion, target, {
         duration: animDuration,
-        ease: [0.16, 1, 0.3, 1], // easeOutExpo
+        ease: [0.22, 1, 0.36, 1], // Smooth cubic-bezier easeOut
+        onUpdate: (latest) => {
+          if (elementRef.current) {
+            elementRef.current.textContent = `${Math.round(latest)}${suffix}`;
+          }
+        }
       });
     };
 
@@ -153,12 +156,11 @@ const AnimatedCounter: FC<{ value: string }> = ({ value }) => {
       if (controls) controls.stop();
       if (observer) observer.disconnect();
     };
-  }, [target, countMotion]);
+  }, [target, suffix, countMotion]);
 
   return (
-    <span ref={elementRef} className="tabular-nums inline-flex items-center">
-      <motion.span>{rounded}</motion.span>
-      {suffix}
+    <span ref={elementRef} className="tabular-nums font-mono tracking-tight inline-block">
+      0{suffix}
     </span>
   );
 };
@@ -1087,12 +1089,17 @@ const AboutPage = () => {
                         </div>
 
                         {/* Image Frame - Perfect Square, Zero Rounded Corners */}
-                        <div className="w-full aspect-[3/4] overflow-hidden relative mb-1.5 md:mb-3 z-10 border border-zinc-800 group-hover/card:border-orange-500 transition-colors duration-300 rounded-none bg-zinc-900/40">
+                        <div className="w-full aspect-[3/4] overflow-hidden relative mb-1.5 md:mb-3 z-10 border border-zinc-800 group-hover/card:border-orange-500 transition-colors duration-300 rounded-none bg-zinc-900/60">
                           <img 
                             src={transformGoogleDriveUrl(member.img, 'image')} 
                             alt={member.name} 
+                            loading="lazy"
+                            decoding="async"
                             referrerPolicy="no-referrer"
-                            className="w-full h-full object-cover pointer-events-none transition-transform duration-[1200ms] ease-out group-hover/card:scale-110 rounded-none"
+                            onLoad={(e) => {
+                              (e.currentTarget as HTMLElement).style.opacity = '1';
+                            }}
+                            className="w-full h-full object-cover pointer-events-none transition-all duration-700 ease-out group-hover/card:scale-110 rounded-none opacity-0"
                           />
                           <div className="absolute inset-0 bg-gradient-to-tr from-black/45 via-transparent to-white/10 pointer-events-none" />
                         </div>

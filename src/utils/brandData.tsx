@@ -24,15 +24,43 @@ export interface ClientItem {
 export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = 'image'): string {
   if (!url) return '';
   const trimmed = url.trim();
-  const fileIdRegex = /(?:\/file\/d\/|id=)([^/?#]+)/;
-  const match = trimmed.match(fileIdRegex);
-  if (match && match[1]) {
-    const fileId = match[1];
-    if (type === 'video') {
-      return `/api/drive-stream?id=${fileId}`;
+
+  // Extract file ID from google drive share link if it's a google drive url
+  if (trimmed.includes('drive.google.com') || trimmed.includes('docs.google.com')) {
+    const fileIdRegex = /(?:\/file\/d\/|id=)([^/?#]+)/;
+    const match = trimmed.match(fileIdRegex);
+    if (match && match[1]) {
+      const fileId = match[1];
+      if (type === 'video') {
+        return `/api/drive-stream?id=${fileId}`;
+      }
+      return `https://lh3.googleusercontent.com/d/${fileId}=w1200`;
     }
-    return `https://lh3.googleusercontent.com/d/${fileId}`;
   }
+
+  // Optimize direct lh3.googleusercontent.com links
+  if (trimmed.includes('lh3.googleusercontent.com/d/')) {
+    if (type === 'image' && !trimmed.includes('=w') && !trimmed.includes('=s') && !trimmed.includes('=h')) {
+      return `${trimmed}=w1200`;
+    }
+    return trimmed;
+  }
+
+  // Unsplash image performance optimization
+  if (type === 'image' && trimmed.includes('images.unsplash.com')) {
+    if (!trimmed.includes('auto=format')) {
+      const separator = trimmed.includes('?') ? '&' : '?';
+      return `${trimmed}${separator}auto=format&fit=crop&q=80&w=1200`;
+    }
+  }
+
+  // Cloudinary image performance optimization
+  if (type === 'image' && trimmed.includes('cloudinary.com') && trimmed.includes('/image/upload/')) {
+    if (!trimmed.includes('f_auto') && !trimmed.includes('q_auto')) {
+      return trimmed.replace('/image/upload/', '/image/upload/f_auto,q_auto,w_1200/');
+    }
+  }
+
   return trimmed;
 }
 
