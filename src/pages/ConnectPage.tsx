@@ -240,10 +240,10 @@ export default function ConnectPage() {
 
   // Career open roles list
   const openRoles = useMemo(() => [
-    { id: 'dop', title: 'Director of Photography', category: 'Cinematography', type: 'Full-time', location: 'Mumbai, India' },
-    { id: 'editor', title: 'Senior Film Editor', category: 'Post-Production', type: 'Full-time', location: 'New Delhi, India' },
-    { id: 'vfx', title: 'VFX Artist / Technical Director', category: 'Creative Tech', type: 'Contract', location: 'Remote / Hybrid' },
-    { id: 'producer', title: 'Creative Producer', category: 'Production', type: 'Full-time', location: 'Bengaluru, India' }
+    { id: 'videographer', title: 'Videographer', category: 'Cinematography', type: 'Full-time', location: 'Mumbai, India' },
+    { id: 'video-editor', title: 'Video Editor', category: 'Post-Production', type: 'Full-time', location: 'New Delhi, India' },
+    { id: 'vfx-artist', title: 'VFX Artist', category: 'Creative Tech', type: 'Contract', location: 'Remote / Hybrid' },
+    { id: 'producer', title: 'Producer', category: 'Production', type: 'Full-time', location: 'Bengaluru, India' }
   ], []);
 
   // Handle Brief File Attachment
@@ -1101,7 +1101,7 @@ export default function ConnectPage() {
                                   {role.title}
                                 </option>
                               ))}
-                              <option value="General / Other" className="bg-zinc-950 text-white">General Application / Other</option>
+                              <option value="General Application / Other" className="bg-zinc-950 text-white">General Application / Other</option>
                             </select>
                             <ChevronRight className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-600 pointer-events-none rotate-90" />
                           </div>

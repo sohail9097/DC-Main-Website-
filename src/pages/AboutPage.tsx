@@ -194,10 +194,10 @@ const AboutPage = () => {
   const [emailSent, setEmailSent] = useState(false);
 
   const openRoles = useMemo(() => [
-    { id: 'dop', title: 'Director of Photography', category: 'Cinematography', type: 'Full-time', location: 'Mumbai, India' },
-    { id: 'editor', title: 'Senior Film Editor', category: 'Post-Production', type: 'Full-time', location: 'New Delhi, India' },
-    { id: 'vfx', title: 'VFX Artist / Technical Director', category: 'Creative Tech', type: 'Contract', location: 'Remote / Hybrid' },
-    { id: 'producer', title: 'Creative Producer', category: 'Production', type: 'Full-time', location: 'Bengaluru, India' }
+    { id: 'videographer', title: 'Videographer', category: 'Cinematography', type: 'Full-time', location: 'Mumbai, India' },
+    { id: 'video-editor', title: 'Video Editor', category: 'Post-Production', type: 'Full-time', location: 'New Delhi, India' },
+    { id: 'vfx-artist', title: 'VFX Artist', category: 'Creative Tech', type: 'Contract', location: 'Remote / Hybrid' },
+    { id: 'producer', title: 'Producer', category: 'Production', type: 'Full-time', location: 'Bengaluru, India' }
   ], []);
 
   // Handle Drag & Drop / Selection for Resume
