@@ -326,21 +326,24 @@ export default function ConnectPage() {
       });
 
       // 2. Notify backend to trigger email transmission
-      const emailRes = await fetch('/api/notify-inquiry', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(newInquiry)
-      });
+      try {
+        const emailRes = await fetch('/api/notify-inquiry', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(newInquiry)
+        });
 
-      if (!emailRes.ok) {
-        const emailErr = await emailRes.json().catch(() => ({}));
-        throw new Error(emailErr.error || "Failed to dispatch email notification.");
+        if (emailRes.ok) {
+          const emailSuccess = await emailRes.json();
+          console.log("Inquiry Email status:", emailSuccess);
+        } else {
+          console.warn("Inquiry email notification returned non-OK status");
+        }
+      } catch (emailErr) {
+        console.warn("Email dispatch notice:", emailErr);
       }
-
-      const emailSuccess = await emailRes.json();
-      console.log("Inquiry Email status:", emailSuccess);
 
       // Save to localStorage so Admin panel has immediate local copy
       const existingInquiriesStr = localStorage.getItem('dc_inquiries') || '[]';
@@ -358,6 +361,7 @@ export default function ConnectPage() {
       window.dispatchEvent(new Event('storage_updated_inquiries'));
       
       setInquiryStatus('success');
+      setInquiryFormError('');
       
       setInquiryName('');
       setInquiryEmail('');
@@ -418,6 +422,7 @@ export default function ConnectPage() {
   const handleApplySubmit = async (e: FormEvent) => {
     e.preventDefault();
     setFormError('');
+    setUploadError('');
 
     if (!candidateName.trim() || !candidateEmail.trim() || !candidateRole) {
       setFormError('Please fill in all required fields (Name, Email, Role).');
@@ -433,11 +438,11 @@ export default function ConnectPage() {
 
     try {
       const applicationData = {
-        name: candidateName,
-        email: candidateEmail,
-        phone: candidatePhone,
+        name: candidateName.trim(),
+        email: candidateEmail.trim(),
+        phone: candidatePhone.trim(),
         role: candidateRole,
-        message: candidateMessage,
+        message: candidateMessage.trim(),
         resumeUrl: resumeUrl,
         createdAt: new Date().toISOString()
       };
@@ -449,24 +454,29 @@ export default function ConnectPage() {
       });
 
       // 2. Notify backend to trigger email transmission
-      const emailRes = await fetch('/api/notify-apply', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(applicationData)
-      });
+      try {
+        const emailRes = await fetch('/api/notify-apply', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(applicationData)
+        });
 
-      if (!emailRes.ok) {
-        const emailErr = await emailRes.json().catch(() => ({}));
-        throw new Error(emailErr.error || "Failed to dispatch email notification.");
+        if (emailRes.ok) {
+          const emailSuccess = await emailRes.json();
+          console.log("Email status:", emailSuccess);
+        } else {
+          console.warn("Apply email notification returned non-OK status");
+        }
+      } catch (emailErr) {
+        console.warn("Email dispatch notice:", emailErr);
       }
-
-      const emailSuccess = await emailRes.json();
-      console.log("Email status:", emailSuccess);
       
       // Reset form on success
       setFormStatus('success');
+      setFormError('');
+      setUploadError('');
       setCandidateName('');
       setCandidateEmail('');
       setCandidatePhone('');

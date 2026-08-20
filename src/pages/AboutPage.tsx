@@ -276,27 +276,28 @@ const AboutPage = () => {
       });
 
       // 2. Notify backend to trigger email transmission
-      const emailRes = await fetch('/api/notify-apply', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(applicationData)
-      });
+      try {
+        const emailRes = await fetch('/api/notify-apply', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(applicationData)
+        });
 
-      if (!emailRes.ok) {
-        const emailErr = await emailRes.json().catch(() => ({}));
-        throw new Error(emailErr.error || "Failed to dispatch email notification.");
+        if (emailRes.ok) {
+          const emailSuccess = await emailRes.json();
+          setEmailSent(!!emailSuccess.emailSent);
+          setEmailMessage(emailSuccess.message || 'Your application has been successfully sent!');
+        }
+      } catch (emailErr) {
+        console.warn("Email dispatch notice:", emailErr);
       }
-
-      const emailSuccess = await emailRes.json();
-      console.log("Email status:", emailSuccess);
-      
-      setEmailSent(!!emailSuccess.emailSent);
-      setEmailMessage(emailSuccess.message || 'Your application has been successfully sent!');
 
       // Reset form on success
       setFormStatus('success');
+      setFormError('');
+      setUploadError('');
       setCandidateName('');
       setCandidateEmail('');
       setCandidatePhone('');

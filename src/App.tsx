@@ -1,5 +1,5 @@
 import { motion, AnimatePresence, useScroll, useTransform, useTime } from 'motion/react';
-import { Camera, Play, ChevronLeft, ChevronRight, Menu, X, Rocket, Moon, ShieldCheck, Instagram, Facebook, Youtube, Twitter, ArrowLeft, ArrowRight, Sparkles, Globe, Tv, Heart, Compass, Mail, Phone, MapPin, Send, UploadCloud, Loader2, CheckCircle2, AlertCircle, User, Building, Trash2, Paperclip } from 'lucide-react';
+import { Camera, Play, ChevronLeft, ChevronRight, Menu, X, Rocket, Moon, ShieldCheck, Instagram, Facebook, Youtube, Twitter, Linkedin, ArrowLeft, ArrowRight, Sparkles, Globe, Tv, Heart, Compass, Mail, Phone, MapPin, Send, UploadCloud, Loader2, CheckCircle2, AlertCircle, User, Building, Trash2, Paperclip } from 'lucide-react';
 import React, { useState, useEffect, useRef, FC, memo } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
@@ -2010,6 +2010,7 @@ export function Footer() {
   const [facebook, setFacebook] = useState('#');
   const [youtube, setYoutube] = useState('#');
   const [twitter, setTwitter] = useState('#');
+  const [linkedin, setLinkedin] = useState('#');
   const [contactAddress, setContactAddress] = useState("820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
 
   const loadSocials = () => {
@@ -2017,6 +2018,7 @@ export function Footer() {
     setFacebook(localStorage.getItem('social_facebook') || '#');
     setYoutube(localStorage.getItem('social_youtube') || '#');
     setTwitter(localStorage.getItem('social_twitter') || '#');
+    setLinkedin(localStorage.getItem('social_linkedin') || 'https://www.linkedin.com/company/dreamcatchers-films-pvt-ltd/');
     setContactAddress(localStorage.getItem('contact_address') || "820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
   };
 
@@ -2098,7 +2100,8 @@ export function Footer() {
               {[
                 { name: 'Youtube', icon: <Youtube size={26} />, color: 'hover:text-[#FF0000]', url: youtube },
                 { name: 'Instagram', icon: <Instagram size={26} />, color: 'hover:text-[#E4405F]', url: instagram },
-                { name: 'Facebook', icon: <Facebook size={26} />, color: 'hover:text-[#1877F2]', url: facebook }
+                { name: 'Facebook', icon: <Facebook size={26} />, color: 'hover:text-[#1877F2]', url: facebook },
+                { name: 'LinkedIn', icon: <Linkedin size={26} />, color: 'hover:text-[#0A66C2]', url: linkedin }
               ].map(social => (
                 <a 
                   key={social.name} 
@@ -3362,7 +3365,6 @@ function LandingPage() {
                       setVideoPlayFailed(true);
                     }
                   }}
-                  className="absolute inset-0 w-full h-full object-cover opacity-100 transition-opacity duration-1000 z-0"
                 />
               </div>
             );

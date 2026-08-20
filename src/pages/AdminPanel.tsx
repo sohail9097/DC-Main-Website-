@@ -707,6 +707,7 @@ const AdminPanel: FC = () => {
   const [socialFacebook, setSocialFacebook] = useState('#');
   const [socialYoutube, setSocialYoutube] = useState('#');
   const [socialTwitter, setSocialTwitter] = useState('#');
+  const [socialLinkedin, setSocialLinkedin] = useState('#');
 
   // Operational locations state variables
   const [locations, setLocations] = useState<OperationalLocation[]>([]);
@@ -925,6 +926,7 @@ const AdminPanel: FC = () => {
     setSocialFacebook(localStorage.getItem('social_facebook') || '#');
     setSocialYoutube(localStorage.getItem('social_youtube') || '#');
     setSocialTwitter(localStorage.getItem('social_twitter') || '#');
+    setSocialLinkedin(localStorage.getItem('social_linkedin') || 'https://www.linkedin.com/company/dreamcatchers-films-pvt-ltd/');
 
     // Load Operational Locations
     const storedLocs = localStorage.getItem('dc_locations');
@@ -1660,6 +1662,7 @@ const AdminPanel: FC = () => {
     localStorage.setItem('social_facebook', socialFacebook);
     localStorage.setItem('social_youtube', socialYoutube);
     localStorage.setItem('social_twitter', socialTwitter);
+    localStorage.setItem('social_linkedin', socialLinkedin);
 
     window.dispatchEvent(new Event('storage_updated_contact'));
     window.dispatchEvent(new Event('storage_updated_socials'));
@@ -1687,6 +1690,7 @@ const AdminPanel: FC = () => {
       setSocialFacebook('#');
       setSocialYoutube('#');
       setSocialTwitter('#');
+      setSocialLinkedin('https://www.linkedin.com/company/dreamcatchers-films-pvt-ltd/');
 
       localStorage.removeItem('contact_title_first');
       localStorage.removeItem('contact_title_orange');
@@ -1707,6 +1711,7 @@ const AdminPanel: FC = () => {
       localStorage.removeItem('social_facebook');
       localStorage.removeItem('social_youtube');
       localStorage.removeItem('social_twitter');
+      localStorage.removeItem('social_linkedin');
 
       window.dispatchEvent(new Event('storage_updated_contact'));
       window.dispatchEvent(new Event('storage_updated_socials'));
@@ -5474,6 +5479,16 @@ const AdminPanel: FC = () => {
                     value={socialTwitter}
                     onChange={(e) => setSocialTwitter(e.target.value)}
                     placeholder="e.g. https://twitter.com/dreamcatchers"
+                    className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-zinc-400 font-bold mb-2">LinkedIn Link</label>
+                  <input
+                    type="text"
+                    value={socialLinkedin}
+                    onChange={(e) => setSocialLinkedin(e.target.value)}
+                    placeholder="e.g. https://linkedin.com/company/dreamcatchers"
                     className="w-full bg-black border border-white/10 focus:border-orange-500/50 outline-none rounded-xl px-4 py-3 text-sm text-white font-mono"
                   />
                 </div>

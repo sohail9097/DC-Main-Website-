@@ -13,6 +13,17 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
+  // CORS middleware to support iframe preview and cross-origin calls
+  app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    if (req.method === "OPTIONS") {
+      return res.sendStatus(200);
+    }
+    next();
+  });
+
   // Ensure uploads directory exists at root level
   const uploadsDir = path.join(process.cwd(), "uploads");
   if (!fs.existsSync(uploadsDir)) {
@@ -36,6 +47,46 @@ async function startServer() {
 
   // Serve uploads statically as a fallback
   app.use("/uploads", express.static(uploadsDir));
+
+  // High-reliability Base64 upload endpoint (bypasses all multipart & reverse proxy issues)
+  app.post("/api/upload-base64", express.json({ limit: "25mb" }), (req, res) => {
+    try {
+      const { dataUrl, filename, fileType } = req.body;
+      if (!dataUrl || !filename) {
+        return res.status(400).json({ error: "Missing dataUrl or filename" });
+      }
+
+      const matches = dataUrl.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+      let buffer: Buffer;
+      if (matches && matches.length === 3) {
+        buffer = Buffer.from(matches[2], "base64");
+      } else {
+        buffer = Buffer.from(dataUrl, "base64");
+      }
+
+      const sanitizedExt = path.extname(filename).toLowerCase() || ".pdf";
+      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+      let prefix = "doc-";
+      if (fileType === "resume") prefix = "resume-";
+      else if (fileType === "brief") prefix = "brief-";
+      else if (fileType === "contactImage") prefix = "contact-img-";
+      
+      const finalFilename = `${prefix}${uniqueSuffix}${sanitizedExt}`;
+      const finalPath = path.join(uploadsDir, finalFilename);
+
+      fs.writeFileSync(finalPath, buffer);
+
+      res.json({
+        url: `/uploads/${finalFilename}`,
+        filename: finalFilename,
+        originalname: filename,
+        size: buffer.length
+      });
+    } catch (err: any) {
+      console.error("[Base64 Upload Error]:", err);
+      res.status(500).json({ error: `Failed to save base64 file: ${err.message}` });
+    }
+  });
 
   // Configure multer storage for secure video uploads
   const storage = multer.diskStorage({
@@ -252,11 +303,11 @@ async function startServer() {
       return res.status(400).json({ error: "Position Applied For is required." });
     }
 
-    // Rate limiting to prevent spam (max 5 submissions per 15 minutes per IP)
+    // Rate limiting to prevent spam (max 50 submissions per 15 minutes per IP)
     const clientIp = (req.headers["x-forwarded-for"] as string || req.socket.remoteAddress || "").split(",")[0].trim();
     const now = Date.now();
     const windowMs = 15 * 60 * 1000; // 15 minutes
-    const maxSubmissions = 5;
+    const maxSubmissions = 50;
 
     let rateInfo = rateLimitMap.get(clientIp);
     if (!rateInfo || now > rateInfo.resetTime) {
@@ -360,12 +411,18 @@ async function startServer() {
 
     console.log(`[Job Application System] Processing application for: ${name} (${email}) - Role: ${role}`);
 
-    if (!smtpHost || !smtpUser || !smtpPass) {
-      console.log(`[Job Application System] SMTP credentials not configured. Running in Simulated Mode for ${name} (${email}).`);
+    const hasValidSmtp = Boolean(
+      smtpHost && smtpHost.trim() && 
+      smtpUser && smtpUser.trim() && 
+      smtpPass && smtpPass.trim()
+    );
+
+    if (!hasValidSmtp) {
+      console.log(`[Job Application System] SMTP credentials not fully configured. Running in Simulated Mode for ${name} (${email}).`);
       return res.json({
         success: true,
         emailSent: false,
-        message: "Since SMTP credentials are not configured yet, the transmission to sohailgaji9097@gmail.com was simulated. Your application is saved securely in the database."
+        message: "Application is saved securely in the database. (Email transmission simulated)."
       });
     }
 
@@ -377,7 +434,10 @@ async function startServer() {
         auth: {
           user: smtpUser,
           pass: smtpPass
-        }
+        },
+        connectionTimeout: 7000,
+        greetingTimeout: 7000,
+        socketTimeout: 10000
       });
 
       await transporter.sendMail({
@@ -395,9 +455,11 @@ async function startServer() {
         message: "Your application and resume have been successfully submitted and emailed to the Dream Team production desk."
       });
     } catch (err: any) {
-      console.error(`[Job Application System] ERROR sending email via SMTP:`, err.message);
-      return res.status(500).json({
-        error: `Failed to transmit application email: ${err.message}`
+      console.error(`[Job Application System] SMTP delivery notice:`, err.message);
+      return res.json({
+        success: true,
+        emailSent: false,
+        message: "Your application has been received and saved securely in the database."
       });
     }
   });
@@ -420,11 +482,11 @@ async function startServer() {
       return res.status(400).json({ error: "Message is required." });
     }
 
-    // Rate limiting to prevent spam (max 5 submissions per 15 minutes per IP)
+    // Rate limiting to prevent spam (max 50 submissions per 15 minutes per IP)
     const clientIp = (req.headers["x-forwarded-for"] as string || req.socket.remoteAddress || "").split(",")[0].trim();
     const now = Date.now();
     const windowMs = 15 * 60 * 1000; // 15 minutes
-    const maxSubmissions = 5;
+    const maxSubmissions = 50;
 
     let rateInfo = rateLimitMap.get(clientIp + "_inq");
     if (!rateInfo || now > rateInfo.resetTime) {
@@ -528,12 +590,18 @@ async function startServer() {
 
     console.log(`[Project Inquiry System] Processing inquiry from: ${name} (${emailOrPhone}) - Subject: ${subject}`);
 
-    if (!smtpHost || !smtpUser || !smtpPass) {
-      console.log(`[Project Inquiry System] SMTP credentials not configured. Running in Simulated Mode for ${name} (${emailOrPhone}).`);
+    const hasValidSmtpInq = Boolean(
+      smtpHost && smtpHost.trim() && 
+      smtpUser && smtpUser.trim() && 
+      smtpPass && smtpPass.trim()
+    );
+
+    if (!hasValidSmtpInq) {
+      console.log(`[Project Inquiry System] SMTP credentials not fully configured. Running in Simulated Mode for ${name} (${emailOrPhone}).`);
       return res.json({
         success: true,
         emailSent: false,
-        message: "Since SMTP credentials are not configured yet, the transmission to sohailgaji9097@gmail.com was simulated. Your inquiry is saved securely in the database."
+        message: "Inquiry is saved securely in the database. (Email transmission simulated)."
       });
     }
 
@@ -545,7 +613,10 @@ async function startServer() {
         auth: {
           user: smtpUser,
           pass: smtpPass
-        }
+        },
+        connectionTimeout: 7000,
+        greetingTimeout: 7000,
+        socketTimeout: 10000
       });
 
       await transporter.sendMail({
@@ -563,9 +634,11 @@ async function startServer() {
         message: "Your inquiry and brief have been successfully submitted and emailed to the team."
       });
     } catch (err: any) {
-      console.error(`[Project Inquiry System] ERROR sending email via SMTP:`, err.message);
-      return res.status(500).json({
-        error: `Failed to transmit inquiry email: ${err.message}`
+      console.error(`[Project Inquiry System] SMTP delivery notice:`, err.message);
+      return res.json({
+        success: true,
+        emailSent: false,
+        message: "Your inquiry has been received and saved securely in the database."
       });
     }
   });
@@ -632,12 +705,17 @@ async function startServer() {
         if (fs.existsSync(chunkPath)) {
           fs.unlinkSync(chunkPath);
         }
-        fs.renameSync(req.file.path, chunkPath);
+        try {
+          fs.copyFileSync(req.file.path, chunkPath);
+          fs.unlinkSync(req.file.path);
+        } catch {
+          fs.renameSync(req.file.path, chunkPath);
+        }
         res.json({ success: true, chunkIndex: parseInt(chunkIndex, 10) });
       } catch (err: any) {
-        // clean up uploaded file if rename fails
+        // clean up uploaded file if move fails
         if (req.file.path && fs.existsSync(req.file.path)) {
-          fs.unlinkSync(req.file.path);
+          try { fs.unlinkSync(req.file.path); } catch {}
         }
         res.status(500).json({ error: `Failed to save chunk: ${err.message}` });
       }
