@@ -1,5 +1,6 @@
 import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { db } from './firebase';
+import { SITE_DEFAULTS } from './siteDefaults';
 
 const CONFIG_KEYS = [
   'dream_team',
@@ -34,6 +35,26 @@ const CONFIG_KEYS = [
 ];
 
 let isWritingToFirestore = false;
+
+// Function to seed default configs into LocalStorage if not already present
+export function seedDefaultsIfMissing() {
+  if (typeof window === 'undefined') return;
+  try {
+    const defaults = SITE_DEFAULTS as Record<string, string>;
+    let seeded = false;
+    Object.entries(defaults).forEach(([key, val]) => {
+      if (localStorage.getItem(key) === null && val !== undefined) {
+        localStorage.setItem(key, typeof val === 'string' ? val : JSON.stringify(val));
+        seeded = true;
+      }
+    });
+    if (seeded) {
+      window.dispatchEvent(new Event('storage'));
+    }
+  } catch (e) {
+    console.error('[SiteSync] Error seeding initial defaults:', e);
+  }
+}
 
 // Function to push settings from LocalStorage directly into Firestore configs
 export async function pushLocalConfigsToFirestore() {
@@ -76,8 +97,33 @@ export async function pushLocalConfigsToFirestore() {
 export function initSiteSync() {
   if (typeof window === 'undefined') return () => {};
 
+  // First seed defaults if localStorage is empty
+  seedDefaultsIfMissing();
+
   console.log("[SiteSync] Initializing site sync with Firestore...");
   const siteRef = doc(db, 'configs', 'site');
+
+  const dispatchAllUpdateEvents = () => {
+    window.dispatchEvent(new Event('storage'));
+    const events = [
+      'storage_updated_clients',
+      'storage_updated_team',
+      'storage_updated_orbit',
+      'storage_updated_home_hero',
+      'storage_updated_home_films',
+      'storage_updated_about',
+      'storage_updated_contact',
+      'storage_updated_films',
+      'storage_updated_socials',
+      'storage_updated_brand_partners',
+      'storage_updated_cinematic_slides',
+      'storage_updated_paragraph_frames',
+      'storage_updated_verticals',
+      'storage_updated_locations',
+      'storage_updated_inquiries'
+    ];
+    events.forEach(evt => window.dispatchEvent(new Event(evt)));
+  };
 
   // Listen to Firestore real-time changes
   const unsubscribe = onSnapshot(siteRef, (snap) => {
@@ -104,14 +150,13 @@ export function initSiteSync() {
       
       if (changedCount > 0) {
         console.log(`[SiteSync] Synced ${changedCount} settings from Firestore database. Refreshing page components...`);
-        // Notify all page levels to reload their settings
-        window.dispatchEvent(new Event('storage'));
+        dispatchAllUpdateEvents();
       }
     } else {
       console.log("[SiteSync] Firestore configs document not found yet. Pushing defaults if admin edits.");
     }
   }, (err) => {
-    console.error("[SiteSync] Error listing Firestore configurations:", err);
+    console.error("[SiteSync] Error listening Firestore configurations:", err);
   });
 
   // Listen to the custom storage events emitted whenever AdminPanel saves settings

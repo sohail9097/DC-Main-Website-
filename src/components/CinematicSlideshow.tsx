@@ -26,56 +26,65 @@ export const DEFAULT_SLIDES: CinematicSlide[] = [
   {
     id: 'branded_content',
     title: 'Branded Content',
-    description: 'Collaboration with brands across sectors to create compelling films as integral parts of their campaigns.',
-    imageUrl: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=2071'
+    description: 'Stories that seamlessly blend brand purpose with compelling narratives to create lasting audience engagement.',
+    imageUrl: 'https://lh3.googleusercontent.com/d/1ZIDzUn60neoMiV8AvDg49-V5pDJ9RTyG=w1200',
+    mobileImageUrl: 'https://lh3.googleusercontent.com/d/1VzY_nOPWk19wa8l5lT94zCWgnNAm9Cve=w1200'
   },
   {
     id: 'travel_shows',
     title: 'Travel Shows',
-    description: 'We have partnered up with Tourism boards across India & overseas to create compelling, visually striking travel content.',
-    imageUrl: 'https://images.unsplash.com/photo-1527118732049-c88155f548d7?auto=format&fit=crop&q=80&w=2070'
+    description: 'Immersive journeys that uncover the culture, people and experiences that make every destination unforgettable.',
+    imageUrl: 'https://lh3.googleusercontent.com/d/1VqTX5aKiFX1lcSot0_1B_t_wcPgwyXNZ=w1200',
+    mobileImageUrl: 'https://lh3.googleusercontent.com/d/1bncETgPyBbQmB5XqUl9KBcl13lyLY2lB=w1200'
   },
   {
     id: 'commercial_shoots',
-    title: 'Commercial Ads',
-    description: 'High-impact campaigns crafted with supreme visual craft, leaving an indelible imprint on target audiences.',
-    imageUrl: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=2059'
+    title: 'Documentaries',
+    description: 'Powerful real-world storytelling that informs, inspires and reveals the extraordinary within the everyday.',
+    imageUrl: 'https://lh3.googleusercontent.com/d/19QiYqidmn4aG6QZt-Jp7dHHFJJ2lV1E3=w1200',
+    mobileImageUrl: 'https://lh3.googleusercontent.com/d/1n3_8LsAZ-t6-iUx-tJO8l3-fZdlebkT6=w1200'
   },
   {
     id: 'documentaries',
-    title: 'Documentaries',
-    description: 'Investigating real-world subjects and human struggles with absolute raw visual authenticity and emotional range.',
-    imageUrl: 'https://images.unsplash.com/photo-1505159947354-e0b2447798bd?auto=format&fit=crop&q=80&w=2070'
+    title: 'Influencer Marketing',
+    description: 'Creator-led campaigns that pair authentic voices with strategic storytelling to drive reach, relevance and real engagement.',
+    imageUrl: 'https://lh3.googleusercontent.com/d/1uLXUT4e8vJwP-cplNvOjghbUavukNX3g=w1200',
+    mobileImageUrl: 'https://lh3.googleusercontent.com/d/1BgNM7OUrvf6R7RvAgQzCWRHr8IOt4_oX=w1200'
   },
   {
     id: 'music_videos',
-    title: 'Music Videos',
-    description: 'Unifying melodic textures and abstract, artistic styling with dream-like lighting concepts and edit rhythms.',
-    imageUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=2070'
+    title: 'Reality TV',
+    description: 'Authentic, character-driven formats that entertain, inspire and keep audiences invested from start to finish.',
+    imageUrl: 'https://lh3.googleusercontent.com/d/1j9_GkI56rWO9IVVZjx12-qQw_eN-iaeo=w1200',
+    mobileImageUrl: 'https://lh3.googleusercontent.com/d/1wVQsd2lw34AjedNBs5ObV8jCDEhaxEpT=w1200'
   },
   {
     id: 'narrative_shorts',
-    title: 'Narrative Shorts',
-    description: 'Bringing scripts to life through premium storytelling, masterclass cinematography, and deep ambient soundscapes.',
-    imageUrl: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=2025'
+    title: 'Corporate AV',
+    description: 'Strategic films that communicate vision, celebrate milestones and bring organizations\' stories to life.',
+    imageUrl: 'https://lh3.googleusercontent.com/d/1lgPbS_jkNetycb12tg5E87aBkRRPKWe1=w1200',
+    mobileImageUrl: 'https://lh3.googleusercontent.com/d/1lgPbS_jkNetycb12tg5E87aBkRRPKWe1=w1200'
   },
   {
     id: 'corporate_stories',
-    title: 'Corporate Films',
-    description: 'Highlighting brand integrity, corporate vision, and scale for stakeholders and customers alike.',
-    imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=2070'
+    title: 'Anthems',
+    description: 'Emotionally driven brand films that capture an organization\'s purpose, culture and vision through cinematic storytelling.',
+    imageUrl: 'https://lh3.googleusercontent.com/d/1DxGEjeiZ4JzRbQPdcBd9BsfnVOAOTJlO=w1200',
+    mobileImageUrl: 'https://lh3.googleusercontent.com/d/1ikid8yCWB_KUThmIXyOsU0b9IuddZL4e=w1200'
   },
   {
     id: 'fashion_lifestyle',
-    title: 'Fashion Sequences',
-    description: 'Highly aestheticized visual portfolios capturing fluid movement, modern textures, and design philosophy.',
-    imageUrl: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&q=80&w=2070'
+    title: 'Commercials',
+    description: 'High-impact campaigns crafted to captivate audiences and build meaningful connections with brands.',
+    imageUrl: 'https://lh3.googleusercontent.com/d/1_StlkA3bZhtEaFheVmGCbQlFDhaHJt7z=w1200',
+    mobileImageUrl: 'https://lh3.googleusercontent.com/d/16_mQKb5yyHAE3zmtg9-BBIHZUQTjYKCN=w1200'
   },
   {
     id: 'aerial_adventure',
-    title: 'Aerial Adventure',
-    description: 'Pushing geographic boundaries with cinematic drone capturing, FPV acrobatics, and high-adrenaline visual stunts.',
-    imageUrl: 'https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?auto=format&fit=crop&q=80&w=2070'
+    title: 'Long-Form Content',
+    description: 'Premium long-form programming designed for broadcasters and streaming platforms, spanning factual entertainment, lifestyle and documentary formats.',
+    imageUrl: 'https://lh3.googleusercontent.com/d/1rmkA4RMCDgucikl01sxDKOEYPicSfwwH=w1200',
+    mobileImageUrl: 'https://lh3.googleusercontent.com/d/1rmkA4RMCDgucikl01sxDKOEYPicSfwwH=w1200'
   }
 ];
 

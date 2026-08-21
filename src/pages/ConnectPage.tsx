@@ -240,10 +240,11 @@ export default function ConnectPage() {
 
   // Career open roles list
   const openRoles = useMemo(() => [
-    { id: 'videographer', title: 'Videographer', category: 'Cinematography', type: 'Full-time', location: 'Mumbai, India' },
-    { id: 'video-editor', title: 'Video Editor', category: 'Post-Production', type: 'Full-time', location: 'New Delhi, India' },
-    { id: 'vfx-artist', title: 'VFX Artist', category: 'Creative Tech', type: 'Contract', location: 'Remote / Hybrid' },
-    { id: 'producer', title: 'Producer', category: 'Production', type: 'Full-time', location: 'Bengaluru, India' }
+    { id: 'videographer', title: 'Video Grapher / Videographer', category: 'Cinematography', type: 'Full-time / Freelance', location: 'Mumbai / Delhi, India' },
+    { id: 'video-editor', title: 'Video Editor', category: 'Post-Production', type: 'Full-time', location: 'Mumbai / Delhi / Remote' },
+    { id: 'vfx-artist', title: 'VFX Artist', category: 'Creative Tech & CGI', type: 'Contract / Full-time', location: 'Remote / Hybrid' },
+    { id: 'producer', title: 'Producer', category: 'Production & Creative Lead', type: 'Full-time', location: 'Mumbai / Delhi, India' },
+    { id: 'general-app', title: 'General Application / Other', category: 'Creative & Operations', type: 'Open', location: 'All Hubs / Remote' }
   ], []);
 
   // Handle Brief File Attachment

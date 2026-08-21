@@ -81,12 +81,12 @@ const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
   );
 };
 
-export const DEFAULT_ORBIT_IMAGES = [
-  'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=500',
-  'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=500',
-  'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=500',
-  'https://images.unsplash.com/photo-1542204172-3c3066385d0d?auto=format&fit=crop&q=80&w=500',
-  'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&q=80&w=500',
+export const DEFAULT_ORBIT_IMAGES: string[] = [
+  'https://imagedelivery.net/aPW-WJR2InBqr5gX4RRkcg/925b4ba3-fc5f-412b-0e60-8f5ff420cd00/public',
+  'https://imagedelivery.net/aPW-WJR2InBqr5gX4RRkcg/1ca7976e-4166-40c7-870c-bd343aa35e00/public',
+  'https://imagedelivery.net/aPW-WJR2InBqr5gX4RRkcg/b7789c07-e0e4-4b71-7af4-870bee85d100/public',
+  'https://imagedelivery.net/aPW-WJR2InBqr5gX4RRkcg/fcdc94b2-b127-4dac-09ac-52fb9cbb3a00/public',
+  'https://drive.google.com/file/d/1jJAojjDyMLWWkmm3ZKkgWUCnixmersFM/view?usp=sharing'
 ];
 
 export const OrbitingFrame: FC<{ index: number; total: number; item: any }> = ({ index, total, item }) => {
@@ -578,39 +578,38 @@ function Hero() {
 }
 
 export const DEFAULT_FILMS_LIST = [
-  { id: '1', title: 'Boat x Netflix Stream Edition', category: 'Branded Content', img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=EngS8gK6u4I' },
-  { id: '2', title: 'Marvel x Guardians of the Galaxy', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=NpEaa2P7qZI' },
-  { id: '3', title: 'Netflix Dhamaka Mood Promo', category: 'Branded Content', img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=9No-FiEInLA' },
-  { id: '4', title: 'Coke Studio Global | Afroto | 7ALA', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1540959733332-e94e270b4a8a?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=ScMzIvxBSi4' },
-  { id: '5', title: 'Directors Cut | Green Vibes Festival', category: 'Travel', img: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=hZ8Z4S73V0I' },
-  { id: '6', title: 'Bumble x Kindness is sexy ft. ARK', category: 'Corporate', img: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=V-_O7nl0Ii0' },
-  { id: '7', title: 'Maleficent', category: 'Sports', img: 'https://images.unsplash.com/photo-1606503825008-909a67e74360?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=j3K_9v1-vG0' },
-  { id: '8', title: 'Shaitaan', category: 'Lifestyle', img: 'https://images.unsplash.com/photo-1616530940355-351fabd9524b?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=LXb3EKWsInQ' },
-  { id: '9', title: 'Deadpool & Wolverine', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=EngS8gK6u4I' },
-  { id: '10', title: 'Spider-Man: No Way Home', category: 'Sports', img: 'https://images.unsplash.com/photo-1635805737707-575885ab0820?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=NpEaa2P7qZI' },
-  { id: '11', title: 'Padmaavat', category: 'Lifestyle', img: 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=9No-FiEInLA' },
-  { id: '12', title: 'Beauty and the Beast', category: 'Lifestyle', img: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=ScMzIvxBSi4' },
-  { id: '13', title: 'Black Panther', category: 'Corporate', img: 'https://images.unsplash.com/photo-1542204172-3c3066385d0d?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=hZ8Z4S73V0I' },
-  { id: '14', title: 'Interstellar', category: 'Corporate', img: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=V-_O7nl0Ii0' },
-  { id: '15', title: 'Dune: Part Two', category: 'Travel', img: 'https://images.unsplash.com/photo-1506466010722-395aa2bef877?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=j3K_9v1-vG0' },
-  { id: '16', title: 'Inception', category: 'Corporate', img: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=LXb3EKWsInQ' },
-  { id: '17', title: 'Joker', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=EngS8gK6u4I' },
-  { id: '18', title: 'The Batman', category: 'Sports', img: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=NpEaa2P7qZI' },
-  { id: '19', title: 'Blade Runner 2049', category: 'Corporate', img: 'https://images.unsplash.com/photo-1493612276216-ee3925520721?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=9No-FiEInLA' },
-  { id: '20', title: 'The Revenant', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1540959733332-e94e270b4a8a?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=ScMzIvxBSi4' },
-  { id: '21', title: 'Doctor Strange', category: 'Travel', img: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=hZ8Z4S73V0I' },
-  { id: '22', title: 'Avatar: Way of Water', category: 'Travel', img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=V-_O7nl0Ii0' },
-  { id: '23', title: 'Jurassic World', category: 'Sports', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=j3K_9v1-vG0' },
-  { id: '24', title: 'Thor: Love and Thunder', category: 'Sports', img: 'https://images.unsplash.com/photo-1542204172-3c3066385d0d?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=LXb3EKWsInQ' },
-  { id: '25', title: 'The Matrix Resurrections', category: 'Corporate', img: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=EngS8gK6u4I' },
-  { id: '26', title: 'Wonder Woman 1984', category: 'Lifestyle', img: 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=NpEaa2P7qZI' },
-  { id: '27', title: 'Guardians of the Galaxy Vol. 3', category: 'Corporate', img: 'https://images.unsplash.com/photo-1485098262243-ea7631fec367?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=9No-FiEInLA' },
-  { id: '28', title: 'Oppenheimer', category: 'Documentaries', img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=ScMzIvxBSi4' },
-  { id: '29', title: 'Barbie', category: 'Lifestyle', img: 'https://images.unsplash.com/photo-1531259683007-01397e899182?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=hZ8Z4S73V0I' },
-  { id: '30', title: 'Top Gun: Maverick', category: 'Sports', img: 'https://images.unsplash.com/photo-1598897135853-90d56621252e?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=V-_O7nl0Ii0' },
-  { id: '31', title: 'Mission Impossible', category: 'Travel', img: 'https://images.unsplash.com/photo-1525498128445-66d4825950dc?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=j3K_9v1-vG0' },
-  { id: '32', title: 'John Wick: Chapter 4', category: 'Sports', img: 'https://images.unsplash.com/photo-1550101617-dc139a028670?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=LXb3EKWsInQ' },
-  { id: '33', title: 'Mad Max: Fury Road', category: 'Sports', img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=1000', video: 'https://www.youtube.com/watch?v=EngS8gK6u4I' }
+  { id: '2', title: 'Postcards from Hong Kong', category: 'Travel', img: 'https://drive.google.com/file/d/1UW7uPDOF4S4KncVjllELIMuIlcPNFSf2/view?usp=sharing', video: 'https://www.youtube.com/embed/VjavKsM7qHs?si=u2fNMWNZNK4wb_uY' },
+  { id: '1', title: 'Nofilter by Indigo - Season 2 | Episode 03 | From Heritage to Horizons', category: 'Reality TV / Live', img: 'https://drive.google.com/file/d/1cIyZpT9G7YcKSgi8lza2tx-gIDZ4G5Gr/view?usp=sharing', video: 'https://www.youtube.com/embed/iJ713HTcE1U?si=eJ_sitczZUkh5A-v', frameType: 'auto' },
+  { id: '3', title: 'Priyanka | Bulgari Mediterranea High Jewelry collection', category: 'Branded Content', img: 'https://drive.google.com/file/d/1d0mPQcKFtNkJsaavGa-iz-EA0Gt_7n2Z/view?usp=sharing', video: 'https://youtube.com/shorts/xPPP1lv9Vd4?si=MmsNHZbxAQsr2ob3' },
+  { id: '5', title: 'A celebration of color | Bvlgari High Jewelry', category: 'Branded Content', img: 'https://drive.google.com/file/d/12Zu7_nlH-KZEF9V62D4hlAGyHTra8yx1/view?usp=sharing', video: 'https://www.youtube.com/embed/FcBhpB-B45s?si=m8wn5B__4KRnXS3s' },
+  { id: '6', title: 'Lights, Camera, Action: Filmfare OTT Awards 2023', category: 'Reality TV / Live', img: 'https://drive.google.com/file/d/1JGrcplp-uyVzLHSkqT1U7HIL_oUjFjq0/view?usp=sharing', video: 'https://www.youtube.com/embed/b70Q25Su9NU?si=TEz-JbdL-7JwTe6R', frameType: 'auto' },
+  { id: '4', title: 'TVC Seven7 MS Dhoni', category: 'Branded Content', img: 'https://drive.google.com/file/d/1AHLQTzxuEsHqrhgvAhygLqun6ZnB-QpG/view?usp=sharing', video: 'https://youtube.com/watch?v=5B_gbhjjw58', frameType: 'auto' },
+  { id: '8', title: 'VISITING THE INTERNATIONAL KITE FESTIVAL ft. Dolly Singh | IT HAPPENS ONLY IN INDIA', category: 'Influencer', img: 'https://drive.google.com/file/d/1LaqB8XI3Rgr420n6z4N3uyrAAxnN0Qy4/view?usp=sharing', video: 'https://www.youtube.com/embed/yNUmldWWUiY?si=skz1m0y8drBQG4_U', frameType: 'auto' },
+  { id: '23', title: ' CYRUS AND CYRUS TAKE A WALK DOWN (THE PARSI) MEMORY LANE ft.', category: 'Travel & Lifestyle', img: 'https://drive.google.com/file/d/1E32s7yGCGjq4v_ZIglb5YomUkHYAYlSu/view?usp=sharing', video: 'https://www.youtube.com/embed/NM6p-AeiqZ0?si=S32By4fX1C27EybQ', frameType: 'landscape' },
+  { id: '9', title: ' GO INTO THE WILD | Series Promo ', category: 'Branded Content', img: 'https://drive.google.com/file/d/1x3XIqAWKzXGOpqCQX0yGzeIGIAIAjNQh/view?usp=drive_link', video: 'https://www.youtube.com/embed/FGIJLFVpGjw?si=KlAQOR_Zm26X2gCX', frameType: 'vertical' },
+  { id: '14', title: 'Lucknow Travel Itinerary from food to heritage to culture, Kebabs to Imambara to the new T3 AIRPORT', category: 'Influencer', img: 'https://drive.google.com/file/d/1XMBdG85TdoEPDCS37mCkEAYsFsg8xHvx/view?usp=sharing', video: 'https://www.youtube.com/embed/dCjkr3zU1fw?si=K7et4zTMTAUBNBN3', frameType: 'landscape' },
+  { id: '11', title: 'Nature’s Hidden Jewel | Into The Green: Discovering Jharkhand | Discovery Channel', category: 'Travel', img: 'https://drive.google.com/file/d/19EFeZzYiyHSqI0rediEz-y6jGWKY36XF/view?usp=sharing', video: 'https://www.youtube.com/embed/mpIZwJYxN28?si=VmrgrntVheW1a_Fm', frameType: 'auto' },
+  { id: '21', title: ' Postcards From Meghalaya', category: 'Branded Content', img: 'https://drive.google.com/file/d/1Cj5sIi_0zvgdY7Wm2ZGd5jGWs9PE9xfo/view?usp=sharing', video: 'https://www.youtube.com/embed/x0Rdp2MnTeA?si=IV7gtNu-bumTOdEK', frameType: 'landscape' },
+  { id: '24', title: ' TRYING CHOCOLATE MOMOS AT THE ALCHI\'S KITCHEN ft.', category: 'Travel & Lifestyle', img: 'https://drive.google.com/file/d/1-lPXoFL0rxUQMr1VxfBs_fl3P30kyX7S/view?usp=sharing', video: 'https://www.youtube.com/embed/hFjSP37rI1c?si=iaQg9jCDlOrlGXfS', frameType: 'landscape' },
+  { id: '10', title: 'Adani’s Story - The Biggest Comeback in India’s Corporate History | Complete Case Study', category: 'Influencer', img: 'https://drive.google.com/file/d/1dwrUT3tPDnLaImFKZNqzVCh7Pbl7Ef6D/view?usp=sharing', video: 'https://www.youtube.com/embed/WACpHc8iR3w?si=w7_U--VSBdgph6Q3', frameType: 'landscape' },
+  { id: '13', title: 'Daifuku x Birla Opus || Corporate Film 2025', category: 'Branded Content', img: 'https://drive.google.com/file/d/14Z34wTAzJxUjBq7oyqPXQ2tGveY66_My/view?usp=sharing', video: 'https://www.youtube.com/embed/QO-htcvs0f0?si=SqFwMA_NxZXsWyDm', frameType: 'landscape' },
+  { id: '7', title: 'Vim Maha Kadai Record | Discovery Channel Documentary | Mahakumbh 2025', category: 'Branded Content', img: 'https://drive.google.com/file/d/1okt8Su1Ly43qvqGIzYQEyw6lmMJm_5Rh/view?usp=drive_link', video: 'https://www.youtube.com/embed/x9pvZw8Qc3E?si=xFge5o1ZiK-1l--M', frameType: 'landscape' },
+  { id: '16', title: 'AI-Led CFO Transformation: Rebuilding the CFO Office', category: 'Branded Content', img: 'https://drive.google.com/file/d/1KYF33Y7Vt-ksjjTYBIP_n4ZaqpxYuc_U/view?usp=sharing', video: 'https://www.youtube.com/embed/YCRPmba_czo?si=JsfyhTuW32VlgSiE', frameType: 'landscape' },
+  { id: '15', title: 'BSF: India\'s First Line of Defence', category: 'Documentaries', img: 'https://drive.google.com/file/d/1bdyKVwTqBugVyij5Hz95VVmwYe8pf9OG/view?usp=sharing', video: 'https://www.youtube.com/embed/I_STX2cKx-Q?si=KSSVdVfBITsdrdai', frameType: 'vertical' },
+  { id: '17', title: 'DLF CyberHub 10 Years Anniversary', category: 'Commercials', img: 'https://drive.google.com/file/d/1u4jokMDn45XyKCzgD1kZ26L8oLEoOjjh/view?usp=sharing', video: 'https://www.youtube.com/embed/BdHFOLaoQnc?si=GsoF9V0yEYZ0T4Xe', frameType: 'landscape' },
+  { id: '18', title: 'Adani Music Video', category: 'Branded Content', img: 'https://drive.google.com/file/d/1_PztCvb6PVUtlkqGNPtYS_AhRENRHzit/view?usp=sharing', video: 'https://www.youtube.com/embed/B9daInmjtSU?si=4ukf0-j5-b8CZk1b', frameType: 'auto' },
+  { id: '19', title: 'Adani Vidya mandir ', category: 'Branded Content', img: 'https://drive.google.com/file/d/1JMWtvDxcO4ZB-iMB3-MJNOnKbw1kbRNi/view?usp=sharing', video: 'https://www.instagram.com/reel/DLt2aE7s30_/embed', frameType: 'auto' },
+  { id: '20', title: 'Flight of the Hawkz (Nat Geo)', category: 'Branded Content', img: 'https://drive.google.com/file/d/1iMwXqUCobmPj4AfGqisnhcqtPqcJceI4/view?usp=sharing', video: 'https://www.youtube.com/embed/v7_pjg3IS9s?si=itc0J5U4GNj1T_w2', frameType: 'landscape' },
+  { id: '22', title: 'L&T - We Take The Leap', category: 'Documentaries', img: 'https://drive.google.com/file/d/1GNXIvh2qdFDKhWIaX9x6_6EVGacEYK2m/view?usp=sharing', video: 'https://www.youtube.com/embed/Qnpw4VEayHg?si=yQ5UC6-tPdTMUzou', frameType: 'auto' },
+  { id: '25', title: 'Adarsh gupta - Vizhinjam ', category: 'Influencer', img: 'https://drive.google.com/file/d/17jZaNGe4vj2my8v4EYVVeq2KBi7sQcJe/view?usp=sharing', video: 'https://www.instagram.com/reel/DJnmrzFBdos/embed', frameType: 'vertical' },
+  { id: '26', title: 'Maidaan Saaf - Coca Cola', category: 'Branded Content', img: 'https://drive.google.com/file/d/1hmg01XXPLs4owUKw6fMMA6EYrS3mXSa5/view?usp=sharing', video: 'https://www.youtube.com/embed/7PKpLenMeGo?si=XbwxVcAejT6l6byt', frameType: 'landscape' },
+  { id: '27', title: 'Superstructures Birsa Munda Hockey Stadium, Rourkela', category: 'Documentaries', img: 'https://drive.google.com/file/d/1UgovzIyXB8c4jycJo4sp6T4kDgnimq2E/view?usp=sharing', video: 'https://www.youtube.com/embed/W9IwuYAoC4k?si=15d3PQw8Vego9uyt', frameType: 'landscape' },
+  { id: '28', title: ' SWACHH BHARAT - INDIA\'S SANITATION REVOLUTION', category: 'Documentaries', img: 'https://drive.google.com/file/d/1Lv77Y0grN5yc4DCErY93sf03YN9qDfx6/view?usp=sharing', video: 'https://www.youtube.com/embed/ZYqTE0GhQA0?si=xYNXNK7PM-izp3p_', frameType: 'landscape' },
+  { id: '29', title: 'WOMEN OF HONOUR - OTA CHENNAI', category: 'Documentaries', img: 'https://drive.google.com/file/d/16WEq7ghmxvhyawEzL6m1wmd0pJMnvW5f/view?usp=sharing', video: 'https://www.youtube.com/embed/VDfTUaTgaeo?si=pn7hOFgmSmBzHcMK', frameType: 'landscape' },
+  { id: '30', title: 'MEGAICONS: Keshav Murugesh I National Geographic', category: 'Documentaries', img: 'https://drive.google.com/file/d/1lPjRnI4Fw2javLGucIsBLEjH6OsETljf/view?usp=sharing', video: 'https://www.youtube.com/embed/tFR6IRKQguY?si=2N5pxm6O9m4y0m8N', frameType: 'landscape' },
+  { id: '31', title: 'Hyundai India Junior Golf Tournament 2023 I WB DISCOVERY I EUROPORT', category: 'Branded Content', img: 'https://drive.google.com/file/d/1b7_zJRRQhD8OtR0CFZl_lODvCN18y9pJ/view?usp=sharing', video: 'https://www.youtube.com/embed/c2Y1NAn0kkQ?si=3l6wMznnDEaBXsRZ', frameType: 'landscape' },
+  { id: '32', title: 'Excellence Now In Noida', category: 'Branded Content', img: 'https://drive.google.com/file/d/1HpKIACg24e6vsl2__lBM7_v8IZTRzfv9/view?usp=sharing', video: 'https://www.youtube.com/embed/KATDD-yna5w?si=7f8A8iXTKl47SrsJ', frameType: 'landscape' },
+  { id: '33', title: 'TECNO Wali Diwali | Diwali Film', category: 'Branded Content', img: 'https://drive.google.com/file/d/1KbKC2ZgaOMlj2uhAbwz93YF2eaD-7V2a/view?usp=sharing', video: 'https://www.youtube.com/embed/ORLgzjF1Uug?si=gb9IPIPE-wGvAIGL', frameType: 'landscape' }
 ];
 
 export const FILMS = DEFAULT_FILMS_LIST;
@@ -1035,22 +1034,22 @@ export interface VerticalItem {
 
 export const DEFAULT_VERTICALS: VerticalItem[] = [
   {
-    id: 'sports_box',
-    label: 'Sports Box Vertical',
-    title: 'SPORTS BOX',
-    subtitle: 'SPORTS VERTICAL',
-    description: 'INTERNATIONAL TOURNAMENT ORGANISING & BROADCAST',
-    type: 'video',
-    url: 'https://www.youtube.com/watch?v=9No-FiEInLA'
+    id: "sports_box",
+    label: "Sports Box Vertical",
+    title: "SPORTS BOX",
+    subtitle: "SPORTS VERTICAL",
+    description: "INTERNATIONAL TOURNAMENT ORGANISING & BROADCAST",
+    type: "image",
+    url: "https://lh3.googleusercontent.com/d/1OTE2iM4TZ1mKn4OEt6rS410Y3wW_1K6O"
   },
   {
-    id: 'dc_digital',
-    label: 'DC Digital Studio Vertical',
-    title: 'DC DIGITAL STUDIO',
-    subtitle: 'DIGITAL VERTICAL',
-    description: 'SHORT FORM, DIGITAL, AI CONTENT',
-    type: 'video',
-    url: 'https://www.youtube.com/watch?v=hZ8Z4S73V0I'
+    id: "dc_digital",
+    label: "DC Digital Studio Vertical",
+    title: "DC DIGITAL STUDIO",
+    subtitle: "DIGITAL VERTICAL",
+    description: "SHORT FORM, DIGITAL, AI CONTENT",
+    type: "image",
+    url: "https://lh3.googleusercontent.com/d/1-ne-2qbWr2Pe13o1JsHXHvXyVpr_zi2_"
   }
 ];
 
@@ -1092,9 +1091,9 @@ export const DEFAULT_LOCATIONS: OperationalLocation[] = [
     localText: "दिल्ली",
     textY: 62,
     fontSize: 10.5,
-    mapsUrl: "https://maps.google.com/?q=820,+Sector+21A,+Pocket+E,+Sector+21,+Gurugram,+Delhi+OCR",
+    mapsUrl: "https://maps.app.goo.gl/KqzYV4eiiicY2aiG9",
     path: "M60 22 C75 22, 95 32, 95 52 C95 72, 75 88, 60 94 C45 88, 25 72, 25 52 C25 32, 45 22, 60 22 Z",
-    mapImage: ""
+    mapImage: "https://lh3.googleusercontent.com/d/1UTIMHUUL8M_fB7OBzyhIv-DuQJAhRMoM"
   },
   {
     id: "mumbai",
@@ -1108,9 +1107,9 @@ export const DEFAULT_LOCATIONS: OperationalLocation[] = [
     localText: "मुम्बई",
     textY: 53,
     fontSize: 10,
-    mapsUrl: "https://maps.google.com/?q=Grand+Oasis+Towers,+Lower+Parel,+Mumbai",
+    mapsUrl: "https://drive.google.com/file/d/1JN9Ltlir20z0JIbiwmRPPSPviwQYAK-3/view?usp=sharing",
     path: "M55 18 C65 18, 68 30, 62 45 C56 60, 58 72, 50 85 C42 96, 38 102, 36 104 C34 99, 30 87, 34 74 C38 61, 34 48, 40 34 C46 20, 42 18, 55 18 Z",
-    mapImage: ""
+    mapImage: "https://lh3.googleusercontent.com/d/1PpR1bjwzHbQYnABpPwFhfu0BVqdTgB2G"
   },
   {
     id: "goa",
@@ -1124,9 +1123,9 @@ export const DEFAULT_LOCATIONS: OperationalLocation[] = [
     localText: "गोवा",
     textY: 58,
     fontSize: 10.5,
-    mapsUrl: "https://maps.google.com/?q=Arpora-Vagator+Creative+Hub,+Goa",
+    mapsUrl: "https://maps.google.com/?q=Grand+Oasis+Towers,+Lower+Parel,+Mumbai",
     path: "M45 22 C60 26, 72 35, 70 52 C68 70, 55 85, 50 96 C42 85, 32 70, 35 52 C38 35, 29 26, 45 22 Z",
-    mapImage: ""
+    mapImage: "https://lh3.googleusercontent.com/d/1YsrWfxGY9byZp2cUcQtdJFQF0liO6l_z"
   },
   {
     id: "uae",
@@ -1142,7 +1141,7 @@ export const DEFAULT_LOCATIONS: OperationalLocation[] = [
     fontSize: 12,
     mapsUrl: "https://maps.google.com/?q=Dubai+Media+City",
     path: "M32 82 C45 68, 65 54, 78 40 C83 30, 78 20, 83 15 C88 10, 93 20, 88 35 C83 48, 73 62, 58 76 C48 86, 35 91, 32 82 Z",
-    mapImage: ""
+    mapImage: "https://lh3.googleusercontent.com/d/1Apke2XVpNh-L_NEeyyh0uNA-4xYb6XS4"
   },
   {
     id: "kenya",
@@ -1156,17 +1155,31 @@ export const DEFAULT_LOCATIONS: OperationalLocation[] = [
     localText: "KENYA",
     textY: 58,
     fontSize: 9,
-    mapsUrl: "https://maps.google.com/?q=Karen,+Nairobi,+Kenya",
+    mapsUrl: "https://drive.google.com/file/d/1qswJZJQMEB6gRyvQcmqJ0ptyhnBsKM9M/view?usp=sharing",
     path: "M48 22 C66 22, 80 35, 85 52 C90 70, 72 87, 58 94 C44 87, 26 70, 30 52 C34 35, 30 22, 48 22 Z",
-    mapImage: ""
+    mapImage: "https://lh3.googleusercontent.com/d/1qswJZJQMEB6gRyvQcmqJ0ptyhnBsKM9M"
   }
 ];
 
 export const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
-  { id: 1, name: 'Vikram Singh', role: 'Founder & Director', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=600', mediaType: 'image' },
-  { id: 2, name: 'Ananya Sharma', role: 'Creative Producer', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=600', mediaType: 'image' },
-  { id: 3, name: 'Rahul Mehra', role: 'Post-Production', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600', mediaType: 'image' },
-  { id: 4, name: 'Zoya Akhtar', role: 'Cinematographer', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600', mediaType: 'image' },
+  { id: 1, name: "PUNEET GAUTAM", role: "", image: "https://drive.google.com/file/d/1bwolrzjYywZ7sA3z8tgS-iS1KYX11W7l/view?usp=sharing", mediaType: "image" },
+  { id: 2, name: "AAKASH DUTT", role: "", image: "https://drive.google.com/file/d/1s4BfwZv_dBXt_uRDmbWx9xnbTVtcngEc/view?usp=sharing", mediaType: "image" },
+  { id: 3, name: "RAGHAV SHIROMANI", role: "Post-Production", image: "https://drive.google.com/file/d/1EstiyCHGeRscKQIwFz_ghnE1DCeqfiCz/view?usp=sharing", mediaType: "image" },
+  { id: 5, name: "DEODAT KUMAR", role: "Team Associate", image: "https://drive.google.com/file/d/1xuuUAYxz2Q2qicHdLeKUfyBSv_XwKBk8/view?usp=sharing", mediaType: "image" },
+  { id: 4, name: "NIKHIL SHARMA", role: "Cinematographer", image: "https://drive.google.com/file/d/1VEJ2UFRDWSiZ9u9W8t9Htt4MU4Vh37tJ/view?usp=sharing", mediaType: "image" },
+  { id: 6, name: "AKSHIT MATHUR", role: "Team Associate", image: "https://drive.google.com/file/d/1x3b8vP9r9_NlAL5aSudHSitXnTkJ3gp6/view?usp=sharing", mediaType: "image" },
+  { id: 7, name: "FALAK KHATANA", role: "Team Associate", image: "https://drive.google.com/file/d/17Cdf03kcdbdbwutiOMkN3aAwJFN-wIMm/view?usp=sharing", mediaType: "image" },
+  { id: 8, name: "NANDINI IYER", role: "Team Associate", image: "https://drive.google.com/file/d/1SGNI6-54LGypHgEMNEDw8DEzWCdLxXiZ/view?usp=sharing", mediaType: "image" },
+  { id: 9, name: "ANIMAN PRASHAD ", role: "Team Associate", image: "https://drive.google.com/file/d/1Hoi2Fep3m1zPHU56GneQxa0UTVOF_SU2/view?usp=sharing", mediaType: "image" },
+  { id: 10, name: "MRIDUL SWWAMI", role: "Team Associate", image: "https://drive.google.com/file/d/1gdaViZLjHAjHpVLvkxJLd8sc14lS6WP9/view?usp=sharing", mediaType: "image" },
+  { id: 11, name: "SURENDER VASHISHT", role: "Team Associate", image: "https://drive.google.com/file/d/1_zfWSIHfGDNiw1tzQTZvTrsfCWjNa--f/view?usp=sharing", mediaType: "image" },
+  { id: 12, name: "SURBHI RANA ", role: "Team Associate", image: "https://drive.google.com/file/d/1Q5ZcHNFNvLoRirNrBwZn3jKcw1unGG3h/view?usp=sharing", mediaType: "image" },
+  { id: 13, name: "JEETENDER", role: "Team Associate", image: "https://drive.google.com/file/d/1892f9udVzfXEUNNRCTFgZxE2hr4GiRtB/view?usp=sharing", mediaType: "image" },
+  { id: 14, name: "BIJAY KUMAR", role: "Team Associate", image: "https://drive.google.com/file/d/1rkA_iwJQBbZv6bBmw-RCM2kBW8MdmFQv/view?usp=sharing", mediaType: "image" },
+  { id: 15, name: "COFFEE", role: "Team Associate", image: "https://drive.google.com/file/d/18ZgyQiqhhm9FyioZoySxCvK1Msve7GAp/view?usp=sharing", mediaType: "image" },
+  { id: 16, name: "BARFI", role: "Team Associate", image: "https://drive.google.com/file/d/1IRUkj8RaqXgPuKpXmaZ5YukIoJyKAqRu/view?usp=sharing", mediaType: "image" },
+  { id: 17, name: "RABDI", role: "Team Associate", image: "https://drive.google.com/file/d/1dRAKgwVIpzZRCucXDXpEMG0MGcUA9l7h/view?usp=sharing", mediaType: "image" },
+  { id: 19, name: "CHICO", role: "Team Associate", image: "https://drive.google.com/file/d/1hEUudJsJt3sr12uQS0bzbTu8BRsKmRhp/view?usp=sharing", mediaType: "image" }
 ];
 
 function DreamTeam() {
