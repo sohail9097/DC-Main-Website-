@@ -42,6 +42,7 @@ import {
   isEmbedUrl,
   getEmbedUrl
 } from '../App';
+import { SITE_DEFAULTS, DEFAULT_ABOUT_TEAM } from '../lib/siteDefaults';
 
 const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
   const [stars, setStars] = useState<{ id: number; left: string; top: string; size: number; duration: number; delay: number; driftX: number; driftY: number }[]>([]);
@@ -379,13 +380,28 @@ const AboutPage = () => {
   }, []);
 
   const loadAboutConfigs = () => {
-    setWord1(localStorage.getItem('about_bgt_word1') || 'Dream');
-    setWord2(localStorage.getItem('about_bgt_word2') || 'Catchers');
-    setTagline(localStorage.getItem('about_bgt_tagline') || 'Engineers of visual euphoria. Architects of cinematic truth.');
-    setBgImg(localStorage.getItem('about_hero_bg') || 'https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&q=80&w=2072');
-    setPromoVideoUrl(localStorage.getItem('about_promo_video_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
-    setJoinUsImg(localStorage.getItem('about_join_us_img') || 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=800');
-    setGenesisSub(localStorage.getItem('about_genesis_sub') || 'The Genesis');
+    setWord1(localStorage.getItem('about_bgt_word1') || SITE_DEFAULTS.about_bgt_word1 || 'Dream');
+    setWord2(localStorage.getItem('about_bgt_word2') || SITE_DEFAULTS.about_bgt_word2 || 'Catchers');
+    setTagline(localStorage.getItem('about_bgt_tagline') || SITE_DEFAULTS.about_bgt_tagline || 'Engineers of visual euphoria. Architects of cinematic truth.');
+    
+    let bg = localStorage.getItem('about_hero_bg');
+    if (!bg || bg.includes('images.unsplash.com/photo-1533488765986')) {
+      bg = SITE_DEFAULTS.about_hero_bg;
+    }
+    setBgImg(bg);
+
+    let promo = localStorage.getItem('about_promo_video_url');
+    if (!promo || promo.includes('drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf')) {
+      promo = SITE_DEFAULTS.about_promo_video_url;
+    }
+    setPromoVideoUrl(promo);
+
+    let joinImg = localStorage.getItem('about_join_us_img');
+    if (!joinImg || joinImg.includes('images.unsplash.com/photo-1492691527719')) {
+      joinImg = SITE_DEFAULTS.about_join_us_img;
+    }
+    setJoinUsImg(joinImg);
+    setGenesisSub(localStorage.getItem('about_genesis_sub') || SITE_DEFAULTS.about_genesis_sub || 'The Genesis');
 
     let storedTitle = localStorage.getItem('about_genesis_title');
     if (!storedTitle || storedTitle === 'Where Magic Finds Its Form.') {
@@ -395,22 +411,22 @@ const AboutPage = () => {
 
     let storedP1 = localStorage.getItem('about_genesis_p1');
     if (!storedP1 || storedP1 === 'Dreamcatchers started with a simple belief: that every story, no matter how small, deserves to be told with the weight of an epic.') {
-      storedP1 = 'Dreamcatchers began with two storytellers creating lifestyle programming for television. After years of crafting content at some of India\'s leading broadcast networks, Puneet and Amitabh Gautam set out to build a production company.';
+      storedP1 = SITE_DEFAULTS.about_genesis_p1;
     }
     setGenesisP1(storedP1);
 
     let storedP2 = localStorage.getItem('about_genesis_p2');
     if (!storedP2 || storedP2 === "From our humble beginnings producing daily chat shows, we've evolved into a powerhouse creative studio that brands trust to bring their most ambitious visions to life.") {
-      storedP2 = 'More than two decades later, today, Dreamcatchers is a full-service creative studio that operates from three offices across India and two international locations. The company has expanded into specialised verticals, including DC Digital, dedicated to digital-first storytelling, and Sports Box, a sports production company operating across Africa and Europe.';
+      storedP2 = SITE_DEFAULTS.about_genesis_p2;
     }
     setGenesisP2(storedP2);
 
-    setGenesisSub3(localStorage.getItem('about_genesis_sub3') || 'Our Evolution');
-    setGenesisTitle3(localStorage.getItem('about_genesis_title3') || 'From Curiosity to Creation');
+    setGenesisSub3(localStorage.getItem('about_genesis_sub3') || SITE_DEFAULTS.about_genesis_sub3 || 'Our Evolution');
+    setGenesisTitle3(localStorage.getItem('about_genesis_title3') || SITE_DEFAULTS.about_genesis_title3 || 'From Curiosity to Creation');
 
     let storedP3 = localStorage.getItem('about_genesis_p3');
     if (!storedP3 || storedP3 === "Having cut their teeth at some of India's leading television networks, they set out to create the kind of content they wanted to watch—fresh, engaging, and driven by curiosity. What started as a small passion project soon turned into a creative studio. Today, DC creates campaigns, films, series, branded content, for brands across the world.") {
-      storedP3 = 'From television beginnings to global productions, our journey has remained rooted in one constant: creating stories that move people.';
+      storedP3 = SITE_DEFAULTS.about_genesis_p3;
     }
     setGenesisP3(storedP3);
 
@@ -420,34 +436,27 @@ const AboutPage = () => {
       localStorage.setItem('about_stat1_val', '20+');
     }
     setStat1Val(storedStat1);
-    setStat1Lbl(localStorage.getItem('about_stat1_lbl') || 'YEARS ON SET');
-    setStat2Val(localStorage.getItem('about_stat2_val') || '500+');
-    setStat2Lbl(localStorage.getItem('about_stat2_lbl') || 'FILMS BORN');
-    setStat3Val(localStorage.getItem('about_stat3_val') || '30+');
-    setStat3Lbl(localStorage.getItem('about_stat3_lbl') || 'CREATIVE MINDS');
-    setStat4Val(localStorage.getItem('about_stat4_val') || '100+');
-    setStat4Lbl(localStorage.getItem('about_stat4_lbl') || 'GLOBAL BRANDS');
+    setStat1Lbl(localStorage.getItem('about_stat1_lbl') || SITE_DEFAULTS.about_stat1_lbl || 'YEARS ON SET');
+    setStat2Val(localStorage.getItem('about_stat2_val') || SITE_DEFAULTS.about_stat2_val || '500+');
+    setStat2Lbl(localStorage.getItem('about_stat2_lbl') || SITE_DEFAULTS.about_stat2_lbl || 'FILMS BORN');
+    setStat3Val(localStorage.getItem('about_stat3_val') || SITE_DEFAULTS.about_stat3_val || '30+');
+    setStat3Lbl(localStorage.getItem('about_stat3_lbl') || SITE_DEFAULTS.about_stat3_lbl || 'CREATIVE MINDS');
+    setStat4Val(localStorage.getItem('about_stat4_val') || SITE_DEFAULTS.about_stat4_val || '100+');
+    setStat4Lbl(localStorage.getItem('about_stat4_lbl') || SITE_DEFAULTS.about_stat4_lbl || 'GLOBAL BRANDS');
 
     const storedTeam = localStorage.getItem('about_team');
     if (storedTeam) {
       try {
-        setTeam(JSON.parse(storedTeam));
+        const parsed = JSON.parse(storedTeam);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setTeam(parsed);
+          return;
+        }
       } catch (e) {
         console.error('Error loading team from local storage:', e);
       }
-    } else {
-      setTeam([
-        { name: 'FARZEEN KHAN', role: 'EXECUTIVE PRODUCER', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400' },
-        { name: 'AASHOOTOSH PANDEY', role: 'EXECUTIVE PRODUCER (DELHI)', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400' },
-        { name: 'RAHUL DEROZE', role: 'CREATIVE PRODUCER', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400' },
-        { name: 'PRITI RAI', role: 'POST PRODUCTION SUPERVISOR', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400' },
-        { name: 'YATENDRA NEGI', role: 'ACCOUNTS HEAD', img: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400' },
-        { name: 'DIVYA AGRAWAL', role: 'HUMAN RESOURCE MANAGER', img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400' },
-        { name: 'KARPU SWAMI', role: 'FINANCE CONTROLLER', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400' },
-        { name: 'NAMAN KOHLI', role: 'SENIOR ASSOCIATE PRODUCER', img: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&q=80&w=400' },
-        { name: 'RAMIN YAZESHANI', role: 'ASSOCIATE PRODUCER', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400' },
-      ]);
     }
+    setTeam(DEFAULT_ABOUT_TEAM);
   };
 
   useEffect(() => {

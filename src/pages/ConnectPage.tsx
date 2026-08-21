@@ -30,6 +30,7 @@ import {
   OperationalLocation,
   transformGoogleDriveUrl
 } from '../App';
+import { SITE_DEFAULTS } from '../lib/siteDefaults';
 
 const StarField: FC<{ count?: number }> = ({ count = 250 }) => {
   const [stars, setStars] = useState<{ id: number; left: string; top: string; size: number; duration: number; delay: number }[]>([]);
@@ -143,30 +144,39 @@ export default function ConnectPage() {
   const loadConfigs = () => {
     // Contact Section Details
     const titleFirst = localStorage.getItem('contact_title_first');
-    setContactTitleFirst(!titleFirst || titleFirst === "Let's" || titleFirst === "Connect with" ? "Partner with" : titleFirst);
+    setContactTitleFirst(!titleFirst || titleFirst === "Let's" || titleFirst === "Connect with" ? (SITE_DEFAULTS.contact_title_first || "Partner with") : titleFirst);
     const titleOrange = localStorage.getItem('contact_title_orange');
-    setContactTitleOrange(!titleOrange || titleOrange === "Connect." ? "us." : titleOrange);
-    setContactSubtitle(localStorage.getItem('contact_subtitle') || "Start your cinematic journey today.");
-    let email = localStorage.getItem('contact_email') || "hello@dreamcatchers.tv";
+    setContactTitleOrange(!titleOrange || titleOrange === "Connect." ? (SITE_DEFAULTS.contact_title_orange || "us.") : titleOrange);
+    setContactSubtitle(localStorage.getItem('contact_subtitle') || SITE_DEFAULTS.contact_subtitle || "Start your cinematic journey today.");
+    let email = localStorage.getItem('contact_email') || SITE_DEFAULTS.contact_email || "hello@dreamcatchers.tv";
     if (email.toLowerCase().includes('@dreamcatchers.com')) {
       email = email.replace(/@dreamcatchers\.com/gi, '@dreamcatchers.tv');
       localStorage.setItem('contact_email', email);
     }
     setContactEmail(email);
-    setContactPhone(localStorage.getItem('contact_phone') || "+91 98765 43210");
-    setContactAddress(localStorage.getItem('contact_address') || "820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
-    setContactImage(localStorage.getItem('contact_image') || "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=1074&auto=format&fit=crop");
+    setContactPhone(localStorage.getItem('contact_phone') || SITE_DEFAULTS.contact_phone || "+91 98110 18181");
+    setContactAddress(localStorage.getItem('contact_address') || SITE_DEFAULTS.contact_address || "Lower Parel, Mumbai, India");
+    
+    let contactImg = localStorage.getItem('contact_image');
+    if (!contactImg || contactImg.includes('images.unsplash.com/photo-1478760329108')) {
+      contactImg = SITE_DEFAULTS.contact_image;
+    }
+    setContactImage(contactImg);
 
     // Load Option Cards Configurations
-    setBox1Bg(localStorage.getItem('contact_box1_bg') || "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1170&auto=format&fit=crop");
-    setBox1Label(localStorage.getItem('contact_box1_label') || "SPORTS VERTICAL");
-    setBox1Title(localStorage.getItem('contact_box1_title') || "INTERNATIONAL TOURNAMENT ORGANISING & BROADCAST");
-    setBox2Bg(localStorage.getItem('contact_box2_bg') || "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1102&auto=format&fit=crop");
-    setBox2Label(localStorage.getItem('contact_box2_label') || "DIGITAL VERTICAL");
-    setBox2Title(localStorage.getItem('contact_box2_title') || "SHORT FORM, DIGITAL, AI CONTENT");
+    setBox1Bg(localStorage.getItem('contact_box1_bg') || SITE_DEFAULTS.contact_box1_bg || "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1170&auto=format&fit=crop");
+    setBox1Label(localStorage.getItem('contact_box1_label') || SITE_DEFAULTS.contact_box1_label || "SPORTS VERTICAL");
+    setBox1Title(localStorage.getItem('contact_box1_title') || SITE_DEFAULTS.contact_box1_title || "INTERNATIONAL TOURNAMENT ORGANISING & BROADCAST");
+    setBox2Bg(localStorage.getItem('contact_box2_bg') || SITE_DEFAULTS.contact_box2_bg || "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1102&auto=format&fit=crop");
+    setBox2Label(localStorage.getItem('contact_box2_label') || SITE_DEFAULTS.contact_box2_label || "DIGITAL VERTICAL");
+    setBox2Title(localStorage.getItem('contact_box2_title') || SITE_DEFAULTS.contact_box2_title || "SHORT FORM, DIGITAL, AI CONTENT");
 
     // Careers section details
-    setJoinUsImg(localStorage.getItem('about_join_us_img') || 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=800');
+    let joinImg = localStorage.getItem('about_join_us_img');
+    if (!joinImg || joinImg.includes('images.unsplash.com/photo-1492691527719')) {
+      joinImg = SITE_DEFAULTS.about_join_us_img;
+    }
+    setJoinUsImg(joinImg);
 
     // Locations list details
     const storedLocs = localStorage.getItem('dc_locations');

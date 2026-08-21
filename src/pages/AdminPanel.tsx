@@ -9,6 +9,7 @@ import { DEFAULT_TEAM_MEMBERS, TeamMember, DEFAULT_ORBIT_IMAGES, DEFAULT_FILMS_L
 import { BrandItem, ClientItem, DEFAULT_BRAND_ITEMS, DEFAULT_CLIENTS_LIST } from '../utils/brandData';
 import { DEFAULT_SLIDES, CinematicSlide } from '../components/CinematicSlideshow';
 import { normalizeAndSyncData, isSimilarName } from '../utils/syncHelper';
+import { SITE_DEFAULTS, DEFAULT_ABOUT_TEAM } from '../lib/siteDefaults';
 
 export function transformGoogleDriveUrl(url: string, type: 'image' | 'video' = 'image'): string {
   if (!url) return '';
@@ -632,28 +633,49 @@ const AdminPanel: FC = () => {
   };
 
   // About Page state variables
-  const [aboutWord1, setAboutWord1] = useState('Dream');
-  const [aboutWord2, setAboutWord2] = useState('Catchers');
-  const [aboutTagline, setAboutTagline] = useState('Engineers of visual euphoria. Architects of cinematic truth.');
-  const [aboutHeroBg, setAboutHeroBg] = useState('https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&q=80&w=2072');
-  const [aboutJoinUsImg, setAboutJoinUsImg] = useState('https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=800');
-  const [aboutGenesisSub, setAboutGenesisSub] = useState('The Genesis');
-  const [aboutGenesisTitle, setAboutGenesisTitle] = useState('The Genesis');
-  const [aboutGenesisP1, setAboutGenesisP1] = useState('Dreamcatchers began with two storytellers creating lifestyle programming for television. After years of crafting content at some of India\'s leading broadcast networks, Puneet and Amitabh Gautam set out to build a production company.');
-  const [aboutGenesisP2, setAboutGenesisP2] = useState('More than two decades later, today, Dreamcatchers is a full-service creative studio that operates from three offices across India and two international locations. The company has expanded into specialised verticals, including DC Digital, dedicated to digital-first storytelling, and Sports Box, a sports production company operating across Africa and Europe.');
-  const [aboutGenesisSub3, setAboutGenesisSub3] = useState('Our Evolution');
-  const [aboutGenesisTitle3, setAboutGenesisTitle3] = useState('From Curiosity to Creation');
-  const [aboutGenesisP3, setAboutGenesisP3] = useState('From television beginnings to global productions, our journey has remained rooted in one constant: creating stories that move people.');
-  const [aboutPromoVideoUrl, setAboutPromoVideoUrl] = useState('https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
+  const [aboutWord1, setAboutWord1] = useState(() => localStorage.getItem('about_bgt_word1') || SITE_DEFAULTS.about_bgt_word1 || 'Dream');
+  const [aboutWord2, setAboutWord2] = useState(() => localStorage.getItem('about_bgt_word2') || SITE_DEFAULTS.about_bgt_word2 || 'Catchers');
+  const [aboutTagline, setAboutTagline] = useState(() => localStorage.getItem('about_bgt_tagline') || SITE_DEFAULTS.about_bgt_tagline || 'Engineers of visual euphoria. Architects of cinematic truth.');
+  const [aboutHeroBg, setAboutHeroBg] = useState(() => {
+    const val = localStorage.getItem('about_hero_bg');
+    return (!val || val.includes('images.unsplash.com/photo-1533488765986')) ? SITE_DEFAULTS.about_hero_bg : val;
+  });
+  const [aboutJoinUsImg, setAboutJoinUsImg] = useState(() => {
+    const val = localStorage.getItem('about_join_us_img');
+    return (!val || val.includes('images.unsplash.com/photo-1492691527719')) ? SITE_DEFAULTS.about_join_us_img : val;
+  });
+  const [aboutGenesisSub, setAboutGenesisSub] = useState(() => localStorage.getItem('about_genesis_sub') || SITE_DEFAULTS.about_genesis_sub || 'The Genesis');
+  const [aboutGenesisTitle, setAboutGenesisTitle] = useState(() => {
+    const val = localStorage.getItem('about_genesis_title');
+    return (!val || val === 'Where Magic Finds Its Form.') ? 'The Genesis' : val;
+  });
+  const [aboutGenesisP1, setAboutGenesisP1] = useState(() => {
+    const val = localStorage.getItem('about_genesis_p1');
+    return (!val || val === 'Dreamcatchers started with a simple belief: that every story, no matter how small, deserves to be told with the weight of an epic.') ? SITE_DEFAULTS.about_genesis_p1 : val;
+  });
+  const [aboutGenesisP2, setAboutGenesisP2] = useState(() => {
+    const val = localStorage.getItem('about_genesis_p2');
+    return (!val || val === "From our humble beginnings producing daily chat shows, we've evolved into a powerhouse creative studio that brands trust to bring their most ambitious visions to life.") ? SITE_DEFAULTS.about_genesis_p2 : val;
+  });
+  const [aboutGenesisSub3, setAboutGenesisSub3] = useState(() => localStorage.getItem('about_genesis_sub3') || SITE_DEFAULTS.about_genesis_sub3 || 'Our Evolution');
+  const [aboutGenesisTitle3, setAboutGenesisTitle3] = useState(() => localStorage.getItem('about_genesis_title3') || SITE_DEFAULTS.about_genesis_title3 || 'From Curiosity to Creation');
+  const [aboutGenesisP3, setAboutGenesisP3] = useState(() => {
+    const val = localStorage.getItem('about_genesis_p3');
+    return (!val || val === "Having cut their teeth at some of India's leading television networks, they set out to create the kind of content they wanted to watch—fresh, engaging, and driven by curiosity. What started as a small passion project soon turned into a creative studio. Today, DC creates campaigns, films, series, branded content, for brands across the world.") ? SITE_DEFAULTS.about_genesis_p3 : val;
+  });
+  const [aboutPromoVideoUrl, setAboutPromoVideoUrl] = useState(() => {
+    const val = localStorage.getItem('about_promo_video_url');
+    return (!val || val.includes('drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf')) ? SITE_DEFAULTS.about_promo_video_url : val;
+  });
 
-  const [aboutStat1Val, setAboutStat1Val] = useState('20+');
-  const [aboutStat1Lbl, setAboutStat1Lbl] = useState('YEARS ON SET');
-  const [aboutStat2Val, setAboutStat2Val] = useState('500+');
-  const [aboutStat2Lbl, setAboutStat2Lbl] = useState('FILMS BORN');
-  const [aboutStat3Val, setAboutStat3Val] = useState('30+');
-  const [aboutStat3Lbl, setAboutStat3Lbl] = useState('CREATIVE MINDS');
-  const [aboutStat4Val, setAboutStat4Val] = useState('100+');
-  const [aboutStat4Lbl, setAboutStat4Lbl] = useState('GLOBAL BRANDS');
+  const [aboutStat1Val, setAboutStat1Val] = useState(() => localStorage.getItem('about_stat1_val') || SITE_DEFAULTS.about_stat1_val || '20+');
+  const [aboutStat1Lbl, setAboutStat1Lbl] = useState(() => localStorage.getItem('about_stat1_lbl') || SITE_DEFAULTS.about_stat1_lbl || 'YEARS ON SET');
+  const [aboutStat2Val, setAboutStat2Val] = useState(() => localStorage.getItem('about_stat2_val') || SITE_DEFAULTS.about_stat2_val || '500+');
+  const [aboutStat2Lbl, setAboutStat2Lbl] = useState(() => localStorage.getItem('about_stat2_lbl') || SITE_DEFAULTS.about_stat2_lbl || 'FILMS BORN');
+  const [aboutStat3Val, setAboutStat3Val] = useState(() => localStorage.getItem('about_stat3_val') || SITE_DEFAULTS.about_stat3_val || '30+');
+  const [aboutStat3Lbl, setAboutStat3Lbl] = useState(() => localStorage.getItem('about_stat3_lbl') || SITE_DEFAULTS.about_stat3_lbl || 'CREATIVE MINDS');
+  const [aboutStat4Val, setAboutStat4Val] = useState(() => localStorage.getItem('about_stat4_val') || SITE_DEFAULTS.about_stat4_val || '100+');
+  const [aboutStat4Lbl, setAboutStat4Lbl] = useState(() => localStorage.getItem('about_stat4_lbl') || SITE_DEFAULTS.about_stat4_lbl || 'GLOBAL BRANDS');
 
   const [aboutTeam, setAboutTeam] = useState<{name: string, role: string, img: string}[]>([]);
   const [showAddAboutTeamForm, setShowAddAboutTeamForm] = useState(false);
@@ -668,26 +690,28 @@ const AdminPanel: FC = () => {
   // Contact Page state variables
   const [contactTitleFirst, setContactTitleFirst] = useState(() => {
     const val = localStorage.getItem('contact_title_first');
-    if (!val || val === "Let's" || val === "Connect with") return "Partner with";
+    if (!val || val === "Let's" || val === "Connect with") return SITE_DEFAULTS.contact_title_first || "Partner with";
     return val;
   });
   const [contactTitleOrange, setContactTitleOrange] = useState(() => {
     const val = localStorage.getItem('contact_title_orange');
-    if (!val || val === "Connect.") return "us.";
+    if (!val || val === "Connect.") return SITE_DEFAULTS.contact_title_orange || "us.";
     return val;
   });
-  const [contactSubtitle, setContactSubtitle] = useState("Start your cinematic journey today.");
+  const [contactSubtitle, setContactSubtitle] = useState(() => localStorage.getItem('contact_subtitle') || SITE_DEFAULTS.contact_subtitle || "Start your cinematic journey today.");
   const [contactEmail, setContactEmail] = useState(() => {
-    const email = localStorage.getItem('contact_email') || "hello@dreamcatchers.tv";
+    const email = localStorage.getItem('contact_email') || SITE_DEFAULTS.contact_email || "hello@dreamcatchers.tv";
     return email.toLowerCase().includes('@dreamcatchers.com') 
       ? email.replace(/@dreamcatchers\.com/gi, '@dreamcatchers.tv') 
       : email;
   });
-  const [contactPhone, setContactPhone] = useState("+91 98765 43210");
-  const [contactAddress, setContactAddress] = useState("820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
+  const [contactPhone, setContactPhone] = useState(() => localStorage.getItem('contact_phone') || SITE_DEFAULTS.contact_phone || "+91 98110 18181");
+  const [contactAddress, setContactAddress] = useState(() => localStorage.getItem('contact_address') || SITE_DEFAULTS.contact_address || "Lower Parel, Mumbai, India");
   const [contactImage, setContactImage] = useState(() => {
-    return localStorage.getItem('contact_image') || "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=1074&auto=format&fit=crop";
+    const val = localStorage.getItem('contact_image');
+    return (!val || val.includes('images.unsplash.com/photo-1478760329108')) ? SITE_DEFAULTS.contact_image : val;
   });
+
   const [isUploadingContactImage, setIsUploadingContactImage] = useState(false);
   const [contactImageUploadError, setContactImageUploadError] = useState('');
   const [contactImageInputType, setContactImageInputType] = useState<'upload' | 'url'>('upload');
@@ -826,12 +850,22 @@ const AdminPanel: FC = () => {
     setBrandPartners(syncedBrands);
 
     // Load About configs
-    setAboutWord1(localStorage.getItem('about_bgt_word1') || 'Dream');
-    setAboutWord2(localStorage.getItem('about_bgt_word2') || 'Catchers');
-    setAboutTagline(localStorage.getItem('about_bgt_tagline') || 'Engineers of visual euphoria. Architects of cinematic truth.');
-    setAboutHeroBg(localStorage.getItem('about_hero_bg') || 'https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?auto=format&fit=crop&q=80&w=2072');
-    setAboutJoinUsImg(localStorage.getItem('about_join_us_img') || 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=800');
-    setAboutGenesisSub(localStorage.getItem('about_genesis_sub') || 'The Genesis');
+    setAboutWord1(localStorage.getItem('about_bgt_word1') || SITE_DEFAULTS.about_bgt_word1 || 'Dream');
+    setAboutWord2(localStorage.getItem('about_bgt_word2') || SITE_DEFAULTS.about_bgt_word2 || 'Catchers');
+    setAboutTagline(localStorage.getItem('about_bgt_tagline') || SITE_DEFAULTS.about_bgt_tagline || 'Engineers of visual euphoria. Architects of cinematic truth.');
+    
+    let abHero = localStorage.getItem('about_hero_bg');
+    if (!abHero || abHero.includes('images.unsplash.com/photo-1533488765986')) {
+      abHero = SITE_DEFAULTS.about_hero_bg;
+    }
+    setAboutHeroBg(abHero);
+
+    let abJoin = localStorage.getItem('about_join_us_img');
+    if (!abJoin || abJoin.includes('images.unsplash.com/photo-1492691527719')) {
+      abJoin = SITE_DEFAULTS.about_join_us_img;
+    }
+    setAboutJoinUsImg(abJoin);
+    setAboutGenesisSub(localStorage.getItem('about_genesis_sub') || SITE_DEFAULTS.about_genesis_sub || 'The Genesis');
 
     let storedTitle = localStorage.getItem('about_genesis_title');
     if (!storedTitle || storedTitle === 'Where Magic Finds Its Form.') {
@@ -841,26 +875,30 @@ const AdminPanel: FC = () => {
 
     let storedP1 = localStorage.getItem('about_genesis_p1');
     if (!storedP1 || storedP1 === 'Dreamcatchers started with a simple belief: that every story, no matter how small, deserves to be told with the weight of an epic.') {
-      storedP1 = 'Dreamcatchers began with two storytellers creating lifestyle programming for television. After years of crafting content at some of India\'s leading broadcast networks, Puneet and Amitabh Gautam set out to build a production company.';
+      storedP1 = SITE_DEFAULTS.about_genesis_p1;
     }
     setAboutGenesisP1(storedP1);
 
     let storedP2 = localStorage.getItem('about_genesis_p2');
     if (!storedP2 || storedP2 === "From our humble beginnings producing daily chat shows, we've evolved into a powerhouse creative studio that brands trust to bring their most ambitious visions to life.") {
-      storedP2 = 'More than two decades later, today, Dreamcatchers is a full-service creative studio that operates from three offices across India and two international locations. The company has expanded into specialised verticals, including DC Digital, dedicated to digital-first storytelling, and Sports Box, a sports production company operating across Africa and Europe.';
+      storedP2 = SITE_DEFAULTS.about_genesis_p2;
     }
     setAboutGenesisP2(storedP2);
 
-    setAboutGenesisSub3(localStorage.getItem('about_genesis_sub3') || 'Our Evolution');
-    setAboutGenesisTitle3(localStorage.getItem('about_genesis_title3') || 'From Curiosity to Creation');
+    setAboutGenesisSub3(localStorage.getItem('about_genesis_sub3') || SITE_DEFAULTS.about_genesis_sub3 || 'Our Evolution');
+    setAboutGenesisTitle3(localStorage.getItem('about_genesis_title3') || SITE_DEFAULTS.about_genesis_title3 || 'From Curiosity to Creation');
 
     let storedP3 = localStorage.getItem('about_genesis_p3');
     if (!storedP3 || storedP3 === "Having cut their teeth at some of India's leading television networks, they set out to create the kind of content they wanted to watch—fresh, engaging, and driven by curiosity. What started as a small passion project soon turned into a creative studio. Today, DC creates campaigns, films, series, branded content, for brands across the world.") {
-      storedP3 = 'From television beginnings to global productions, our journey has remained rooted in one constant: creating stories that move people.';
+      storedP3 = SITE_DEFAULTS.about_genesis_p3;
     }
     setAboutGenesisP3(storedP3);
 
-    setAboutPromoVideoUrl(localStorage.getItem('about_promo_video_url') || 'https://drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf/view?usp=sharing');
+    let abPromo = localStorage.getItem('about_promo_video_url');
+    if (!abPromo || abPromo.includes('drive.google.com/file/d/1b38p3_XY-qOoqHtiIPVc2Qdq00DhDpTf')) {
+      abPromo = SITE_DEFAULTS.about_promo_video_url;
+    }
+    setAboutPromoVideoUrl(abPromo);
 
     let storedStat1 = localStorage.getItem('about_stat1_val');
     if (!storedStat1 || storedStat1 === '14+') {
@@ -868,58 +906,59 @@ const AdminPanel: FC = () => {
       localStorage.setItem('about_stat1_val', '20+');
     }
     setAboutStat1Val(storedStat1);
-    setAboutStat1Lbl(localStorage.getItem('about_stat1_lbl') || 'YEARS ON SET');
-    setAboutStat2Val(localStorage.getItem('about_stat2_val') || '500+');
-    setAboutStat2Lbl(localStorage.getItem('about_stat2_lbl') || 'FILMS BORN');
-    setAboutStat3Val(localStorage.getItem('about_stat3_val') || '30+');
-    setAboutStat3Lbl(localStorage.getItem('about_stat3_lbl') || 'CREATIVE MINDS');
-    setAboutStat4Val(localStorage.getItem('about_stat4_val') || '100+');
-    setAboutStat4Lbl(localStorage.getItem('about_stat4_lbl') || 'GLOBAL BRANDS');
+    setAboutStat1Lbl(localStorage.getItem('about_stat1_lbl') || SITE_DEFAULTS.about_stat1_lbl || 'YEARS ON SET');
+    setAboutStat2Val(localStorage.getItem('about_stat2_val') || SITE_DEFAULTS.about_stat2_val || '500+');
+    setAboutStat2Lbl(localStorage.getItem('about_stat2_lbl') || SITE_DEFAULTS.about_stat2_lbl || 'FILMS BORN');
+    setAboutStat3Val(localStorage.getItem('about_stat3_val') || SITE_DEFAULTS.about_stat3_val || '30+');
+    setAboutStat3Lbl(localStorage.getItem('about_stat3_lbl') || SITE_DEFAULTS.about_stat3_lbl || 'CREATIVE MINDS');
+    setAboutStat4Val(localStorage.getItem('about_stat4_val') || SITE_DEFAULTS.about_stat4_val || '100+');
+    setAboutStat4Lbl(localStorage.getItem('about_stat4_lbl') || SITE_DEFAULTS.about_stat4_lbl || 'GLOBAL BRANDS');
 
     const storedAboutTeam = localStorage.getItem('about_team');
     if (storedAboutTeam) {
       try {
-        setAboutTeam(JSON.parse(storedAboutTeam));
+        const parsed = JSON.parse(storedAboutTeam);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setAboutTeam(parsed);
+        } else {
+          setAboutTeam(DEFAULT_ABOUT_TEAM);
+        }
       } catch (e) {
         console.error('Error loading about team:', e);
+        setAboutTeam(DEFAULT_ABOUT_TEAM);
       }
     } else {
-      setAboutTeam([
-        { name: 'FARZEEN KHAN', role: 'EXECUTIVE PRODUCER', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400' },
-        { name: 'AASHOOTOSH PANDEY', role: 'EXECUTIVE PRODUCER (DELHI)', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400' },
-        { name: 'RAHUL DEROZE', role: 'CREATIVE PRODUCER', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400' },
-        { name: 'PRITI RAI', role: 'POST PRODUCTION SUPERVISOR', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400' },
-        { name: 'YATENDRA NEGI', role: 'ACCOUNTS HEAD', img: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400' },
-        { name: 'DIVYA AGRAWAL', role: 'HUMAN RESOURCE MANAGER', img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400' },
-        { name: 'KARPU SWAMI', role: 'FINANCE CONTROLLER', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400' },
-        { name: 'NAMAN KOHLI', role: 'SENIOR ASSOCIATE PRODUCER', img: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&q=80&w=400' },
-        { name: 'RAMIN YAZESHANI', role: 'ASSOCIATE PRODUCER', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400' },
-      ]);
+      setAboutTeam(DEFAULT_ABOUT_TEAM);
     }
 
     // Load Contact configs
     const titleFirst = localStorage.getItem('contact_title_first');
-    setContactTitleFirst(!titleFirst || titleFirst === "Let's" || titleFirst === "Connect with" ? "Partner with" : titleFirst);
+    setContactTitleFirst(!titleFirst || titleFirst === "Let's" || titleFirst === "Connect with" ? (SITE_DEFAULTS.contact_title_first || "Partner with") : titleFirst);
     const titleOrange = localStorage.getItem('contact_title_orange');
-    setContactTitleOrange(!titleOrange || titleOrange === "Connect." ? "us." : titleOrange);
-    setContactSubtitle(localStorage.getItem('contact_subtitle') || "Start your cinematic journey today.");
-    let email = localStorage.getItem('contact_email') || "hello@dreamcatchers.tv";
+    setContactTitleOrange(!titleOrange || titleOrange === "Connect." ? (SITE_DEFAULTS.contact_title_orange || "us.") : titleOrange);
+    setContactSubtitle(localStorage.getItem('contact_subtitle') || SITE_DEFAULTS.contact_subtitle || "Start your cinematic journey today.");
+    let email = localStorage.getItem('contact_email') || SITE_DEFAULTS.contact_email || "hello@dreamcatchers.tv";
     if (email.toLowerCase().includes('@dreamcatchers.com')) {
       email = email.replace(/@dreamcatchers\.com/gi, '@dreamcatchers.tv');
       localStorage.setItem('contact_email', email);
     }
     setContactEmail(email);
-    setContactPhone(localStorage.getItem('contact_phone') || "+91 98765 43210");
-    setContactAddress(localStorage.getItem('contact_address') || "820, Sector 21A, Pocket E, Sector 21E, Sector 21, Gurugram, Delhi, Haryana 122016");
-    setContactImage(localStorage.getItem('contact_image') || "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=1074&auto=format&fit=crop");
+    setContactPhone(localStorage.getItem('contact_phone') || SITE_DEFAULTS.contact_phone || "+91 98110 18181");
+    setContactAddress(localStorage.getItem('contact_address') || SITE_DEFAULTS.contact_address || "Lower Parel, Mumbai, India");
+    
+    let ctImg = localStorage.getItem('contact_image');
+    if (!ctImg || ctImg.includes('images.unsplash.com/photo-1478760329108')) {
+      ctImg = SITE_DEFAULTS.contact_image;
+    }
+    setContactImage(ctImg);
 
     // Load Option Card Customizations
-    setContactBox1Bg(localStorage.getItem('contact_box1_bg') || "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1170&auto=format&fit=crop");
-    setContactBox1Label(localStorage.getItem('contact_box1_label') || "SPORTS VERTICAL");
-    setContactBox1Title(localStorage.getItem('contact_box1_title') || "INTERNATIONAL TOURNAMENT ORGANISING & BROADCAST");
-    setContactBox2Bg(localStorage.getItem('contact_box2_bg') || "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1102&auto=format&fit=crop");
-    setContactBox2Label(localStorage.getItem('contact_box2_label') || "DIGITAL VERTICAL");
-    setContactBox2Title(localStorage.getItem('contact_box2_title') || "SHORT FORM, DIGITAL, AI CONTENT");
+    setContactBox1Bg(localStorage.getItem('contact_box1_bg') || SITE_DEFAULTS.contact_box1_bg || "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1170&auto=format&fit=crop");
+    setContactBox1Label(localStorage.getItem('contact_box1_label') || SITE_DEFAULTS.contact_box1_label || "SPORTS VERTICAL");
+    setContactBox1Title(localStorage.getItem('contact_box1_title') || SITE_DEFAULTS.contact_box1_title || "INTERNATIONAL TOURNAMENT ORGANISING & BROADCAST");
+    setContactBox2Bg(localStorage.getItem('contact_box2_bg') || SITE_DEFAULTS.contact_box2_bg || "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1102&auto=format&fit=crop");
+    setContactBox2Label(localStorage.getItem('contact_box2_label') || SITE_DEFAULTS.contact_box2_label || "DIGITAL VERTICAL");
+    setContactBox2Title(localStorage.getItem('contact_box2_title') || SITE_DEFAULTS.contact_box2_title || "SHORT FORM, DIGITAL, AI CONTENT");
 
     // Load Social configs
     setSocialInstagram(localStorage.getItem('social_instagram') || '#');

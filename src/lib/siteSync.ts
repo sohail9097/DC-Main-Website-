@@ -1,6 +1,8 @@
-import { doc, setDoc, onSnapshot } from 'firebase/firestore';
+import { doc, setDoc, onSnapshot, getDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import { SITE_DEFAULTS } from './siteDefaults';
+
+export const SITE_CONFIG_VERSION = 'dc_canonical_v2026_08_21_prod_v2';
 
 const CONFIG_KEYS = [
   'dream_team',
@@ -8,6 +10,7 @@ const CONFIG_KEYS = [
   'home_hero_bg_type',
   'home_hero_bg_url',
   'home_hero_bg_image_url',
+  'home_hero_mobile_bg_url',
   'home_showreel_url',
   'home_title1_l1', 'home_title1_l2',
   'home_title2_l1', 'home_title2_l2',
@@ -36,20 +39,63 @@ const CONFIG_KEYS = [
 
 let isWritingToFirestore = false;
 
-// Function to seed default configs into LocalStorage if not already present
+export const dispatchAllUpdateEvents = () => {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new Event('storage'));
+  const events = [
+    'storage_updated_clients',
+    'storage_updated_team',
+    'storage_updated_orbit',
+    'storage_updated_home_hero',
+    'storage_updated_home_films',
+    'storage_updated_about',
+    'storage_updated_contact',
+    'storage_updated_films',
+    'storage_updated_socials',
+    'storage_updated_brand_partners',
+    'storage_updated_cinematic_slides',
+    'storage_updated_paragraph_frames',
+    'storage_updated_verticals',
+    'storage_updated_locations',
+    'storage_updated_inquiries'
+  ];
+  events.forEach(evt => window.dispatchEvent(new Event(evt)));
+};
+
+// Function to seed default configs into LocalStorage and enforce canonical site data
 export function seedDefaultsIfMissing() {
   if (typeof window === 'undefined') return;
   try {
     const defaults = SITE_DEFAULTS as Record<string, string>;
+    const currentVersion = localStorage.getItem('dc_site_config_version');
+    const isNewVersion = currentVersion !== SITE_CONFIG_VERSION;
+
     let seeded = false;
     Object.entries(defaults).forEach(([key, val]) => {
-      if (localStorage.getItem(key) === null && val !== undefined) {
-        localStorage.setItem(key, typeof val === 'string' ? val : JSON.stringify(val));
-        seeded = true;
+      const existing = localStorage.getItem(key);
+      
+      // If version updated OR key is missing OR contains old placeholder unsplash images that were superseded
+      const isOutdatedUnsplash = existing && (
+        existing.includes('images.unsplash.com/photo-1533488765986') ||
+        existing.includes('images.unsplash.com/photo-1478760329108') ||
+        existing.includes('images.unsplash.com/photo-1550684848')
+      );
+
+      if (isNewVersion || existing === null || isOutdatedUnsplash) {
+        if (val !== undefined) {
+          localStorage.setItem(key, typeof val === 'string' ? val : JSON.stringify(val));
+          seeded = true;
+        }
       }
     });
+
+    if (isNewVersion) {
+      localStorage.setItem('dc_site_config_version', SITE_CONFIG_VERSION);
+      seeded = true;
+    }
+
     if (seeded) {
-      window.dispatchEvent(new Event('storage'));
+      dispatchAllUpdateEvents();
     }
   } catch (e) {
     console.error('[SiteSync] Error seeding initial defaults:', e);
@@ -97,33 +143,11 @@ export async function pushLocalConfigsToFirestore() {
 export function initSiteSync() {
   if (typeof window === 'undefined') return () => {};
 
-  // First seed defaults if localStorage is empty
+  // First seed canonical defaults to ensure zero flash of outdated content
   seedDefaultsIfMissing();
 
   console.log("[SiteSync] Initializing site sync with Firestore...");
   const siteRef = doc(db, 'configs', 'site');
-
-  const dispatchAllUpdateEvents = () => {
-    window.dispatchEvent(new Event('storage'));
-    const events = [
-      'storage_updated_clients',
-      'storage_updated_team',
-      'storage_updated_orbit',
-      'storage_updated_home_hero',
-      'storage_updated_home_films',
-      'storage_updated_about',
-      'storage_updated_contact',
-      'storage_updated_films',
-      'storage_updated_socials',
-      'storage_updated_brand_partners',
-      'storage_updated_cinematic_slides',
-      'storage_updated_paragraph_frames',
-      'storage_updated_verticals',
-      'storage_updated_locations',
-      'storage_updated_inquiries'
-    ];
-    events.forEach(evt => window.dispatchEvent(new Event(evt)));
-  };
 
   // Listen to Firestore real-time changes
   const unsubscribe = onSnapshot(siteRef, (snap) => {
@@ -135,7 +159,7 @@ export function initSiteSync() {
       
       let changedCount = 0;
       CONFIG_KEYS.forEach(key => {
-        if (settings[key] !== undefined) {
+        if (settings[key] !== undefined && settings[key] !== null) {
           let value = settings[key];
           if (typeof value === 'string' && value.toLowerCase().includes('@dreamcatchers.com')) {
             value = value.replace(/@dreamcatchers\.com/gi, '@dreamcatchers.tv');
@@ -153,7 +177,9 @@ export function initSiteSync() {
         dispatchAllUpdateEvents();
       }
     } else {
-      console.log("[SiteSync] Firestore configs document not found yet. Pushing defaults if admin edits.");
+      console.log("[SiteSync] Firestore configs document not found yet. Seeding Firestore with canonical defaults...");
+      // Auto-populate Firestore if configs document is empty
+      pushLocalConfigsToFirestore();
     }
   }, (err) => {
     console.error("[SiteSync] Error listening Firestore configurations:", err);
